@@ -15,7 +15,7 @@ Anthropic.
 | Folder | What it is |
 |---|---|
 | `app/` | The free tools, the Marketing Studio included. Plain HTML, CSS and JavaScript, no build step; they work from `file://`. |
-| `marketing/` | The marketing foundation (how brands grow) and the Marketing Studio's playbooks. |
+| `marketing/` | The marketing foundation (proven brand growth science) and the Marketing Studio's playbooks. |
 | `olaf-demo/` | The website demo of Olaf, made by the private Olaf build. Screens and the example business only: no skill instructions, no AI. Don't edit. |
 | `olaf-fingerprints.json` | One-way hashes of Olaf's paid text, made by the private Olaf build. `build.py` refuses to publish anything that matches. |
 | `website/` | The public site. Some of it is generated (see below). |

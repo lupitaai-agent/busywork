@@ -43,7 +43,7 @@
     if (skillId) return renderSkill();
     main.innerHTML = `
       <div class="page-head" style="padding-bottom:10px">
-        <div><h1><span class="title-emo">📣</span> Marketing Studio</h1><p class="lead">Do your own marketing: plan it, make it, measure it. Built on how brands really grow.</p></div>
+        <div><h1><span class="title-emo">📣</span> Marketing Studio</h1><p class="lead">Do your own marketing: plan it, make it, measure it. Built on proven marketing science.</p></div>
         <div class="spacer"></div>
         <button class="btn" data-ai>${BW.ai.ready() ? '🤖 AI is on' : '🔌 Connect AI'}</button>
       </div>
@@ -160,6 +160,7 @@
           <div class="card"><b>✨ Your house rules for this skill</b><p class="faint" style="font-size:.82rem;margin:4px 0 8px">Added to every request. Tailor them to your brand.</p>
             <textarea class="in" data-rules placeholder="e.g. Always mention we fix bikes while you wait. Never use exclamation marks.">${esc(p.skillNotes[s.id] || '')}</textarea>
             <button type="button" class="btn" data-tailor style="margin-top:8px">✨ Tailor this skill to my brand</button></div>
+          <a class="card olaf-side" data-olaf href="../olaf/index.html"><b>🧭 Rather have this done for you?</b><small>Olaf runs this skill with you every week, remembers the results and keeps your plan up to date.</small></a>
           <div class="card"><small class="faint">Source: ${esc(s.source)}. Every answer follows the Studio's marketing foundation and your brand profile.</small></div>
         </aside>
       </div>`;
@@ -172,6 +173,8 @@
     $('[data-rules]', main).oninput = (e) => { p.skillNotes[s.id] = e.target.value; saveProfile(); };
     $('[data-tailor]', main).onclick = (e) => tailor(s, e.target);
     bindBubbles();
+    const os = $('.olaf-side', main);
+    if (os) BW.olafInstalled().then((ed) => { if (!ed) { os.href = BW.olafPage(); os.target = '_blank'; os.rel = 'noopener'; } });
   }
 
   function bubble(m, i) {
@@ -478,7 +481,7 @@
       <div class="lessons rise">${LESSONS.map(([e, t, x, d]) => `<div class="card lesson"><span class="e">${e}</span><h3>${t}</h3><p>${x}</p><div class="do">👉 ${d}</div></div>`).join('')}</div>
       <div class="row-flex" style="margin:24px 0 40px"><button class="btn btn-primary" data-full>📖 Read the full foundation</button><button class="btn" data-licences>📜 Skill sources and licences</button></div>`;
     $('[data-full]', v).onclick = () => BW.modal({ title: '📖 The marketing foundation', wide: true, body: `<div class="md">${md(L.foundationDoc)}</div>` });
-    $('[data-licences]', v).onclick = () => BW.modal({ title: '📜 Sources and licences', wide: true, body: '<p>The skill library\'s sources, licences and credits are in the <b>licenses</b> folder next to this tool (<code>apps/marketing/licenses</code>), including the full Apache 2.0 licence text. The marketing foundation is based on the work of the Ehrenberg-Bass Institute: How Brands Grow (Byron Sharp), How Brands Grow Part 2 (Jenni Romaniuk and Byron Sharp), Building Distinctive Brand Assets and Better Brand Health (Jenni Romaniuk).</p>' });
+    $('[data-licences]', v).onclick = () => BW.modal({ title: '📜 Sources and licences', wide: true, body: '<p>The skill library\'s sources, licences and credits are in the <b>licenses</b> folder next to this tool (<code>apps/marketing/licenses</code>), including the full Apache 2.0 licence text. The marketing foundation summarises published marketing science in our own words.</p>' });
   }
 
   // ---------- AI settings ----------

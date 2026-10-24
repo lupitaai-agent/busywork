@@ -14,7 +14,7 @@
   forecast; checklists on cards; insert-field menu; 12-month subscription timeline; frequent trips;
   stock history and barcode scanning.
 - Marketing Studio: the twelfth tool, an AI marketing team on the owner's own Claude key, built on
-  How Brands Grow (`marketing/FOUNDATION.md`) with 47 anonymized, upgraded and vetted skills.
+  proven brand growth science (`marketing/FOUNDATION.md`) with 47 anonymized, upgraded and vetted skills.
 - Website: a product page per tool (generated from `website/content/tools.json`), tools index,
   calculator, workflow and audience sections, footer sitemap, structured data, sitemap and robots.
 

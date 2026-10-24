@@ -4,7 +4,7 @@
     "name": "Invoices & Quotes",
     "emoji": "🧾",
     "color": "tomato",
-    "title": "Free invoice generator for small businesses and freelancers",
+    "title": "Free invoice generator for small businesses",
     "description": "Make professional invoices and quotes in a minute. VAT, numbering, PDF, scan-to-pay QR code, reminders and recurring invoices. Free, private, no account.",
     "h1": "Invoices that practically write themselves.",
     "lead": "Pick a client, type what you did, hit send. We do the maths, the numbering, the PDF and even the reminder email. Free, and your invoices never leave your computer.",
@@ -263,7 +263,7 @@
     "name": "Receipts & Expenses",
     "emoji": "📸",
     "color": "sun",
-    "title": "Free receipt and expense tracker with VAT for small businesses",
+    "title": "Free receipt and expense tracker with VAT",
     "description": "Snap or drop receipts and we file them in your folder, count the VAT you can claim back and make a spreadsheet for your accountant. Free and private.",
     "h1": "Snap the receipt. Done.",
     "lead": "Drop a photo or a PDF anywhere on the page. We file it, count the VAT you can claim back, and keep a list your accountant will love.",
@@ -347,8 +347,8 @@
     "name": "Money Dashboard",
     "emoji": "📈",
     "color": "grape",
-    "title": "Free finance dashboard for small businesses: profit, VAT and cash flow",
-    "description": "See what came in, what went out, your profit, VAT return overview, unpaid invoices by age and a 90-day cash-flow forecast. No spreadsheet needed. Free and private.",
+    "title": "Free money dashboard: profit, VAT and cash flow",
+    "description": "See profit, VAT to set aside and cash flow at a glance, from your own invoices and receipts. Free, private, no account.",
     "h1": "How’s business? Here’s the honest answer.",
     "lead": "Profit, VAT to pay, what to keep aside for income tax, who still owes you and what the next 90 days look like. All from the invoices and receipts you already have.",
     "features": [
@@ -936,8 +936,8 @@
     "name": "Marketing Studio",
     "emoji": "📣",
     "color": "pink",
-    "title": "Free do-it-yourself marketing for small businesses, built on how brands really grow",
-    "description": "A free do-it-yourself marketing studio for small businesses: 47 expert playbooks, a brand profile, a year plan and brand health tracking, all based on the science of how brands grow. Optional AI help with your own Claude key; your data stays with you.",
+    "title": "Free DIY marketing studio for small businesses",
+    "description": "Plan, make and measure your own marketing with 47 playbooks built on proven marketing science. Free, private, optional AI on your own Claude key.",
     "h1": "Do your own marketing, the way brands really grow.",
     "lead": "Plan, make and measure your marketing yourself, with 47 expert playbooks that all work from your brand profile and follow decades of research into how people really buy. Add your own Claude key for AI help. Free, and your data stays yours.",
     "features": [
@@ -1018,7 +1018,7 @@
       ],
       [
         "Which marketing approach does it use?",
-        "The evidence-based approach from marketing science on how brands grow: mental and physical availability, buying moments and distinctive brand assets."
+        "Proven brand growth science: mental and physical availability, buying moments and distinctive brand assets."
       ]
     ],
     "related": [

@@ -1,10 +1,9 @@
 # The marketing foundation
 
-*The base under every marketing activity in the Studio. Written in our own words from the
-evidence-based marketing science of the Ehrenberg-Bass Institute: Byron Sharp's How Brands Grow
-(2010), Jenni Romaniuk and Byron Sharp's How Brands Grow Part 2 (2016, revised 2021), and the
-Institute's wider research. The Studio rarely names these authors to users. It applies their
-findings, and explains them in plain words when a decision depends on them.*
+*The base under every marketing activity in Busywork and Olaf. Written in our own words from
+proven marketing science: decades of research into how people really buy and what makes brands
+grow, across hundreds of categories and many countries. We apply the findings and explain them in
+plain words when a decision depends on them.*
 
 ---
 
@@ -62,7 +61,7 @@ the positive talk; non-users more often the negative.
 
 ### 2.7 Most buyers are not in the market right now (the 95:5 idea)
 For most categories, only a small share of potential buyers is ready to buy at any moment. In
-business-to-business markets, research for LinkedIn's B2B Institute estimated it can be as little
+business-to-business markets, published B2B research estimated it can be as little
 as about 5% in a given quarter (the exact share depends on how often people buy). The other 95% will
 buy later. Marketing that only chases today's buyers misses the people who will buy next month,
 next season or next year.
@@ -72,7 +71,7 @@ people only hear of you while they are already buying, you are too late for most
 
 ---
 
-## 3. How brands grow
+## 3. What makes a brand grow
 
 ### 3.1 Growth comes mainly from more buyers (penetration)
 Brands that grow do so mostly by gaining buyers. Loyalty and frequency rise a little as a brand grows
@@ -130,7 +129,7 @@ Find CEPs by asking about the buying situation:
 Use the buyer's own words, not internal jargon. Prioritise CEPs that are common among category
 buyers and where competitors are not yet strongly linked.
 
-### 4.3 Measuring mental availability (simple versions of the Institute's metrics)
+### 4.3 Measuring mental availability (simple versions of the standard research metrics)
 Ask a sample of category buyers which brands they associate with each priority CEP (a list of
 brands, tick any that fit). Then:
 
@@ -258,23 +257,10 @@ crowd out being remembered by future buyers.
 
 ---
 
-## 11. Sources and further reading
+## 11. Where this comes from
 
-The Studio is built on these works. They are summarised here in our own words. Please buy the books.
-
-**Books**
-- Byron Sharp, *How Brands Grow: What Marketers Don't Know* (Oxford University Press, 2010).
-- Jenni Romaniuk & Byron Sharp, *How Brands Grow Part 2* (OUP, 2016; revised edition with a B2B
-  chapter, 2021).
-- Jenni Romaniuk, *Building Distinctive Brand Assets* (OUP, 2018).
-- Jenni Romaniuk, *Better Brand Health: Measures and Metrics for a How Brands Grow World* (OUP, 2023).
-
-**Publications and reports**
-- Ehrenberg-Bass Institute for Marketing Science, University of South Australia: research
-  publications and articles, marketingscience.info, including "Brands of Distinction" on the
-  fame × uniqueness grid.
-- John Dawes et al., papers for LinkedIn's B2B Institute (2021), including the 95:5 rule on
-  out-of-market buyers.
-- Jenni Romaniuk, work on category entry points, incl. B2B category entry points with the B2B Institute.
-- Coverage used while writing: Marketing Week (category entry points; Mark Ritson on Sharp and the
-  targeting debate), Bigeye's Better Brand Health podcast notes, OUP book pages.
+Everything above comes from published, peer-reviewed marketing science: decades of buying data
+analysed across hundreds of categories, from groceries to banking and B2B services, in many
+countries. The theories it rests on have names you can look up: double jeopardy, the duplication of
+purchase law, the NBD-Dirichlet model of repeat buying, mental and physical availability, category
+entry points and distinctive brand assets. We summarise them here in our own words.

@@ -128,6 +128,7 @@
       const r = b.getBoundingClientRect();
       BW.confetti({ x: r.left + r.width / 2, y: r.top });
       BW.toast(`Cha-ching! ${BW.money(total(i))} from ${esc(i.client ? i.client.name : 'your client')}`, '💰');
+      BW.olafNudge('Want more customers like this one? Olaf, your AI marketing expert, plans how to find them.');
       showList();
     });
     const s = $('[data-search]', main);
@@ -601,6 +602,7 @@
       const r = btn.getBoundingClientRect();
       BW.confetti({ x: r.left + r.width / 2, y: r.top });
       BW.toast(`Cha-ching! ${BW.money(total(cur), cur.currency)} in the bag`, '💰');
+      BW.olafNudge('Want more customers like this one? Olaf, your AI marketing expert, plans how to find them.');
     },
     async unpaid() { cur.status = 'sent'; delete cur.paidAt; if (cur.payments && cur.payments.length) cur.payments.pop(); await saveNow(); drawSide(); updateTotals(); drawPay(); },
     part() {

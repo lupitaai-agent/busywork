@@ -376,3 +376,14 @@ body.site { overflow-x: hidden; }
 .waitlist .wl-msg.err { color: var(--tomato); }
 .wl-hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
 @media (max-width: 640px) { .waitlist { grid-template-columns: 1fr; } }
+/* Olaf's colour on the website: grape, with the compass. */
+.btn-olaf { background: var(--grape); color: #fff; }
+.soon-card.now { text-decoration: none; color: inherit; background: color-mix(in srgb, var(--grape) 16%, var(--surface)); border-color: var(--border); }
+.soon-card.now .chip { transform: rotate(5deg); }
+.olaf-hero-mark { display: block; width: 96px; height: 96px; margin-bottom: 10px; filter: drop-shadow(0 6px 0 rgba(0,0,0,.08)); }
+.cmp.vs { max-width: 1040px; }
+.cmp.vs thead th:nth-child(2), .cmp.vs td:nth-child(2) { background: color-mix(in srgb, var(--grape) 14%, var(--surface)); font-weight: 750; color: var(--ink); }
+.cmp.vs thead th:last-child { background: color-mix(in srgb, var(--sun) 16%, var(--surface)); }
+.get-list { list-style: none; padding: 0; margin: 10px 0 4px; display: flex; flex-direction: column; gap: 6px; }
+.get-list li { padding-left: 26px; position: relative; color: var(--ink); font-weight: 650; }
+.get-list li::before { content: "✓"; position: absolute; left: 0; top: 0; width: 18px; height: 18px; border-radius: 50%; background: var(--grape); color: #fff; font-size: .7rem; font-weight: 900; display: grid; place-items: center; }

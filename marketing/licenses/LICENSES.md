@@ -62,7 +62,5 @@ customer-research, image-prompts, creative-check.
   report structures informed the creative check and plan formats.
 
 ## The marketing foundation
-Based on the work of the Ehrenberg-Bass Institute for Marketing Science, in particular Byron Sharp,
-*How Brands Grow* (2010), Jenni Romaniuk & Byron Sharp, *How Brands Grow Part 2* (2016/2021),
-Jenni Romaniuk, *Building Distinctive Brand Assets* (2018) and *Better Brand Health* (2023), and
-John Dawes' work for LinkedIn's B2B Institute. Summarised in our own words; no text reproduced.
+Summarised in our own words from published marketing science (see `marketing/FOUNDATION.md`,
+section 11). No text reproduced.

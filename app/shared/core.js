@@ -27,7 +27,6 @@
     { id: 'olaf', name: 'Olaf', emoji: '🧭', color: 'grape', ready: true, tagline: 'Your AI marketing expert: a plan, a weekly check-in, and the work done with you.', addon: true },
     { id: 'projects', name: 'Project Planner', emoji: '🧭', color: 'teal', ready: false, tagline: 'Timelines, milestones and a shared plan for your team.' },
     { id: 'team', name: 'Team Mode', emoji: '👥', color: 'mint', ready: false, tagline: 'Share one business folder with your team and see who did what.' },
-    { id: 'assistant', name: 'AI Helper', emoji: '🤖', color: 'grape', ready: false, tagline: 'Plug in your own Claude key and let it draft the boring bits.' },
   ];
 
   const DEFAULTS = {
@@ -527,7 +526,13 @@
     id: a.id, emoji: a.emoji, title: `Coming soon: ${a.name}`, text: a.tagline, color: a.color,
   })));
   BW.adSlot = (here) => {
-    const pool = BW.sponsors.length ? BW.sponsors.map((s) => Object.assign({ sponsored: true }, s)) : BW.houseAds().filter((h) => h.id !== here);
+    let pool = BW.sponsors.length ? BW.sponsors.map((s) => Object.assign({ sponsored: true }, s)) : BW.houseAds().filter((h) => h.id !== here);
+    const olaf = pool.find((h) => h.id === 'olaf');
+    if (olaf && !BW.sponsors.length) {
+      olaf.title = 'Want more customers? Meet Olaf'; olaf.text = 'Your AI marketing expert: a 90-day plan, a weekly check-in and the work done with you.'; olaf.cta = 'Meet Olaf';
+      if (BW.olafEdition !== 'full') { olaf.href = BW.olafEdition === 'demo' ? olaf.href : BW.olafPage(); olaf.external = BW.olafEdition !== 'demo'; }
+      pool = pool.concat([olaf, olaf, olaf]); // about one in four cards
+    }
     const ad = pool[Math.floor(Math.random() * pool.length)];
     if (!ad) return null;
     return BW.html(`<aside class="ad-band wrap" aria-label="${ad.sponsored ? 'Sponsored' : 'Tip'}">
@@ -1061,6 +1066,18 @@
   let olafCheck = null;
   BW.olafInstalled = () => olafCheck || (olafCheck = BW.loadScript(BW.root + 'apps/olaf/olaf-installed.js').then(() => BW.olafEdition || 'full', () => null));
   BW.olafPage = () => BW.siteUrl + '/olaf.html';
+  /* A gentle pointer to Olaf at a good moment (a paid invoice, a new client). At most once a week,
+     never when Olaf is already installed, never inside documents. */
+  BW.olafNudge = (msg) => {
+    const key = 'bw.olafNudgeAt';
+    let last = 0; try { last = Number(localStorage.getItem(key)) || 0; } catch (e) { /* private window */ }
+    if (Date.now() - last < 7 * 864e5) return;
+    BW.olafInstalled().then((ed) => {
+      if (ed === 'full') return;
+      try { localStorage.setItem(key, String(Date.now())); } catch (e) { /* ignore */ }
+      setTimeout(() => BW.toast(msg, '🧭', { label: 'Meet Olaf', run: () => window.open(ed === 'demo' ? BW.root + 'apps/olaf/index.html' : BW.olafPage(), '_blank', 'noopener') }), 1800);
+    });
+  };
   BW.loadScript = (src) => new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('Could not load ' + src)); document.body.append(s); });
 
   function topbar(app) {
@@ -1083,6 +1100,7 @@
   // Every page calls this once: draws the top bar, connects storage, runs first-time setup, then hands over.
   BW.boot = async ({ app: appId, onReady, onChange } = {}) => {
     BW.root = document.body.dataset.root || '';
+    BW.olafInstalled(); // early, so tip cards know whether Olaf is here
     const app = BW.apps.find((a) => a.id === appId);
     const bar = topbar(app);
     if (onChange) BW.onChange(onChange);

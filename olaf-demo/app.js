@@ -46,7 +46,7 @@
     if (session) return renderSession();
     main.innerHTML = `
       <div class="page-head" style="padding-bottom:10px">
-        <div><h1><span class="title-emo">🧭</span> Olaf <span class="chip chip-sun" style="vertical-align:middle;font-size:.75rem">Early access</span></h1>
+        <div><h1><img class="olaf-title-mark" src="../../shared/icons/olaf.svg" alt=""> Olaf <span class="chip chip-sun" style="vertical-align:middle;font-size:.75rem">Early access</span></h1>
           <p class="lead">Your AI marketing expert. It works out where you stand, plans your next 90 days, checks in every week and does the work with you.</p></div>
         <div class="spacer"></div>
         <button class="btn" data-ai>${BW.ai.ready() ? '🤖 AI is on' : '🔌 Connect AI'}</button>
