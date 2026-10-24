@@ -31,6 +31,10 @@ jobs:
         env:
           # A custom domain set in the Pages settings shows up here too.
           SITE_URL: ${{ steps.pages.outputs.base_url }}
+          # Optional, set under Settings → Secrets and variables → Actions → Variables.
+          WAITLIST_ENDPOINT: ${{ vars.WAITLIST_ENDPOINT }}
+          WAITLIST_PROVIDER: ${{ vars.WAITLIST_PROVIDER }}
+          OLAF_CHECKOUT_URL: ${{ vars.OLAF_CHECKOUT_URL }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: website

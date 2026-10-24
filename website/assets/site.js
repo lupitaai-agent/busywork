@@ -4,6 +4,23 @@
   const $ = (s, el) => (el || document).querySelector(s);
   const $$ = (s, el) => Array.from((el || document).querySelectorAll(s));
   const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // ---------- the Olaf waitlist ----------
+  // Posts to the form service set at build time (form action). Without one, it says so plainly.
+  $$('form[data-waitlist]').forEach((f) => f.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const msg = $('.wl-msg', f), btn = $('button[type=submit]', f);
+    if (!f.getAttribute('action')) { msg.textContent = 'The list is not connected yet. Please try again soon.'; msg.className = 'wl-msg err'; return; }
+    btn.disabled = true; msg.textContent = 'Sending…'; msg.className = 'wl-msg';
+    try {
+      const res = await fetch(f.action, { method: 'POST', body: new FormData(f), headers: { Accept: 'application/json' } });
+      if (!res.ok) throw new Error(String(res.status));
+      f.reset(); msg.textContent = "You're on the list. We'll email you when Olaf can be bought."; msg.className = 'wl-msg ok';
+    } catch (e) { msg.textContent = 'That did not go through. Check your email address and try again.'; msg.className = 'wl-msg err'; }
+    btn.disabled = false;
+  }));
+
+  // The detailed free-vs-Olaf comparison starts folded on phones (it is a wide table).
+  if (innerWidth <= 700) $$('details.cmp-details[open]').forEach((d) => d.removeAttribute('open'));
 
   // ---------- Google AdSense: the website only, never inside the tools ----------
   // Fill in after AdSense approves the domain. Until then the slots are removed (or show a

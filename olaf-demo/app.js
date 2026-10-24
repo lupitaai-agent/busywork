@@ -16,7 +16,7 @@
      and no AI. The paid download is the full Olaf. */
   const DEMO = LIB.edition === 'demo';
   const OLAF_PAGE = (BW.siteUrl || '') + '/olaf.html';
-  /* Licence keys, for when checkout exists. Off for now: early access is free. A check in the
+  /* Licence keys, for when checkout exists. Off until then. A check in the
      browser stops casual sharing of a bought copy, not a determined copier. */
   const LICENCE = {
     required: false,
@@ -197,10 +197,8 @@
             <p>Next check-in ${esc(j['Next check-in'] || 'when you are ready')}${j['Hours per week'] ? ' · planned around ' + esc(j['Hours per week']) + ' hours a week' : ''}</p></div>
           <div class="row-flex"><button class="btn btn-primary" data-go="weekly">${due ? '⏰ ' : ''}Weekly check-in</button><button class="btn" data-go="monthly">Monthly review</button><button class="btn" data-go="ask">Ask Olaf</button></div>
         </div>
-        <div class="grid-cards rise" style="margin-bottom:16px">
-          <div class="card pcard"><h3>📋 This week <small class="faint" style="font-weight:600">tick off what you did</small></h3>${j.week.length ? `<ul class="week">${j.week.map((w, i) => `<li class="${w.done ? 'done' : ''}" data-week="${i}" role="checkbox" aria-checked="${w.done}" tabindex="0">${esc(w.text)}</li>`).join('')}</ul>` : '<p>Nothing planned yet. Run a weekly check-in.</p>'}</div>
-          <div class="card pcard"><h3>🧭 Your journey</h3>${stageCards(j.stages)}</div>
-        </div>` : ''}
+        <div class="card pcard rise" style="margin-bottom:16px"><h3>🧭 Your journey</h3>${stageCards(j.stages)}</div>
+        <div class="card pcard rise" style="margin-bottom:16px"><h3>📋 This week <small class="faint" style="font-weight:600">tick off what you did</small></h3>${j.week.length ? `<ul class="week">${j.week.map((w, i) => `<li class="${w.done ? 'done' : ''}" data-week="${i}" role="checkbox" aria-checked="${w.done}" tabindex="0">${esc(w.text)}</li>`).join('')}</ul>` : '<p>Nothing planned yet. Run a weekly check-in.</p>'}</div>` : ''}
       <div class="dash rise">${BW.mktDash.planHtml(st.d, { planLink: '../marketing/index.html#tab/plan' })}${BW.mktDash.numbersHtml(st.d)}${BW.mktDash.workHtml(st.d)}</div>
       <div style="height:40px"></div>`;
     const k = $('[data-key]', v); if (k) k.onclick = settings;

@@ -4,6 +4,8 @@
 @property --active { syntax: '<color>'; inherits: true; initial-value: #FF6B4A; }
 
 html { scroll-behavior: smooth; }
+/* The tilted marquee bands are wider than the screen on purpose; clip them so phones cannot pan sideways. */
+html { overflow-x: clip; }
 body.site { overflow-x: hidden; }
 .progress { position: fixed; top: 0; left: 0; height: 5px; width: 100%; z-index: 60; transform-origin: left; transform: scaleX(0); background: linear-gradient(90deg, var(--tomato), var(--sun), var(--mint), var(--sky), var(--grape), var(--pink)); }
 
@@ -18,7 +20,7 @@ body.site { overflow-x: hidden; }
 
 /* ---------- hero ---------- */
 .hero { position: relative; min-height: calc(100vh - 72px); display: grid; place-items: center; text-align: center; padding: 40px 16px 90px; overflow: hidden; }
-.hero .blob { position: absolute; border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%; filter: blur(1px); opacity: .55; animation: morph 14s ease-in-out infinite; z-index: 0; }
+.hero .blob { position: absolute; border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%; filter: blur(1px); opacity: var(--blob-o, .55); animation: morph 14s ease-in-out infinite; z-index: 0; }
 @keyframes morph { 50% { border-radius: 58% 42% 35% 65% / 55% 62% 38% 45%; transform: translate(30px, -20px) rotate(20deg) scale(1.08); } }
 .hero-copy { position: relative; z-index: 2; max-width: 980px; }
 .hero h1 { font-size: clamp(2.8rem, 9vw, 7rem); line-height: .95; letter-spacing: -.045em; font-weight: 950; }
@@ -37,6 +39,7 @@ body.site { overflow-x: hidden; }
 }
 .sticker:hover { animation: wiggle .6s ease; }
 @media (max-width: 760px) { .sticker { width: 58px; height: 58px; font-size: 1.7rem; border-radius: 18px; } }
+@media (max-width: 720px) { .scroll-hint { display: none; } }
 .scroll-hint { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); font-weight: 800; color: var(--ink-3); animation: float 2s ease-in-out infinite; z-index: 2; }
 
 /* ---------- marquee ---------- */
@@ -63,9 +66,9 @@ body.site { overflow-x: hidden; }
 .scene { position: absolute; inset: 0; padding: 26px; display: grid; place-items: center; opacity: 0; transform: translateY(30px) scale(.94) rotate(-1deg); transition: opacity .45s, transform .6s cubic-bezier(.3, 1.4, .5, 1); pointer-events: none; }
 .scene.on { opacity: 1; transform: none; }
 .panels { padding: 6vh 0 20vh; }
-.panel { min-height: 72vh; display: flex; flex-direction: column; justify-content: center; opacity: .25; transform: translateX(30px); transition: opacity .5s, transform .6s cubic-bezier(.3, 1.4, .5, 1); }
+.panel { min-height: 58vh; display: flex; flex-direction: column; justify-content: center; opacity: .25; transform: translateX(30px); transition: opacity .5s, transform .6s cubic-bezier(.3, 1.4, .5, 1); }
 .panel.on { opacity: 1; transform: none; }
-@media (max-width: 900px) { .panel { min-height: 60vh; } }
+@media (max-width: 900px) { .panel { min-height: 46vh; } }
 .panel .em { font-size: 3rem; width: 84px; height: 84px; display: grid; place-items: center; background: var(--c); border: 3px solid var(--border); border-radius: 24px; box-shadow: 5px 5px 0 var(--shadow-c); margin-bottom: 18px; }
 .panel h3 { font-size: clamp(1.7rem, 3.5vw, 2.5rem); letter-spacing: -.03em; }
 .panel p { font-size: 1.15rem; color: var(--ink-2); margin: 10px 0 16px; max-width: 480px; }
@@ -174,7 +177,7 @@ body.site { overflow-x: hidden; }
 
 /* ---------- ad slots (AdSense on the website only) ---------- */
 .ad-slot { max-width: 970px; margin: 0 auto; padding: 20px 16px; text-align: center; }
-.ad-slot .lbl { font-size: .68rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 6px; }
+.ad-slot .lbl { font-size: .75rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 6px; }
 .ad-slot .placeholder { border: 2px dashed var(--ink-3); border-radius: 16px; padding: 30px; color: var(--ink-3); font-weight: 750; }
 
 /* ---------- simple pages ---------- */
@@ -350,3 +353,26 @@ body.site { overflow-x: hidden; }
 .get-olaf .e { font-size: 2.6rem; }
 .get-olaf p { color: var(--ink-2); margin-top: 8px; }
 @media (max-width: 640px) { .get-olaf { flex-direction: column; } }
+
+/* Dark mode: softer hero colours, so the headline stays the loudest thing. */
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .hero { --blob-o: .3; } }
+:root[data-theme="dark"] .hero { --blob-o: .3; }
+/* The detailed comparison folds away on phones; it is always open on wider screens. */
+.cmp-details > summary { display: none; }
+@media (max-width: 700px) {
+  .cmp-details > summary { display: block; cursor: pointer; text-align: center; font-weight: 800; margin: 26px auto 0; padding: 12px 18px; border: 2px solid var(--border); border-radius: 999px; background: var(--surface); box-shadow: var(--shadow-sm); width: max-content; max-width: 100%; }
+  .cmp-details[open] > summary { margin-bottom: 0; }
+}
+
+/* The Olaf waitlist */
+.waitlist { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 14px; margin-top: 14px; align-items: end; }
+.waitlist .wl-field { display: flex; flex-direction: column; gap: 4px; font-weight: 750; font-size: .92rem; }
+.waitlist .wl-field em { font-weight: 500; color: var(--ink-3); font-style: normal; }
+.waitlist .wl-check { grid-column: 1 / -1; display: flex; gap: 10px; align-items: flex-start; font-size: .92rem; color: var(--ink-2); }
+.waitlist .wl-check input { width: 20px; height: 20px; margin-top: 2px; flex-shrink: 0; accent-color: var(--grape); }
+.waitlist .btn, .waitlist .wl-msg, .waitlist small { grid-column: 1 / -1; justify-self: start; }
+.waitlist .wl-msg { margin: 0; font-weight: 750; min-height: 1.2em; }
+.waitlist .wl-msg.ok { color: var(--mint-ink, #1b8a5a); }
+.waitlist .wl-msg.err { color: var(--tomato); }
+.wl-hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+@media (max-width: 640px) { .waitlist { grid-template-columns: 1fr; } }

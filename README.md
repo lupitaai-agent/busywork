@@ -41,6 +41,27 @@ workflow runs it on every push.
    `website/`. The real address is passed to the build as `SITE_URL`, so canonical links and the
    sitemap are right. A custom domain set under Settings → Pages is picked up the same way.
 
+## Going live with your own domain
+
+1. **GitHub:** create the public repository `busywork`, push this folder to `main`, then
+   Settings → Pages → Source: **GitHub Actions**. The site is up at `https://<you>.github.io/busywork/`
+   after the first run.
+2. **Domain:** Settings → Pages → Custom domain → type your domain (for example `busywork.nl`) and save.
+   At your domain registrar, add DNS records:
+   - for `www`: a `CNAME` record pointing to `<you>.github.io`
+   - for the bare domain: four `A` records to `185.199.108.153`, `185.199.109.153`, `185.199.110.153`,
+     `185.199.111.153`
+
+   When GitHub shows the domain as verified, tick **Enforce HTTPS**. DNS can take a few hours. The
+   workflow passes the domain to the build, so links, the sitemap and the "Get Olaf" links use it.
+3. **Waitlist:** create a free form at formspree.io, copy its address (`https://formspree.io/f/…`), and
+   add it under Settings → Secrets and variables → Actions → Variables as `WAITLIST_ENDPOINT`. Run the
+   workflow again (Actions → Publish website → Run workflow). Sign-ups arrive by email and in Formspree.
+   Using another form service? Set `WAITLIST_PROVIDER` and update the waitlist paragraph in
+   `website/privacy.html`.
+4. **Before you share the link:** fill in the company details in `website/privacy.html` and
+   `website/terms.html`.
+
 ## Rules worth keeping
 
 - Never hand-edit generated files: `website/app/`, `website/tools/`, `website/downloads/`,

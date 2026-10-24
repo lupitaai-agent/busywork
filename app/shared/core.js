@@ -26,7 +26,7 @@
     { id: 'marketing', name: 'Marketing Studio', emoji: '📣', color: 'pink', ready: true, tagline: 'Do your own marketing, the way brands really grow.' },
     { id: 'olaf', name: 'Olaf', emoji: '🧭', color: 'grape', ready: true, tagline: 'Your AI marketing expert: a plan, a weekly check-in, and the work done with you.', addon: true },
     { id: 'projects', name: 'Project Planner', emoji: '🧭', color: 'teal', ready: false, tagline: 'Timelines, milestones and a shared plan for your team.' },
-    { id: 'payments', name: 'Get Paid Faster', emoji: '💳', color: 'mint', ready: false, tagline: 'Pay-now links and QR codes right on your invoices.' },
+    { id: 'team', name: 'Team Mode', emoji: '👥', color: 'mint', ready: false, tagline: 'Share one business folder with your team and see who did what.' },
     { id: 'assistant', name: 'AI Helper', emoji: '🤖', color: 'grape', ready: false, tagline: 'Plug in your own Claude key and let it draft the boring bits.' },
   ];
 

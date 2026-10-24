@@ -13,7 +13,7 @@
 .tl-bars { display: grid; grid-template-columns: repeat(12, 1fr); gap: 6px; height: 150px; align-items: end; margin-bottom: 8px; }
 .tl-m { height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 4px; min-width: 0; }
 .tl-b { width: 100%; max-width: 36px; background: var(--app); border: 1.5px solid var(--border); border-bottom: 0; border-radius: 4px 4px 0 0; transform-origin: bottom; animation: barUp .6s cubic-bezier(.2, 1.2, .4, 1) both; }
-.tl-v { font-size: .66rem; font-weight: 800; color: var(--ink-2); white-space: nowrap; }
-.tl-m small { font-size: .7rem; color: var(--ink-3); }
+.tl-v { font-size: .75rem; font-weight: 800; color: var(--ink-2); white-space: nowrap; }
+.tl-m small { font-size: .75rem; color: var(--ink-3); }
 @keyframes barUp { from { transform: scaleY(0); } }
 @media (max-width: 560px) { .tl-v { display: none; } }

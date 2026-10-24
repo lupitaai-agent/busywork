@@ -203,10 +203,29 @@ def scenes() -> dict:
     return {sid: block.replace('class="scene"', 'class="scene on"', 1) for block, sid in found}
 
 
-OLAF_PRICE = "€149 once, free during early access"
+OLAF_PRICE = "€149 once · checkout opens soon"
 # Where "Get Olaf" goes once a payment provider is set up (it delivers the paid download and the
-# licence key). Empty until then: the page explains early access instead.
+# licence key). Empty until then: the page shows the waitlist instead.
 OLAF_CHECKOUT_URL = os.environ.get("OLAF_CHECKOUT_URL", "")
+# The Olaf waitlist. The site has no server, so the form posts to a form service (Formspree or any
+# service that accepts a normal form POST and answers JSON). Set both in the GitHub repository:
+# Settings → Secrets and variables → Actions → Variables.
+WAITLIST_ENDPOINT = os.environ.get("WAITLIST_ENDPOINT", "")
+WAITLIST_PROVIDER = os.environ.get("WAITLIST_PROVIDER", "Formspree")
+
+
+def waitlist_form(where: str) -> str:
+    """The sign-up form for people who want to buy Olaf when checkout opens."""
+    return f"""<form class="waitlist" data-waitlist action="{e(WAITLIST_ENDPOINT)}" method="post" data-where="{e(where)}">
+          <label class="wl-field"><span>Your email</span><input class="in" type="email" name="email" required autocomplete="email" placeholder="you@yourbusiness.com"></label>
+          <label class="wl-field"><span>Your business <em>(optional)</em></span><input class="in" name="business" autocomplete="organization" placeholder="e.g. bike shop in Haarlem"></label>
+          <label class="wl-check"><input type="checkbox" name="consent" value="yes" required> <span>Email me when Olaf can be bought, at the early-access price. Nothing else, and I can unsubscribe any time.</span></label>
+          <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" class="wl-hp" aria-hidden="true">
+          <input type="hidden" name="source" value="{e(where)}">
+          <button class="btn btn-big btn-primary" type="submit">🧭 Put me on the list</button>
+          <p class="wl-msg" role="status" aria-live="polite"></p>
+          <small class="faint">We only use your email for this. How we handle it: <a href="privacy.html#waitlist">privacy</a>.</small>
+        </form>"""
 
 
 def paths_block(prefix: str) -> str:
@@ -242,11 +261,12 @@ def paths_block(prefix: str) -> str:
             <li><b>Remembers everything</b> and researches the web: your reviews, competitors, local press</li>
             <li><b>A monthly review</b> of new customers, straight from your Busywork invoices</li>
           </ul>
-          <p class="price"><b>€149</b> <small>once, plus your own Claude usage · free during early access</small></p>
-          <div class="row-flex"><a class="btn btn-big btn-primary" href="{prefix}olaf.html">🧭 Meet Olaf</a><a class="btn btn-big" href="{prefix}app/apps/olaf/index.html">Try the demo</a></div>
+          <p class="price"><b>€149</b> <small>once, plus your own Claude usage · checkout opens soon</small></p>
+          <div class="row-flex"><a class="btn btn-big btn-primary" href="{prefix}olaf.html#get">🧭 Get on the list</a><a class="btn btn-big" href="{prefix}olaf.html">Meet Olaf</a><a class="btn btn-big" href="{prefix}app/apps/olaf/index.html">Try the demo</a></div>
           <p class="fine">Already using the Studio? Olaf starts from your brand profile.</p>
         </article>
       </div>
+      <details class="cmp-details" open><summary>Compare the two in detail</summary>
       <div class="cmp reveal" role="region" aria-label="Free toolbox compared with Olaf" tabindex="0">
         <table>
           <thead><tr><th></th><th>Do it yourself</th><th>Guided by Olaf</th></tr></thead>
@@ -259,10 +279,11 @@ def paths_block(prefix: str) -> str:
             <tr><td>Remembers past work and results</td><td>Your brand profile</td><td>Profile, plans, journey and every output</td></tr>
             <tr><td>Reads your sales numbers</td><td>New customers on the Monitor tab</td><td>✓ Uses them in every monthly review</td></tr>
             <tr><td>Your data</td><td>Your folder, never sent to us</td><td>Your folder, never sent to us</td></tr>
-            <tr><td>Price</td><td>€0</td><td>{OLAF_PRICE}, plus Claude usage</td></tr>
+            <tr><td>Price</td><td>€0</td><td>€149 once, plus Claude usage</td></tr>
           </tbody>
         </table>
       </div>
+      </details>
     </div>
   </section>
 """
@@ -449,7 +470,7 @@ def olaf_page(tools: list) -> str:
              ("🌐", "Researches for you", "Searches the web for your reviews, competitors, local media and the numbers it needs."),
              ("📊", "Reviews the month", "Counts new customers from your Busywork invoices and adjusts the plan to what works.")]
     faq = [("Is Olaf a person?", "No. Olaf is an AI marketing expert running on Claude, Anthropic's AI. It follows proven marketing science, explains its reasoning in plain words, checks its writing, and never invents facts, reviews or numbers. You approve everything before it goes out."),
-           ("What does it cost?", "Olaf is €149 once, and free while it is in early access. On top of that you pay Anthropic directly for the AI you use, with your own Claude key. You see the cost of every conversation, and you set a monthly limit and a limit per conversation."),
+           ("What does it cost?", "Olaf is €149 once for your business; checkout opens soon, and the waitlist on this page gets the early-access price. On top of that you pay Anthropic directly for the AI you use, with your own Claude key. You see the cost of every conversation, and you set a monthly limit and a limit per conversation."),
            ("Do I need the Marketing Studio first?", "No. If you have filled in the Studio's brand profile, Olaf starts from it. If not, Olaf's onboarding asks the questions itself, one at a time."),
            ("Where is my data?", "In your own business folder, or in your browser if you have not picked one. Your Claude key stays in your browser and is only sent to Anthropic. Web pages are fetched by Anthropic's own tools, never through us. We have no server that sees your business."),
            ("Does Olaf post for me?", "No. Olaf writes and prepares; you post, send and publish. That keeps you in control of what goes out under your name."),
@@ -504,7 +525,7 @@ def olaf_page(tools: list) -> str:
       <span class="e">🧭</span>
       <div><h2>Get Olaf</h2>
         <p>Olaf is a one-time purchase: <b>€149</b> for your business, plus your own Claude usage. You get a download with Busywork and Olaf inside, and every update.</p>
-        {f'<a class="btn btn-big btn-primary" href="{e(OLAF_CHECKOUT_URL)}">Buy Olaf · €149</a>' if OLAF_CHECKOUT_URL else '<p><b>Early access.</b> Checkout opens soon. Until then, early users get Olaf free: write to us at [contact email] and we will send you the download.</p>'}
+        {f'<a class="btn btn-big btn-primary" href="{e(OLAF_CHECKOUT_URL)}">Buy Olaf · €149</a>' if OLAF_CHECKOUT_URL else '<p><b>Checkout opens soon.</b> Leave your email and you are first in line, at the early-access price.</p>' + waitlist_form("olaf-page")}
         <p class="faint" style="font-size:.88rem;margin-top:8px">The free Busywork download never contains Olaf. The demo shows an example business; Olaf's work and the AI run only in the paid version.</p></div>
     </div>
   </div></section>

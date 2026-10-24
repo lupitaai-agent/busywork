@@ -116,6 +116,8 @@ small, .muted { color: var(--ink-2); }
 .topbar .crumb .app-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--ink); }
 .store-chip { max-width: 220px; }
 .store-chip span.lbl { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* The top bar sheds its labels in two steps, so it fits from phones up to small laptops. */
+@media (max-width: 1020px) { .store-chip .lbl, .topbar .settings-btn .lbl { display: none; } }
 @media (max-width: 720px) {
   .brandmark .word, .topbar .crumb .slash, .store-chip .lbl, .topbar .settings-btn .lbl { display: none; }
 }
@@ -370,7 +372,7 @@ select.in { appearance: none; background-image: linear-gradient(45deg, transpare
 .ad-card:hover .ad-emo { transform: rotate(-12deg) scale(1.15); }
 .ad-card .ad-copy { flex: 1; min-width: 0; }
 .ad-card .ad-copy b, .ad-card .ad-copy small { display: block; }
-.ad-tag { position: absolute; top: 6px; right: 12px; font-size: .66rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+.ad-tag { position: absolute; top: 6px; right: 12px; font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
 @media (max-width: 560px) { .ad-card { flex-wrap: wrap; } }
 .save-state { font-size: .82rem; color: var(--ink-3); font-weight: 700; }
 .in[readonly] { background: var(--surface-2); }
@@ -391,7 +393,7 @@ select.in { appearance: none; background-image: linear-gradient(45deg, transpare
 .pal-in { display: flex; gap: 12px; align-items: center; padding: 14px 18px; border-bottom: 2px solid var(--hair); font-size: 1.1rem; }
 .pal-in input { flex: 1; font: inherit; font-size: 1.1rem; border: 0; background: transparent; color: var(--ink); outline: none; }
 .pal-list { overflow: auto; padding: 6px; }
-.pal-group { font-size: .7rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); padding: 10px 12px 4px; }
+.pal-group { font-size: .75rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); padding: 10px 12px 4px; }
 .pal-item { display: flex; gap: 12px; align-items: center; padding: 9px 12px; border-radius: 12px; cursor: pointer; }
 .pal-item[aria-selected="true"] { background: var(--app-soft); box-shadow: inset 0 0 0 2px var(--app); }
 .pal-item .e { font-size: 1.2rem; width: 28px; text-align: center; }
