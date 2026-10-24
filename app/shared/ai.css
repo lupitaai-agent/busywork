@@ -106,3 +106,12 @@
 .chip-btn.ps-draft { background: color-mix(in srgb, var(--sky) 35%, var(--surface)); }
 .chip-btn.ps-ready { background: color-mix(in srgb, var(--sun) 45%, var(--surface)); }
 .chip-btn.ps-posted { background: color-mix(in srgb, var(--mint) 55%, var(--surface)); }
+/* Post it (mkt-content.js) */
+.postit { display: grid; grid-template-columns: minmax(0, 1fr) 220px; gap: 18px; align-items: start; }
+@media (max-width: 640px) { .postit { grid-template-columns: 1fr; } }
+.postit-opts { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.postit-qr { display: flex; flex-direction: column; gap: 6px; align-items: center; text-align: center; }
+.postit-qr small { color: var(--ink-2); font-size: .8rem; }
+.qr-box { background: #fff; padding: 8px; border-radius: 10px; border: 2px solid var(--border); }
+.qr-box svg { width: 190px; height: 190px; display: block; }
+.postit > p { grid-column: 1 / -1; margin: 0; }

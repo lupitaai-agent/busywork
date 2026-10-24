@@ -55,8 +55,12 @@ bank or from Mollie/Stripe. That needs a server or a bank connection, so it is a
 - Survey helper: generate a ready Google Form from the brand-health questions.
 - Insights next: compare months side by side, a printable monthly report, more CSV formats
   tested against real exports (Google Business Profile, Search Console, Meta, Mailchimp).
-- Content language: posts follow the business's language (a Dutch shop gets Dutch posts); make it
-  a setting once the multilingual work starts.
+- Content language: posts always follow the business's language (decided 2026-10-24).
+- Posting: copy and open the platform, a QR code to the phone (posts up to ~330 bytes; longer ones by
+  email), calendar reminders (.ics) and a CSV export. Posting directly needs the platforms' logins on
+  a server: a possible paid extra later.
+- Olaf is a separate private repository (`busywork-olaf`); this repo holds only its demo and the
+  fingerprints for the leak check. Checkout: set `OLAF_CHECKOUT_URL` and switch on `LICENCE.required`.
 - Example data for the Studio and Olaf (a pretend brand profile, plan and journey) for demos.
 - Have the Apache-2.0 credits in `marketing/licenses/` checked before launch.
 
