@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Client Book · Busywork</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='88'>📇</text></svg>">
+<link rel="stylesheet" href="../../shared/brand.css">
+<style>
+  .toolbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 22px; }
+  .toolbar .search { flex: 1; min-width: 220px; max-width: 420px; }
+  .cgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 18px; padding-bottom: 60px; }
+  .ccard { padding: 18px; cursor: pointer; text-align: left; font: inherit; color: inherit; display: flex; flex-direction: column; gap: 12px;
+    transition: transform .2s cubic-bezier(.3, 1.5, .5, 1), box-shadow .2s; }
+  .ccard:hover { transform: translate(-3px, -3px) rotate(-.5deg); box-shadow: 7px 7px 0 var(--shadow-c); }
+  .ccard:hover .avatar { transform: rotate(-8deg) scale(1.08); }
+  .ccard .avatar { transition: transform .3s cubic-bezier(.3, 1.6, .5, 1); }
+  .ccard .top { display: flex; gap: 12px; align-items: center; min-width: 0; }
+  .ccard .top b { display: block; font-size: 1.05rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ccard .top small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ccard .meta { display: flex; gap: 8px; flex-wrap: wrap; font-size: .82rem; }
+  .ccard .meta span { background: var(--surface-2); border: 1.5px solid var(--hair); border-radius: 99px; padding: 2px 9px; color: var(--ink-2); font-weight: 650; }
+  .ccard.add { border-style: dashed; box-shadow: none; align-items: center; justify-content: center; min-height: 140px; color: var(--ink-2); background: transparent; }
+  .ccard.add:hover { background: var(--app-soft); box-shadow: none; }
+  .ccard.add .plus { font-size: 2rem; }
+
+  .client-hero { display: flex; gap: 14px; align-items: center; margin-bottom: 18px; }
+  .client-hero .avatar { width: 62px; height: 62px; font-size: 1.4rem; border-radius: 18px; }
+  .save-state { font-size: .82rem; color: var(--ink-3); font-weight: 700; }
+  .history { display: flex; flex-direction: column; gap: 8px; }
+  .history a { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border: 2px solid var(--hair); border-radius: var(--r-sm); text-decoration: none; }
+  .history a:hover { border-color: var(--border); }
+  .history .amt { margin-left: auto; font-weight: 800; }
+  .totals-strip { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 18px 0; }
+  .totals-strip div { padding: 12px 14px; border-radius: var(--r-sm); background: var(--surface-2); border: 2px solid var(--hair); }
+  .totals-strip b { display: block; font-size: 1.25rem; }
+
+  .map-grid { display: grid; grid-template-columns: 1fr 1.3fr; gap: 10px 14px; align-items: center; }
+  .map-grid .lbl { font-weight: 750; }
+  .preview-table { width: 100%; border-collapse: collapse; font-size: .85rem; margin-top: 10px; }
+  .preview-table th, .preview-table td { text-align: left; padding: 6px 8px; border-bottom: 1.5px solid var(--hair); white-space: nowrap; max-width: 160px; overflow: hidden; text-overflow: ellipsis; }
+  .table-scroll { overflow-x: auto; }
+</style>
+</head>
+<body class="app-sky" data-root="../../">
+<main class="wrap" id="main"></main>
+<noscript><p class="wrap">This tool needs JavaScript switched on.</p></noscript>
+<script src="../../shared/core.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

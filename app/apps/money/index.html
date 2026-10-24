@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Money Dashboard · Busywork</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='88'>📈</text></svg>">
+<link rel="stylesheet" href="../../shared/brand.css">
+<style>
+  .filters { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
+  .stat .break { margin-top: 8px; font-size: .8rem; color: var(--ink-2); display: flex; flex-direction: column; gap: 2px; }
+  .stat .break span { display: flex; justify-content: space-between; gap: 10px; }
+  .pig { --tint: var(--pink); }
+  .chart-card { padding: 20px 22px 16px; margin-bottom: 24px; position: relative; }
+  .chart-head { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+  .chart-head h2 { flex: 1; }
+  .legend { display: flex; gap: 16px; font-size: .85rem; color: var(--ink-2); font-weight: 700; }
+  .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; border: 1.5px solid var(--border); margin-right: 6px; vertical-align: -1px; }
+  .chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .chart .grid line { stroke: var(--hair); stroke-width: 1; }
+  .chart .axis text { fill: var(--ink-3); font: 600 11px var(--font); }
+  .chart .bar { stroke: var(--border); stroke-width: 1.5; transform-box: fill-box; transform-origin: bottom; animation: barUp .7s cubic-bezier(.2, 1.2, .4, 1) both; }
+  @keyframes barUp { from { transform: scaleY(0); } }
+  .chart .hit { fill: transparent; cursor: crosshair; }
+  .chart .hit:hover, .chart .hit.on { fill: color-mix(in srgb, var(--ink) 6%, transparent); }
+  .tip { position: absolute; pointer-events: none; z-index: 5; background: var(--surface); border: 2px solid var(--border); border-radius: 12px; box-shadow: var(--shadow-sm); padding: 9px 12px; font-size: .85rem; min-width: 170px; }
+  .tip b { display: block; margin-bottom: 4px; }
+  .tip span { display: flex; justify-content: space-between; gap: 14px; }
+  .tip i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; border: 1.5px solid var(--border); }
+  .data-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  .data-table th, .data-table td { padding: 7px 10px; text-align: right; border-bottom: 1.5px solid var(--hair); }
+  .data-table th:first-child, .data-table td:first-child { text-align: left; }
+  .lower { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; padding-bottom: 40px; }
+  @media (max-width: 860px) { .lower { grid-template-columns: 1fr; } }
+  .lower .card { padding: 20px 22px; }
+  .lower h3 { margin-bottom: 14px; }
+  .client-bar { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; margin-bottom: 12px; font-size: .92rem; }
+  .client-bar .track { grid-column: 1 / -1; height: 12px; }
+  .client-bar .fill { height: 12px; border-radius: 0 4px 4px 0; background: var(--series-in); border: 1.5px solid var(--border); border-left: 0; transform-origin: left; animation: grow .7s cubic-bezier(.2, 1.2, .4, 1) both; }
+  @keyframes grow { from { transform: scaleX(0); } }
+  .ageing { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .ageing div { padding: 12px 14px; border: 2px solid var(--border); border-radius: var(--r-sm); background: color-mix(in srgb, var(--c) 16%, var(--surface)); }
+  .ageing small { display: block; color: var(--ink-2); font-weight: 750; }
+  .ageing b { font-size: 1.3rem; font-variant-numeric: tabular-nums; }
+  .vat td:nth-child(3), .vat td:nth-child(4), .vat th:nth-child(3), .vat th:nth-child(4) { text-align: right; }
+  .vat td:nth-child(2) { text-align: left; }
+  .vat .sum td { border-bottom: 0; padding-top: 12px; }
+  .forecast { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  @media (max-width: 640px) { .forecast { grid-template-columns: 1fr; } }
+  .forecast div { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border-radius: var(--r-sm); background: var(--surface-2); border: 2px solid var(--hair); font-variant-numeric: tabular-nums; }
+  .forecast small { font-weight: 800; color: var(--ink-2); }
+  .forecast .in, .forecast .out { font-size: .9rem; color: var(--ink-2); }
+  .forecast b { font-size: 1.4rem; }
+  .forecast b.neg { color: var(--tomato); }
+  .lower + .lower { margin-top: -18px; }
+</style>
+</head>
+<body class="app-grape" data-root="../../">
+<main class="wrap" id="main"></main>
+<noscript><p class="wrap">This tool needs JavaScript switched on.</p></noscript>
+<script src="../../shared/core.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

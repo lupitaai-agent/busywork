@@ -1,0 +1,19 @@
+.sub-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; padding-bottom: 30px; }
+.sub { padding: 16px 18px; cursor: pointer; text-align: left; font: inherit; color: inherit; display: flex; flex-direction: column; gap: 10px; transition: transform .2s cubic-bezier(.3, 1.5, .5, 1), box-shadow .2s; }
+.sub:hover { transform: translate(-3px, -3px) rotate(.5deg); box-shadow: 7px 7px 0 var(--shadow-c); }
+.sub .top { display: flex; gap: 12px; align-items: center; }
+.sub .top b { display: block; font-size: 1.05rem; }
+.sub .price { font-size: 1.5rem; font-weight: 900; letter-spacing: -.02em; }
+.sub .price small { font-size: .85rem; font-weight: 700; }
+.sub.off { opacity: .55; box-shadow: none; border-style: dashed; }
+.soon { animation: wiggle 1.2s ease 1; }
+.coffee { font-size: .9rem; color: var(--ink-2); margin: -12px 0 24px; }
+.tl { padding: 18px 20px; margin-bottom: 22px; }
+.tl h3 { margin-bottom: 12px; }
+.tl-bars { display: grid; grid-template-columns: repeat(12, 1fr); gap: 6px; height: 150px; align-items: end; margin-bottom: 8px; }
+.tl-m { height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 4px; min-width: 0; }
+.tl-b { width: 100%; max-width: 36px; background: var(--app); border: 1.5px solid var(--border); border-bottom: 0; border-radius: 4px 4px 0 0; transform-origin: bottom; animation: barUp .6s cubic-bezier(.2, 1.2, .4, 1) both; }
+.tl-v { font-size: .66rem; font-weight: 800; color: var(--ink-2); white-space: nowrap; }
+.tl-m small { font-size: .7rem; color: var(--ink-3); }
+@keyframes barUp { from { transform: scaleY(0); } }
+@media (max-width: 560px) { .tl-v { display: none; } }

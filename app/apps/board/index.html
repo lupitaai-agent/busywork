@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project Board · Busywork</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='88'>🗂️</text></svg>">
+<link rel="stylesheet" href="../../shared/brand.css">
+<style>
+  .projects { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 20px; }
+  .projects .p { font: inherit; font-weight: 800; cursor: pointer; padding: 8px 14px; border-radius: 999px; border: 2px solid var(--border); background: var(--surface); color: var(--ink); display: inline-flex; gap: 6px; align-items: center; }
+  .projects .p[aria-pressed="true"] { background: var(--pc, var(--app)); color: var(--on-app); box-shadow: var(--shadow-sm); }
+  .projects .p .n { font-size: .75rem; opacity: .7; }
+  .board { display: grid; grid-template-columns: repeat(4, minmax(250px, 1fr)); gap: 16px; overflow-x: auto; padding: 4px 4px 40px; align-items: start; }
+  .col { background: color-mix(in srgb, var(--cc) 14%, var(--surface)); border: 2px solid var(--border); border-radius: var(--r); padding: 12px; min-height: 220px; transition: background .2s, transform .2s; }
+  .col.over { background: color-mix(in srgb, var(--cc) 32%, var(--surface)); transform: scale(1.01); }
+  .col-h { display: flex; justify-content: space-between; align-items: center; font-weight: 850; margin: 2px 4px 12px; }
+  .col-h .count { font-size: .8rem; background: var(--surface); border: 1.5px solid var(--border); border-radius: 99px; padding: 0 8px; }
+  .cards { display: flex; flex-direction: column; gap: 10px; min-height: 40px; }
+  .tcard { background: var(--surface); border: 2px solid var(--border); border-radius: 14px; padding: 11px 13px; cursor: grab; box-shadow: var(--shadow-sm); transition: transform .18s cubic-bezier(.3, 1.5, .5, 1), box-shadow .18s; animation: pop .3s cubic-bezier(.3, 1.5, .5, 1); }
+  .tcard:hover { transform: translate(-2px, -2px) rotate(-.8deg); box-shadow: 4px 4px 0 var(--shadow-c); }
+  .tcard.dragging { opacity: .4; transform: rotate(3deg); }
+  .tcard b { display: block; font-size: .95rem; line-height: 1.35; }
+  .tcard .meta { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; font-size: .75rem; }
+  .tcard .meta span { border: 1.5px solid var(--hair); border-radius: 99px; padding: 1px 8px; font-weight: 700; color: var(--ink-2); }
+  .tcard .meta .late { background: var(--tomato); color: var(--on-app); border-color: var(--border); }
+  .tcard .meta .all { background: var(--mint); color: var(--on-app); border-color: var(--border); }
+  .checklist-edit { display: flex; flex-direction: column; gap: 4px; }
+  .checklist-edit label { display: flex; gap: 10px; align-items: center; padding: 6px 8px; border-radius: 10px; border: 1.5px solid var(--hair); }
+  .checklist-edit label span { flex: 1; }
+  .checklist-edit input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--app); }
+  .checklist-edit input:checked + span { text-decoration: line-through; color: var(--ink-3); }
+  .tcard.done b { text-decoration: line-through; text-decoration-thickness: 2px; color: var(--ink-2); }
+  .drop-line { height: 4px; border-radius: 4px; background: var(--ink); margin: -3px 0; }
+  .add-card { margin-top: 10px; }
+  .add-card input { width: 100%; font: inherit; padding: 9px 12px; border-radius: 12px; border: 2px dashed var(--ink-3); background: transparent; color: var(--ink); }
+  .add-card input:focus { outline: none; border-style: solid; border-color: var(--border); background: var(--surface); }
+</style>
+</head>
+<body class="app-teal" data-root="../../">
+<main class="wrap" id="main"></main>
+<noscript><p class="wrap">This tool needs JavaScript switched on.</p></noscript>
+<script src="../../shared/core.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

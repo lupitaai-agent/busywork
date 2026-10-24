@@ -1,0 +1,18 @@
+.toolbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
+.toolbar .search { flex: 1; min-width: 200px; max-width: 360px; margin-left: auto; }
+.items { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; padding-bottom: 30px; }
+.item { padding: 16px; display: flex; flex-direction: column; gap: 10px; position: relative; }
+.item .name { cursor: pointer; display: flex; gap: 10px; align-items: center; min-width: 0; }
+.item .name b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.item .emo { font-size: 1.8rem; width: 48px; height: 48px; display: grid; place-items: center; border: 2px solid var(--border); border-radius: 14px; background: var(--app-soft); flex: none; }
+.qty { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.qty .n { font-size: 2rem; font-weight: 900; font-variant-numeric: tabular-nums; min-width: 3ch; text-align: center; }
+.qty .n.bump { animation: bump .35s cubic-bezier(.3, 1.8, .5, 1); }
+@keyframes bump { 50% { transform: scale(1.35); } }
+.qty button { width: 44px; height: 44px; border-radius: 50%; font-size: 1.3rem; font-weight: 900; padding: 0; }
+.item.low { border-color: var(--tomato); }
+.item .flag { position: absolute; top: -11px; right: 12px; transform: rotate(4deg); }
+.item .meta { font-size: .8rem; color: var(--ink-2); display: flex; justify-content: space-between; }
+.moves { display: flex; flex-direction: column; gap: 4px; font-size: .88rem; }
+.moves div { display: grid; grid-template-columns: 70px 1fr auto 50px; gap: 10px; padding: 6px 8px; border-radius: 8px; background: var(--surface-2); }
+.moves .neg { color: var(--tomato); } .moves .pos { color: #138a5a; }

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Receipts &amp; Expenses · Busywork</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='88'>📸</text></svg>">
+<link rel="stylesheet" href="../../shared/brand.css">
+<style>
+  .period { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
+  .two { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 24px; align-items: start; padding-bottom: 50px; }
+  @media (max-width: 900px) { .two { grid-template-columns: 1fr; } }
+  .cats { padding: 18px 20px; }
+  .cats h3 { margin-bottom: 14px; }
+  .bar-row { display: grid; grid-template-columns: 120px 1fr auto; gap: 10px; align-items: center; margin-bottom: 10px; font-size: .9rem; }
+  .bar-track { height: 16px; }
+  .bar { height: 16px; min-width: 4px; border-radius: 0 4px 4px 0; background: var(--app); border: 1.5px solid var(--border); border-left: 0; transform-origin: left; animation: grow .7s cubic-bezier(.2, 1.2, .4, 1) both; }
+  @keyframes grow { from { transform: scaleX(0); } }
+  .bar-row .val { font-weight: 800; font-variant-numeric: tabular-nums; }
+  .month-h { margin: 22px 0 10px; font-weight: 850; display: flex; justify-content: space-between; }
+  .thumb { width: 44px; height: 44px; border-radius: 12px; border: 2px solid var(--border); display: grid; place-items: center; font-size: 1.3rem; flex: none; background: var(--app-soft); }
+  .drop-all { position: fixed; inset: 0; z-index: 80; display: none; place-items: center; background: color-mix(in srgb, var(--sun) 45%, transparent); backdrop-filter: blur(3px); font-size: 2rem; font-weight: 900; }
+  .drop-all.on { display: grid; }
+  .drop-all span { padding: 30px 40px; border: 4px dashed var(--border); border-radius: 30px; background: var(--surface); animation: float 1.6s ease-in-out infinite; }
+  .receipt-preview { margin-bottom: 18px; }
+  .receipt-preview img { max-width: 100%; max-height: 320px; border-radius: 12px; border: 2px solid var(--border); display: block; }
+  .bill-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-bottom: 26px; }
+  .bill { padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
+  .vat-note { font-size: .85rem; color: var(--ink-2); margin-top: 8px; }
+</style>
+</head>
+<body class="app-sun" data-root="../../">
+<main class="wrap" id="main"></main>
+<div class="drop-all" data-dropall><span>📸 Drop it! We'll file it.</span></div>
+<input type="file" accept="image/*,application/pdf" hidden data-snap capture="environment">
+<noscript><p class="wrap">This tool needs JavaScript switched on.</p></noscript>
+<script src="../../shared/core.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

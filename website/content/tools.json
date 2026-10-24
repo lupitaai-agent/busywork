@@ -1,0 +1,1031 @@
+[
+  {
+    "id": "invoices",
+    "name": "Invoices & Quotes",
+    "emoji": "🧾",
+    "color": "tomato",
+    "title": "Free invoice generator for small businesses and freelancers",
+    "description": "Make professional invoices and quotes in a minute. VAT, numbering, PDF, scan-to-pay QR code, reminders and recurring invoices. Free, private, no account.",
+    "h1": "Invoices that practically write themselves.",
+    "lead": "Pick a client, type what you did, hit send. We do the maths, the numbering, the PDF and even the reminder email. Free, and your invoices never leave your computer.",
+    "features": [
+      [
+        "✍️",
+        "Type right on the invoice",
+        "No forms. Click anything on the paper and change it. What you see is the PDF you send."
+      ],
+      [
+        "📱",
+        "Scan-to-pay QR code",
+        "Every euro invoice gets a SEPA QR code. Clients scan it with their banking app and the amount and reference are filled in."
+      ],
+      [
+        "🔁",
+        "Recurring invoices",
+        "Retainers and monthly work make their own drafts, every week, month, quarter or year."
+      ],
+      [
+        "⏰",
+        "Reminders in three tones",
+        "Friendly, firm or final. The email is written for you, with the days overdue and the amount still open."
+      ],
+      [
+        "🌗",
+        "Deposits and part payments",
+        "Record what came in. The invoice shows what’s still to pay."
+      ],
+      [
+        "📚",
+        "Your products and services",
+        "Save a line once, then type two letters to add it to any invoice."
+      ]
+    ],
+    "steps": [
+      [
+        "Pick who it’s for",
+        "Choose a client from your Client Book, or add one on the spot."
+      ],
+      [
+        "Add what you did",
+        "Lines, quantities and prices. VAT, discounts and totals update as you type."
+      ],
+      [
+        "Send it and get paid",
+        "Save the PDF to your folder and open Gmail, Outlook or your mail app with the email ready."
+      ]
+    ],
+    "checklistTitle": "What a proper invoice includes",
+    "checklist": [
+      "Your business name, address and VAT number",
+      "Your client’s name and address",
+      "A unique invoice number that counts up",
+      "The invoice date and the due date",
+      "What you delivered, with quantities and prices",
+      "VAT per rate, and the total",
+      "How to pay: IBAN, reference, or a pay-now link"
+    ],
+    "faq": [
+      [
+        "Is the invoice generator really free?",
+        "Yes. No trial, no limits on the number of invoices, no account."
+      ],
+      [
+        "Do the invoices meet EU rules?",
+        "They include what EU invoices need, including sequential numbers, VAT per rate, both parties’ details and reverse-charge wording for EU business clients. Check special cases with your accountant."
+      ],
+      [
+        "Can I make credit notes?",
+        "Yes. One click turns an invoice into a credit note with its own number, ready to adjust."
+      ],
+      [
+        "Can I invoice in Dutch?",
+        "Yes. Choose English or Dutch per business, or per client."
+      ]
+    ],
+    "related": [
+      "time",
+      "clients",
+      "money"
+    ],
+    "replaces": "an invoicing subscription"
+  },
+  {
+    "id": "clients",
+    "name": "Client Book",
+    "emoji": "📇",
+    "color": "sky",
+    "title": "Free client list and simple CRM for freelancers",
+    "description": "Keep every client in one friendly place: contact details, payment terms, rates, notes and invoice history. Import from Excel or Google Sheets. Free and private.",
+    "h1": "Everyone you work with, in one friendly place.",
+    "lead": "A simple CRM without the CRM. Contact details, what they’ve paid, what’s still open, and the little things worth remembering.",
+    "features": [
+      [
+        "⬆️",
+        "Import your list",
+        "Drop in a CSV from Excel or Google Sheets. Column names, even Dutch ones, are matched for you."
+      ],
+      [
+        "💶",
+        "Money at a glance",
+        "See what each client has paid you and what’s still open."
+      ],
+      [
+        "⚙️",
+        "Per-client terms",
+        "Payment terms, hourly rate and invoice language per client. Every tool uses them."
+      ],
+      [
+        "🗂️",
+        "Full history",
+        "Every invoice and quote for a client, one click away."
+      ],
+      [
+        "🔍",
+        "Find anyone fast",
+        "Search by name, email or city, or press ⌘K anywhere."
+      ],
+      [
+        "⬇️",
+        "Your data, your way",
+        "Export to a spreadsheet whenever you like."
+      ]
+    ],
+    "steps": [
+      [
+        "Add or import",
+        "Type a client in, or import the list you already have."
+      ],
+      [
+        "Set their terms",
+        "Payment days, rate and language, once."
+      ],
+      [
+        "Work with them",
+        "Start invoices, quotes, documents and timers from their card."
+      ]
+    ],
+    "checklistTitle": "What to keep for each client",
+    "checklist": [
+      "Company name and contact person",
+      "Email and phone",
+      "Billing address and VAT number",
+      "Payment terms you agreed",
+      "Your rate for them",
+      "Notes: how they found you, what they like"
+    ],
+    "faq": [
+      [
+        "Is there a limit on clients?",
+        "No. Add as many as you like."
+      ],
+      [
+        "Can my team share the client list?",
+        "Put your business folder in Google Drive, Dropbox or OneDrive and everyone with access sees the same list."
+      ],
+      [
+        "Can I import from another CRM?",
+        "Export a CSV from it and import it here. Columns are matched automatically and you can fix any that are off."
+      ]
+    ],
+    "related": [
+      "invoices",
+      "docs",
+      "time"
+    ],
+    "replaces": "a CRM subscription"
+  },
+  {
+    "id": "time",
+    "name": "Time Tracker",
+    "emoji": "⏱️",
+    "color": "mint",
+    "title": "Free time tracker with invoicing for freelancers",
+    "description": "Track hours with one button and turn them into an invoice in one click. Billable rates per client, rounding, a weekly timesheet. Free and private.",
+    "h1": "Tap start. Do the work. Bill the hours.",
+    "lead": "One big button, a week view, and a ‘make the invoice’ button that does exactly that. Your client’s rate and your rounding rules are applied for you.",
+    "features": [
+      [
+        "▶️",
+        "One-button timer",
+        "Start and stop with a click or the S key. The timer also shows in your browser tab."
+      ],
+      [
+        "🧾",
+        "Hours become an invoice",
+        "Unbilled hours per client turn into a draft invoice, one line per session."
+      ],
+      [
+        "🗓️",
+        "Week view",
+        "A timesheet of the week by client and day, like the big-name trackers."
+      ],
+      [
+        "⏲️",
+        "Rounding",
+        "Round billed time up to 6 or 15 minutes. What you logged stays exact."
+      ],
+      [
+        "💶",
+        "Billable or not",
+        "Mark admin and calls as not billable, so they never land on an invoice."
+      ],
+      [
+        "🔂",
+        "Continue",
+        "Pick up yesterday’s task again with one click."
+      ]
+    ],
+    "steps": [
+      [
+        "Start the timer",
+        "Say what you’re working on and for whom."
+      ],
+      [
+        "Stop when you’re done",
+        "Or add forgotten hours by hand."
+      ],
+      [
+        "Make the invoice",
+        "Every billable hour, at the right rate, on a draft invoice."
+      ]
+    ],
+    "checklistTitle": "A good timesheet shows",
+    "checklist": [
+      "The date and the client",
+      "What you did, in plain words",
+      "How long it took",
+      "Whether it can be billed",
+      "The rate you charge for it"
+    ],
+    "faq": [
+      [
+        "Can I set a different rate per client?",
+        "Yes, in the Client Book. Entries without their own rate use the client’s, then your normal rate."
+      ],
+      [
+        "Does it track my screen or apps?",
+        "No. It only counts what you start and stop."
+      ],
+      [
+        "Can I track time on a project task?",
+        "Yes. Open a card on the Project Board and press ‘Track time on this’."
+      ]
+    ],
+    "related": [
+      "invoices",
+      "board",
+      "clients"
+    ],
+    "replaces": "a time-tracking subscription"
+  },
+  {
+    "id": "expenses",
+    "name": "Receipts & Expenses",
+    "emoji": "📸",
+    "color": "sun",
+    "title": "Free receipt and expense tracker with VAT for small businesses",
+    "description": "Snap or drop receipts and we file them in your folder, count the VAT you can claim back and make a spreadsheet for your accountant. Free and private.",
+    "h1": "Snap the receipt. Done.",
+    "lead": "Drop a photo or a PDF anywhere on the page. We file it, count the VAT you can claim back, and keep a list your accountant will love.",
+    "features": [
+      [
+        "📸",
+        "Drag, drop, filed",
+        "Receipts are saved as files in your business folder, by year."
+      ],
+      [
+        "🔙",
+        "VAT you can claim",
+        "Worked out per receipt and per quarter."
+      ],
+      [
+        "🔁",
+        "Pass costs on",
+        "Costs you rebill land on the client’s next invoice, without double VAT."
+      ],
+      [
+        "👛",
+        "Paid privately",
+        "Mark what you paid yourself, so you can pay yourself back."
+      ],
+      [
+        "📊",
+        "Where it went",
+        "Spending per category at a glance."
+      ],
+      [
+        "⬇️",
+        "For your accountant",
+        "A quarter in one spreadsheet, with receipt file names."
+      ]
+    ],
+    "steps": [
+      [
+        "Drop the receipt",
+        "Photo or PDF. On a phone, snap it straight from the camera."
+      ],
+      [
+        "Add the amount",
+        "Pick the VAT rate and a category."
+      ],
+      [
+        "Hand it over",
+        "Export the quarter for your accountant."
+      ]
+    ],
+    "checklistTitle": "Keep for every business expense",
+    "checklist": [
+      "The receipt or invoice itself",
+      "Date and supplier",
+      "Total paid and the VAT in it",
+      "What it was for",
+      "How it was paid"
+    ],
+    "faq": [
+      [
+        "Where are my receipts stored?",
+        "In a Receipts folder inside your business folder, as normal image and PDF files."
+      ],
+      [
+        "Can it read the amount from the photo?",
+        "Not yet. Reading receipts with AI, using your own Claude key, is on the workbench."
+      ],
+      [
+        "Does it work on my phone?",
+        "You can log expenses on a phone with the online version. Receipt photos are kept when you save to a folder, which needs Chrome or Edge on a computer."
+      ]
+    ],
+    "related": [
+      "money",
+      "subscriptions",
+      "trips"
+    ],
+    "replaces": "a receipt-scanning subscription"
+  },
+  {
+    "id": "money",
+    "name": "Money Dashboard",
+    "emoji": "📈",
+    "color": "grape",
+    "title": "Free finance dashboard for small businesses: profit, VAT and cash flow",
+    "description": "See what came in, what went out, your profit, VAT return overview, unpaid invoices by age and a 90-day cash-flow forecast. No spreadsheet needed. Free and private.",
+    "h1": "How’s business? Here’s the honest answer.",
+    "lead": "Profit, VAT to pay, what to keep aside for income tax, who still owes you and what the next 90 days look like. All from the invoices and receipts you already have.",
+    "features": [
+      [
+        "🏆",
+        "Profit, month by month",
+        "Money in and out without VAT, counted when it actually arrives."
+      ],
+      [
+        "🧾",
+        "VAT return overview",
+        "Per quarter, with the Dutch box numbers, ready to check with your accountant."
+      ],
+      [
+        "🐷",
+        "Keep aside",
+        "VAT to pay plus an income-tax pot at the percentage you choose."
+      ],
+      [
+        "⏰",
+        "Who owes you",
+        "Unpaid invoices by age: not due, 30, 60 and 60+ days late."
+      ],
+      [
+        "🔮",
+        "The next 90 days",
+        "Open and recurring invoices coming in, subscriptions going out."
+      ],
+      [
+        "⭐",
+        "Best clients",
+        "Who brings in the most this period."
+      ]
+    ],
+    "steps": [
+      [
+        "Send invoices",
+        "With Invoices & Quotes."
+      ],
+      [
+        "Log costs",
+        "With Receipts & Expenses and Subscriptions."
+      ],
+      [
+        "Look here",
+        "Everything adds itself up."
+      ]
+    ],
+    "checklistTitle": "Numbers every small business should watch",
+    "checklist": [
+      "Profit per month",
+      "Money owed to you, and how late it is",
+      "VAT to pay this quarter",
+      "What to keep aside for income tax",
+      "Fixed monthly costs",
+      "Expected cash in the next 90 days"
+    ],
+    "faq": [
+      [
+        "Is this accounting software?",
+        "No, it’s a clear overview for you. Your accountant still does the official books and returns."
+      ],
+      [
+        "Why does it count payments when they arrive?",
+        "That’s cash in your account, which is what matters for most small businesses day to day."
+      ],
+      [
+        "Do I need to type anything here?",
+        "Only your income-tax percentage. Everything else comes from the other tools."
+      ]
+    ],
+    "related": [
+      "invoices",
+      "expenses",
+      "subscriptions"
+    ],
+    "replaces": "a dashboard or bookkeeping add-on"
+  },
+  {
+    "id": "board",
+    "name": "Project Board",
+    "emoji": "🗂️",
+    "color": "teal",
+    "title": "Free project board for freelancers and small teams",
+    "description": "A playful kanban board: drag cards from to-do to done, add checklists and due dates, and track time on any card. Free and private.",
+    "h1": "Drag your to-dos from “ugh” to “done”.",
+    "lead": "One board per project, four columns, checklists in every card, and confetti every time something’s finished.",
+    "features": [
+      [
+        "🖱️",
+        "Drag and drop",
+        "To do, doing, waiting, done."
+      ],
+      [
+        "☑️",
+        "Checklists",
+        "Break a card into steps and tick them off."
+      ],
+      [
+        "📅",
+        "Due dates",
+        "Late cards turn red, and today’s show on your home screen."
+      ],
+      [
+        "⏱️",
+        "Track time on a card",
+        "One click starts the Time Tracker for that task."
+      ],
+      [
+        "🔍",
+        "Filter",
+        "Find any card on any board."
+      ],
+      [
+        "🧹",
+        "Clear done",
+        "Tidy up in one click, with undo."
+      ]
+    ],
+    "steps": [
+      [
+        "Make a project",
+        "One per client or job."
+      ],
+      [
+        "Add cards",
+        "Type and press Enter."
+      ],
+      [
+        "Drag them along",
+        "Until they’re done."
+      ]
+    ],
+    "checklistTitle": "Every project card deserves",
+    "checklist": [
+      "A clear title that starts with a verb",
+      "A due date if it has one",
+      "Steps as a checklist",
+      "Notes with links and details"
+    ],
+    "faq": [
+      [
+        "Can I use it with my team?",
+        "Share your business folder through Google Drive and everyone sees the same boards."
+      ],
+      [
+        "Is there a timeline or Gantt view?",
+        "Not yet. The Project Planner with timelines and milestones is on the workbench."
+      ],
+      [
+        "Does it work with the keyboard?",
+        "Yes. N adds a card, / filters, ⌘K finds any card."
+      ]
+    ],
+    "related": [
+      "time",
+      "docs",
+      "clients"
+    ],
+    "replaces": "a project-management subscription"
+  },
+  {
+    "id": "docs",
+    "name": "Document Maker",
+    "emoji": "📝",
+    "color": "sky",
+    "title": "Free business letter, proposal and agreement templates",
+    "description": "Letters, payment reminders, proposals, price lists, project briefs and simple agreements, with names and addresses filled in and your logo on every PDF. Free.",
+    "h1": "Letters and agreements that fill themselves in.",
+    "lead": "Pick a template and a client. Names, addresses, dates and bank details are filled in. Add the good bits and save a PDF with your logo.",
+    "features": [
+      [
+        "📄",
+        "Nine templates",
+        "Letter, payment reminder, thank-you note, proposal, price list, project brief, meeting notes, simple agreement, blank page."
+      ],
+      [
+        "🔤",
+        "Insert any detail",
+        "Client address, your IBAN, today’s date: one click from a menu."
+      ],
+      [
+        "🎨",
+        "Your letterhead",
+        "Your logo and colour on every PDF."
+      ],
+      [
+        "⭐",
+        "Your own templates",
+        "Save any document as a template."
+      ],
+      [
+        "#️⃣",
+        "Simple formatting",
+        "Headings with #, bullet points with -."
+      ],
+      [
+        "💾",
+        "Saved as you type",
+        "Every document is kept in your folder."
+      ]
+    ],
+    "steps": [
+      [
+        "Pick a template",
+        "Or start blank."
+      ],
+      [
+        "Pick the client",
+        "Details are filled in."
+      ],
+      [
+        "Save as PDF",
+        "Ready to send or print."
+      ]
+    ],
+    "checklistTitle": "A professional business letter has",
+    "checklist": [
+      "Your letterhead",
+      "The recipient’s name and address",
+      "The date",
+      "A clear subject line",
+      "A short, friendly body",
+      "Your name and contact details"
+    ],
+    "faq": [
+      [
+        "Are the agreements legally checked?",
+        "No. They cover the basics in plain language. For anything important, have a lawyer look at it."
+      ],
+      [
+        "Can I write in Dutch?",
+        "Yes. Write anything you like, or save your own Dutch templates."
+      ],
+      [
+        "Can people sign the documents?",
+        "Not inside the tool yet. Signatures are on the workbench."
+      ]
+    ],
+    "related": [
+      "clients",
+      "brand",
+      "invoices"
+    ],
+    "replaces": "a document-template subscription"
+  },
+  {
+    "id": "brand",
+    "name": "Brand Kit",
+    "emoji": "🎨",
+    "color": "pink",
+    "title": "Free email signature generator and business card maker",
+    "description": "Turn your logo and colour into a palette, a proper email signature for Gmail, Outlook and Apple Mail, and print-ready business cards with a QR code. Free.",
+    "h1": "Look the same everywhere.",
+    "lead": "Your colours, an email signature that works in every mail app, and business cards you can print at home, with a QR code to your website.",
+    "features": [
+      [
+        "✉️",
+        "Email signatures",
+        "Three styles. Copy and paste into Gmail, Outlook or Apple Mail."
+      ],
+      [
+        "🎨",
+        "Your palette",
+        "Five shades of your colour. Click to copy."
+      ],
+      [
+        "🪪",
+        "Business cards",
+        "Ten per A4 sheet, fronts and backs lined up for double-sided printing."
+      ],
+      [
+        "📱",
+        "QR code on the back",
+        "People scan your card straight to your website."
+      ],
+      [
+        "🔁",
+        "Used everywhere",
+        "Invoices, documents and cards all share your logo and colour."
+      ],
+      [
+        "⚡",
+        "Ready in a minute",
+        "Everything comes from your business details."
+      ]
+    ],
+    "steps": [
+      [
+        "Add your logo and colour",
+        "Once, in Business details."
+      ],
+      [
+        "Pick a signature style",
+        "Copy, paste, done."
+      ],
+      [
+        "Print your cards",
+        "On thick paper, then cut along the marks."
+      ]
+    ],
+    "checklistTitle": "A good email signature includes",
+    "checklist": [
+      "Your name and role",
+      "Your business name",
+      "Phone and website",
+      "One or two social links, not ten",
+      "Your brand colour as an accent"
+    ],
+    "faq": [
+      [
+        "Why doesn’t my logo show in my signature?",
+        "Mail apps remove pictures stored inside a signature. Add your logo’s web address and it shows up."
+      ],
+      [
+        "Can I send the cards to a print shop?",
+        "Yes. Send them the PDF."
+      ],
+      [
+        "Can I change my colour later?",
+        "Yes. Every tool updates straight away."
+      ]
+    ],
+    "related": [
+      "docs",
+      "invoices",
+      "clients"
+    ],
+    "replaces": "a signature or design subscription"
+  },
+  {
+    "id": "subscriptions",
+    "name": "Subscriptions",
+    "emoji": "🔁",
+    "color": "grape",
+    "title": "Free subscription tracker for small businesses",
+    "description": "Every monthly and yearly bill in one place: true monthly cost, renewal warnings, a 12-month timeline and one-click expense logging. Free and private.",
+    "h1": "No more surprise renewals.",
+    "lead": "All the little monthly bills in one place, what they really cost per month, and a nudge before anything renews.",
+    "features": [
+      [
+        "📆",
+        "The real monthly cost",
+        "Weekly, monthly, quarterly and yearly bills, added up per month."
+      ],
+      [
+        "⏰",
+        "Renewal warnings",
+        "Bills renewing within a week wiggle for attention."
+      ],
+      [
+        "🗓️",
+        "12-month timeline",
+        "Big yearly bills stand out before they hit."
+      ],
+      [
+        "📸",
+        "Log as an expense",
+        "One click adds this month’s charge to your expenses."
+      ],
+      [
+        "🔗",
+        "Cancel in one click",
+        "Keep the link to each account page."
+      ],
+      [
+        "☕",
+        "In cappuccinos",
+        "Because sometimes that’s what it takes."
+      ]
+    ],
+    "steps": [
+      [
+        "Add your subscriptions",
+        "Name, amount, how often, next date."
+      ],
+      [
+        "See the total",
+        "Per month and per year."
+      ],
+      [
+        "Cut what you don’t use",
+        "Before it renews."
+      ]
+    ],
+    "checklistTitle": "Review every subscription for",
+    "checklist": [
+      "What it costs per month",
+      "When it renews",
+      "Who uses it",
+      "Whether a cheaper plan would do",
+      "Where to cancel it"
+    ],
+    "faq": [
+      [
+        "Does it connect to my bank?",
+        "No. You add subscriptions yourself, which also means nobody else sees your bank data."
+      ],
+      [
+        "Do renewal dates update themselves?",
+        "Yes. A monthly bill entered last spring shows its next date automatically."
+      ],
+      [
+        "Does this count as bookkeeping?",
+        "Log each payment as an expense to keep your books complete."
+      ]
+    ],
+    "related": [
+      "expenses",
+      "money",
+      "invoices"
+    ],
+    "replaces": "a subscription-tracking app"
+  },
+  {
+    "id": "trips",
+    "name": "Trip Log",
+    "emoji": "🚗",
+    "color": "mint",
+    "title": "Free mileage log for business kilometres",
+    "description": "Log business trips in seconds, with return trips, frequent routes and a yearly total worth money at tax time. Export for your accountant. Free and private.",
+    "h1": "Every business kilometre counts.",
+    "lead": "Log a trip in seconds, tap your usual routes, and see what your kilometres are worth at tax time.",
+    "features": [
+      [
+        "⭐",
+        "Usual trips",
+        "Routes you drive often become one-tap buttons."
+      ],
+      [
+        "🔁",
+        "Return trips",
+        "There and back counts double, automatically."
+      ],
+      [
+        "💶",
+        "Worth at tax time",
+        "Kilometres times your rate, all year."
+      ],
+      [
+        "🔂",
+        "Same trip again",
+        "Repeat any trip for today in one click."
+      ],
+      [
+        "🧑‍💼",
+        "Per client",
+        "Link trips to clients."
+      ],
+      [
+        "⬇️",
+        "Year export",
+        "One spreadsheet for your accountant."
+      ]
+    ],
+    "steps": [
+      [
+        "Log the trip",
+        "From, to, kilometres, why."
+      ],
+      [
+        "Repeat the usual ones",
+        "With one tap."
+      ],
+      [
+        "Export the year",
+        "For your tax return."
+      ]
+    ],
+    "checklistTitle": "A mileage log needs, per trip",
+    "checklist": [
+      "The date",
+      "Where from and where to",
+      "The kilometres",
+      "The business reason",
+      "Who it was for"
+    ],
+    "faq": [
+      [
+        "What rate per kilometre should I use?",
+        "It depends on your country and situation. The Dutch tax office has allowed €0.23 in recent years; check the current amount with your accountant."
+      ],
+      [
+        "Can it track trips by GPS?",
+        "No. You log them yourself, which keeps your location private."
+      ],
+      [
+        "Can I bill kilometres to a client?",
+        "Not automatically yet. It’s on the workbench."
+      ]
+    ],
+    "related": [
+      "expenses",
+      "money",
+      "clients"
+    ],
+    "replaces": "a mileage-tracking app"
+  },
+  {
+    "id": "stock",
+    "name": "Stock Keeper",
+    "emoji": "📦",
+    "color": "sun",
+    "title": "Free inventory tracker for small shops and makers",
+    "description": "Tap plus and minus as stock comes and goes, get low-stock warnings, scan barcodes, see stock value, margins and a full history per item. Free and private.",
+    "h1": "Know what’s on the shelf before it runs out.",
+    "lead": "Tap plus and minus as things come in and go out. We warn you before the shelf runs empty and keep a history of every change.",
+    "features": [
+      [
+        "➕",
+        "Quick plus and minus",
+        "Big buttons, made for busy hands."
+      ],
+      [
+        "🚨",
+        "Low-stock warnings",
+        "Set a minimum per item and we flag it."
+      ],
+      [
+        "📷",
+        "Barcode scanning",
+        "Scan a code to find or add a product (Chrome on Mac, Android and ChromeOS)."
+      ],
+      [
+        "🕒",
+        "Item history",
+        "Every change, with the reason: sold, received or counted."
+      ],
+      [
+        "🗂️",
+        "Shelves and categories",
+        "Filter by where things live."
+      ],
+      [
+        "💰",
+        "Value and margins",
+        "What your stock is worth and what you make per item."
+      ]
+    ],
+    "steps": [
+      [
+        "Add your products",
+        "Name, how many, when to warn you."
+      ],
+      [
+        "Tap as you go",
+        "Plus when it comes in, minus when it goes."
+      ],
+      [
+        "Reorder in time",
+        "The low-stock list tells you what."
+      ]
+    ],
+    "checklistTitle": "Track for every product",
+    "checklist": [
+      "Name and code",
+      "How many you have",
+      "When to reorder",
+      "What you pay and what you charge",
+      "Where it’s kept"
+    ],
+    "faq": [
+      [
+        "Can several people update stock?",
+        "Share your business folder through Google Drive. Live multi-user updates are on the workbench."
+      ],
+      [
+        "Which barcode types work?",
+        "Common product barcodes and QR codes, wherever the browser can scan them."
+      ],
+      [
+        "Can I import my product list?",
+        "Not yet. Spreadsheet import is on the workbench."
+      ]
+    ],
+    "related": [
+      "expenses",
+      "money",
+      "invoices"
+    ],
+    "replaces": "an inventory subscription"
+  },
+  {
+    "id": "marketing",
+    "name": "Marketing Studio",
+    "emoji": "📣",
+    "color": "pink",
+    "title": "Free do-it-yourself marketing for small businesses, built on how brands really grow",
+    "description": "A free do-it-yourself marketing studio for small businesses: 47 expert playbooks, a brand profile, a year plan and brand health tracking, all based on the science of how brands grow. Optional AI help with your own Claude key; your data stays with you.",
+    "h1": "Do your own marketing, the way brands really grow.",
+    "lead": "Plan, make and measure your marketing yourself, with 47 expert playbooks that all work from your brand profile and follow decades of research into how people really buy. Add your own Claude key for AI help. Free, and your data stays yours.",
+    "features": [
+      [
+        "🧭",
+        "A brand profile, not a persona",
+        "Your category, the moments people need you, your distinctive look, your voice and your budget. Every skill reads it."
+      ],
+      [
+        "🛠️",
+        "47 expert playbooks",
+        "Plans, ads, social posts, local presence, reviews, SEO, newsletters, press releases and more. Each one tailored to your brand with one click."
+      ],
+      [
+        "🔬",
+        "Built on the evidence",
+        "Every answer follows the laws of brand growth: reach more buyers, own the buying moments, be recognisable, be easy to buy."
+      ],
+      [
+        "🗓️",
+        "A year at a glance",
+        "An always-on plan that shows the months you're invisible, so you can fix them."
+      ],
+      [
+        "📊",
+        "Measure what matters",
+        "New customers from your invoices, a simple survey of how often you come to mind, and your brand assets on a fame and uniqueness grid."
+      ],
+      [
+        "🔒",
+        "Your key, your data",
+        "Runs in your browser with your own Claude key. Nothing goes through us. A monthly spending limit keeps costs predictable."
+      ]
+    ],
+    "steps": [
+      [
+        "Set up your marketing brain",
+        "Eight short questions, about ten minutes."
+      ],
+      [
+        "Pick what you need",
+        "Choose a playbook and say what you want. It already knows your business."
+      ],
+      [
+        "Plan, publish, measure",
+        "Add it to your year plan, check it before it goes out, and track new customers."
+      ]
+    ],
+    "checklistTitle": "What a growing brand does every year",
+    "checklist": [
+      "Reaches as many buyers of its category as it can",
+      "Stays visible every month, not just in campaigns",
+      "Links itself to the moments people need it",
+      "Uses the same distinctive colours, logo and phrases everywhere",
+      "Makes itself easy to find, book and pay",
+      "Measures new customers and how often it comes to mind"
+    ],
+    "faq": [
+      [
+        "Is it really free?",
+        "Yes. The Studio is part of the free Busywork toolbox. The only cost is optional: if you add your own Claude key for AI help, you pay Anthropic directly, usually a few cents per answer."
+      ],
+      [
+        "Do I need to know marketing?",
+        "No. The Studio explains the why in plain words and walks you through each playbook. You stay in the driving seat."
+      ],
+      [
+        "What if I would rather be guided?",
+        "Then Olaf is for you: our AI marketing expert, right inside Busywork. It looks at your business, makes a 90-day plan, checks in every week and does the work each step needs, using the same marketing science. It starts from your Studio profile."
+      ],
+      [
+        "What does the AI cost?",
+        "You use your own Claude API key and pay Anthropic directly, usually a few cents per answer. You can set a monthly limit."
+      ],
+      [
+        "Is my data shared?",
+        "Your brand profile and results stay in your own folder. Requests go from your browser straight to Anthropic, never through us."
+      ],
+      [
+        "Which marketing approach does it use?",
+        "The evidence-based approach from marketing science on how brands grow: mental and physical availability, buying moments and distinctive brand assets."
+      ]
+    ],
+    "related": [
+      "brand",
+      "clients",
+      "money"
+    ],
+    "replaces": "marketing courses, templates and guesswork"
+  }
+]

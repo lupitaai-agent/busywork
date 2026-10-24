@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Document Maker · Busywork</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='88'>📝</text></svg>">
+<link rel="stylesheet" href="../../shared/brand.css">
+<style>
+  .tpl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 16px; margin-bottom: 30px; }
+  .tpl { text-align: left; font: inherit; color: inherit; cursor: pointer; padding: 18px; display: flex; flex-direction: column; gap: 6px; transition: transform .2s cubic-bezier(.3, 1.5, .5, 1), box-shadow .2s; }
+  .tpl:hover { transform: translate(-3px, -3px) rotate(-.6deg); box-shadow: 7px 7px 0 var(--shadow-c); }
+  .tpl .e { font-size: 2rem; }
+  .tpl small { color: var(--ink-2); }
+  .doc-editor { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 24px; align-items: start; padding: 10px 0 50px; }
+  @media (max-width: 920px) { .doc-editor { grid-template-columns: 1fr; } }
+  .sheet { background: #fff; color: #1E1B2E; border: 2px solid var(--border); border-radius: 8px 8px 20px 20px; box-shadow: var(--shadow); padding: 40px 46px; position: relative; color-scheme: light; animation: pop .45s cubic-bezier(.3, 1.5, .5, 1); }
+  .sheet::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 9px; background: var(--doc); border-radius: 6px 6px 0 0; }
+  @media (max-width: 640px) { .sheet { padding: 30px 16px; } }
+  .sheet .head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; gap: 12px; }
+  .sheet .head img { max-height: 54px; max-width: 180px; }
+  .sheet .head .biz { font-weight: 900; font-size: 1.3rem; }
+  .sheet input.title { width: 100%; font: inherit; font-size: 1.6rem; font-weight: 900; border: 1.5px dashed transparent; border-radius: 8px; padding: 4px 6px; color: inherit; background: transparent; margin-bottom: 10px; }
+  .sheet textarea { width: 100%; min-height: 520px; font: 1rem/1.65 var(--font); color: inherit; border: 1.5px dashed transparent; border-radius: 8px; padding: 6px; background: transparent; resize: vertical; }
+  .sheet input.title:hover, .sheet textarea:hover { border-color: #D6D1E2; }
+  .sheet input.title:focus, .sheet textarea:focus { outline: none; border: 1.5px solid var(--doc); background: #FFFCF6; }
+  .side { position: sticky; top: 84px; display: flex; flex-direction: column; gap: 12px; }
+  @media (max-width: 920px) { .side { position: static; } }
+  .tips { font-size: .85rem; color: var(--ink-2); padding: 14px 16px; }
+  .tips code { background: var(--app-soft); padding: 1px 5px; border-radius: 5px; }
+  .insert-wrap { position: relative; }
+  .insert-menu { position: absolute; z-index: 20; left: 0; right: 0; top: calc(100% + 6px); max-height: 320px; overflow: auto; padding: 6px; }
+  .insert-menu small { color: var(--ink-2); }
+  .warn { font-size: .85rem; padding: 12px 14px; border-radius: var(--r-sm); background: color-mix(in srgb, var(--sun) 25%, var(--surface)); border: 2px solid var(--border); }
+</style>
+</head>
+<body class="app-sky" data-root="../../">
+<main class="wrap" id="main"></main>
+<noscript><p class="wrap">This tool needs JavaScript switched on.</p></noscript>
+<script src="../../shared/core.js"></script>
+<script src="../../shared/pdf.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

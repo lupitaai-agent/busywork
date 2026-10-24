@@ -1,0 +1,11 @@
+.route { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.route .arrow { color: var(--ink-3); }
+.row .km { font-family: var(--mono); font-weight: 800; white-space: nowrap; }
+.again { padding: 5px 12px; min-height: 34px; font-size: .85rem; }
+.month-h { margin: 22px 0 10px; font-weight: 850; display: flex; justify-content: space-between; }
+.year-nav { display: flex; gap: 8px; align-items: center; margin-bottom: 18px; }
+.road { height: 10px; border-radius: 99px; margin: -8px 0 26px; background: repeating-linear-gradient(90deg, var(--ink) 0 22px, transparent 22px 40px); opacity: .18; animation: drive 1.2s linear infinite; }
+@keyframes drive { to { background-position: 40px 0; } }
+.favs { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: -6px 0 22px; }
+.favs .chip { cursor: pointer; font-size: .85rem; padding: 6px 12px; background: var(--surface); color: var(--ink); }
+.favs .chip:hover { background: var(--app-soft); }

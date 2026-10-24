@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Time Tracker · Busywork</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='88'>⏱️</text></svg>">
+<link rel="stylesheet" href="../../shared/brand.css">
+<style>
+  .timer { display: grid; grid-template-columns: auto 1fr; gap: 28px; align-items: center; padding: 26px 28px; margin-bottom: 26px; position: relative; overflow: hidden; }
+  .timer::before { content: ""; position: absolute; inset: auto -60px -90px auto; width: 260px; height: 260px; border-radius: 50%; background: var(--app); opacity: .14; transition: transform 1s cubic-bezier(.3, 1.4, .5, 1); }
+  .timer.on::before { transform: scale(1.6); opacity: .22; }
+  @media (max-width: 680px) { .timer { grid-template-columns: 1fr; justify-items: center; text-align: center; } }
+  .go {
+    width: 132px; height: 132px; border-radius: 50%; border: 3px solid var(--border); box-shadow: var(--shadow);
+    background: var(--mint); color: var(--on-app); font: inherit; font-weight: 900; font-size: 1.05rem; cursor: pointer; position: relative;
+    display: grid; place-items: center; transition: transform .2s cubic-bezier(.3, 1.6, .5, 1), background .3s;
+  }
+  .go:hover { transform: scale(1.05) rotate(-3deg); }
+  .go:active { transform: scale(.94); }
+  .go .ico { font-size: 2.4rem; line-height: 1; display: block; }
+  .on .go { background: var(--tomato); }
+  .on .go::after { content: ""; position: absolute; inset: -10px; border-radius: 50%; border: 3px solid var(--tomato); animation: ring 1.6s ease-out infinite; }
+  @keyframes ring { from { transform: scale(.9); opacity: .9; } to { transform: scale(1.25); opacity: 0; } }
+  .clock { font-family: var(--mono); font-size: clamp(2.6rem, 7vw, 3.8rem); font-weight: 800; letter-spacing: -.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .timer .fields { display: grid; grid-template-columns: 1.4fr 1fr; gap: 10px; margin-top: 16px; max-width: 620px; }
+  @media (max-width: 680px) { .timer .fields { grid-template-columns: 1fr; width: 100%; } }
+  .timer .mood { color: var(--ink-2); font-weight: 700; margin-top: 6px; }
+  .rate-chip { cursor: pointer; }
+  .bill-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-bottom: 26px; }
+  .bill { padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
+  .bill b { font-size: 1.05rem; }
+  .day-h { display: flex; justify-content: space-between; align-items: baseline; margin: 22px 0 10px; font-weight: 850; }
+  .day-h small { font-weight: 750; }
+  .row .dur { font-family: var(--mono); font-weight: 800; }
+  .row.running { border-color: var(--tomato); }
+  .sheet-wrap { padding: 6px; overflow-x: auto; }
+  .sheet { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; min-width: 620px; }
+  .sheet th, .sheet td { padding: 9px 10px; text-align: center; border-bottom: 1.5px solid var(--hair); font-family: var(--mono); font-size: .88rem; }
+  .sheet th { font-family: var(--font); font-size: .8rem; color: var(--ink-2); }
+  .sheet th:first-child, .sheet td:first-child { text-align: left; font-family: var(--font); font-weight: 750; }
+  .sheet th.today { color: var(--ink); background: var(--app-soft); border-radius: 10px 10px 0 0; }
+  .sheet .tot td { font-weight: 850; border-bottom: 0; }
+  .lead kbd { font: 700 .8rem var(--mono); padding: 1px 6px; border: 1.5px solid var(--hair); border-radius: 6px; background: var(--surface); }
+</style>
+</head>
+<body class="app-mint" data-root="../../">
+<main class="wrap" id="main"></main>
+<noscript><p class="wrap">This tool needs JavaScript switched on.</p></noscript>
+<script src="../../shared/core.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
