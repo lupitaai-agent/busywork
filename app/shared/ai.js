@@ -17,18 +17,50 @@
     { id: 'claude-haiku-5-5', name: 'Fast and cheap', model: 'Claude Haiku 5.5', input: 0.1, output: 0.5, cacheRead: 0.01, web: 'web_search_20250305', fetch: null, fallbacks: false },
   ];
 
+  const API = 'https://api.anthropic.com/v1/messages';
+  // How a request reaches Claude. `direct` goes from this browser to Anthropic with the owner's own
+  // key: the only way today. `proxy(url)` sends the same request to a server that holds the key
+  // instead (a hosted Busywork, an office server), so no key is needed in the browser. A shell can
+  // bring its own through window.BW_HOST.aiTransport. A transport is
+  //   { name, needsKey, send(body, { key, beta, signal }) -> a fetch Response with the API's SSE stream }
+  const transports = {
+    direct: {
+      name: 'direct', needsKey: true,
+      send(body, { key, beta, signal }) {
+        const headers = {
+          'content-type': 'application/json',
+          'x-api-key': key,
+          'anthropic-version': '2026-10-21',
+          'anthropic-dangerous-direct-browser-access': 'true',
+        };
+        if (beta) headers['anthropic-beta'] = beta;
+        return fetch(API, { method: 'POST', headers, body: JSON.stringify(body), signal });
+      },
+    },
+    proxy: (url) => ({
+      name: 'proxy', needsKey: false,
+      send(body, { beta, signal }) {
+        const headers = { 'content-type': 'application/json', 'anthropic-version': '2026-10-21' };
+        if (beta) headers['anthropic-beta'] = beta;
+        return fetch(url, { method: 'POST', credentials: 'include', headers, body: JSON.stringify(body), signal });
+      },
+    }),
+  };
+
   const month = () => new Date().toISOString().slice(0, 7);
   const spend = () => { try { return JSON.parse(ls.get('bw.aiSpend') || '{}'); } catch (e) { return {}; } };
 
   const ai = {
     MODELS,
+    transports,
+    transport: (window.BW_HOST && window.BW_HOST.aiTransport) || transports.direct,
     get key() { return ls.get('bw.claudeKey') || ''; },
     set key(v) { ls.set('bw.claudeKey', (v || '').trim()); },
     get model() { return MODELS.find((m) => m.id === ls.get('bw.claudeModel')) || MODELS[0]; },
     set model(id) { ls.set('bw.claudeModel', id); },
     get cap() { return Number(ls.get('bw.aiCap')) || 0; },
     set cap(v) { ls.set('bw.aiCap', v ? String(v) : ''); },
-    ready() { return /^sk-ant-/.test(this.key); },
+    ready() { return !this.transport.needsKey || /^sk-ant-/.test(this.key); },
     spentThisMonth() { return spend()[month()] || 0; },
     spendLog() { return spend(); },
 
@@ -103,18 +135,13 @@
       };
       const toolList = (tools || []).concat(web ? [{ type: m.web, name: 'web_search', max_uses: 5 }] : []);
       if (toolList.length) body.tools = toolList;
-      const headers = {
-        'content-type': 'application/json',
-        'x-api-key': this.key,
-        'anthropic-version': '2026-10-21',
-        'anthropic-dangerous-direct-browser-access': 'true',
-      };
+      let beta = null;
       // Server-side fallback: if a safety classifier declines, Anthropic re-runs it on a suitable model.
-      if (m.fallbacks) { body.fallbacks = 'default'; headers['anthropic-beta'] = 'server-side-fallback-2026-07-01'; }
+      if (m.fallbacks) { body.fallbacks = 'default'; beta = 'server-side-fallback-2026-07-01'; }
 
       let res;
       for (let attempt = 0; attempt < 3; attempt++) {
-        res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers, body: JSON.stringify(body), signal });
+        res = await this.transport.send(body, { key: this.key, beta, signal });
         if (res.status !== 429 && res.status !== 529 && res.status < 500) break;
         const wait = Number(res.headers.get('retry-after')) * 1000 || 2000 * (attempt + 1);
         if (onStatus) onStatus('Claude is busy, trying again in a moment…');

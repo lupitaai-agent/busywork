@@ -20,6 +20,10 @@ Anthropic.
 | `olaf-fingerprints.json` | One-way hashes of Olaf's paid text, made by the private Olaf build. `build.py` refuses to publish anything that matches. |
 | `website/` | The public site. Some of it is generated (see below). |
 | `build.py` | Builds everything generated: skill bundles, the online copy of the tools, the download zip, product pages, sitemap. |
+| `check.py` | Every check in one command: scripts parse, logic tests, build tests, a real build with the leak check. |
+| `tests/` | Tests that run with Node and Python alone, no packages. |
+| `ARCHITECTURE.md` | How it is built and why, the seams for desktop, store and cloud versions, and how far away each is. |
+| `DATA.md` | The data format of a business folder, data versions and backups. Every collection is listed. |
 
 ## Build and preview
 
@@ -33,11 +37,19 @@ tools can use a folder on disk.
 Generated files are not committed (see `.gitignore`); `build.py` makes them and the GitHub
 workflow runs it on every push.
 
+Before committing, run every check (Node 22+ and Python 3.9+, nothing to install):
+
+```bash
+python3 check.py
+```
+
+GitHub runs the same command before every deploy, and on every pull request.
+
 ## Publish on GitHub Pages
 
 1. Create the repository on GitHub and push this folder to `main`.
 2. In the repository: **Settings → Pages → Source: GitHub Actions**.
-3. Every push to `main` runs `.github/workflows/pages.yml`: it builds the site and publishes
+3. Every push to `main` runs `.github/workflows/pages.yml`: it runs `check.py`, builds the site and publishes
    `website/`. The real address is passed to the build as `SITE_URL`, so canonical links and the
    sitemap are right. A custom domain set under Settings → Pages is picked up the same way.
 

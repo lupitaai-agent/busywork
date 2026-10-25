@@ -106,7 +106,7 @@
     BW.toast('Signature copied! Paste it into your email settings.', '✉️');
   }
   async function copyPlain(text) {
-    try { await navigator.clipboard.writeText(text); } catch (e) { /* the toast still shows the value */ }
+    await BW.copy(text); // the toast still shows the value if copying fails
     BW.toast(`${text.toUpperCase()} copied`, '🎨');
   }
 

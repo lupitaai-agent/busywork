@@ -171,7 +171,7 @@
         { k: 'name', label: 'Project name', ph: 'e.g. Website for De Gouden Korst', span: 2 },
         { k: 'emoji', label: 'An emoji for it', ph: '📁' },
         { k: 'clientId', label: 'Client', type: 'select', options: [['', 'No client']].concat(clients.map((c) => [c.id, c.name])) },
-        { k: 'color', label: 'Colour', type: 'chips', options: COLORS.map((c) => [c, `<span class="swatch" style="display:inline-block;width:16px;height:16px;vertical-align:-3px;background:var(--${c})"></span>`]) },
+        { k: 'color', label: 'Colour', type: 'chips', html: true, options: COLORS.map((c) => [c, `<span class="swatch" style="display:inline-block;width:16px;height:16px;vertical-align:-3px;background:var(--${c})"></span>`]) },
       ],
       deleteLabel: 'Delete project',
       confirmDelete: 'This also deletes every card in this project.',

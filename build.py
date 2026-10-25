@@ -156,10 +156,17 @@ def sentences(text: str):
     text = text.replace("\\n", "\n").replace('\\"', '"').replace("\\u2019", "’")
     text = re.sub(r"</?(p|li|h[1-6]|div|section|td|th|tr|br|ul|ol|summary|details|blockquote)\b[^>]*>", "\n\n", text, flags=re.I)
     text = re.sub(r"<[^>]+>", " ", text)
+    # Quotes and backticks end a piece of text, so code around a string can't hide what is in it.
+    text = re.sub(r'["`]', "\n\n", text)
     blocks, cur = [], []
     for line in text.split("\n"):
         s = line.strip()
-        if not s or re.match(r"^([#>|*`-]|\d+[.)]\s)", s):
+        if s.startswith("#"):  # a heading is a block of its own
+            if cur:
+                blocks.append(" ".join(cur))
+            blocks.append(s)
+            cur = []
+        elif not s or re.match(r"^([>|*`-]|\d+[.)]\s)", s):
             if cur:
                 blocks.append(" ".join(cur))
             cur = [s] if s else []
@@ -594,6 +601,26 @@ def apply_site_url() -> None:
             f.write_text(text.replace("https://busywork.example", SITE_URL))
 
 
+def site_csp() -> None:
+    """A light security policy on every website page: no plugins, no <base> hijacking, and forms post
+    only to this site or the waitlist service. Scripts are not restricted here because the ad network
+    loads its own; the tools under app/ carry a strict policy of their own (scripts from Busywork's
+    files only, network to Anthropic only), which is where the owner's API key lives."""
+    forms = "'self'"
+    if WAITLIST_ENDPOINT:
+        m = re.match(r"https://[^/]+", WAITLIST_ENDPOINT)
+        if not m:
+            raise SystemExit("WAITLIST_ENDPOINT must be an https:// address")
+        forms += " " + m.group(0)
+    meta = f'<meta http-equiv="Content-Security-Policy" content="object-src \'none\'; base-uri \'self\'; form-action {forms}">'
+    for f in list(SITE.glob("*.html")) + list((SITE / "tools").glob("*.html")):
+        text = re.sub(r'<meta http-equiv="Content-Security-Policy"[^>]*>\n?', "", f.read_text())
+        text, n = re.subn(r'(<meta charset="[^"]+">\n?)', lambda m: m.group(1) + meta + "\n", text, count=1, flags=re.I)
+        if not n:
+            raise SystemExit(f"{f.relative_to(ROOT)} has no <meta charset>")
+        f.write_text(text)
+
+
 def main() -> None:
     build_marketing()
     copy_app()
@@ -602,6 +629,7 @@ def main() -> None:
     build_pages()
     sync_homepage_paths()
     apply_site_url()
+    site_csp()
     leak_check()
 
 

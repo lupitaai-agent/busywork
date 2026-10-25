@@ -41,7 +41,7 @@
       $$('[data-add-week]', v).forEach((b) => b.onclick = () => C.edit({ date: b.dataset.addWeek < BW.today() ? BW.today() : b.dataset.addWeek, status: 'idea' }, ceps, again));
       $$('[data-edit]', v).forEach((b) => b.onclick = () => C.edit(find(b.dataset.edit), ceps, again));
       $$('[data-st]', v).forEach((b) => b.onclick = async () => { const x = find(b.dataset.st), o = Object.keys(STATUS); x.status = o[(o.indexOf(x.status || 'idea') + 1) % o.length]; await BW.store.put('mktcontent', x); again(); });
-      $$('[data-copy]', v).forEach((b) => b.onclick = async () => { try { await navigator.clipboard.writeText(find(b.dataset.copy).text); BW.toast('Copied', '📋'); } catch (e) { BW.toast('Could not copy. Open it with Edit and copy from there.', '😬'); } });
+      $$('[data-copy]', v).forEach((b) => b.onclick = async () => { if (await BW.copy(find(b.dataset.copy).text)) BW.toast('Copied', '📋'); else BW.toast('Could not copy. Open it with Edit and copy from there.', '😬'); });
       $$('[data-write]', v).forEach((b) => b.onclick = () => opts.write(find(b.dataset.write), again, b));
       $$('[data-post]', v).forEach((b) => b.onclick = () => C.postIt(find(b.dataset.post), again));
       $('[data-export]', v).onclick = () => C.exportMenu(items.filter((x) => x.date >= start && x.date < BW.addDays(start, 28)));
@@ -79,8 +79,8 @@
         <p class="faint" style="font-size:.85rem">After posting, mark it as posted so your dashboard counts it.</p></div>`);
       BW.modal({ title: '📤 Post it', body: box, wide: true, actions: [{ label: 'Close', kind: 'ghost' }, { label: '🚀 Mark as posted', kind: 'primary', onClick: async () => { x.status = 'posted'; await BW.store.put('mktcontent', x); BW.toast('Marked as posted', '🚀'); after(); } }] });
       $('[data-open]', box).onclick = async () => {
-        try { await navigator.clipboard.writeText(x.text); BW.toast('Copied: paste it into the post', '📋'); } catch (e) { BW.toast('Could not copy. Select the text in Edit and copy it there.', '😬'); }
-        if (url) window.open(url, '_blank', 'noopener');
+        if (await BW.copy(x.text)) BW.toast('Copied: paste it into the post', '📋'); else BW.toast('Could not copy. Select the text in Edit and copy it there.', '😬');
+        if (url) BW.openUrl(url);
       };
       $('[data-ics]', box).onclick = () => C.download([x], 'post-' + x.date + '.ics');
     },
@@ -98,7 +98,17 @@
     download(list, name) {
       const esc2 = (s) => String(s || '').replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
       const d = (iso) => iso.replace(/-/g, '');
-      const fold = (line) => line.match(/.{1,73}/gu).join('\r\n ');
+      // Lines are at most 75 bytes (not characters: an emoji is four), continued after a space.
+      const bytes = new TextEncoder();
+      const fold = (line) => {
+        const out = []; let cur = '', n = 0;
+        for (const ch of line) {
+          const b = bytes.encode(ch).length;
+          if (n + b > (out.length ? 74 : 75)) { out.push(cur); cur = ''; n = 0; }
+          cur += ch; n += b;
+        }
+        return out.concat(cur).join('\r\n ');
+      };
       const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Busywork//Content calendar//EN', 'CALSCALE:GREGORIAN'];
       list.forEach((x) => lines.push('BEGIN:VEVENT', `UID:${x.id}@busywork`, `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').slice(0, 15)}Z`,
         `DTSTART;VALUE=DATE:${d(x.date)}`, `DTEND;VALUE=DATE:${d(BW.addDays(x.date, 1))}`, fold(`SUMMARY:${esc2('Post: ' + (x.title || '') + (x.channel ? ' (' + x.channel + ')' : ''))}`),

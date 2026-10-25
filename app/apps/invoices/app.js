@@ -558,9 +558,7 @@
   }
 
   async function copyText(text) {
-    try { await navigator.clipboard.writeText(text); }
-    catch (e) { const t = document.createElement('textarea'); t.value = text; document.body.append(t); t.select(); document.execCommand('copy'); t.remove(); }
-    BW.toast('Copied!', '📋');
+    BW.toast(await BW.copy(text) ? 'Copied!' : 'Could not copy. Select the text and copy it yourself.', '📋');
   }
 
   const ACTIONS = {

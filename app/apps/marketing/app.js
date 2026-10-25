@@ -248,7 +248,7 @@
     renderSkill();
   }
 
-  async function copy(text) { try { await navigator.clipboard.writeText(text); } catch (e) { /* fall through */ } BW.toast('Copied!', '📋'); }
+  async function copy(text) { BW.toast(await BW.copy(text) ? 'Copied!' : 'Could not copy. Select the text and copy it yourself.', '📋'); }
   async function saveRun(m, btn) {
     const title = (m.text.match(/^#+ (.+)$/m) || [null, (threads[skillId].view.find((x) => x.role === 'user') || {}).text || 'Result'])[1].slice(0, 80);
     try { await BW.store.put('mktruns', { skillId, title, text: m.text, cost: m.cost, model: BW.ai.model.id }); m.saved = true; btn.textContent = '✅ Saved'; await load(); BW.toast('Saved in your Studio', '💾'); } catch (e) { BW.error(e); }

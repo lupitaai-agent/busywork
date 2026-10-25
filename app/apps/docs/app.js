@@ -127,7 +127,7 @@
         body.focus(); body.setSelectionRange(caret + v.length, caret + v.length);
       };
     };
-    $('[data-copy]', main).onclick = async () => { try { await navigator.clipboard.writeText(cur.body); } catch (e) { /* fall through */ } BW.toast('Copied!', '📋'); };
+    $('[data-copy]', main).onclick = async () => { BW.toast(await BW.copy(cur.body) ? 'Copied!' : 'Could not copy. Select the text and copy it yourself.', '📋'); };
     $('[data-tpl]', main).onclick = async () => {
       try { await BW.store.put('doctemplates', { name: cur.title || 'My template', title: cur.title, body: cur.body }); } catch (e) { return BW.error(e); }
       BW.toast('Saved to your templates', '⭐');

@@ -96,6 +96,7 @@ small, .muted { color: var(--ink-2); }
 .spacer { flex: 1; }
 
 /* ---------- top bar ---------- */
+.readonly-bar { padding: 8px 16px; text-align: center; font-weight: 650; font-size: .92rem; background: color-mix(in srgb, var(--sun) 35%, var(--surface)); color: var(--ink); border-top: 2px solid var(--border); }
 .topbar {
   position: sticky; top: 0; z-index: 40;
   background: color-mix(in srgb, var(--bg) 88%, transparent);

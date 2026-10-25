@@ -8,6 +8,12 @@
   BW.brand = { name: 'Busywork', tagline: 'Boring business stuff, made fun.' };
   // The website. build.py puts the real address in the copies it publishes and zips.
   BW.siteUrl = 'https://busywork.example';
+  // The release, shown in problem reports and written into the business folder (data/meta.json).
+  BW.version = '0.9.0';
+  // A shell around Busywork (a desktop or phone app, a test, a hosted version) can set window.BW_HOST
+  // before this file loads to bring its own storage driver, platform functions, AI transport or
+  // entitlements. A plain browser tab sets nothing and gets the defaults below. See ARCHITECTURE.md.
+  const host = window.BW_HOST || {};
 
   // Every tool in the suite. `ready: false` tools show as "coming soon" on the home screen.
   // Every tool in the suite. `ready: false` tools show on the home screen as "on the workbench".
@@ -75,12 +81,32 @@
   BW.colorFor = (s) => { let h = 0; for (const c of String(s || '')) h = (h * 31 + c.charCodeAt(0)) >>> 0; return AV[h % AV.length]; };
   BW.fileSafe = (s) => String(s || '').replace(/[\\/:*?"<>|]+/g, '').replace(/\s+/g, ' ').trim().slice(0, 80);
   BW.vatRates = () => String((BW.settings && BW.settings.vatRates) || '').split(/[,;\s]+/).map(BW.num).filter((n, i, a) => n >= 0 && a.indexOf(n) === i);
-  BW.download = (blob, name) => {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob); a.download = name;
-    document.body.append(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-  };
+  // ---------- platform ----------
+  // The few things that work differently in a browser tab, an installed web app or a future desktop
+  // or phone shell. Apps call these, never the browser directly; a shell replaces any of them
+  // through window.BW_HOST.platform.
+  BW.platform = Object.assign({
+    kind: location.protocol === 'file:' ? 'file' : (window.matchMedia && matchMedia('(display-mode: standalone)').matches ? 'installed' : 'web'),
+    download(blob, name) {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = name;
+      document.body.append(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    },
+    openUrl(url) { window.open(url, '_blank', 'noopener'); },
+    // Resolves true when the text is on the clipboard. Falls back to the old way for file:// pages
+    // in browsers that keep the clipboard API for https.
+    async copy(text) {
+      try { await navigator.clipboard.writeText(text); return true; } catch (e) { /* try the old way */ }
+      const t = document.createElement('textarea'); t.value = text; t.setAttribute('readonly', ''); t.style.position = 'fixed'; t.style.opacity = '0';
+      document.body.append(t); t.select();
+      let ok = false; try { ok = document.execCommand('copy'); } catch (e) { /* no clipboard at all */ }
+      t.remove(); return ok;
+    },
+  }, host.platform);
+  BW.download = (blob, name) => BW.platform.download(blob, name);
+  BW.openUrl = (url) => BW.platform.openUrl(url);
+  BW.copy = (text) => BW.platform.copy(text);
 
   // Invoices count up per year: 2026-001, 2026-002; quotes get a Q in front, credit notes a C.
   BW.nextNumber = (list, kind, year) => {
@@ -175,7 +201,18 @@
   };
 
   // ---------- storage drivers ----------
-  // Both drivers store each collection as one JSON file, so the folder stays readable by humans.
+  // A driver is where a business lives. All of them keep the same contract, so no app knows (or
+  // cares) whether that is a folder, this browser, memory in a test, or later a native shell or a
+  // sync service. Collections are arrays of records, except settings and meta, which are objects.
+  //   kind, label                        what it is, for the top bar
+  //   readJSON(name, fallback)           one collection, or fallback when there is none
+  //   writeJSON(name, value)             replaces the collection whole
+  //   list()                             names of the collections that exist
+  //   readFile(path) -> Blob | null      other files by path: receipts, backups
+  //   writeFile(path, blob, opts)        -> { saved, where }; opts.download false: never fall back to a download
+  //   listFiles(dir), removeFile(path)   used for tidying old backups
+  // Every collection is one JSON file in data/, so a folder stays readable by people. DATA.md
+  // describes each collection.
   BW.canUseFolders = typeof window.showDirectoryPicker === 'function';
 
   function FolderDriver(root) {
@@ -224,6 +261,15 @@
         const w = await fh.createWritable(); await w.write(blob); await w.close();
         return { saved: true, where: root.name + '/' + path };
       },
+      async listFiles(path) {
+        const names = [];
+        try { for await (const [n, h] of (await dir(path)).entries()) if (h.kind === 'file') names.push(n); } catch (e) { /* nothing there */ }
+        return names;
+      },
+      async removeFile(path) {
+        const parts = path.split('/'); const fname = parts.pop();
+        try { await (await dir(parts.join('/'))).removeEntry(fname); } catch (e) { if (e.name !== 'NotFoundError') throw e; }
+      },
     };
   }
 
@@ -250,10 +296,36 @@
         BW.download(blob, path.split('/').pop());
         return { saved: false, where: 'your Downloads' };
       },
+      async listFiles() { return []; },
+      async removeFile() { /* nothing is kept */ },
     };
   }
 
+  // Keeps everything in memory, as JSON text so a caller can never change stored data by accident.
+  // For tests, previews and demos; gone when the page closes.
+  function MemoryDriver(seed) {
+    const data = new Map(Object.entries(seed || {}).map(([k, v]) => [k, JSON.stringify(v)]));
+    const files = new Map();
+    return {
+      kind: 'memory',
+      label: 'memory',
+      async readJSON(name, fallback) { return data.has(name) ? JSON.parse(data.get(name)) : fallback; },
+      async writeJSON(name, val) { data.set(name, JSON.stringify(val)); },
+      async list() { return [...data.keys()]; },
+      async readFile(path) { return files.get(path) || null; },
+      async writeFile(path, blob) { files.set(path, blob); return { saved: true, where: 'memory' }; },
+      async listFiles(path) {
+        const pre = path.replace(/\/?$/, '/');
+        return [...files.keys()].filter((k) => k.startsWith(pre) && !k.slice(pre.length).includes('/')).map((k) => k.slice(pre.length));
+      },
+      async removeFile(path) { files.delete(path); },
+    };
+  }
+  BW.drivers = { folder: FolderDriver, browser: BrowserDriver, memory: MemoryDriver };
+
   let drv = null;
+  // Swaps the driver in place: for tests and shells. Pages use connect() below.
+  BW.useDriver = (d) => { drv = d; readOnly = ''; };
   let queue = Promise.resolve();
   // Saves run one at a time in this tab, and hold a browser-wide lock per collection so two
   // open tabs can never interleave a read-modify-write and lose a change.
@@ -271,13 +343,19 @@
   // Files may change underneath us (Google Drive sync, another device), so re-read on focus.
   window.addEventListener('focus', () => { if (drv) listeners.forEach((fn) => fn('*')); });
 
+  // Set when the data is newer than this copy of Busywork understands: reading works, saving does not.
+  let readOnly = '';
+  const writable = () => { if (readOnly) throw new Error(readOnly); };
+  const serialWrite = (fn, name) => serial(async () => { writable(); return fn(); }, name);
+
   BW.store = {
     get kind() { return drv && drv.kind; },
     get where() { return drv ? drv.label : ''; },
+    get readOnly() { return readOnly; },
     all: (name) => drv.readJSON(name, []),
     async get(name, id) { return (await drv.readJSON(name, [])).find((r) => r.id === id) || null; },
     // Read-modify-write per save, so two open apps do not overwrite each other's records.
-    put: (name, rec) => serial(async () => {
+    put: (name, rec) => serialWrite(async () => {
       const list = await drv.readJSON(name, []);
       const now = new Date().toISOString();
       if (!rec.id) { rec.id = BW.uid(); rec.createdAt = now; }
@@ -288,7 +366,7 @@
       notify(name);
       return rec;
     }, name),
-    putMany: (name, recs) => serial(async () => {
+    putMany: (name, recs) => serialWrite(async () => {
       const list = await drv.readJSON(name, []);
       const now = new Date().toISOString();
       for (const rec of recs) {
@@ -300,27 +378,60 @@
       await drv.writeJSON(name, list);
       notify(name);
     }, name),
-    remove: (name, id) => serial(async () => {
+    remove: (name, id) => serialWrite(async () => {
       const list = await drv.readJSON(name, []);
       await drv.writeJSON(name, list.filter((r) => r.id !== id));
       notify(name);
     }, name),
-    removeWhere: (name, test) => serial(async () => {
+    removeWhere: (name, test) => serialWrite(async () => {
       const list = await drv.readJSON(name, []);
       const keep = list.filter((r) => !test(r));
       if (keep.length !== list.length) { await drv.writeJSON(name, keep); notify(name); }
       return list.length - keep.length;
     }, name),
-    replaceAll: (name, list) => serial(async () => { await drv.writeJSON(name, list); notify(name); }, name),
+    replaceAll: (name, list) => serialWrite(async () => { await drv.writeJSON(name, list); notify(name); }, name),
     collections: () => drv.list(),
     async settings() { return Object.assign({}, DEFAULTS, await drv.readJSON('settings', {})); },
-    saveSettings: (s) => serial(async () => {
+    saveSettings: (s) => serialWrite(async () => {
       await drv.writeJSON('settings', s);
       BW.settings = Object.assign({}, DEFAULTS, s);
       notify('settings');
     }, 'settings'),
-    writeFile: (path, blob, opts) => drv.writeFile(path, blob, opts),
+    writeFile: (path, blob, opts) => { writable(); return drv.writeFile(path, blob, opts); },
     readFile: (path) => drv.readFile(path),
+  };
+
+  // ---------- data versions ----------
+  // data/meta.json says which version of the data format a business is in. When a release changes
+  // the shape of a record, it adds a step to MIGRATIONS (and DATA.md) instead of patching records
+  // wherever they are read. Steps run once, oldest first, at start-up, after a full backup of how
+  // things were. Each step records its version when done, so a step interrupted halfway runs again:
+  // write steps so that running one twice does no harm.
+  // A business last saved by a newer Busywork opens read-only, so an old copy on another computer
+  // (the same folder synced through Google Drive, say) can never undo what the new one changed.
+  BW.DATA_VERSION = 1;
+  const MIGRATIONS = [
+    // { to: 2, about: 'Invoices keep their lines in `items` instead of `lines`',
+    //   async run(db) { const list = await db.read('invoices', []); ...; await db.write('invoices', list); } },
+  ];
+  BW.migrate = async function migrate(d = drv, steps = MIGRATIONS, target = BW.DATA_VERSION) {
+    const run = async () => {
+      const meta = (await d.readJSON('meta', null)) || {};
+      const names = (await d.list()).filter((n) => n !== 'meta');
+      // No meta yet: a brand-new business starts at the current version; older data is version 1.
+      let v = Number(meta.dataVersion) || (names.length ? 1 : target);
+      const save = () => d.writeJSON('meta', Object.assign(meta, { dataVersion: v, savedBy: BW.version, updatedAt: new Date().toISOString() }, meta.createdAt ? {} : { createdAt: new Date().toISOString() }));
+      if (v > target) return { status: 'newer', version: v };
+      const todo = steps.filter((st) => st.to > v && st.to <= target).sort((a, b) => a.to - b.to);
+      if (!todo.length) { if (meta.dataVersion !== v) await save(); return { status: 'current', version: v }; }
+      const copy = new Blob([JSON.stringify(await snapshot(d))], { type: 'application/json' });
+      const saved = await d.writeFile(`backups/before-update-v${v}-${BW.today()}-${Date.now()}.json`, copy, { download: false }).catch(() => ({ saved: false }));
+      if (!saved.saved) ls.set('bw.beforeUpdate', await copy.text());
+      const db = { read: (n, fb) => d.readJSON(n, fb), write: (n, val) => d.writeJSON(n, val), list: () => d.list() };
+      for (const st of todo) { await st.run(db); v = st.to; await save(); }
+      return { status: 'updated', version: v, steps: todo.length };
+    };
+    return navigator.locks ? navigator.locks.request('busywork:migrate', run) : run();
   };
 
   // ---------- UI: toast, confetti, modal, drawer ----------
@@ -342,7 +453,37 @@
       try { await BW.store.put(collection, rec); BW.toast('Back again!', '↩️'); if (after) after(rec); } catch (e) { BW.error(e); }
     } });
   };
-  BW.error = (e) => { console.error(e); BW.toast(BW.esc(e && e.message ? e.message : String(e)), '😬'); };
+  BW.error = (e) => { console.error(e); BW.problems.note('shown', e); BW.toast(BW.esc(e && e.message ? e.message : String(e)), '😬'); };
+
+  // ---------- problems ----------
+  // The last 30 errors, kept in this browser only, so an owner can send a problem report. Messages
+  // and stack lines only: no records, no settings, no key. Nothing is ever sent anywhere by itself.
+  // Where we are, without the folders above Busywork (they can carry a person's name).
+  const pagePath = () => { const parts = location.pathname.split('/'); const i = parts.lastIndexOf('apps'); return i >= 0 ? parts.slice(i).join('/') : parts.pop(); };
+  BW.problems = {
+    list() { try { return JSON.parse(ls.get('bw.problems') || '[]'); } catch (e) { return []; } },
+    note(kind, e) {
+      const msg = String(e && e.message ? e.message : e).replace(/sk-ant-[\w-]+/g, 'sk-ant-…').slice(0, 300);
+      const list = BW.problems.list().slice(-29);
+      list.push({ at: new Date().toISOString(), kind, page: pagePath(), message: msg,
+        stack: String((e && e.stack) || '').split('\n').slice(1, 6).map((l) => l.trim().replace(/(?:file|https?):\/\/\S*?\/(apps|shared)\//, '$1/')).join('\n') });
+      ls.set('bw.problems', JSON.stringify(list));
+    },
+    clear() { ls.del('bw.problems'); },
+  };
+  window.addEventListener('error', (e) => BW.problems.note('error', e.error || e.message));
+  window.addEventListener('unhandledrejection', (e) => BW.problems.note('promise', e.reason));
+  // A problem report: what someone helping needs to know, and nothing about the business itself
+  // (collections are counted, never copied).
+  BW.diagnostics = async () => {
+    const counts = {};
+    if (drv) for (const n of await drv.list()) { const v = await drv.readJSON(n, null).catch(() => 'unreadable'); counts[n] = Array.isArray(v) ? v.length : typeof v; }
+    const meta = drv ? await drv.readJSON('meta', {}).catch(() => ({})) : {};
+    return { report: 'Busywork problem report', made: new Date().toISOString(), version: BW.version, dataVersion: meta.dataVersion || null,
+      supportedDataVersion: BW.DATA_VERSION, storage: drv ? drv.kind : null, readOnly: !!readOnly, platform: BW.platform.kind,
+      browser: navigator.userAgent, language: navigator.language, page: pagePath(),
+      olaf: await BW.entitlements.edition('olaf'), collections: counts, problems: BW.problems.list() };
+  };
 
   BW.confetti = (opts) => {
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -580,8 +721,10 @@
     return `<div class="grid-2">${fields.map((f) => {
       const v = data[f.k] == null ? '' : data[f.k];
       let input;
-      if (f.type === 'select') input = `<select class="in" name="${f.k}">${f.options.map(([val, l]) => `<option value="${val}" ${String(val) === String(v) ? 'selected' : ''}>${l}</option>`).join('')}</select>`;
-      else if (f.type === 'chips') input = `<div class="choice-chips" data-name="${f.k}">${f.options.map(([val, l]) => `<button type="button" data-v="${val}" aria-pressed="${String(val) === String(v)}">${l}</button>`).join('')}</div>`;
+      // Option labels are often names the owner typed (clients, projects), so they are escaped.
+      // A field with html: true has labels written in code, such as colour swatches.
+      if (f.type === 'select') input = `<select class="in" name="${f.k}">${f.options.map(([val, l]) => `<option value="${BW.esc(val)}" ${String(val) === String(v) ? 'selected' : ''}>${BW.esc(l)}</option>`).join('')}</select>`;
+      else if (f.type === 'chips') input = `<div class="choice-chips" data-name="${f.k}">${f.options.map(([val, l]) => `<button type="button" data-v="${BW.esc(val)}" aria-pressed="${String(val) === String(v)}">${f.html ? l : BW.esc(l)}</button>`).join('')}</div>`;
       else if (f.type === 'textarea') input = `<textarea class="in" name="${f.k}" placeholder="${BW.esc(f.ph || '')}">${BW.esc(v)}</textarea>`;
       else if (f.type === 'money' || f.type === 'number') input = `<input class="in" name="${f.k}" inputmode="decimal" placeholder="${BW.esc(f.ph || '')}" value="${BW.esc(v)}" autocomplete="off">`;
       else input = `<input class="in" name="${f.k}" type="${f.type || 'text'}" placeholder="${BW.esc(f.ph || '')}" value="${BW.esc(v)}" ${f.required ? 'required' : ''} autocomplete="off">`;
@@ -808,6 +951,7 @@
   }
 
   async function connect() {
+    if (host.driver) { drv = await host.driver(); return; }
     const mode = ls.get('bw.mode');
     if (mode === 'browser') { drv = BrowserDriver(); return; }
     if (mode === 'folder' && BW.canUseFolders) {
@@ -842,11 +986,13 @@
   }
 
   // ---------- backups ----------
-  async function snapshot() {
-    const out = { _busywork: 1, _made: new Date().toISOString() };
-    for (const name of new Set(['settings', ...(await drv.list())])) { const v = await drv.readJSON(name, null); if (v != null) out[name] = v; }
+  // A backup is one JSON file: a few _fields about the file, then every collection under its name.
+  async function snapshot(d = drv) {
+    const out = { _busywork: 1, _made: new Date().toISOString(), _app: BW.version };
+    for (const name of new Set(['settings', ...(await d.list())])) { const v = await d.readJSON(name, null); if (v != null) out[name] = v; }
     return out;
   }
+  BW.snapshot = () => snapshot();
   async function backup() {
     BW.download(new Blob([JSON.stringify(await snapshot(), null, 2)], { type: 'application/json' }), `busywork-backup-${BW.today()}.json`);
   }
@@ -857,12 +1003,10 @@
     try {
       if (await drv.readFile('backups/' + name)) return;
       const data = await snapshot();
-      if (Object.keys(data).length <= 3) return; // nothing worth keeping yet
+      if (!Object.keys(data).some((k) => k[0] !== '_' && k !== 'settings' && k !== 'meta')) return; // nothing worth keeping yet
       await drv.writeFile('backups/' + name, new Blob([JSON.stringify(data)], { type: 'application/json' }));
-      const dir = await drv.handle.getDirectoryHandle('backups');
-      const old = [];
-      for await (const [n] of dir.entries()) if (/^busywork-\d{4}-\d\d-\d\d\.json$/.test(n)) old.push(n);
-      old.sort().slice(0, -14).forEach((n) => dir.removeEntry(n).catch(() => {}));
+      const old = (await drv.listFiles('backups')).filter((n) => /^busywork-\d{4}-\d\d-\d\d\.json$/.test(n));
+      old.sort().slice(0, -14).forEach((n) => drv.removeFile('backups/' + n).catch(() => {}));
     } catch (e) { console.warn('Backup skipped', e); }
   }
   function restore() {
@@ -874,11 +1018,15 @@
       try { data = JSON.parse(await f.text()); } catch (e) { return BW.toast('That file isn’t a Busywork backup.', '🤔'); }
       const names = Object.keys(data).filter((k) => !k.startsWith('_'));
       if (!names.length) return BW.toast('That backup is empty.', '🤔');
+      const version = Number(data.meta && data.meta.dataVersion) || 1;
+      if (version > BW.DATA_VERSION) return BW.toast('That backup was made by a newer Busywork. Download the latest Busywork first.', '🤔');
       if (!(await BW.confirm(`Replace what’s here now with the backup from <b>${BW.esc((data._made || f.name).slice(0, 10))}</b>? We first save a copy of what you have now.`, { ok: 'Restore', title: 'Restore a backup?' }))) return;
       try {
         if (drv.kind === 'folder') await drv.writeFile(`backups/before-restore-${Date.now()}.json`, new Blob([JSON.stringify(await snapshot())], { type: 'application/json' }));
         else await backup();
         for (const n of names) await drv.writeJSON(n, data[n]);
+        // Older backups have no meta: say which version they are, so the update steps run on reload.
+        if (!data.meta) await drv.writeJSON('meta', { dataVersion: version, restoredAt: new Date().toISOString() });
       } catch (e) { return BW.error(e); }
       BW.toast('Restored! Reloading…', '♻️');
       setTimeout(() => location.reload(), 900);
@@ -908,6 +1056,7 @@
       <button class="menu-item" data-a="backup">💾 Download a backup</button>
       <button class="menu-item" data-a="restore">♻️ Restore a backup</button>
       ${drv.kind === 'folder' ? '<div class="lbl" style="padding-top:4px">A copy is saved in backups/ every day</div><button class="menu-item" data-a="browser">🧪 Use this browser instead</button>' : ''}
+      <button class="menu-item" data-a="report">🩺 Download a problem report</button>
     </div>`);
     const r = btn.getBoundingClientRect();
     pop.style.top = (r.bottom + window.scrollY + 8) + 'px';
@@ -920,6 +1069,10 @@
       pop.remove();
       if (a.dataset.a === 'backup') backup();
       if (a.dataset.a === 'restore') restore();
+      if (a.dataset.a === 'report') {
+        BW.download(new Blob([JSON.stringify(await BW.diagnostics(), null, 2)], { type: 'application/json' }), `busywork-problem-report-${BW.today()}.json`);
+        BW.toast('Report downloading. It counts your records but contains none of them.', '🩺');
+      }
       if (a.dataset.a === 'folder') {
         if (drv.kind === 'browser') moveToFolder();
         else if (await pickFolder()) location.reload();
@@ -1065,6 +1218,15 @@
      website). Resolves to 'full', 'demo' or null, so free pages can link to it or to the Olaf page. */
   let olafCheck = null;
   BW.olafInstalled = () => olafCheck || (olafCheck = BW.loadScript(BW.root + 'apps/olaf/olaf-installed.js').then(() => BW.olafEdition || 'full', () => null));
+  // ---------- what this copy may use ----------
+  // One place answers "may this copy use a paid feature?". Today that depends on which files were
+  // installed: the paid download includes Olaf. Later it may be a licence key, an app-store receipt
+  // or an account: only this object changes (or a shell passes its own through window.BW_HOST).
+  // edition(): 'full', 'demo' or null (not here).
+  BW.entitlements = Object.assign({
+    async edition(feature) { return feature === 'olaf' ? BW.olafInstalled() : null; },
+    async has(feature) { return (await this.edition(feature)) === 'full'; },
+  }, host.entitlements);
   BW.olafPage = () => BW.siteUrl + '/olaf.html';
   /* A gentle pointer to Olaf at a good moment (a paid invoice, a new client). At most once a week,
      never when Olaf is already installed, never inside documents. */
@@ -1075,7 +1237,7 @@
     BW.olafInstalled().then((ed) => {
       if (ed === 'full') return;
       try { localStorage.setItem(key, String(Date.now())); } catch (e) { /* ignore */ }
-      setTimeout(() => BW.toast(msg, '🧭', { label: 'Meet Olaf', run: () => window.open(ed === 'demo' ? BW.root + 'apps/olaf/index.html' : BW.olafPage(), '_blank', 'noopener') }), 1800);
+      setTimeout(() => BW.toast(msg, '🧭', { label: 'Meet Olaf', run: () => BW.openUrl(ed === 'demo' ? BW.root + 'apps/olaf/index.html' : BW.olafPage()) }), 1800);
     });
   };
   BW.loadScript = (src) => new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('Could not load ' + src)); document.body.append(s); });
@@ -1106,8 +1268,13 @@
     if (onChange) BW.onChange(onChange);
     try {
       await connect();
+      const data = await BW.migrate();
+      if (data.status === 'newer') {
+        readOnly = 'This business was last saved by a newer Busywork, so this copy only shows it. Download the latest Busywork to make changes.';
+        bar.append(BW.html(`<div class="readonly-bar" role="status">🔒 ${readOnly}</div>`));
+      }
       BW.settings = await BW.store.settings();
-      if (!BW.settings.businessName) await runWizard();
+      if (!BW.settings.businessName && !readOnly) await runWizard();
     } catch (e) { BW.error(e); return; }
     const chip = BW.$('[data-store]', bar);
     chip.hidden = false;
