@@ -98,12 +98,12 @@ test('entitlements: Olaf is paid, and a shell can answer instead (licence, store
 });
 
 test('the problem report counts records, copies none, and hides keys and folder names', async () => {
-  const win = await busywork([], { page: '/Users/Jane Doe/Documents/Busywork/apps/invoices/index.html' });
+  const win = await busywork([], { page: '/Users/Jane Doe/Documents/Busy/apps/invoices/index.html' });
   const { BW } = win;
   BW.olafInstalled = async () => null;
   await BW.store.put('clients', { name: 'Secret Client BV', email: 'secret@example.com' });
   const err = new Error('Request failed for sk-ant-api03-abcdef');
-  err.stack = 'Error: x\n    at save (file:///Users/Jane%20Doe/Documents/Busywork/apps/invoices/app.js:10:5)';
+  err.stack = 'Error: x\n    at save (file:///Users/Jane%20Doe/Documents/Busy/apps/invoices/app.js:10:5)';
   BW.problems.note('error', err);
   const rep = await BW.diagnostics();
   const text = JSON.stringify(rep);
@@ -157,7 +157,7 @@ test('names the owner typed are escaped in forms', async () => {
   assert.ok(BW.fieldsHtml([{ k: 'c', label: 'Colour', type: 'chips', html: true, options: [['x', '<span class="swatch"></span>']] }], {}).includes('<span class="swatch">'));
 });
 
-// Every tool page: scripts only from Busywork's own files, no inline script, network only to Anthropic.
+// Every tool page: scripts only from Busy's own files, no inline script, network only to Anthropic.
 const STRICT = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://api.anthropic.com; object-src 'none'; base-uri 'none'; form-action 'none'";
 test('every tool page carries the strict security policy and no inline script', () => {
   const olaf = path.join(ROOT, '..', 'busywork-olaf', 'app', 'index.html');

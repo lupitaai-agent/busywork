@@ -1,6 +1,6 @@
-# Busywork architecture
+# Busy architecture
 
-How Busywork is built, why, and how it can grow into a desktop app, a store app or a cloud service
+How Busy is built, why, and how it can grow into a desktop app, a store app or a cloud service
 without starting again. Read with [DATA.md](DATA.md) (the data format) and [README.md](README.md)
 (building and publishing).
 
@@ -73,7 +73,7 @@ Anything left out keeps the browser default. Each seam has tests showing a repla
 - One JSON file per collection, read-modify-write per save, one save at a time per tab and a
   browser-wide lock per collection, so two open tabs never lose each other's changes.
 - `data/meta.json` records the data version. Start-up runs update steps after a full backup; a
-  business saved by a newer Busywork opens read-only. See DATA.md.
+  business saved by a newer version of Busy opens read-only. See DATA.md.
 - Daily backups in `backups/` (folder mode), plus download and restore.
 - Writers keep fields they don't know, so versions can share a folder.
 
@@ -81,7 +81,7 @@ Anything left out keeps the browser default. Each seam has tests showing a repla
 
 - **The API key** stays in the browser that uses it (`localStorage`, never in the business folder
   or a backup), is sent only to `api.anthropic.com`, and is masked in problem reports.
-- **A strict Content Security Policy on every tool page:** scripts only from Busywork's own files,
+- **A strict Content Security Policy on every tool page:** scripts only from Busy's own files,
   no inline scripts, network only to Anthropic, no plugins, no forms posting anywhere. An injected
   script can't run, and if one did, it couldn't send the key anywhere. Checked in Chrome (the policy
   holds from `file://`, and every tool page runs clean under it), and a test keeps it on every page.
@@ -118,7 +118,7 @@ Anything left out keeps the browser default. Each seam has tests showing a repla
 4. **Free and paid in two repositories.** The free one can be public; the paid one never is. The
    website shows Olaf as a demo built from the private repo, without instructions.
 5. **Data versions with a read-only guard.** A folder shared between computers through a sync
-   service will meet two versions of Busywork; the newer data must win.
+   service will meet two versions of Busy; the newer data must win.
 6. **Seams instead of target-specific copies.** One codebase for browser, store and cloud.
 
 ## How far away each future is
@@ -130,7 +130,7 @@ Anything left out keeps the browser default. Each seam has tests showing a repla
 | **Licence keys for Olaf** without a server | **Ready** | Signed licences checked offline (`BW.licence`, ECDSA P-256), the seller's tool (`tools/licence.js` in the Olaf repo), unlock screen, switch in the paid build | A payment provider; signing by hand per sale until its webhook signs automatically |
 | **Phone apps (iOS, Android)** | **Far** | Data format, store contract, AI transport | Phones can't open a folder the same way: a phone driver and probably sync; layouts designed for phones first; Apple requires in-app purchase for unlocking Olaf (Apple takes 15 to 30%) |
 | **Cloud sync between devices** | **Far** | Records have ids and `updatedAt`; drivers are swappable; data versions | Deleted records need to leave a marker (`deletedAt`) so a sync can tell "deleted" from "not here yet": that is data version 2. Then a sync service, accounts, encryption so we still can't read the data, conflict handling |
-| **Fully hosted Busywork (accounts, our servers)** | **Far, and against principle 1** | The proxy transport; a cloud driver would fit the seam | Servers, accounts, billing, security work, privacy law (we'd hold business data). Possible as an option next to local, not instead of it |
+| **Fully hosted Busy (accounts, our servers)** | **Far, and against principle 1** | The proxy transport; a cloud driver would fit the seam | Servers, accounts, billing, security work, privacy law (we'd hold business data). Possible as an option next to local, not instead of it |
 | **Olaf without the owner's own key** (we pay Claude, owner pays us monthly) | **Medium** | The proxy transport is written and tested | A small server that holds the key, meters use per licence and stops at a limit; a subscription price |
 | **Other languages** | **Medium** | Documents already switch per client (English, Dutch); Olaf follows the business's language | The tools' own screens are written in English inline; the strings need moving into language files |
 | **Team Mode** (several people, one business) | **Far** | Locks per collection inside one browser | Different people on different computers need real sync with merging (see cloud sync) |

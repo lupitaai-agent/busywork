@@ -2,7 +2,7 @@
 """Builds the website from the tools and the product-page content.
 
 - website/app/                    a copy of app/, so visitors can try the tools online
-- website/downloads/busywork.zip  the download: app/ inside a "Busywork" folder
+- website/downloads/busy.zip      the download: app/ inside a "Busy" folder
 - website/tools/*.html            one product page per tool, from website/content/tools.json
 - website/sitemap.xml, robots.txt
 - app/apps/marketing/library.js   the Marketing Studio's foundation and skill library, from marketing/
@@ -31,20 +31,20 @@ TOOLS_JSON = SITE / "content" / "tools.json"  # the product-page copy for every 
 # The GitHub workflow passes the real one (the Pages address, or your custom domain).
 SITE_URL = os.environ.get("SITE_URL", "https://busywork.example").rstrip("/")
 
-START_HERE = """Busywork - make your paperwork fun again.
+START_HERE = """Busy - make your paperwork fun again.
 
-1. Move this Busywork folder somewhere you will find it again, like Documents.
+1. Move this Busy folder somewhere you will find it again, like Documents.
 2. Double-click index.html. It opens in your browser. Use Chrome or Edge: they can
    save your business as files in a folder (Safari and Firefox cannot).
 3. Pick a folder for your business files. Put it inside Google Drive, Dropbox,
    OneDrive or iCloud Drive if you want backups and syncing.
 
 Your data stays on your computer and is never sent to us. The free tools have no
-AI and no account. Updating later? Replace this Busywork folder with the new one.
+AI and no account. Updating later? Replace this Busy folder with the new one.
 Your business folder is separate, so nothing is lost.
 
 Want more done for you? Olaf, the AI expert for marketing and projects, is the
-paid edition: see the Olaf page on the Busywork website.
+paid edition: see the Olaf page on the Busy website.
 """
 
 e = html.escape
@@ -77,16 +77,16 @@ NOT_IN_DOWNLOAD = {"shared/ai.js", "shared/examples.js"}
 def make_zip() -> None:
     downloads = SITE / "downloads"
     downloads.mkdir(exist_ok=True)
-    out = downloads / "busywork.zip"
+    out = downloads / "busy.zip"
     files = sorted(p for p in APP.rglob("*") if p.is_file() and not any(skip(part) for part in p.relative_to(APP).parents if part.name) and not skip(p)
                    and p.relative_to(APP).as_posix() not in NOT_IN_DOWNLOAD)
     with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
-        z.writestr("Busywork/START HERE.txt", START_HERE)
+        z.writestr("Busy/START HERE.txt", START_HERE)
         for p in files:
             if p == APP / "shared" / "core.js":
-                z.writestr("Busywork/shared/core.js", site_core(p.read_text()))
+                z.writestr("Busy/shared/core.js", site_core(p.read_text()))
             else:
-                z.write(p, Path("Busywork") / p.relative_to(APP))
+                z.write(p, Path("Busy") / p.relative_to(APP))
     print(f"{out.relative_to(ROOT)}: {len(files) + 1} files, {out.stat().st_size // 1024} KB")
 
 
@@ -279,7 +279,7 @@ def paths_block(prefix: str) -> str:
           <span class="chip chip-mint">Free</span>
           <span class="e">🧰</span>
           <h3>Do it yourself</h3>
-          <p class="path-sub">The Busywork toolbox with the Marketing Studio and the Project Planner</p>
+          <p class="path-sub">The Busy toolbox with the Marketing Studio and the Project Planner</p>
           <ul>
             <li>All {len(json.loads(TOOLS_JSON.read_text()))} tools, from invoices to stock, free forever</li>
             <li>A Marketing Studio: brand profile, year plan, content calendar and insights, on the same science Olaf uses</li>
@@ -294,7 +294,7 @@ def paths_block(prefix: str) -> str:
           <span class="chip chip-sun">Most help</span>
           <span class="e">🧭</span>
           <h3>Guided by Olaf, your AI expert for marketing and projects</h3>
-          <p class="path-sub">A marketing coach and a project lead in one, inside Busywork</p>
+          <p class="path-sub">A marketing coach and a project lead in one, inside Busy</p>
           <ul>
             <li><b>Looks at your business</b> and tells you where you stand</li>
             <li><b>A 90-day marketing plan</b>, then a ten-minute check-in each week with one to three steps that fit your hours</li>
@@ -356,7 +356,7 @@ def nav(prefix: str) -> str:
     return f"""<div class="progress" aria-hidden="true"></div>
 <a class="skip" href="#main">Skip to content</a>
 <header class="nav"><div class="wrap">
-  <a class="brandmark" href="{prefix}index.html"><span class="blob">✦</span><span class="word">Busywork</span></a>
+  <a class="brandmark" href="{prefix}index.html"><span class="blob">✦</span><span class="word">Busy</span></a>
   <nav class="links" aria-label="Main"><a href="{prefix}tools/index.html">Tools</a><a href="{prefix}olaf.html">Olaf</a><a href="{prefix}index.html#how">How it works</a><a href="{prefix}index.html#private">Privacy</a><a href="{prefix}index.html#faq">Questions</a></nav>
   <a class="btn btn-primary" href="{prefix}download.html">⬇️ Download free</a>
 </div></header>"""
@@ -365,9 +365,9 @@ def nav(prefix: str) -> str:
 def footer(prefix: str, tools: list) -> str:
     links = "".join(f'<li><a href="{prefix}tools/{t["id"]}.html">{t["emoji"]} {e(t["name"])}</a></li>' for t in tools)
     return f"""<footer class="footer sitemap"><div class="wrap">
-  <div><span class="brandmark"><span class="blob">✦</span>Busywork</span><p class="faint">Make your paperwork fun again.<br>Free tools that keep your data on your own computer.</p></div>
+  <div><span class="brandmark"><span class="blob">✦</span>Busy</span><p class="faint">Make your paperwork fun again.<br>Free tools that keep your data on your own computer.</p></div>
   <div><b>Tools</b><ul>{links}</ul></div>
-  <div><b>Busywork</b><ul><li><a href="{prefix}download.html">Download</a></li><li><a href="{prefix}app/index.html">See the demo</a></li><li><a href="{prefix}tools/index.html">All tools</a></li><li><a href="{prefix}about.html">About</a></li><li><a href="{prefix}privacy.html">Privacy</a></li><li><a href="{prefix}terms.html">Terms</a></li></ul></div>
+  <div><b>Busy</b><ul><li><a href="{prefix}download.html">Download</a></li><li><a href="{prefix}app/index.html">See the demo</a></li><li><a href="{prefix}tools/index.html">All tools</a></li><li><a href="{prefix}about.html">About</a></li><li><a href="{prefix}privacy.html">Privacy</a></li><li><a href="{prefix}terms.html">Terms</a></li></ul></div>
   <div><b>Guided by Olaf</b><ul><li><a href="{prefix}olaf.html">🧭 Olaf, AI expert for marketing and projects</a></li><li><a href="{prefix}app/apps/olaf/index.html">Try the Olaf demo</a></li></ul></div>
 </div></footer>"""
 
@@ -376,7 +376,7 @@ def footer(prefix: str, tools: list) -> str:
 ICONS = '<link rel="icon" href="{prefix}favicon.ico" sizes="any"><link rel="icon" href="{prefix}assets/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="{prefix}apple-touch-icon.png"><link rel="manifest" href="{prefix}site.webmanifest">'
 
 
-def head(title: str, desc: str, path: str, prefix: str, extra: str = "", image: str = "og-busywork.png") -> str:
+def head(title: str, desc: str, path: str, prefix: str, extra: str = "", image: str = "og-busy.png") -> str:
     url = f"{SITE_URL}/{path}"
     img = f"{SITE_URL}/assets/{image}"
     return f"""<!doctype html>
@@ -387,7 +387,7 @@ def head(title: str, desc: str, path: str, prefix: str, extra: str = "", image: 
 <title>{e(title)}</title>
 <meta name="description" content="{e(desc)}">
 <link rel="canonical" href="{url}">
-<meta property="og:type" content="website"><meta property="og:site_name" content="Busywork">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Busy">
 <meta property="og:title" content="{e(title)}"><meta property="og:description" content="{e(desc)}"><meta property="og:url" content="{url}">
 <meta property="og:image" content="{img}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="{e(IMAGES["assets/" + image][1])}">
 <meta property="og:locale" content="en_GB">
@@ -404,13 +404,13 @@ def head(title: str, desc: str, path: str, prefix: str, extra: str = "", image: 
 # chunks (Title, Description, Author, Copyright, Source) and an SVG <title>/<desc>. Written by
 # image_metadata() at build time; running it again changes nothing.
 IMAGES = {
-    "assets/og-busywork.png": ("Busywork: free tools for small businesses",
-                               "Busywork share image: free, private business tools for invoices, time, receipts, money, projects and marketing."),
-    "assets/og-olaf.png": ("Olaf by Busywork: AI expert for marketing and projects",
-                           "Olaf share image: the AI expert for marketing and projects in the paid edition of Busywork."),
-    "assets/logo-512.png": ("Busywork logo", "The Busywork logo: a sun-yellow rounded tile with a dark sparkle."),
-    "apple-touch-icon.png": ("Busywork icon", "The Busywork app icon: a sun-yellow rounded tile with a dark sparkle."),
-    "assets/favicon.svg": ("Busywork logo", "The Busywork logo: a sun-yellow rounded tile with a dark sparkle."),
+    "assets/og-busy.png": ("Busy: free tools for small businesses",
+                               "Busy share image: free, private business tools for invoices, time, receipts, money, projects and marketing."),
+    "assets/og-olaf.png": ("Olaf by Busy: AI expert for marketing and projects",
+                           "Olaf share image: the AI expert for marketing and projects in the paid edition of Busy."),
+    "assets/logo-512.png": ("Busy logo", "The Busy logo: a sun-yellow rounded tile with a dark sparkle."),
+    "apple-touch-icon.png": ("Busy icon", "The Busy app icon: a sun-yellow rounded tile with a dark sparkle."),
+    "assets/favicon.svg": ("Busy logo", "The Busy logo: a sun-yellow rounded tile with a dark sparkle."),
     "assets/olaf-mark.svg": ("Olaf logo", "The Olaf logo: a purple compass pointing up and to the right."),
 }
 
@@ -439,7 +439,7 @@ def image_metadata() -> None:
         f = SITE / rel
         if f.suffix == ".png":
             data = f.read_bytes()
-            new = png_text(data, {"Title": title, "Description": desc, "Author": "Busywork", "Copyright": f"© {year} Busywork", "Source": SITE_URL})
+            new = png_text(data, {"Title": title, "Description": desc, "Author": "Busy", "Copyright": f"© {year} Busy", "Source": SITE_URL})
             if new != data:
                 f.write_bytes(new)
         elif f.suffix == ".svg":
@@ -461,8 +461,8 @@ def words(n: int) -> str:
 
 def tool_page(t: dict, tools: list, scene: str) -> str:
     by_id = {x["id"]: x for x in tools}
-    title = f'{t["title"]} · Busywork'
-    ld = jsonld({"@context": "https://schema.org", "@type": "SoftwareApplication", "name": f'Busywork {t["name"]}', "applicationCategory": "BusinessApplication",
+    title = f'{t["title"]} · Busy'
+    ld = jsonld({"@context": "https://schema.org", "@type": "SoftwareApplication", "name": f'Busy {t["name"]}', "applicationCategory": "BusinessApplication",
                  "operatingSystem": "Windows, macOS, ChromeOS (in Chrome or Edge)", "description": t["description"], "url": f'{SITE_URL}/tools/{t["id"]}.html',
                  "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}}) + jsonld({
         "@context": "https://schema.org", "@type": "FAQPage",
@@ -529,7 +529,7 @@ def tool_page(t: dict, tools: list, scene: str) -> str:
 def tools_index(tools: list) -> str:
     cards = "".join(f'<a class="card rel big reveal pop" href="{t["id"]}.html" style="--c:var(--{t["color"]})"><span class="em">{t["emoji"]}</span><b>{e(t["name"])}</b><small>{e(t["h1"])}</small><span class="go">See what it does →</span></a>' for t in tools)
     desc = f"{words(len(tools)).capitalize()} free, private tools for small businesses and freelancers: invoices, time, receipts, money, projects, marketing and more. No account."
-    return f"""{head("All tools · Busywork", desc, "tools/index.html", "../")}
+    return f"""{head("All tools · Busy", desc, "tools/index.html", "../")}
 <body class="site app-sun">
 {nav("../")}
 <main id="main" class="wrap">
@@ -552,7 +552,7 @@ OLAF_FEATS = [("🔍", "Looks at where you stand", "Reads your brand profile, yo
          ("⏰", "Checks in every week", "Ten minutes: what got done, what's next, and one to three steps for this week."),
          ("✍️", "Does the work with you", "Writes the posts, review requests, newsletter, press pitch and plan, and saves them in your folder."),
          ("🌐", "Researches for you", "Searches the web for your reviews, competitors, local media and the numbers it needs."),
-         ("📊", "Reviews the month", "Counts new customers from your Busywork invoices and adjusts the plan to what works.")]
+         ("📊", "Reviews the month", "Counts new customers from your Busy invoices and adjusts the plan to what works.")]
 OLAF_PROJECT_FEATS = [
     ("🚀", "A kick-off that writes the plan", "Tell Olaf the job and the date that matters. It asks a few questions and puts the milestones, tasks, people and risks in your Project Planner."),
     ("📋", "A weekly check-in", "Olaf reads the plan, sees what slipped, what waits on whom and who has too much on, agrees the week with you and updates the plan."),
@@ -565,8 +565,8 @@ OLAF_FAQ = [("Is Olaf a person?", "No. Olaf is an AI expert for marketing and pr
        ("Do I need the Marketing Studio first?", "No. If you have filled in the Studio's brand profile, Olaf starts from it. If not, Olaf's onboarding asks the questions itself, one at a time."),
        ("Where is my data?", "In your own business folder. Your Claude key stays in your browser and is only sent to Anthropic. Web pages are fetched by Anthropic's own tools, never through us. We have no server that sees your business."),
        ("Does Olaf post for me?", "No. Olaf writes and prepares; you post, send and publish. That keeps you in control of what goes out under your name."),
-       ("Which computers does it work on?", "Any computer with Chrome or Edge, Mac or Windows. Busywork keeps your business as files in a folder, and Safari and Firefox cannot save to folders yet."),
-       ("Is Olaf in the free download?", "No. The free download has every Busywork tool and the Marketing Studio. Olaf comes in its own download when you buy it, with Busywork included. The demo on this site shows what it looks like with an example business.")]
+       ("Which computers does it work on?", "Any computer with Chrome or Edge, Mac or Windows. Busy keeps your business as files in a folder, and Safari and Firefox cannot save to folders yet."),
+       ("Is Olaf in the free download?", "No. The free download has every Busy tool and the Marketing Studio. Olaf comes in its own download when you buy it, with Busy included. The demo on this site shows what it looks like with an example business.")]
 
 
 def olaf_page(tools: list) -> str:
@@ -595,13 +595,13 @@ def olaf_page(tools: list) -> str:
                  "Posts, newsletter, press and offers, written with you and checked before they go out.",
                  "New customers per month from your invoices, a brand survey now and then, and what to change."]
     feats, project_feats, faq = OLAF_FEATS, OLAF_PROJECT_FEATS, OLAF_FAQ
-    ld = jsonld({"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Olaf by Busywork", "applicationCategory": "BusinessApplication",
+    ld = jsonld({"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Olaf by Busy", "applicationCategory": "BusinessApplication",
                  "operatingSystem": "Windows, macOS, ChromeOS (in Chrome or Edge)", "url": f"{SITE_URL}/olaf.html",
                  "description": "An AI expert for marketing and projects for small businesses: a 90-day marketing plan, project plans, a weekly check-in and the work done with you, built on proven marketing science.",
                  "offers": {"@type": "Offer", "price": "149", "priceCurrency": "EUR"}}) + jsonld({
         "@context": "https://schema.org", "@type": "FAQPage",
         "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in faq]})
-    return f"""{head("Olaf: an AI expert for marketing and projects · Busywork", "Olaf plans your marketing and your projects, checks in every week and does the work with you. Built on proven marketing science. Runs on your own Claude key.", "olaf.html", "", ld, image="og-olaf.png")}
+    return f"""{head("Olaf: an AI expert for marketing and projects · Busy", "Olaf plans your marketing and your projects, checks in every week and does the work with you. Built on proven marketing science. Runs on your own Claude key.", "olaf.html", "", ld, image="og-olaf.png")}
 <body class="site app-grape">
 {nav("")}
 <main id="main">
@@ -610,7 +610,7 @@ def olaf_page(tools: list) -> str:
     <div class="wrap tool-hero-grid">
       <div class="reveal from-left">
         <img class="olaf-hero-mark" src="assets/olaf-mark.svg" alt="" width="96" height="96">
-        <p class="kicker">Olaf · your AI expert for marketing and projects · by Busywork</p>
+        <p class="kicker">Olaf · your AI expert for marketing and projects · by Busy</p>
         <h1>A marketing expert in your corner, every week.</h1>
         <p class="lead">Olaf works out where your business stands, plans your next 90 days and checks in every week. Then it does the work with you: the posts, the review requests, the newsletter, the plan. Everything rests on decades of marketing science about how people really buy.</p>
         <div class="ctas"><a class="btn btn-primary btn-big" href="#get">🧭 Get Olaf</a><a class="btn btn-big" href="app/apps/olaf/index.html">👀 Try the demo</a></div>
@@ -652,7 +652,7 @@ def olaf_page(tools: list) -> str:
         <tr><td>Knows your business and remembers results</td><td>✓ Your profile, plan, numbers and every piece of work</td><td>Starts over unless you set it up</td><td>✓</td></tr>
         <tr><td>Tells you what to do next</td><td>✓ A 90-day plan and a weekly check-in</td><td>You decide, and you prompt</td><td>Usually a monthly meeting</td></tr>
         <tr><td>Does the work</td><td>✓ Drafts it all; you approve</td><td>You copy, paste and fix</td><td>✓</td></tr>
-        <tr><td>Reads your real sales numbers</td><td>✓ From your Busywork invoices</td><td>Only what you paste</td><td>Only what you share</td></tr>
+        <tr><td>Reads your real sales numbers</td><td>✓ From your Busy invoices</td><td>Only what you paste</td><td>Only what you share</td></tr>
         <tr><td>Your data</td><td>Stays on your computer</td><td>In a chat history</td><td>With the agency</td></tr>
         <tr><td>Cost</td><td>€149 once, plus a few cents of AI per session</td><td>A monthly subscription, plus your time</td><td>A monthly retainer</td></tr>
       </tbody></table></div>
@@ -662,9 +662,9 @@ def olaf_page(tools: list) -> str:
       <span class="e">🧭</span>
       <div><h2>Get Olaf</h2>
         <p>Olaf is a one-time purchase: <b>€149</b> for your business, plus your own Claude usage.</p>
-        <ul class="get-list"><li>Olaf: the growth coach, setup, dashboard, insights and content calendar</li><li>52 marketing skills, all built on proven marketing science</li><li>The full Busywork toolbox in the same download</li><li>Every update, no subscription</li></ul>
+        <ul class="get-list"><li>Olaf: the growth coach, setup, dashboard, insights and content calendar</li><li>52 marketing skills, all built on proven marketing science</li><li>The full Busy toolbox in the same download</li><li>Every update, no subscription</li></ul>
         {f'<a class="btn btn-big btn-primary" href="{e(OLAF_CHECKOUT_URL)}">Buy Olaf · €149</a>' if OLAF_CHECKOUT_URL else '<p><b>Checkout opens soon.</b> Leave your email and you are first in line, at the early-access price.</p>' + waitlist_form("olaf-page")}
-        <p class="faint" style="font-size:.88rem;margin-top:8px">The free Busywork download never contains Olaf. The demo shows an example business; Olaf's work and the AI run only in the paid version.</p></div>
+        <p class="faint" style="font-size:.88rem;margin-top:8px">The free Busy download never contains Olaf. The demo shows an example business; Olaf's work and the AI run only in the paid version.</p></div>
     </div>
   </div></section>
   <section class="section" id="faq"><div class="wrap">
@@ -673,7 +673,7 @@ def olaf_page(tools: list) -> str:
   </div></section>
   <section class="final">
     <h2 class="reveal pop">Your marketing and your projects, with an expert.</h2>
-    <p class="lead reveal" style="margin-top:14px;color:var(--ink-2);font-size:1.2rem">Start your journey in the browser, or download Busywork and keep it all in your own folder.</p>
+    <p class="lead reveal" style="margin-top:14px;color:var(--ink-2);font-size:1.2rem">Start your journey in the browser, or download Busy and keep it all in your own folder.</p>
     <div class="row-flex" style="justify-content:center;margin-top:10px"><a class="btn btn-big" href="#get">🧭 Get Olaf</a><a class="btn btn-big ghost-light" href="app/apps/olaf/index.html">👀 Try the demo</a></div>
   </section>
 </main>
@@ -701,7 +701,7 @@ def build_pages() -> None:
                                       + "".join(f"  <url><loc>{SITE_URL}/{p}</loc><lastmod>{page_date(p)}</lastmod></url>\n" for p in pages) + "</urlset>\n")
     (SITE / "robots.txt").write_text(robots_txt())
     write_llms(tools)
-    (SITE / "site.webmanifest").write_text(json.dumps({"name": "Busywork", "short_name": "Busywork", "description": ENTITY, "start_url": "/", "display": "browser",
+    (SITE / "site.webmanifest").write_text(json.dumps({"name": "Busy", "short_name": "Busy", "description": ENTITY, "start_url": "/", "display": "browser",
         "theme_color": "#FFC93C", "background_color": "#16141F", "icons": [{"src": "assets/logo-512.png", "sizes": "512x512", "type": "image/png"},
         {"src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png"}]}, indent=1) + "\n")
     missing = [t["id"] for t in tools if t["id"] not in sc]
@@ -709,13 +709,19 @@ def build_pages() -> None:
 
 
 # ---------- who we are, for search engines and AI assistants ----------
-# One definition of Busywork, used in the structured data, the About page, llms.txt and the web
+# One definition of Busy, used in the structured data, the About page, llms.txt and the web
 # manifest, so every place describes the same thing in the same words.
-ENTITY = ("Busywork is a set of free, private business tools for small businesses and freelancers: invoices and quotes, "
+ENTITY = ("Busy is a set of free, private business tools for small businesses and freelancers: invoices and quotes, "
           "time tracking, receipts and expenses, a money dashboard, a client book, a project planner and board, documents, a brand kit, "
           "subscriptions, a trip log, stock and a marketing studio. The tools run in the browser and save everything as files in "
           "the owner's own folder, with no account and no subscription. Olaf, the AI expert for marketing and projects, is the paid edition.")
 ORG_ID, WEBSITE_ID = "#organization", "#website"
+# The name is a common word, and another company sells accounting software as BUSY. These tell search
+# engines and AI assistants which Busy this is; the old name stays as an alternate for a while.
+DESCRIPTOR = "free tools for small businesses"
+ALT_NAMES = ["busy.com.ai", "Busywork"]
+DISAMBIGUATION = ("Busy at busy.com.ai: free, private business tools for small businesses and freelancers, formerly called Busywork. "
+                  "Not related to BUSY accounting software (busy.in).")
 
 
 def page_date(rel: str) -> str:
@@ -739,8 +745,9 @@ def site_graph(rel: str, title: str) -> dict:
     """The structured data every page shares: who publishes the site, the site, and this page."""
     base = SITE_URL + "/"
     url = base + rel
-    org = {"@type": "Organization", "@id": base + ORG_ID, "name": "Busywork", "url": base, "description": ENTITY,
-           "logo": {"@type": "ImageObject", "@id": base + "#logo", "url": base + "assets/logo-512.png", "width": 512, "height": 512, "caption": "Busywork logo"},
+    org = {"@type": "Organization", "@id": base + ORG_ID, "name": "Busy", "alternateName": ALT_NAMES, "url": base, "description": ENTITY,
+           "disambiguatingDescription": DISAMBIGUATION, "slogan": "Make your paperwork fun again.",
+           "logo": {"@type": "ImageObject", "@id": base + "#logo", "url": base + "assets/logo-512.png", "width": 512, "height": 512, "caption": "Busy logo"},
            "image": {"@id": base + "#logo"}}
     repo = os.environ.get("GITHUB_REPOSITORY")
     if repo:
@@ -748,9 +755,9 @@ def site_graph(rel: str, title: str) -> dict:
     page_type = {"about.html": "AboutPage", "tools/index.html": "CollectionPage"}.get(rel, "WebPage")
     page = {"@type": page_type, "@id": url + "#webpage", "url": url, "name": title, "inLanguage": "en", "isPartOf": {"@id": base + WEBSITE_ID},
             "about": {"@id": base + ORG_ID}, "publisher": {"@id": base + ORG_ID}, "dateModified": page_date(rel)}
-    graph = [org, {"@type": "WebSite", "@id": base + WEBSITE_ID, "url": base, "name": "Busywork", "description": ENTITY, "inLanguage": "en",
+    graph = [org, {"@type": "WebSite", "@id": base + WEBSITE_ID, "url": base, "name": "Busy", "alternateName": ALT_NAMES, "description": ENTITY, "inLanguage": "en",
                    "publisher": {"@id": base + ORG_ID}}, page]
-    crumbs = [("Busywork", base)]
+    crumbs = [("Busy", base)]
     if rel.startswith("tools/"):
         crumbs.append(("Tools", base + "tools/index.html"))
     if rel not in ("", "tools/index.html"):
@@ -779,11 +786,11 @@ def site_seo() -> None:
                 t = t.replace('<meta charset="utf-8">', '<meta charset="utf-8">\n<meta name="robots" content="noindex">', 1)
             f.write_text(t)
             continue
-        title = html.unescape((re.search(r"<title>(.*?)</title>", t, re.S) or [None, "Busywork"])[1])
+        title = html.unescape((re.search(r"<title>(.*?)</title>", t, re.S) or [None, "Busy"])[1])
         if 'rel="canonical"' not in t:
             t = t.replace("</title>", f'</title>\n<link rel="canonical" href="{SITE_URL}/{rel}">', 1)
-        image = (re.search(r'og:image" content="[^"]*/assets/([^"/]+)"', t) or [None, "og-busywork.png"])[1]
-        alt = e(IMAGES.get("assets/" + image, IMAGES["assets/og-busywork.png"])[1])
+        image = (re.search(r'og:image" content="[^"]*/assets/([^"/]+)"', t) or [None, "og-busy.png"])[1]
+        alt = e(IMAGES.get("assets/" + image, IMAGES["assets/og-busy.png"])[1])
         if "og:image:alt" not in t:
             t, n = re.subn(r'(<meta property="og:image:height" content="630">)', rf'\1<meta property="og:image:alt" content="{alt}">', t, count=1)
             if not n:
@@ -821,7 +828,7 @@ def site_seo() -> None:
 def robots_txt() -> str:
     agents = ["GPTBot", "OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "Claude-SearchBot", "Claude-User", "PerplexityBot", "Perplexity-User",
               "Google-Extended", "Applebot-Extended", "CCBot", "Bingbot", "Googlebot"]
-    return ("# Busywork welcomes search engines and AI assistants. The tools under /app/ are left out: they are\n"
+    return ("# Busy welcomes search engines and AI assistants. The tools under /app/ are left out: they are\n"
             "# the website demo, the same app filled with a pretend business. llms.txt summarises the site.\n"
             "User-agent: *\nAllow: /\nDisallow: /app/\n\n"
             "# Named, so the choice to be found in AI search and assistants is explicit.\n"
@@ -833,10 +840,11 @@ def write_llms(tools: list) -> None:
     """llms.txt (llmstxt.org): a short, link-rich summary for AI assistants; llms-full.txt: the facts in one file."""
     b = SITE_URL
     short = ENTITY.split(": ")[0] + "."
-    lines = [f"# Busywork", "", f"> {ENTITY}", "",
+    lines = [f"# Busy", "", f"> {ENTITY}", "",
+             f"Busy, {DESCRIPTOR}, lives at {b}. It was called Busywork until October 2026. It is not related to BUSY accounting software (busy.in).", "",
              "Key facts:",
              f"- Price: the {len(tools)} tools are free, with no account and no subscription. Olaf is {OLAF_PRICE.split(' ·')[0]} for one business, plus the owner's own Claude usage.",
-             "- Data: saved as files in a folder the owner chooses on their own computer (it can sit in Google Drive, Dropbox, OneDrive or iCloud Drive). Nothing is sent to Busywork.",
+             "- Data: saved as files in a folder the owner chooses on their own computer (it can sit in Google Drive, Dropbox, OneDrive or iCloud Drive). Nothing is sent to Busy.",
              "- Works in: Chrome and Edge on Windows, macOS and ChromeOS, from a downloaded folder. No installation.",
              "- AI: none in the free tools. Olaf (paid) runs on Claude with the owner's own API key; requests go from the browser to Anthropic only.",
              "- Language: English. Invoices, quotes and documents can be made in English or Dutch.",
@@ -845,22 +853,22 @@ def write_llms(tools: list) -> None:
     lines += ["", "## Olaf (paid edition)", "",
               f"- [Olaf, the AI expert for marketing and projects]({b}/olaf.html): a 90-day marketing plan, project plans, a weekly check-in and the work done with the owner, on proven marketing science. {OLAF_PRICE.split(' ·')[0]}.",
               "", "## Get started", "",
-              f"- [Download Busywork]({b}/download.html): one zip file with every tool; unzip, open index.html, choose a folder.",
+              f"- [Download Busy]({b}/download.html): one zip file with every tool; unzip, open index.html, choose a folder.",
               f"- [All tools]({b}/tools/index.html): what each tool does.",
               "", "## About", "",
-              f"- [About Busywork]({b}/about.html): what it is, who it is for, and how it works.",
+              f"- [About Busy]({b}/about.html): what it is, who it is for, and how it works.",
               f"- [Privacy]({b}/privacy.html): what happens to data (nothing is sent to us).",
               f"- [Terms]({b}/terms.html)",
               "", "## Optional", "",
               f"- [llms-full.txt]({b}/llms-full.txt): all of the above with every tool's features and questions in one file."]
     (SITE / "llms.txt").write_text("\n".join(lines) + "\n")
 
-    full = [f"# Busywork: the full picture", "", ENTITY, "", f"Website: {b}/", "",
+    full = [f"# Busy: the full picture", "", ENTITY, "", f"Website: {b}/", "", DISAMBIGUATION, "",
             "## How it works", "",
-            "1. Download Busywork (one zip file) and unzip it somewhere you will find it again.",
+            "1. Download Busy (one zip file) and unzip it somewhere you will find it again.",
             "2. Double-click index.html. It opens in Chrome or Edge. Nothing is installed.",
             "3. Choose a folder for your business. Every tool saves plain files there; put the folder in Google Drive, Dropbox, OneDrive or iCloud Drive for backups and syncing.",
-            "4. Busywork also keeps a daily backup in that folder. There is no account and no server: nothing is sent to us.",
+            "4. Busy also keeps a daily backup in that folder. There is no account and no server: nothing is sent to us.",
             "", "## Editions", "",
             f"- Free download: all {len(tools)} tools, the Marketing Studio included. No AI, no account, no subscription.",
             f"- Paid edition: the same tools plus Olaf, the AI expert for marketing and projects. {OLAF_PRICE}.",
@@ -880,19 +888,20 @@ def write_llms(tools: list) -> None:
 
 
 def about_page(tools: list) -> str:
-    """What Busywork is, in plain facts: the page search engines and AI assistants read to describe us."""
+    """What Busy is, in plain facts: the page search engines and AI assistants read to describe us."""
     facts = [("What it is", ENTITY), ("Who it is for", "Small businesses and freelancers who want their admin, projects and marketing done without a stack of subscriptions: shops, studios, trades, cafés, consultants."),
              ("What it costs", f"The tools are free. Olaf, the AI expert for marketing and projects, is {OLAF_PRICE.split(' ·')[0]} for one business, plus the owner's own Claude usage."),
              ("Where the data lives", "In a folder the owner chooses on their own computer, as plain files. There is no account and no server, so nothing is sent to us."),
              ("What it runs on", "Chrome and Edge on Windows, macOS and ChromeOS. It opens from a downloaded folder; nothing is installed."),
              ("How the marketing works", "The Marketing Studio and Olaf are built on proven marketing science: reach more buyers, be the business people think of in the moments they need you, and be easy to find and buy from."),
-             ("Languages", "English. Invoices, quotes and documents can be made in English or Dutch.")]
-    desc = "What Busywork is: free, private business tools that save everything in your own folder, and Olaf, the paid AI expert for marketing and projects."
-    return f"""{head("About Busywork: free, private tools for small businesses", desc, "about.html", "")}
+             ("Languages", "English. Invoices, quotes and documents can be made in English or Dutch."),
+             ("The name", f"Busy, {DESCRIPTOR}, at busy.com.ai. Called Busywork until October 2026. Not related to BUSY accounting software.")]
+    desc = "What Busy is: free, private business tools that save everything in your own folder, and Olaf, the paid AI expert for marketing and projects."
+    return f"""{head("About Busy: free, private tools for small businesses", desc, "about.html", "")}
 <body class="site app-sun">
 {nav("")}
 <main class="page">
-  <h1 class="reveal">About Busywork</h1>
+  <h1 class="reveal">About Busy</h1>
   <p class="lead reveal">{e(ENTITY)}</p>
   <dl class="about-facts">{"".join(f"<dt>{e(k)}</dt><dd>{e(v)}</dd>" for k, v in facts)}</dl>
   <h2>The tools</h2>
@@ -920,7 +929,7 @@ def apply_site_url() -> None:
 def site_csp() -> None:
     """A light security policy on every website page: no plugins, no <base> hijacking, and forms post
     only to this site or the waitlist service. Scripts are not restricted here because the ad network
-    loads its own; the tools under app/ carry a strict policy of their own (scripts from Busywork's
+    loads its own; the tools under app/ carry a strict policy of their own (scripts from Busy's
     files only, network to Anthropic only), which is where the owner's API key lives."""
     forms = "'self'"
     if WAITLIST_ENDPOINT:

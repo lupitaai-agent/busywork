@@ -1,4 +1,4 @@
-# Busywork
+# Busy
 
 Free, private tools for small businesses and freelancers, with the Marketing Studio for owners who
 do their own marketing.

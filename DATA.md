@@ -1,8 +1,8 @@
-# Busywork data format
+# Busy data format
 
 A business is a set of **collections**. Each collection is one JSON file in the business folder's
 `data/` folder (or one `bw.data.<name>` entry in browser storage). The files are meant to be
-readable by people, by other tools, and by future versions of Busywork. This page is the contract;
+readable by people, by other tools, and by future versions of Busy. This page is the contract;
 [`app/shared/schema.js`](app/shared/schema.js) has the same thing field by field, and the tests
 check the example business against it.
 
@@ -12,7 +12,7 @@ check the example business against it.
 My Business/
   data/            one <collection>.json per collection (below)
   receipts/        receipt photos and PDFs, named by the expense app
-  backups/         busywork-YYYY-MM-DD.json, one a day, the last 14 kept
+  backups/         busy-YYYY-MM-DD.json, one a day, the last 14 kept (older busywork-… copies age out too)
                    before-update-v<N>-….json, made before a data version update
                    before-restore-….json, made before a restore
   Olaf/            Olaf's workspace mirrored as markdown (paid edition only)
@@ -35,13 +35,13 @@ My Business/
 
 `data/meta.json` holds `{ dataVersion, savedBy, createdAt, updatedAt }`. Current version: **1**.
 
-At start-up Busywork compares the folder's `dataVersion` with its own `BW.DATA_VERSION`:
+At start-up Busy compares the folder's `dataVersion` with its own `BW.DATA_VERSION`:
 
 - **Lower:** it saves a full backup (`backups/before-update-v<N>-….json`), runs each update step
   in `MIGRATIONS` (core.js) in order, and records the version after each step. A step that stops
   halfway runs again next time, so steps must be safe to run twice.
 - **Same:** nothing happens.
-- **Higher** (the folder was saved by a newer Busywork, say on another computer through Google
+- **Higher** (the folder was saved by a newer version of Busy, say on another computer through Google
   Drive): the business opens **read-only**, with a bar saying so. Nothing can be saved until this
   copy is updated, so an old copy can never undo what a new one changed.
 

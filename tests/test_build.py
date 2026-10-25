@@ -134,10 +134,10 @@ class Editions(unittest.TestCase):
 
     def test_free_download_has_no_ai_and_no_example_business(self):
         import zipfile
-        z = zipfile.ZipFile(ROOT / "website" / "downloads" / "busywork.zip")
+        z = zipfile.ZipFile(ROOT / "website" / "downloads" / "busy.zip")
         names = z.namelist()
-        self.assertNotIn("Busywork/shared/ai.js", names)
-        self.assertNotIn("Busywork/shared/examples.js", names)
+        self.assertNotIn("Busy/shared/ai.js", names)
+        self.assertNotIn("Busy/shared/examples.js", names)
         self.assertFalse(any("/apps/olaf/" in n for n in names), "Olaf is not in the free download")
         banned = ["x-api-key", "Claude API key", "Connect AI", "AI settings", "Show me with example data", "Just try it out", "examples.load(", "data-key", "demo.js"]
         for n in names:
@@ -145,7 +145,7 @@ class Editions(unittest.TestCase):
                 text = z.read(n).decode("utf-8", "ignore")
                 for b in banned:
                     self.assertNotIn(b, text, f"{n} mentions {b!r}")
-        lib = z.read("Busywork/apps/marketing/library.js").decode()
+        lib = z.read("Busy/apps/marketing/library.js").decode()
         self.assertNotIn('"body"', lib, "the Studio ships playbook names only")
         self.assertNotIn('"foundation"', lib, "no AI prompt in the free Studio")
 
@@ -214,7 +214,7 @@ class Visibility(unittest.TestCase):
 
     def test_llms_txt_follows_the_format_and_links_to_real_pages(self):
         t = (self.SITE / "llms.txt").read_text()
-        self.assertTrue(t.startswith("# Busywork\n\n> "), "H1, then a blockquote summary")
+        self.assertTrue(t.startswith("# Busy\n\n> "), "H1, then a blockquote summary")
         for url in re.findall(r"\]\((https?://[^)]+)\)", t):
             path = re.sub(r"^https?://[^/]+/", "", url)
             self.assertTrue((self.SITE / path).is_file(), f"llms.txt links to missing {path}")
@@ -241,6 +241,24 @@ class Visibility(unittest.TestCase):
         for f in ["favicon.ico", "apple-touch-icon.png", "site.webmanifest", "assets/logo-512.png"]:
             self.assertTrue((self.SITE / f).is_file(), f)
         self.assertIn('name="robots" content="noindex"', (self.SITE / "404.html").read_text())
+
+    def test_the_name_is_busy_with_the_old_name_and_the_namesake_explained(self):
+        """Busy is a common word and another company's name; every machine-readable place says which Busy."""
+        for p in self.pages():
+            t = p.read_text()
+            self.assertNotIn("Busywork ·", t, p.name)
+            self.assertNotIn(">Busywork<", t, p.name)
+            for raw in re.findall(r'<script type="application/ld\+json" id="ld-site">(.*?)</script>', t, re.S):
+                org = next(g for g in json.loads(raw)["@graph"] if g["@type"] == "Organization")
+                self.assertEqual(org["name"], "Busy", p.name)
+                self.assertIn("Busywork", org["alternateName"], p.name)
+                self.assertIn("busy.in", org["disambiguatingDescription"], p.name)
+        for f in ["llms.txt", "llms-full.txt", "about.html"]:
+            t = (self.SITE / f).read_text()
+            self.assertIn("Busywork", t, f"{f} names the old name")
+            self.assertIn("BUSY accounting software", t, f"{f} tells the namesake apart")
+        self.assertIn("og-busy.png", (self.SITE / "index.html").read_text())
+        self.assertFalse((self.SITE / "assets" / "og-busywork.png").exists())
 
 
 if __name__ == "__main__":

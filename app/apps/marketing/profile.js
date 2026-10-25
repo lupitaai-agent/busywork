@@ -67,7 +67,7 @@
     const s = BW.settings, out = [];
     const line = (k, v) => out.push(`**${k}:** ${v != null && String(v).trim() ? String(v).trim() : '[FILL]'}`);
     const list = (items) => { if (items.length) items.forEach((x) => out.push(`- ${x}`)); else out.push('- [FILL]'); };
-    out.push('# Brand growth profile', '', '> Exported from the Busywork Marketing Studio. Olaf reads this file before every skill.', '', `*Last updated: ${BW.today()}*`, '');
+    out.push('# Brand growth profile', '', '> Exported from the Busy Marketing Studio. Olaf reads this file before every skill.', '', `*Last updated: ${BW.today()}*`, '');
     out.push('## The business', '');
     line('Business name', s.businessName); line('Website', s.website); line('Location', [s.city, s.country].filter(Boolean).join(', ')); line('Currency', s.currency);
     out.push('', '## Category and buyers', '');

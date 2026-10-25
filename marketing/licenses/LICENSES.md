@@ -1,9 +1,9 @@
-# Licences and credits for the Busywork skill libraries (Marketing Studio and Olaf)
+# Licences and credits for the Busy skill libraries (Marketing Studio and Olaf)
 
 ## Skills derived from Apache-2.0 licensed work
 These 23 skills are based on skills released under the Apache License 2.0 (full text in
 `APACHE-2.0.txt`), most of them from the open-source SEO/GEO skill set at
-https://github.com/aaron-he-zhu/seo-geo-claude-skills, as adapted for our own skill library before Busywork existed.
+https://github.com/aaron-he-zhu/seo-geo-claude-skills, as adapted for our own skill library before Busy existed.
 They ship in two forms: the Marketing Studio's playbooks (`marketing/skills/`) and Olaf's full skills (`olaf/skills/`).
 
 **Changes made for the Studio:** brand-specific content removed or replaced with generic wording;

@@ -89,7 +89,7 @@ test('a step that fails leaves the version at the last finished step', async () 
   assert.equal((await d.readJSON('meta')).dataVersion, 2);
 });
 
-test('data saved by a newer Busywork can be read but not changed', async () => {
+test('data saved by a newer version of Busy can be read but not changed', async () => {
   const win = load(['shared/core.js'], { host: { driver: async () => null } });
   const { BW } = win;
   const d = BW.drivers.memory({ meta: { dataVersion: 99 }, clients: [{ id: 'c', name: 'Kept safe' }] });
@@ -103,10 +103,10 @@ test('boot opens newer data read-only and says so', async () => {
   const { BW } = win;
   BW.runRecurring = async () => {};
   await BW.boot({});
-  assert.match(BW.store.readOnly, /newer Busywork/);
+  assert.match(BW.store.readOnly, /newer version of Busy/);
   assert.equal((await BW.store.all('clients'))[0].name, 'Kept safe');
-  await assert.rejects(BW.store.put('clients', { name: 'New' }), /newer Busywork/);
-  await assert.rejects(BW.store.saveSettings({ businessName: 'x' }), /newer Busywork/);
+  await assert.rejects(BW.store.put('clients', { name: 'New' }), /newer version of Busy/);
+  await assert.rejects(BW.store.saveSettings({ businessName: 'x' }), /newer version of Busy/);
   assert.equal((await drv.readJSON('clients')).length, 1);
 });
 
@@ -130,4 +130,13 @@ test('a shell can bring its own driver', async () => {
   assert.equal(made, 1);
   assert.equal(BW.store.kind, 'memory');
   assert.equal(BW.settings.businessName, 'Shell BV');
+});
+
+test('daily backups keep the newest 14 by date, the ones from before the rename included', async () => {
+  const { BW } = await busywork();
+  const days = Array.from({ length: 20 }, (_, i) => `2026-10-${String(i + 1).padStart(2, '0')}`);
+  const names = days.map((d, i) => (i < 10 ? `busywork-${d}.json` : `busy-${d}.json`)).concat(['before-update-v1-x.json', 'busy-backup-2026-10-01.json']);
+  const gone = BW.backupsToRemove(names);
+  assert.deepEqual(plain(gone), days.slice(0, 6).map((d) => `busywork-${d}.json`), 'the six oldest go, whatever their name');
+  assert.deepEqual(plain(BW.backupsToRemove(['busy-2026-10-01.json'])), []);
 });

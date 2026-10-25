@@ -1,16 +1,16 @@
-/* Busywork core: storage, business details, onboarding and the shared UI bits.
+/* Busy core: storage, business details, onboarding and the shared UI bits.
    A plain script rather than a module, because module scripts refuse to load
    when a page is opened straight from disk (file://). */
 (function () {
   'use strict';
   const BW = (window.BW = window.BW || {});
 
-  BW.brand = { name: 'Busywork', tagline: 'Make your paperwork fun again.' };
+  BW.brand = { name: 'Busy', tagline: 'Make your paperwork fun again.' };
   // The website. build.py puts the real address in the copies it publishes and zips.
   BW.siteUrl = 'https://busywork.example';
   // The release, shown in problem reports and written into the business folder (data/meta.json).
   BW.version = '0.9.0';
-  // A shell around Busywork (a desktop or phone app, a test, a hosted version) can set window.BW_HOST
+  // A shell around Busy (a desktop or phone app, a test, a hosted version) can set window.BW_HOST
   // before this file loads to bring its own storage driver, platform functions, AI transport or
   // entitlements. A plain browser tab sets nothing and gets the defaults below. See ARCHITECTURE.md.
   const host = window.BW_HOST || {};
@@ -374,7 +374,7 @@
   // Files may change underneath us (Google Drive sync, another device), so re-read on focus.
   window.addEventListener('focus', () => { if (drv) listeners.forEach((fn) => fn('*')); });
 
-  // Set when the data is newer than this copy of Busywork understands: reading works, saving does not.
+  // Set when the data is newer than this copy of Busy understands: reading works, saving does not.
   let readOnly = '';
   const writable = () => { if (readOnly) throw new Error(readOnly); };
   const serialWrite = (fn, name) => serial(async () => { writable(); return fn(); }, name);
@@ -438,7 +438,7 @@
   // wherever they are read. Steps run once, oldest first, at start-up, after a full backup of how
   // things were. Each step records its version when done, so a step interrupted halfway runs again:
   // write steps so that running one twice does no harm.
-  // A business last saved by a newer Busywork opens read-only, so an old copy on another computer
+  // A business last saved by a newer version of Busy opens read-only, so an old copy on another computer
   // (the same folder synced through Google Drive, say) can never undo what the new one changed.
   BW.DATA_VERSION = 1;
   const MIGRATIONS = [
@@ -489,7 +489,7 @@
   // ---------- problems ----------
   // The last 30 errors, kept in this browser only, so an owner can send a problem report. Messages
   // and stack lines only: no records, no settings, no key. Nothing is ever sent anywhere by itself.
-  // Where we are, without the folders above Busywork (they can carry a person's name).
+  // Where we are, without the folders above Busy (they can carry a person's name).
   const pagePath = () => { const parts = location.pathname.split('/'); const i = parts.lastIndexOf('apps'); return i >= 0 ? parts.slice(i).join('/') : parts.pop(); };
   BW.problems = {
     list() { try { return JSON.parse(ls.get('bw.problems') || '[]'); } catch (e) { return []; } },
@@ -510,7 +510,7 @@
     const counts = {};
     if (drv) for (const n of await drv.list()) { const v = await drv.readJSON(n, null).catch(() => 'unreadable'); counts[n] = Array.isArray(v) ? v.length : typeof v; }
     const meta = drv ? await drv.readJSON('meta', {}).catch(() => ({})) : {};
-    return { report: 'Busywork problem report', made: new Date().toISOString(), version: BW.version, dataVersion: meta.dataVersion || null,
+    return { report: 'Busy problem report', made: new Date().toISOString(), version: BW.version, dataVersion: meta.dataVersion || null,
       supportedDataVersion: BW.DATA_VERSION, storage: drv ? drv.kind : null, readOnly: !!readOnly, platform: BW.platform.kind,
       browser: navigator.userAgent, language: navigator.language, page: pagePath(),
       olaf: await BW.entitlements.edition('olaf'), collections: counts, problems: BW.problems.list() };
@@ -935,13 +935,13 @@
       const ob = overlay(`<div class="ob-card card wide">
         <div class="ob-emoji">👋</div>
         <h1>Hi! Where should your business live?</h1>
-        <p class="sub">Busywork saves everything as normal files in a folder you choose, so your business is yours: easy to back up, never lost when a browser is cleared.</p>
+        <p class="sub">Busy saves everything as normal files in a folder you choose, so your business is yours: easy to back up, never lost when a browser is cleared.</p>
         ${BW.canUseFolders ? `<div class="options" style="grid-template-columns:1fr">
           <button class="option" data-folder>
             <span class="emo">📁</span><b>Choose a folder for my business</b>
             <p>Make a new folder like <b>“My Business”</b>. <br>Tip: put it inside Google Drive, Dropbox, OneDrive or iCloud Drive and it backs up and syncs by itself.</p>
           </button>
-        </div>` : `<div class="idea"><span class="e">🧭</span><div><b>Open Busywork in Chrome or Edge.</b> This browser can't save to a folder on your computer, and Busywork keeps your business in files, not inside a browser where clearing your history would delete it. Chrome and Edge are free for Mac and Windows: open the same <b>index.html</b> in one of them.</div></div>`}
+        </div>` : `<div class="idea"><span class="e">🧭</span><div><b>Open Busy in Chrome or Edge.</b> This browser can't save to a folder on your computer, and Busy keeps your business in files, not inside a browser where clearing your history would delete it. Chrome and Edge are free for Mac and Windows: open the same <b>index.html</b> in one of them.</div></div>`}
         <div class="privacy-note"><span>🔒</span><span><b>Private by design.</b> There's no account and no server, and nothing you type is sent to us.${olafHere ? ' Olaf sends only what you ask it to Anthropic, the maker of Claude, with your own key.' : ''}</span></div>
       </div>`);
       const folder = BW.$('[data-folder]', ob);
@@ -1020,19 +1020,24 @@
   }
   BW.snapshot = () => snapshot();
   async function backup() {
-    BW.download(new Blob([JSON.stringify(await snapshot(), null, 2)], { type: 'application/json' }), `busywork-backup-${BW.today()}.json`);
+    BW.download(new Blob([JSON.stringify(await snapshot(), null, 2)], { type: 'application/json' }), `busy-backup-${BW.today()}.json`);
   }
+  // Daily copies past the newest 14, oldest first. busywork-… copies are from before the rename and
+  // age out the same way, by their date.
+  BW.backupsToRemove = (names, keep = 14) => {
+    const day = (n) => n.replace(/^\D+/, '');
+    return names.filter((n) => /^busy(work)?-\d{4}-\d\d-\d\d\.json$/.test(n)).sort((a, b) => day(a).localeCompare(day(b))).slice(0, -keep);
+  };
   // Once a day, folder mode keeps a full copy in backups/ and clears out copies older than two weeks.
   async function autoBackup() {
     if (drv.kind !== 'folder') return;
-    const name = `busywork-${BW.today()}.json`;
+    const name = `busy-${BW.today()}.json`;
     try {
       if (await drv.readFile('backups/' + name)) return;
       const data = await snapshot();
       if (!Object.keys(data).some((k) => k[0] !== '_' && k !== 'settings' && k !== 'meta')) return; // nothing worth keeping yet
       await drv.writeFile('backups/' + name, new Blob([JSON.stringify(data)], { type: 'application/json' }));
-      const old = (await drv.listFiles('backups')).filter((n) => /^busywork-\d{4}-\d\d-\d\d\.json$/.test(n));
-      old.sort().slice(0, -14).forEach((n) => drv.removeFile('backups/' + n).catch(() => {}));
+      BW.backupsToRemove(await drv.listFiles('backups')).forEach((n) => drv.removeFile('backups/' + n).catch(() => {}));
     } catch (e) { console.warn('Backup skipped', e); }
   }
   function restore() {
@@ -1041,11 +1046,11 @@
     input.onchange = async () => {
       const f = input.files[0]; input.remove(); if (!f) return;
       let data;
-      try { data = JSON.parse(await f.text()); } catch (e) { return BW.toast('That file isn’t a Busywork backup.', '🤔'); }
+      try { data = JSON.parse(await f.text()); } catch (e) { return BW.toast('That file isn’t a Busy backup.', '🤔'); }
       const names = Object.keys(data).filter((k) => !k.startsWith('_'));
       if (!names.length) return BW.toast('That backup is empty.', '🤔');
       const version = Number(data.meta && data.meta.dataVersion) || 1;
-      if (version > BW.DATA_VERSION) return BW.toast('That backup was made by a newer Busywork. Download the latest Busywork first.', '🤔');
+      if (version > BW.DATA_VERSION) return BW.toast('That backup was made by a newer version of Busy. Download the latest version of Busy first.', '🤔');
       if (!(await BW.confirm(`Replace what’s here now with the backup from <b>${BW.esc((data._made || f.name).slice(0, 10))}</b>? We first save a copy of what you have now.`, { ok: 'Restore', title: 'Restore a backup?' }))) return;
       try {
         if (drv.kind === 'folder') await drv.writeFile(`backups/before-restore-${Date.now()}.json`, new Blob([JSON.stringify(await snapshot())], { type: 'application/json' }));
@@ -1096,7 +1101,7 @@
       if (a.dataset.a === 'backup') backup();
       if (a.dataset.a === 'restore') restore();
       if (a.dataset.a === 'report') {
-        BW.download(new Blob([JSON.stringify(await BW.diagnostics(), null, 2)], { type: 'application/json' }), `busywork-problem-report-${BW.today()}.json`);
+        BW.download(new Blob([JSON.stringify(await BW.diagnostics(), null, 2)], { type: 'application/json' }), `busy-problem-report-${BW.today()}.json`);
         BW.toast('Report downloading. It counts your records but contains none of them.', '🩺');
       }
       if (a.dataset.a === 'folder') {
@@ -1329,11 +1334,11 @@
     explain(reason) {
       return { format: 'That isn’t a whole licence key. Copy everything from BWL1 to the end, or choose the licence file.',
         product: 'That licence is for a different product.',
-        key: 'This licence was made for a newer Busywork. Download the latest version from your purchase email.',
+        key: 'This licence was made for a newer version of Busy. Download the latest version from your purchase email.',
         revoked: 'This licence has been withdrawn. Write to us if you think that is a mistake.',
         expired: 'This licence has ended.',
         signature: 'That licence key isn’t valid. Check that nothing was changed when it was copied.',
-        unsupported: 'This browser can’t check licences. Open Busywork in a current Chrome, Edge, Safari or Firefox.' }[reason] || 'That licence key isn’t valid.';
+        unsupported: 'This browser can’t check licences. Open Busy in a current Chrome, Edge, Safari or Firefox.' }[reason] || 'That licence key isn’t valid.';
     },
   };
   BW.olafPage = () => BW.siteUrl + '/olaf.html';
@@ -1387,7 +1392,7 @@
         const bk = BW.$('[data-backup]', warn); if (bk) bk.onclick = backup;
       }
       if (data.status === 'newer') {
-        readOnly = 'This business was last saved by a newer Busywork, so this copy only shows it. Download the latest Busywork to make changes.';
+        readOnly = 'This business was last saved by a newer version of Busy, so this copy only shows it. Download the latest version of Busy to make changes.';
         bar.append(BW.html(`<div class="readonly-bar" role="status">🔒 ${readOnly}</div>`));
       }
       BW.settings = await BW.store.settings();
@@ -1399,7 +1404,7 @@
     const [icon, label] = drv.kind === 'folder' ? ['📁', drv.label] : drv.kind === 'browser' ? ['🧪', 'This browser'] : ['🎭', drv.label.replace(/^\w/, (c) => c.toUpperCase())];
     BW.$('span', chip).textContent = icon;
     BW.$('.lbl', chip).textContent = label;
-    chip.onclick = () => (drv.kind === 'folder' || drv.kind === 'browser' ? storeMenu(chip) : BW.toast(`Saving to ${BW.esc(drv.label)}. Download Busywork to keep your business in your own folder.`, icon));
+    chip.onclick = () => (drv.kind === 'folder' || drv.kind === 'browser' ? storeMenu(chip) : BW.toast(`Saving to ${BW.esc(drv.label)}. Download Busy to keep your business in your own folder.`, icon));
     const sb = BW.$('[data-settings]', bar); sb.hidden = false; sb.onclick = BW.openSettings;
     const pb = BW.$('[data-palette]', bar); pb.hidden = false; pb.onclick = () => BW.openPalette();
     const nb = BW.$('[data-new]', bar); nb.hidden = false; nb.onclick = () => BW.openPalette('new');

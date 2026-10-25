@@ -20,7 +20,7 @@
   const API = 'https://api.anthropic.com/v1/messages';
   // How a request reaches Claude. `direct` goes from this browser to Anthropic with the owner's own
   // key: the only way today. `proxy(url)` sends the same request to a server that holds the key
-  // instead (a hosted Busywork, an office server), so no key is needed in the browser. A shell can
+  // instead (a hosted Busy, an office server), so no key is needed in the browser. A shell can
   // bring its own through window.BW_HOST.aiTransport. A transport is
   //   { name, needsKey, send(body, { key, beta, signal }) -> a fetch Response with the API's SSE stream }
   const transports = {
@@ -240,7 +240,7 @@
         <div class="field"><span>Model</span></div>
         <div class="model-cards">${BW.ai.MODELS.map((m) => `<button type="button" data-model="${m.id}" aria-pressed="${BW.ai.model.id === m.id}"><b>${m.name}</b><small>${m.model}</small><small>$${m.input} in · $${m.output} out per million tokens</small></button>`).join('')}</div>
         <p class="faint" style="font-size:.85rem;margin:8px 0 14px">Best quality is the default. A typical skill answer costs a few cents; Fast and cheap costs a fraction of that.</p>
-        <label class="field"><span>Monthly limit in US dollars (optional)</span><input class="in" inputmode="decimal" data-cap value="${BW.ai.cap || ''}" placeholder="e.g. 20"><em>Busywork stops sending AI requests when you reach it.</em></label>
+        <label class="field"><span>Monthly limit in US dollars (optional)</span><input class="in" inputmode="decimal" data-cap value="${BW.ai.cap || ''}" placeholder="e.g. 20"><em>Busy stops sending AI requests when you reach it.</em></label>
         <p style="margin-top:14px"><b>This month:</b> $${BW.ai.spentThisMonth().toFixed(2)}${log.length > 1 ? ` · ${log.slice(1).map(([m, v]) => `${m}: $${v.toFixed(2)}`).join(' · ')}` : ''}</p>
         <p class="faint" style="font-size:.82rem;margin-top:6px">Costs are estimates from the token counts Claude reports. Check console.anthropic.com for exact billing.</p>`;
       $$('[data-model]', box).forEach((b) => b.onclick = () => { BW.ai.model = b.dataset.model; draw(); });

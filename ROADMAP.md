@@ -1,6 +1,6 @@
-# Busywork roadmap
+# Busy roadmap
 
-"Busywork" is a working name. It is set in one place: `BW.brand` in `app/shared/core.js`
+"Busy" is a working name. It is set in one place: `BW.brand` in `app/shared/core.js`
 (plus the website's page titles).
 
 ## Done
@@ -18,10 +18,10 @@
 - Website: a product page per tool (generated from `website/content/tools.json`), tools index,
   calculator, workflow and audience sections, footer sitemap, structured data, sitemap and robots.
 
-- Olaf (2026-10-24): the AI marketing expert, now part of Busywork and running in the browser
+- Olaf (2026-10-24): the AI marketing expert, now part of Busy and running in the browser
   (`app/apps/olaf/`, how it works in `olaf/README.md`). Growth coach, 52 skills (61 with the project skills since 2026-10-25) on the marketing
   foundation, its own workspace in the owner's folder, web search and fetch through Anthropic,
-  sales numbers from Busywork invoices. Product page `website/olaf.html`; the homepage, the Studio
+  sales numbers from Busy invoices. Product page `website/olaf.html`; the homepage, the Studio
   page, every tool page and the download page show the free vs guided choice.
 - One repository, ready for GitHub Pages (`README.md`, `.github/workflows/pages.yml`).
 - Shared marketing dashboard (2026-10-24): one plan, one set of monthly numbers and one list of

@@ -1,4 +1,4 @@
-/* The website demo: every Busywork tool, already filled with a pretend design studio, so visitors
+/* The website demo: every Busy tool, already filled with a pretend design studio, so visitors
    see what they get before they download or buy. Not part of any download: build.py adds this
    script to the website's copy of the tools only, before core.js.
 

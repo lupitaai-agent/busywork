@@ -1,6 +1,6 @@
 {
-  "name": "Busywork",
-  "short_name": "Busywork",
+  "name": "Busy",
+  "short_name": "Busy",
   "description": "Boring business stuff, made fun. Invoices, time, receipts and more, saved in your own folder.",
   "start_url": "index.html",
   "scope": "./",

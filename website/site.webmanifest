@@ -1,7 +1,7 @@
 {
- "name": "Busywork",
- "short_name": "Busywork",
- "description": "Busywork is a set of free, private business tools for small businesses and freelancers: invoices and quotes, time tracking, receipts and expenses, a money dashboard, a client book, a project planner and board, documents, a brand kit, subscriptions, a trip log, stock and a marketing studio. The tools run in the browser and save everything as files in the owner's own folder, with no account and no subscription. Olaf, the AI expert for marketing and projects, is the paid edition.",
+ "name": "Busy",
+ "short_name": "Busy",
+ "description": "Busy is a set of free, private business tools for small businesses and freelancers: invoices and quotes, time tracking, receipts and expenses, a money dashboard, a client book, a project planner and board, documents, a brand kit, subscriptions, a trip log, stock and a marketing studio. The tools run in the browser and save everything as files in the owner's own folder, with no account and no subscription. Olaf, the AI expert for marketing and projects, is the paid edition.",
  "start_url": "/",
  "display": "browser",
  "theme_color": "#FFC93C",

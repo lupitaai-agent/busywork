@@ -1,4 +1,4 @@
-# Busywork benchmark and upgrade list
+# Busy benchmark and upgrade list
 
 *2026-10-23. Compares the website (homepage), the in-app home and the eleven tools with
 best-in-class products. Only what competitors do very well to extremely well.*
@@ -75,7 +75,7 @@ Status: ✅ built in this round · 🔜 on the roadmap
 - ✅ W6 Honest proof strip (size, trackers, price, tools). No invented testimonials; add real ones when they exist.
 - ✅ W7 SEO basics: meta descriptions, Open Graph, JSON-LD (SoftwareApplication, FAQPage), sitemap.xml, robots.txt, ads.txt template.
 - ✅ W8 “Try this tool online” deep links on every product page.
-- 🔜 W9 Social share image. 🔜 W10 Comparison pages (“Busywork vs …”). 🔜 W11 Dutch version of the site.
+- 🔜 W9 Social share image. 🔜 W10 Comparison pages (“Busy vs …”). 🔜 W11 Dutch version of the site.
 
 ### Whole suite
 - ✅ C1 ⌘K / Ctrl+K command palette in every tool: jump anywhere, create anything, find any client, invoice, document or task.

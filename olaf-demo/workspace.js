@@ -1,5 +1,5 @@
 /* Olaf's workspace: its files and the tools Claude can call on them.
-   Files are one Busywork collection ('olaf-files', one record per path), so they live in the owner's
+   Files are one Busy collection ('olaf-files', one record per path), so they live in the owner's
    folder or browser like everything else. Finished work is also written as a plain file under Olaf/
    in the owner's folder. Skills are read-only and come from the bundled library. */
 (function () {

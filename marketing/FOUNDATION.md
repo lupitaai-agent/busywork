@@ -1,6 +1,6 @@
 # The marketing foundation
 
-*The base under every marketing activity in Busywork and Olaf. Written in our own words from
+*The base under every marketing activity in Busy and Olaf. Written in our own words from
 proven marketing science: decades of research into how people really buy and what makes brands
 grow, across hundreds of categories and many countries. We apply the findings and explain them in
 plain words when a decision depends on them.*

@@ -1,4 +1,4 @@
-/* Loads Busywork's browser scripts into a fresh sandbox with just enough of a browser around them,
+/* Loads Busy's browser scripts into a fresh sandbox with just enough of a browser around them,
    so the logic can be tested with Node alone (node --test), no packages and no real browser.
    The page itself (drawing, clicking) is checked in a real browser; these tests cover what is
    underneath: money, dates, storage, versions, AI requests, marketing numbers, exports. */
@@ -42,7 +42,7 @@ function load(files, opts = {}) {
   document.execCommand = () => false;
   const win = {
     document, localStorage: storage(), sessionStorage: storage(),
-    location: { protocol: 'file:', hostname: '', pathname: opts.page || '/Users/someone/Busywork/apps/invoices/index.html', hash: '', search: '', href: 'file:///index.html', reload() {} },
+    location: { protocol: 'file:', hostname: '', pathname: opts.page || '/Users/someone/Busy/apps/invoices/index.html', hash: '', search: '', href: 'file:///index.html', reload() {} },
     navigator: { userAgent: 'node-test', language: 'en-GB', platform: 'Test', clipboard: { writeText: async () => {} } },
     matchMedia: () => ({ matches: false, addEventListener() {} }),
     addEventListener() {}, removeEventListener() {},
@@ -62,7 +62,7 @@ function load(files, opts = {}) {
   return win;
 }
 
-// A Busywork with memory storage and the default settings, ready for tests.
+// A Busy with memory storage and the default settings, ready for tests.
 async function busywork(files = [], opts = {}) {
   const win = load(['shared/core.js', ...files], opts);
   const { BW } = win;

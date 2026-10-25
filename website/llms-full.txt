@@ -1,15 +1,17 @@
-# Busywork: the full picture
+# Busy: the full picture
 
-Busywork is a set of free, private business tools for small businesses and freelancers: invoices and quotes, time tracking, receipts and expenses, a money dashboard, a client book, a project planner and board, documents, a brand kit, subscriptions, a trip log, stock and a marketing studio. The tools run in the browser and save everything as files in the owner's own folder, with no account and no subscription. Olaf, the AI expert for marketing and projects, is the paid edition.
+Busy is a set of free, private business tools for small businesses and freelancers: invoices and quotes, time tracking, receipts and expenses, a money dashboard, a client book, a project planner and board, documents, a brand kit, subscriptions, a trip log, stock and a marketing studio. The tools run in the browser and save everything as files in the owner's own folder, with no account and no subscription. Olaf, the AI expert for marketing and projects, is the paid edition.
 
 Website: https://busywork.example/
 
+Busy at busy.com.ai: free, private business tools for small businesses and freelancers, formerly called Busywork. Not related to BUSY accounting software (busy.in).
+
 ## How it works
 
-1. Download Busywork (one zip file) and unzip it somewhere you will find it again.
+1. Download Busy (one zip file) and unzip it somewhere you will find it again.
 2. Double-click index.html. It opens in Chrome or Edge. Nothing is installed.
 3. Choose a folder for your business. Every tool saves plain files there; put the folder in Google Drive, Dropbox, OneDrive or iCloud Drive for backups and syncing.
-4. Busywork also keeps a daily backup in that folder. There is no account and no server: nothing is sent to us.
+4. Busy also keeps a daily backup in that folder. There is no account and no server: nothing is sent to us.
 
 ## Editions
 
@@ -262,9 +264,9 @@ What it does:
 - Olaf, when you want help: See what Olaf, the AI expert in the paid edition, would do for you: the playbooks it runs with you, one by one.
 
 Questions:
-- Is it really free? Yes. The Studio is part of the free Busywork toolbox: no account, no subscription, no costs.
+- Is it really free? Yes. The Studio is part of the free Busy toolbox: no account, no subscription, no costs.
 - Do I need to know marketing? No. The Studio explains the why in plain words: the guide, the profile and the plan walk you through it. You stay in the driving seat.
-- What if I would rather be guided? Then Olaf is for you: our AI expert for marketing and projects, right inside Busywork. It looks at your business, makes a 90-day plan, checks in every week and does the work each step needs, using the same marketing science. It starts from your Studio profile.
+- What if I would rather be guided? Then Olaf is for you: our AI expert for marketing and projects, right inside Busy. It looks at your business, makes a 90-day plan, checks in every week and does the work each step needs, using the same marketing science. It starts from your Studio profile.
 - Is there AI in the free Studio? No. The free Studio is do-it-yourself. The AI is Olaf, in the paid edition.
 - Is my data shared? No. Your brand profile, plan and numbers stay in your own folder. Nothing is sent to us.
 - Which marketing approach does it use? Proven brand growth science: mental and physical availability, buying moments and distinctive brand assets.
@@ -279,7 +281,7 @@ Marketing:
 - Checks in every week: Ten minutes: what got done, what's next, and one to three steps for this week.
 - Does the work with you: Writes the posts, review requests, newsletter, press pitch and plan, and saves them in your folder.
 - Researches for you: Searches the web for your reviews, competitors, local media and the numbers it needs.
-- Reviews the month: Counts new customers from your Busywork invoices and adjusts the plan to what works.
+- Reviews the month: Counts new customers from your Busy invoices and adjusts the plan to what works.
 
 Projects:
 - A kick-off that writes the plan: Tell Olaf the job and the date that matters. It asks a few questions and puts the milestones, tasks, people and risks in your Project Planner.
@@ -294,8 +296,8 @@ Questions:
 - Do I need the Marketing Studio first? No. If you have filled in the Studio's brand profile, Olaf starts from it. If not, Olaf's onboarding asks the questions itself, one at a time.
 - Where is my data? In your own business folder. Your Claude key stays in your browser and is only sent to Anthropic. Web pages are fetched by Anthropic's own tools, never through us. We have no server that sees your business.
 - Does Olaf post for me? No. Olaf writes and prepares; you post, send and publish. That keeps you in control of what goes out under your name.
-- Which computers does it work on? Any computer with Chrome or Edge, Mac or Windows. Busywork keeps your business as files in a folder, and Safari and Firefox cannot save to folders yet.
-- Is Olaf in the free download? No. The free download has every Busywork tool and the Marketing Studio. Olaf comes in its own download when you buy it, with Busywork included. The demo on this site shows what it looks like with an example business.
+- Which computers does it work on? Any computer with Chrome or Edge, Mac or Windows. Busy keeps your business as files in a folder, and Safari and Firefox cannot save to folders yet.
+- Is Olaf in the free download? No. The free download has every Busy tool and the Marketing Studio. Olaf comes in its own download when you buy it, with Busy included. The demo on this site shows what it looks like with an example business.
 
 ## Privacy in short
 

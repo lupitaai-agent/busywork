@@ -1,6 +1,6 @@
-/* The shape of a Busywork business: every collection, who writes it, and its fields.
+/* The shape of a Busy business: every collection, who writes it, and its fields.
    This is the contract for anything else that reads or writes a business folder: a sync service, a
-   phone app, an importer, a future version of Busywork. DATA.md explains it in words; the tests
+   phone app, an importer, a future version of Busy. DATA.md explains it in words; the tests
    check the example business against it and check that every collection the apps use is listed.
 
    Rules every writer keeps:
@@ -19,7 +19,7 @@
   const party = { name: 'text', contact: 'text', email: 'text', address: 'text', postcode: 'text', city: 'text', country: 'text', vat: 'text' };
 
   const COLLECTIONS = {
-    meta: { app: 'core', shape: O, about: 'Which data version this business is in, and which Busywork saved it last.',
+    meta: { app: 'core', shape: O, about: 'Which data version this business is in, and which Busy saved it last.',
       fields: { dataVersion: 'num', savedBy: 'text', createdAt: 'time', updatedAt: 'time', restoredAt: 'time' } },
     settings: { app: 'core', shape: O, about: 'The business details on every document, and app preferences.',
       fields: { businessName: 'text', ownerName: 'text', email: 'text', phone: 'text', website: 'text', address: 'text', postcode: 'text', city: 'text', country: 'text',

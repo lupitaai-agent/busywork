@@ -327,7 +327,7 @@
       const fold = (line) => { const out = []; let cur = '', n = 0; for (const ch of line) { const b = enc.encode(ch).length; if (n + b > (out.length ? 74 : 75)) { out.push(cur); cur = ''; n = 0; } cur += ch; n += b; } return out.concat(cur).join('\r\n '); };
       const ev = (uid, date, summary, desc) => ['BEGIN:VEVENT', `UID:${uid}@busywork`, `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').slice(0, 15)}Z`,
         `DTSTART;VALUE=DATE:${date.replace(/-/g, '')}`, `DTEND;VALUE=DATE:${BW.addDays(date, 1).replace(/-/g, '')}`, fold('SUMMARY:' + esc(summary)), desc ? fold('DESCRIPTION:' + esc(desc)) : null, 'END:VEVENT'].filter(Boolean);
-      const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Busywork//Project Planner//EN', 'CALSCALE:GREGORIAN'];
+      const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Busy//Project Planner//EN', 'CALSCALE:GREGORIAN'];
       x.milestones.filter((m) => m.due).forEach((m) => lines.push(...ev(m.id, m.due, `◆ ${m.title} (${x.p.name})`, 'Milestone')));
       x.tasks.filter((t) => open(t) && t.due).forEach((t) => lines.push(...ev(t.id, t.due, `${t.title} (${x.p.name})`, t.notes || '')));
       lines.push('END:VCALENDAR');

@@ -110,7 +110,7 @@
         }
         return out.concat(cur).join('\r\n ');
       };
-      const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Busywork//Content calendar//EN', 'CALSCALE:GREGORIAN'];
+      const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Busy//Content calendar//EN', 'CALSCALE:GREGORIAN'];
       list.forEach((x) => lines.push('BEGIN:VEVENT', `UID:${x.id}@busywork`, `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').slice(0, 15)}Z`,
         `DTSTART;VALUE=DATE:${d(x.date)}`, `DTEND;VALUE=DATE:${d(BW.addDays(x.date, 1))}`, fold(`SUMMARY:${esc2('Post: ' + (x.title || '') + (x.channel ? ' (' + x.channel + ')' : ''))}`),
         fold(`DESCRIPTION:${esc2(x.text || 'Write this post first.')}`), 'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:Time to post', 'TRIGGER:PT9H', 'END:VALARM', 'END:VEVENT'));

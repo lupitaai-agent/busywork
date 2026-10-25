@@ -99,7 +99,7 @@
     observations(d, c) {
       const out = [], add = (icon, text, skill, label) => out.push({ icon, text, skill, label });
       const last3 = c.per.slice(-3).reduce((t, x) => t + x.fresh, 0), prev3 = c.per.slice(-6, -3).reduce((t, x) => t + x.fresh, 0);
-      if (!c.customersEver) add('🧾', 'No sent invoices yet, so new customers can\'t be counted. Send invoices through Busywork and this page fills itself.', null);
+      if (!c.customersEver) add('🧾', 'No sent invoices yet, so new customers can\'t be counted. Send invoices through Busy and this page fills itself.', null);
       else if (last3 < prev3) add('📉', `New customers are down: ${last3} in the last three months, ${prev3} in the three before. Growth comes from more buyers; check that you are visible every month.`, 'marketing-plan', 'Plan steady presence');
       else if (last3 > prev3) add('📈', `New customers are up: ${last3} in the last three months against ${prev3} before. Find out what brought them in and keep doing it.`, null);
       const unknown = c.src['Not recorded'] || 0;

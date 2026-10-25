@@ -1,4 +1,4 @@
-/* Busywork design system. Every app links this one file, so the whole suite
+/* Busy design system. Every app links this one file, so the whole suite
    changes look together. Colours are tokens; apps only set --app. */
 
 :root {

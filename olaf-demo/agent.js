@@ -26,7 +26,7 @@
     }
     const s = BW.settings;
     const facts = [['Business name', s.businessName], ['Website', s.website], ['Location', [s.city, s.country].filter(Boolean).join(', ')], ['Currency', s.currency]].filter(([, v]) => v);
-    if (facts.length) parts.unshift('### From Busywork settings\n\n' + facts.map(([k, v]) => `**${k}:** ${v}`).join('\n'));
+    if (facts.length) parts.unshift('### From Busy settings\n\n' + facts.map(([k, v]) => `**${k}:** ${v}`).join('\n'));
     if (!isProject(skillId) && !WS.isFilled('brand-documents/brand-growth-profile.md')) parts.push('Note: the growth profile is still mostly blank. Do the work anyway, and say that running onboarding first would make the output specific to this business.');
     return '## Who you are working for\n\nThese are the owner\'s own files. Follow them; the voice rules are not suggestions.\n\n' + parts.join('\n\n---\n\n');
   }

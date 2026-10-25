@@ -1,10 +1,12 @@
-# Busywork
+# Busy
 
-> Busywork is a set of free, private business tools for small businesses and freelancers: invoices and quotes, time tracking, receipts and expenses, a money dashboard, a client book, a project planner and board, documents, a brand kit, subscriptions, a trip log, stock and a marketing studio. The tools run in the browser and save everything as files in the owner's own folder, with no account and no subscription. Olaf, the AI expert for marketing and projects, is the paid edition.
+> Busy is a set of free, private business tools for small businesses and freelancers: invoices and quotes, time tracking, receipts and expenses, a money dashboard, a client book, a project planner and board, documents, a brand kit, subscriptions, a trip log, stock and a marketing studio. The tools run in the browser and save everything as files in the owner's own folder, with no account and no subscription. Olaf, the AI expert for marketing and projects, is the paid edition.
+
+Busy, free tools for small businesses, lives at https://busywork.example. It was called Busywork until October 2026. It is not related to BUSY accounting software (busy.in).
 
 Key facts:
 - Price: the 13 tools are free, with no account and no subscription. Olaf is €149 once for one business, plus the owner's own Claude usage.
-- Data: saved as files in a folder the owner chooses on their own computer (it can sit in Google Drive, Dropbox, OneDrive or iCloud Drive). Nothing is sent to Busywork.
+- Data: saved as files in a folder the owner chooses on their own computer (it can sit in Google Drive, Dropbox, OneDrive or iCloud Drive). Nothing is sent to Busy.
 - Works in: Chrome and Edge on Windows, macOS and ChromeOS, from a downloaded folder. No installation.
 - AI: none in the free tools. Olaf (paid) runs on Claude with the owner's own API key; requests go from the browser to Anthropic only.
 - Language: English. Invoices, quotes and documents can be made in English or Dutch.
@@ -31,12 +33,12 @@ Key facts:
 
 ## Get started
 
-- [Download Busywork](https://busywork.example/download.html): one zip file with every tool; unzip, open index.html, choose a folder.
+- [Download Busy](https://busywork.example/download.html): one zip file with every tool; unzip, open index.html, choose a folder.
 - [All tools](https://busywork.example/tools/index.html): what each tool does.
 
 ## About
 
-- [About Busywork](https://busywork.example/about.html): what it is, who it is for, and how it works.
+- [About Busy](https://busywork.example/about.html): what it is, who it is for, and how it works.
 - [Privacy](https://busywork.example/privacy.html): what happens to data (nothing is sent to us).
 - [Terms](https://busywork.example/terms.html)
 
