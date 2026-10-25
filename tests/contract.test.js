@@ -171,3 +171,18 @@ test('every tool page carries the strict security policy and no inline script', 
     assert.ok(!/\son[a-z]+="/.test(html), `${path.relative(ROOT, p)} has an inline event handler`);
   }
 });
+
+// Two function declarations with the same name in one script: the later one silently replaces the
+// earlier, so buttons call the wrong thing (this happened to Olaf's project buttons).
+test('no script declares the same function name twice', () => {
+  const dirs = [APP, path.join(ROOT, '..', 'busywork-olaf', 'app')].filter((d) => fs.existsSync(d));
+  const dupes = [];
+  for (const f of dirs.flatMap((d) => walk(d))) {
+    const seen = new Map();
+    for (const m of read(f).matchAll(/^([ \t]*)(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(/gm)) {
+      const key = m[1].length + ':' + m[2];
+      if (seen.has(key)) dupes.push(`${path.relative(ROOT, f)}: ${m[2]}`); else seen.set(key, true);
+    }
+  }
+  assert.deepEqual(dupes, []);
+});

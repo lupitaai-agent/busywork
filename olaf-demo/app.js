@@ -173,17 +173,17 @@
       }).join('')}</div>`
         : `<div class="card empty"><div class="big">🗓️</div><h2>No projects yet</h2><p>Tell Olaf about a job, a launch, an event or a move. Olaf asks a few questions and writes the plan into the Project Planner: milestones, tasks, who does what, and the risks worth watching.</p></div>`}
       <p class="faint" style="margin-top:18px">The plan is the same one your team sees in the Project Planner and on the Project Board. Olaf reads it, keeps it current and writes the weekly update; you make the decisions.</p>`;
-    $('[data-kick]', v).onclick = () => ask('🚀 Plan a new project', 'What is the project, for whom, and is there a date that matters?', 'e.g. New signs for Café Morgenrood, install before 10 November. Daan does the printing.', (t) => start('project-kickoff', t));
+    $('[data-kick]', v).onclick = () => askFirst('🚀 Plan a new project', 'What is the project, for whom, and is there a date that matters?', 'e.g. New signs for Café Morgenrood, install before 10 November. Daan does the printing.', (t) => start('project-kickoff', t));
     const all = $('[data-all]', v); if (all) all.onclick = () => start('project-weekly-checkin', 'Do the weekly check-in for all my active projects.');
     $$('[data-act]', v).forEach((b) => b.onclick = () => {
       const x = list.find((r) => r.x.p.id === b.dataset.p).x, act = ACTIONS.find(([id]) => id === b.dataset.act);
-      if (act[0] === 'project-meeting-actions') return ask('📝 Notes to tasks', 'Paste the notes, call summary or email. Olaf turns them into tasks, decisions and risks in the plan.', 'Notes from the call with Sam…', (t) => start(act[0], `${ref(x)}\n\nThe notes:\n${t}`), 12);
-      if (act[0] === 'project-task-brief') return ask('✉️ Brief someone', 'Which task, and who will do it?', 'e.g. The final print run, for Daan', (t) => start(act[0], `${ref(x)} ${t}`));
+      if (act[0] === 'project-meeting-actions') return askFirst('📝 Notes to tasks', 'Paste the notes, call summary or email. Olaf turns them into tasks, decisions and risks in the plan.', 'Notes from the call with Sam…', (t) => start(act[0], `${ref(x)}\n\nThe notes:\n${t}`), 12);
+      if (act[0] === 'project-task-brief') return askFirst('✉️ Brief someone', 'Which task, and who will do it?', 'e.g. The final print run, for Daan', (t) => start(act[0], `${ref(x)} ${t}`));
       start(act[0], act[2](x));
     });
   }
   // A short question before Olaf starts, so the conversation begins with what Olaf needs.
-  function ask(title, question, ph, go, rows = 4) {
+  function askFirst(title, question, ph, go, rows = 4) {
     const box = BW.html(`<div><p style="margin-bottom:10px">${esc(question)}</p><textarea class="in" rows="${rows}" data-q placeholder="${esc(ph)}" style="width:100%"></textarea></div>`);
     BW.modal({ title, body: box, wide: rows > 4, actions: [{ label: 'Cancel', kind: 'ghost' }, { label: 'Start', kind: 'primary', onClick: () => { const t = $('[data-q]', box).value.trim(); if (!t) return false; go(t); } }] });
   }

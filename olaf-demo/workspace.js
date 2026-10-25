@@ -125,6 +125,8 @@
       { name: 'task_update', description: 'Change one task: status (todo, doing, waiting, done), dates, who does it, estimate, milestone, title, or add a note. When its dates move later, the tasks that wait for it move along; the result says which.',
         input_schema: { type: 'object', properties: { id: { type: 'string' }, status: { type: 'string', enum: ['todo', 'doing', 'waiting', 'done'] }, start: { type: 'string' }, due: { type: 'string' }, assignee: { type: 'string', description: 'Person name, or empty for nobody' },
           hours: { type: 'number' }, milestone: { type: 'string', description: 'Milestone title, or empty for none' }, title: { type: 'string' }, note: { type: 'string', description: 'Added to the task notes with today\'s date' } }, required: ['id'] } },
+      { name: 'milestone_update', description: 'Change one milestone of a project: move its date, mark it reached (done) or not, or rename it. Find it by its title (or id from project_get).',
+        input_schema: { type: 'object', properties: { projectId: { type: 'string' }, milestone: { type: 'string', description: 'Current title or id' }, due: { type: 'string', description: 'YYYY-MM-DD' }, done: { type: 'boolean' }, title: { type: 'string', description: 'New title' } }, required: ['projectId', 'milestone'] } },
       { name: 'project_log_add', description: 'Write to a project\'s log: a risk (likelihood and impact 1 to 3, a next step, an owner), a decision (what and why) or a weekly update (health and text). Pass the id of an existing risk to change it, for example to close it.',
         input_schema: { type: 'object', properties: { projectId: { type: 'string' }, kind: { type: 'string', enum: ['risk', 'decision', 'update'] }, id: { type: 'string', description: 'An existing entry to change' }, title: { type: 'string' }, text: { type: 'string' },
           likelihood: { type: 'number' }, impact: { type: 'number' }, next: { type: 'string' }, owner: { type: 'string' }, state: { type: 'string', enum: ['open', 'closed'] }, health: { type: 'string', enum: ['green', 'amber', 'red'] } }, required: ['projectId', 'kind'] } },
@@ -186,7 +188,7 @@
           await BW.store.put('mktnumbers', rec);
           return `Recorded the numbers for ${m}.`;
         }
-        if (name.startsWith('project_') || name === 'people_add' || name === 'plan_items_add' || name === 'task_update') return await projectTool(name, input);
+        if (name.startsWith('project_') || ['people_add', 'plan_items_add', 'task_update', 'milestone_update'].includes(name)) return await projectTool(name, input);
         return err('Unknown tool ' + name);
       } catch (e) { return err(e.message || String(e)); }
     },
@@ -220,7 +222,7 @@
         project: { id: x.p.id, name: x.p.name, client: x.client ? x.client.name : '', clientEmail: x.client ? x.client.email || '' : '', status: x.p.status || 'active', start: x.p.start || '', deadline: x.p.due || '',
           goal: x.p.goal || '', doneMeans: x.p.doneMeans || '', budgetHours: x.p.budgetHours || '', owner: who(x.p.ownerId), plannedHours: P.progress(x).hours },
         health: { level: h.level, setByHand: h.set, reasons: h.reasons, teamOnly: h.internal },
-        milestones: x.milestones.map((m) => ({ title: m.title, due: m.due || '', done: !!m.done })),
+        milestones: x.milestones.map((m) => ({ id: m.id, title: m.title, due: m.due || '', done: !!m.done })),
         tasks: x.tasks.map((t) => ({ id: t.id, title: t.title, status: t.status || 'todo', start: t.start || '', due: t.due || '', doneAt: t.doneAt || '', milestone: (x.milestones.find((m) => m.id === t.milestoneId) || {}).title || '',
           who: who(t.assigneeId), hours: t.hours || '', waitsFor: (t.after || []).map(title).filter(Boolean), notes: t.notes || '' })),
         risks: x.log.filter((r) => r.kind === 'risk').map((r) => ({ id: r.id, title: r.title, likelihood: r.likelihood, impact: r.impact, level: P.riskLevel(r.likelihood, r.impact), next: r.next || '', owner: r.owner || '', state: r.state || 'open' })),
@@ -307,6 +309,19 @@
       }
       await BW.store.put('tasks', t);
       return `Updated "${t.title}".` + (pushed.length ? ` Moved along because they wait for it: ${pushed.map((y) => `"${y.title}" now ${y.start} to ${y.due}`).join(', ')}.` : '') + (notes.length ? ' Check: ' + notes.join('; ') + '.' : '');
+    }
+    if (name === 'milestone_update') {
+      const x = P.of(d, input.projectId);
+      if (!x) return err('No project with that id. Use project_list.');
+      const m = x.milestones.find((y) => y.id === input.milestone) || x.milestones.find((y) => same(y.title, input.milestone));
+      if (!m) return err(`No milestone "${input.milestone}" in this project. Use project_get.`);
+      dates(input, ['due']);
+      if (input.due != null) m.due = String(input.due);
+      if (input.done != null) m.done = input.done === true || input.done === 'true';
+      if (input.title) m.title = String(input.title).slice(0, 120);
+      await BW.store.put('milestones', m);
+      const late = x.tasks.filter((t) => t.milestoneId === m.id && (t.status || 'todo') !== 'done' && m.due && P.endOf(t) > m.due);
+      return `Updated milestone "${m.title}"${m.due ? ` (${m.due})` : ''}${m.done ? ', reached' : ''}.` + (late.length ? ` These tasks still end after it: ${late.map((t) => `"${t.title}" (${P.endOf(t)})`).join(', ')}.` : '');
     }
     if (name === 'project_log_add') {
       const p = proj(input.projectId);

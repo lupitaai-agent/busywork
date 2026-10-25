@@ -148,7 +148,8 @@
     if (b.name === 'people_add') return 'Adding people to the team';
     if (b.name === 'plan_items_add') { const i = b.input || {}; return `Adding ${(i.milestones || []).length} milestones and ${(i.tasks || []).length} tasks to the plan`; }
     if (b.name === 'task_update') return 'Updating a task';
-    if (b.name === 'project_log_add') return `Writing a ${(b.input || {}).kind || 'note'} in the project log`;
+    if (b.name === 'milestone_update') return 'Updating a milestone';
+    if (b.name === 'project_log_add') { const k = (b.input || {}).kind || 'note'; return `Writing ${k === 'update' ? 'an update' : 'a ' + k} in the project log`; }
     return b.name;
   }
 
