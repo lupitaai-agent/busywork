@@ -404,3 +404,9 @@ html, body.site { overflow-x: clip; }
 @keyframes ganttSlide { 0%, 30% { transform: translateX(0); } 50%, 80% { transform: translateX(14%); } 100% { transform: translateX(0); } }
 @media (prefers-reduced-motion: reduce) { .on .mini-gantt i.slide { animation: none; } }
 
+/* About page: the facts, as a definition list */
+.about-facts { display: grid; grid-template-columns: minmax(0, 220px) minmax(0, 1fr); gap: 12px 24px; margin: 28px 0; }
+.about-facts dt { font-weight: 850; }
+.about-facts dd { margin: 0; color: var(--ink-2); }
+@media (max-width: 640px) { .about-facts { grid-template-columns: minmax(0, 1fr); gap: 4px; } .about-facts dd { margin-bottom: 12px; } }
+

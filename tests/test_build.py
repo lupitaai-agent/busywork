@@ -1,8 +1,10 @@
 """Tests for build.py: the leak check that keeps Olaf's paid text off the website and out of the free
 download, and the generated homepage block. Run: python3 -m unittest discover tests"""
 import hashlib
+import html
 import importlib.util
 import json
+import re
 import shutil
 import tempfile
 import unittest
@@ -179,6 +181,66 @@ class Waitlist(unittest.TestCase):
         out = subprocess.run([sys.executable, "-c", "import importlib.util as u;s=u.spec_from_file_location('b','build.py');b=u.module_from_spec(s);s.loader.exec_module(b);print(b.WAITLIST_PROVIDER)"],
                              cwd=ROOT, env={"WAITLIST_PROVIDER": "", "PATH": "/usr/bin:/bin"}, capture_output=True, text=True)
         self.assertEqual(out.stdout.strip(), "MailerLite")
+
+
+
+class Visibility(unittest.TestCase):
+    """What search engines and AI assistants read: built by build.py's site_seo, write_llms and friends."""
+    SITE = ROOT / "website"
+
+    def pages(self):
+        return [p for p in list(self.SITE.glob("*.html")) + list((self.SITE / "tools").glob("*.html")) if p.name != "404.html"]
+
+    def test_every_page_has_title_description_canonical_alt_and_the_shared_graph(self):
+        for p in self.pages():
+            t = p.read_text()
+            title = re.search(r"<title>(.*?)</title>", t).group(1)
+            desc = re.search(r'<meta name="description" content="([^"]*)"', t).group(1)
+            self.assertLessEqual(len(html.unescape(title)), 60, f"{p.name} title")
+            self.assertLessEqual(len(html.unescape(desc)), 160, f"{p.name} description")
+            self.assertIn('rel="canonical"', t, p.name)
+            self.assertIn("og:image:alt", t, p.name)
+            self.assertNotIn("/app/shared/icons/", t, f"{p.name} points crawlers at icons robots.txt blocks")
+            ids = set()
+            for raw in re.findall(r'<script type="application/ld\+json"[^>]*>(.*?)</script>', t, re.S):
+                obj = json.loads(raw)
+                for g in obj.get("@graph", [obj]):
+                    if g.get("@type") == "Organization":
+                        ids.add(g["@id"])
+                        self.assertTrue(g["logo"]["url"].endswith("/assets/logo-512.png"))
+                    if g.get("@type") == "SoftwareApplication":
+                        self.assertIn("publisher", g, p.name)
+            self.assertEqual(len(ids), 1, f"{p.name}: one Organization, one @id")
+
+    def test_llms_txt_follows_the_format_and_links_to_real_pages(self):
+        t = (self.SITE / "llms.txt").read_text()
+        self.assertTrue(t.startswith("# Busywork\n\n> "), "H1, then a blockquote summary")
+        for url in re.findall(r"\]\((https?://[^)]+)\)", t):
+            path = re.sub(r"^https?://[^/]+/", "", url)
+            self.assertTrue((self.SITE / path).is_file(), f"llms.txt links to missing {path}")
+        full = (self.SITE / "llms-full.txt").read_text()
+        for tool in json.loads((self.SITE / "content" / "tools.json").read_text()):
+            self.assertIn(f"## {tool['name']}", full)
+        self.assertIn("## Olaf", full)
+
+    def test_robots_welcomes_ai_crawlers_and_keeps_the_demo_out(self):
+        r = (self.SITE / "robots.txt").read_text()
+        for bot in ["GPTBot", "ClaudeBot", "PerplexityBot", "OAI-SearchBot", "Google-Extended"]:
+            self.assertIn(f"User-agent: {bot}", r)
+        self.assertNotIn("Disallow: /\n", r)
+        self.assertIn("Disallow: /app/", r)
+        self.assertIn("/sitemap.xml", r)
+        sm = (self.SITE / "sitemap.xml").read_text()
+        self.assertIn("about.html", sm)
+        self.assertNotIn("404", sm)
+
+    def test_images_carry_their_metadata(self):
+        for rel, (title, _) in build.IMAGES.items():
+            data = (self.SITE / rel).read_bytes()
+            self.assertIn(title.encode(), data, rel)
+        for f in ["favicon.ico", "apple-touch-icon.png", "site.webmanifest", "assets/logo-512.png"]:
+            self.assertTrue((self.SITE / f).is_file(), f)
+        self.assertIn('name="robots" content="noindex"', (self.SITE / "404.html").read_text())
 
 
 if __name__ == "__main__":

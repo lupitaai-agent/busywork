@@ -1,0 +1,303 @@
+# Busywork: the full picture
+
+Busywork is a set of free, private business tools for small businesses and freelancers: invoices and quotes, time tracking, receipts and expenses, a money dashboard, a client book, a project planner and board, documents, a brand kit, subscriptions, a trip log, stock and a marketing studio. The tools run in the browser and save everything as files in the owner's own folder, with no account and no subscription. Olaf, the AI expert for marketing and projects, is the paid edition.
+
+Website: https://busywork.example/
+
+## How it works
+
+1. Download Busywork (one zip file) and unzip it somewhere you will find it again.
+2. Double-click index.html. It opens in Chrome or Edge. Nothing is installed.
+3. Choose a folder for your business. Every tool saves plain files there; put the folder in Google Drive, Dropbox, OneDrive or iCloud Drive for backups and syncing.
+4. Busywork also keeps a daily backup in that folder. There is no account and no server: nothing is sent to us.
+
+## Editions
+
+- Free download: all 13 tools, the Marketing Studio included. No AI, no account, no subscription.
+- Paid edition: the same tools plus Olaf, the AI expert for marketing and projects. €149 once · checkout opens soon.
+- Website demo: every tool filled with a pretend design studio, at https://busywork.example/app/index.html. Nothing is kept after the tab closes.
+
+## Invoices & Quotes
+
+Invoices that practically write themselves. Pick a client, type what you did, hit send. We do the maths, the numbering, the PDF and even the reminder email. Free, and your invoices never leave your computer.
+
+Page: https://busywork.example/tools/invoices.html
+
+What it does:
+- Type right on the invoice: No forms. Click anything on the paper and change it. What you see is the PDF you send.
+- Scan-to-pay QR code: Every euro invoice gets a SEPA QR code. Clients scan it with their banking app and the amount and reference are filled in.
+- Recurring invoices: Retainers and monthly work make their own drafts, every week, month, quarter or year.
+- Reminders in three tones: Friendly, firm or final. The email is written for you, with the days overdue and the amount still open.
+- Deposits and part payments: Record what came in. The invoice shows what’s still to pay.
+- Your products and services: Save a line once, then type two letters to add it to any invoice.
+
+Questions:
+- Is the invoice generator really free? Yes. No trial, no limits on the number of invoices, no account.
+- Do the invoices meet EU rules? They include what EU invoices need, including sequential numbers, VAT per rate, both parties’ details and reverse-charge wording for EU business clients. Check special cases with your accountant.
+- Can I make credit notes? Yes. One click turns an invoice into a credit note with its own number, ready to adjust.
+- Can I invoice in Dutch? Yes. Choose English or Dutch per business, or per client.
+
+## Client Book
+
+Everyone you work with, in one friendly place. A simple CRM without the CRM. Contact details, what they’ve paid, what’s still open, and the little things worth remembering.
+
+Page: https://busywork.example/tools/clients.html
+
+What it does:
+- Import your list: Drop in a CSV from Excel or Google Sheets. Column names, even Dutch ones, are matched for you.
+- Money at a glance: See what each client has paid you and what’s still open.
+- Per-client terms: Payment terms, hourly rate and invoice language per client. Every tool uses them.
+- Full history: Every invoice and quote for a client, one click away.
+- Find anyone fast: Search by name, email or city, or press ⌘K anywhere.
+- Your data, your way: Export to a spreadsheet whenever you like.
+
+Questions:
+- Is there a limit on clients? No. Add as many as you like.
+- Can my team share the client list? Put your business folder in Google Drive, Dropbox or OneDrive and everyone with access sees the same list.
+- Can I import from another CRM? Export a CSV from it and import it here. Columns are matched automatically and you can fix any that are off.
+
+## Time Tracker
+
+Tap start. Do the work. Bill the hours. One big button, a week view, and a ‘make the invoice’ button that does exactly that. Your client’s rate and your rounding rules are applied for you.
+
+Page: https://busywork.example/tools/time.html
+
+What it does:
+- One-button timer: Start and stop with a click or the S key. The timer also shows in your browser tab.
+- Hours become an invoice: Unbilled hours per client turn into a draft invoice, one line per session.
+- Week view: A timesheet of the week by client and day, like the big-name trackers.
+- Rounding: Round billed time up to 6 or 15 minutes. What you logged stays exact.
+- Billable or not: Mark admin and calls as not billable, so they never land on an invoice.
+- Continue: Pick up yesterday’s task again with one click.
+
+Questions:
+- Can I set a different rate per client? Yes, in the Client Book. Entries without their own rate use the client’s, then your normal rate.
+- Does it track my screen or apps? No. It only counts what you start and stop.
+- Can I track time on a project task? Yes. Open a card on the Project Board and press ‘Track time on this’.
+
+## Receipts & Expenses
+
+Snap the receipt. Done. Drop a photo or a PDF anywhere on the page. We file it, count the VAT you can claim back, and keep a list your accountant will love.
+
+Page: https://busywork.example/tools/expenses.html
+
+What it does:
+- Drag, drop, filed: Receipts are saved as files in your business folder, by year.
+- VAT you can claim: Worked out per receipt and per quarter.
+- Pass costs on: Costs you rebill land on the client’s next invoice, without double VAT.
+- Paid privately: Mark what you paid yourself, so you can pay yourself back.
+- Where it went: Spending per category at a glance.
+- For your accountant: A quarter in one spreadsheet, with receipt file names.
+
+Questions:
+- Where are my receipts stored? In a Receipts folder inside your business folder, as normal image and PDF files.
+- Can it read the amount from the photo? Not yet. You type the amount; the photo is kept with the expense.
+- Does it work on my phone? You can log expenses on a phone with the online version. Receipt photos are kept when you save to a folder, which needs Chrome or Edge on a computer.
+
+## Money Dashboard
+
+How’s business? Here’s the honest answer. Profit, VAT to pay, what to keep aside for income tax, who still owes you and what the next 90 days look like. All from the invoices and receipts you already have.
+
+Page: https://busywork.example/tools/money.html
+
+What it does:
+- Profit, month by month: Money in and out without VAT, counted when it actually arrives.
+- VAT return overview: Per quarter, with the Dutch box numbers, ready to check with your accountant.
+- Keep aside: VAT to pay plus an income-tax pot at the percentage you choose.
+- Who owes you: Unpaid invoices by age: not due, 30, 60 and 60+ days late.
+- The next 90 days: Open and recurring invoices coming in, subscriptions going out.
+- Best clients: Who brings in the most this period.
+
+Questions:
+- Is this accounting software? No, it’s a clear overview for you. Your accountant still does the official books and returns.
+- Why does it count payments when they arrive? That’s cash in your account, which is what matters for most small businesses day to day.
+- Do I need to type anything here? Only your income-tax percentage. Everything else comes from the other tools.
+
+## Project Planner
+
+Every project on one page. Start from a template, drag the timeline to fit your dates, give each task a name, and see at a glance what is late, what waits on whom and who has too much on. No account, no per-seat price.
+
+Page: https://busywork.example/tools/projects.html
+
+What it does:
+- A timeline you drag: Move a task and everything that waits for it moves along. Late work turns red.
+- Milestones: The promises that matter to you and your client, ticked off when reached.
+- Who does what: Give each task a person and an estimate, and see each person's hours for the next six weeks.
+- On track or not: On track, at risk or off track, with the reasons in plain words.
+- Risks and decisions: Name what could go wrong with a next step, and write down what was decided and why.
+- The weekly update, drafted: What got done, what is next and what is stuck, ready to copy or email to your client.
+
+Questions:
+- Is it the same as the Project Board? Same projects, same cards. The Board is for moving cards along each day; the Planner adds dates, milestones, people, risks and updates.
+- Can my team use it? Add everyone as a person, no accounts needed. Share the business folder through Google Drive or Dropbox so everyone sees the same plan.
+- Can it go into my calendar? Yes. Export the milestones and due dates as a calendar file for Google, Apple or Outlook, or every task as a spreadsheet.
+- Is there an AI version? Olaf, the AI expert in the paid edition, runs the plan with you: a kick-off that writes the plan, a weekly check-in, a recovery plan when it slips, and updates for your client.
+
+## Project Board
+
+Drag your to-dos from “ugh” to “done”. One board per project, four columns, checklists in every card, and confetti every time something’s finished.
+
+Page: https://busywork.example/tools/board.html
+
+What it does:
+- Drag and drop: To do, doing, waiting, done.
+- Checklists: Break a card into steps and tick them off.
+- Due dates: Late cards turn red, and today’s show on your home screen.
+- Track time on a card: One click starts the Time Tracker for that task.
+- Filter: Find any card on any board.
+- Clear done: Tidy up in one click, with undo.
+
+Questions:
+- Can I use it with my team? Share your business folder through Google Drive and everyone sees the same boards.
+- Is there a timeline or Gantt view? Yes, in the Project Planner: the same projects and cards, with milestones, a timeline you drag, who does what and the workload per person.
+- Does it work with the keyboard? Yes. N adds a card, / filters, ⌘K finds any card.
+
+## Document Maker
+
+Letters and agreements that fill themselves in. Pick a template and a client. Names, addresses, dates and bank details are filled in. Add the good bits and save a PDF with your logo.
+
+Page: https://busywork.example/tools/docs.html
+
+What it does:
+- Nine templates: Letter, payment reminder, thank-you note, proposal, price list, project brief, meeting notes, simple agreement, blank page.
+- Insert any detail: Client address, your IBAN, today’s date: one click from a menu.
+- Your letterhead: Your logo and colour on every PDF.
+- Your own templates: Save any document as a template.
+- Simple formatting: Headings with #, bullet points with -.
+- Saved as you type: Every document is kept in your folder.
+
+Questions:
+- Are the agreements legally checked? No. They cover the basics in plain language. For anything important, have a lawyer look at it.
+- Can I write in Dutch? Yes. Write anything you like, or save your own Dutch templates.
+- Can people sign the documents? Not inside the tool yet. Signatures are on the workbench.
+
+## Brand Kit
+
+Look the same everywhere. Your colours, an email signature that works in every mail app, and business cards you can print at home, with a QR code to your website.
+
+Page: https://busywork.example/tools/brand.html
+
+What it does:
+- Email signatures: Three styles. Copy and paste into Gmail, Outlook or Apple Mail.
+- Your palette: Five shades of your colour. Click to copy.
+- Business cards: Ten per A4 sheet, fronts and backs lined up for double-sided printing.
+- QR code on the back: People scan your card straight to your website.
+- Used everywhere: Invoices, documents and cards all share your logo and colour.
+- Ready in a minute: Everything comes from your business details.
+
+Questions:
+- Why doesn’t my logo show in my signature? Mail apps remove pictures stored inside a signature. Add your logo’s web address and it shows up.
+- Can I send the cards to a print shop? Yes. Send them the PDF.
+- Can I change my colour later? Yes. Every tool updates straight away.
+
+## Subscriptions
+
+No more surprise renewals. All the little monthly bills in one place, what they really cost per month, and a nudge before anything renews.
+
+Page: https://busywork.example/tools/subscriptions.html
+
+What it does:
+- The real monthly cost: Weekly, monthly, quarterly and yearly bills, added up per month.
+- Renewal warnings: Bills renewing within a week wiggle for attention.
+- 12-month timeline: Big yearly bills stand out before they hit.
+- Log as an expense: One click adds this month’s charge to your expenses.
+- Cancel in one click: Keep the link to each account page.
+- In cappuccinos: Because sometimes that’s what it takes.
+
+Questions:
+- Does it connect to my bank? No. You add subscriptions yourself, which also means nobody else sees your bank data.
+- Do renewal dates update themselves? Yes. A monthly bill entered last spring shows its next date automatically.
+- Does this count as bookkeeping? Log each payment as an expense to keep your books complete.
+
+## Trip Log
+
+Every business kilometre counts. Log a trip in seconds, tap your usual routes, and see what your kilometres are worth at tax time.
+
+Page: https://busywork.example/tools/trips.html
+
+What it does:
+- Usual trips: Routes you drive often become one-tap buttons.
+- Return trips: There and back counts double, automatically.
+- Worth at tax time: Kilometres times your rate, all year.
+- Same trip again: Repeat any trip for today in one click.
+- Per client: Link trips to clients.
+- Year export: One spreadsheet for your accountant.
+
+Questions:
+- What rate per kilometre should I use? It depends on your country and situation. The Dutch tax office has allowed €0.23 in recent years; check the current amount with your accountant.
+- Can it track trips by GPS? No. You log them yourself, which keeps your location private.
+- Can I bill kilometres to a client? Not automatically yet. It’s on the workbench.
+
+## Stock Keeper
+
+Know what’s on the shelf before it runs out. Tap plus and minus as things come in and go out. We warn you before the shelf runs empty and keep a history of every change.
+
+Page: https://busywork.example/tools/stock.html
+
+What it does:
+- Quick plus and minus: Big buttons, made for busy hands.
+- Low-stock warnings: Set a minimum per item and we flag it.
+- Barcode scanning: Scan a code to find or add a product (Chrome on Mac, Android and ChromeOS).
+- Item history: Every change, with the reason: sold, received or counted.
+- Shelves and categories: Filter by where things live.
+- Value and margins: What your stock is worth and what you make per item.
+
+Questions:
+- Can several people update stock? Share your business folder through Google Drive. Live multi-user updates are on the workbench.
+- Which barcode types work? Common product barcodes and QR codes, wherever the browser can scan them.
+- Can I import my product list? Not yet. Spreadsheet import is on the workbench.
+
+## Marketing Studio
+
+Do your own marketing, the way brands really grow. Plan, make and measure your marketing yourself: a brand profile, an always-on year plan, a content calendar and insights from your own invoices, all built on decades of research into how people really buy. Free, and your data stays yours.
+
+Page: https://busywork.example/tools/marketing.html
+
+What it does:
+- A brand profile, not a persona: Your category, the moments people need you, your distinctive look, your voice and your budget. Your plan and posts build on it.
+- A year at a glance: An always-on plan that shows the months you're invisible, so you can fix them. Every action is also a task on your Project Board.
+- A content calendar: Plan your posts, link each to a buying moment, copy and post, and get a reminder in your own calendar.
+- Measure what matters: New customers from your invoices, where they came from, a simple survey of how often you come to mind, and your brand assets on a fame and uniqueness grid.
+- Built on the evidence: A short guide to the laws of brand growth: reach more buyers, own the buying moments, be recognisable, be easy to buy.
+- Olaf, when you want help: See what Olaf, the AI expert in the paid edition, would do for you: the playbooks it runs with you, one by one.
+
+Questions:
+- Is it really free? Yes. The Studio is part of the free Busywork toolbox: no account, no subscription, no costs.
+- Do I need to know marketing? No. The Studio explains the why in plain words: the guide, the profile and the plan walk you through it. You stay in the driving seat.
+- What if I would rather be guided? Then Olaf is for you: our AI expert for marketing and projects, right inside Busywork. It looks at your business, makes a 90-day plan, checks in every week and does the work each step needs, using the same marketing science. It starts from your Studio profile.
+- Is there AI in the free Studio? No. The free Studio is do-it-yourself. The AI is Olaf, in the paid edition.
+- Is my data shared? No. Your brand profile, plan and numbers stay in your own folder. Nothing is sent to us.
+- Which marketing approach does it use? Proven brand growth science: mental and physical availability, buying moments and distinctive brand assets.
+
+## Olaf, the AI expert for marketing and projects (paid edition)
+
+Page: https://busywork.example/olaf.html. Price: €149 once · checkout opens soon.
+
+Marketing:
+- Looks at where you stand: Reads your brand profile, your website and your reviews, and tells you plainly what is working and what is missing.
+- Plans your next 90 days: A week-by-week roadmap that fits the hours you actually have, built on proven brand growth science.
+- Checks in every week: Ten minutes: what got done, what's next, and one to three steps for this week.
+- Does the work with you: Writes the posts, review requests, newsletter, press pitch and plan, and saves them in your folder.
+- Researches for you: Searches the web for your reviews, competitors, local media and the numbers it needs.
+- Reviews the month: Counts new customers from your Busywork invoices and adjusts the plan to what works.
+
+Projects:
+- A kick-off that writes the plan: Tell Olaf the job and the date that matters. It asks a few questions and puts the milestones, tasks, people and risks in your Project Planner.
+- A weekly check-in: Olaf reads the plan, sees what slipped, what waits on whom and who has too much on, agrees the week with you and updates the plan.
+- Back on track: When a project slips, Olaf works out how late it really is and lays out the options: cut scope, move a date, or get help. You choose; it re-plans.
+- Updates and notes, done: Updates your client reads, a brief for a freelancer, and meeting notes turned into tasks and decisions.
+
+Questions:
+- Is Olaf a person? No. Olaf is an AI expert for marketing and projects, running on Claude, Anthropic's AI. It follows proven marketing science, explains its reasoning in plain words, checks its writing, and never invents facts, reviews or numbers. You approve everything before it goes out.
+- What does it cost? Olaf is €149 once for your business; checkout opens soon, and the waitlist on this page gets the early-access price. On top of that you pay Anthropic directly for the AI you use, with your own Claude key. You see the cost of every conversation, and you set a monthly limit and a limit per conversation.
+- What does the AI cost to run? You pay Anthropic directly, on your own Claude key, for what Olaf uses. In our own tests with Claude Sonnet: a weekly check-in cost about $0.10 to $0.15, making a full plan about $0.25 to $0.30, and writing a month of posts about $0.15. You see the cost of every conversation and set a monthly limit.
+- Do I need the Marketing Studio first? No. If you have filled in the Studio's brand profile, Olaf starts from it. If not, Olaf's onboarding asks the questions itself, one at a time.
+- Where is my data? In your own business folder. Your Claude key stays in your browser and is only sent to Anthropic. Web pages are fetched by Anthropic's own tools, never through us. We have no server that sees your business.
+- Does Olaf post for me? No. Olaf writes and prepares; you post, send and publish. That keeps you in control of what goes out under your name.
+- Which computers does it work on? Any computer with Chrome or Edge, Mac or Windows. Busywork keeps your business as files in a folder, and Safari and Firefox cannot save to folders yet.
+- Is Olaf in the free download? No. The free download has every Busywork tool and the Marketing Studio. Olaf comes in its own download when you buy it, with Busywork included. The demo on this site shows what it looks like with an example business.
+
+## Privacy in short
+
+The tools never send us anything. Business data stays in the owner's folder. The Olaf waitlist keeps an email address (and optionally a business name) in MailerLite, only to say when Olaf can be bought. Olaf's requests go from the owner's browser to Anthropic with the owner's own key.
+Full text: https://busywork.example/privacy.html

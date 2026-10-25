@@ -1,0 +1,45 @@
+# Busywork
+
+> Busywork is a set of free, private business tools for small businesses and freelancers: invoices and quotes, time tracking, receipts and expenses, a money dashboard, a client book, a project planner and board, documents, a brand kit, subscriptions, a trip log, stock and a marketing studio. The tools run in the browser and save everything as files in the owner's own folder, with no account and no subscription. Olaf, the AI expert for marketing and projects, is the paid edition.
+
+Key facts:
+- Price: the 13 tools are free, with no account and no subscription. Olaf is €149 once for one business, plus the owner's own Claude usage.
+- Data: saved as files in a folder the owner chooses on their own computer (it can sit in Google Drive, Dropbox, OneDrive or iCloud Drive). Nothing is sent to Busywork.
+- Works in: Chrome and Edge on Windows, macOS and ChromeOS, from a downloaded folder. No installation.
+- AI: none in the free tools. Olaf (paid) runs on Claude with the owner's own API key; requests go from the browser to Anthropic only.
+- Language: English. Invoices, quotes and documents can be made in English or Dutch.
+
+## Tools
+
+- [Invoices & Quotes](https://busywork.example/tools/invoices.html): Make professional invoices and quotes in a minute. VAT, numbering, PDF, scan-to-pay QR code, reminders and recurring invoices. Free, private, no account.
+- [Client Book](https://busywork.example/tools/clients.html): Keep every client in one friendly place: contact details, payment terms, rates, notes and invoice history. Import from Excel or Google Sheets. Free and private.
+- [Time Tracker](https://busywork.example/tools/time.html): Track hours with one button and turn them into an invoice in one click. Billable rates per client, rounding, a weekly timesheet. Free and private.
+- [Receipts & Expenses](https://busywork.example/tools/expenses.html): Snap or drop receipts and we file them in your folder, count the VAT you can claim back and make a spreadsheet for your accountant. Free and private.
+- [Money Dashboard](https://busywork.example/tools/money.html): See profit, VAT to set aside and cash flow at a glance, from your own invoices and receipts. Free, private, no account.
+- [Project Planner](https://busywork.example/tools/projects.html): Plan client jobs, launches and events: milestones, a drag-and-drop timeline, who does what, risks and a weekly update. Free, private, no account.
+- [Project Board](https://busywork.example/tools/board.html): A playful kanban board: drag cards from to-do to done, add checklists and due dates, and track time on any card. Free and private.
+- [Document Maker](https://busywork.example/tools/docs.html): Letters, payment reminders, proposals, price lists, project briefs and simple agreements, with names and addresses filled in and your logo on every PDF. Free.
+- [Brand Kit](https://busywork.example/tools/brand.html): Turn your logo and colour into a palette, a proper email signature for Gmail, Outlook and Apple Mail, and print-ready business cards with a QR code. Free.
+- [Subscriptions](https://busywork.example/tools/subscriptions.html): Every monthly and yearly bill in one place: true monthly cost, renewal warnings, a 12-month timeline and one-click expense logging. Free and private.
+- [Trip Log](https://busywork.example/tools/trips.html): Log business trips in seconds, with return trips, frequent routes and a yearly total worth money at tax time. Export for your accountant. Free and private.
+- [Stock Keeper](https://busywork.example/tools/stock.html): Tap plus and minus as stock comes and goes, get low-stock warnings, scan barcodes, see stock value, margins and a full history per item. Free and private.
+- [Marketing Studio](https://busywork.example/tools/marketing.html): Do your own marketing on proven science: a brand profile, a year plan, a content calendar and insights from your invoices. Free and private.
+
+## Olaf (paid edition)
+
+- [Olaf, the AI expert for marketing and projects](https://busywork.example/olaf.html): a 90-day marketing plan, project plans, a weekly check-in and the work done with the owner, on proven marketing science. €149 once.
+
+## Get started
+
+- [Download Busywork](https://busywork.example/download.html): one zip file with every tool; unzip, open index.html, choose a folder.
+- [All tools](https://busywork.example/tools/index.html): what each tool does.
+
+## About
+
+- [About Busywork](https://busywork.example/about.html): what it is, who it is for, and how it works.
+- [Privacy](https://busywork.example/privacy.html): what happens to data (nothing is sent to us).
+- [Terms](https://busywork.example/terms.html)
+
+## Optional
+
+- [llms-full.txt](https://busywork.example/llms-full.txt): all of the above with every tool's features and questions in one file.

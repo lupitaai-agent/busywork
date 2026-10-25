@@ -1,4 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Busywork logo">
+  <title>Busywork logo</title><desc>The Busywork logo: a sun-yellow rounded tile with a dark sparkle.</desc>
   <!-- Busywork: the sun-yellow tile with the sparkle, thick outline and offset shadow -->
   <rect x="8" y="8" width="52" height="52" rx="15" fill="#1E1B2E"/>
   <rect x="4" y="4" width="52" height="52" rx="15" fill="#FFC93C" stroke="#1E1B2E" stroke-width="4"/>
