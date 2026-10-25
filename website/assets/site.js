@@ -16,12 +16,15 @@
       data.delete('consent'); // the tick is required to send; the service needs only the details
       const res = await fetch(f.action, { method: 'POST', body: data, headers: { Accept: 'application/json' } });
       const json = await res.json().catch(() => ({}));
-      if (!res.ok || json.success === false) throw new Error(String(res.status));
+      // Only a problem with the address is the visitor's to fix; anything else is ours.
+      const badEmail = json.errors && (json.errors.email || (json.errors.fields && json.errors.fields.email));
+      if (badEmail) { msg.textContent = 'That email address does not look right. Check it and try again.'; msg.className = 'wl-msg err'; btn.disabled = false; return; }
+      if (!res.ok || json.success === false) throw new Error(json.message || String(res.status));
       f.reset();
       // MailerLite asks each person to confirm by email first (double opt-in).
       msg.textContent = f.dataset.provider === 'mailerlite' ? 'Almost there: check your inbox and confirm your email. Then you are on the list.' : "You're on the list. We'll email you when Olaf can be bought.";
       msg.className = 'wl-msg ok';
-    } catch (e) { msg.textContent = 'That did not go through. Check your email address and try again.'; msg.className = 'wl-msg err'; }
+    } catch (e) { msg.textContent = 'Something went wrong on our side, not yours. Please try again in a little while.'; msg.className = 'wl-msg err'; }
     btn.disabled = false;
   }));
 
