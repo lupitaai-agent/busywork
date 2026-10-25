@@ -4,9 +4,11 @@ The same command runs on GitHub before each deploy (.github/workflows/pages.yml)
 here passes there. Needs only Node 22+ and Python 3.9+; no packages.
 
 1. every script parses        node --check
-2. the logic works            node --test tests/*.test.js
-3. the build is safe          python3 -m unittest discover tests (leak check, homepage block)
-4. a real build               build.py, which ends with the leak check on the finished site
+2. a real build               build.py, which ends with the leak check on the finished site; it
+                              also makes the generated files the tests need (a fresh checkout,
+                              like GitHub's, has none)
+3. the logic works            node --test tests/*.test.js
+4. the build is safe          python3 -m unittest discover tests (leak check, homepage block)
 """
 import subprocess
 import sys
@@ -31,9 +33,9 @@ def main():
         if r.returncode:
             raise SystemExit(f"check: {s} does not parse\n{r.stderr}")
     print(f"== {len(scripts)} scripts parse")
+    run("build", [sys.executable, "build.py"])
     run("logic tests", ["node", "--test", *sorted(str(p) for p in (ROOT / "tests").glob("*.test.js"))])
     run("build tests", [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-p", "test_*.py"])
-    run("build", [sys.executable, "build.py"])
     print("\ncheck: all good")
 
 
