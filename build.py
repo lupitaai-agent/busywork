@@ -244,15 +244,16 @@ OLAF_CHECKOUT_URL = os.environ.get("OLAF_CHECKOUT_URL", "")
 # service that accepts a normal form POST and answers JSON). Set both in the GitHub repository:
 # Settings → Secrets and variables → Actions → Variables.
 WAITLIST_ENDPOINT = os.environ.get("WAITLIST_ENDPOINT", "")
-WAITLIST_PROVIDER = os.environ.get("WAITLIST_PROVIDER", "MailerLite")
+WAITLIST_PROVIDER = os.environ.get("WAITLIST_PROVIDER") or "MailerLite"  # an empty GitHub variable means the default
 
 
 def waitlist_form(where: str) -> str:
     """The sign-up form for people who want to buy Olaf when checkout opens. MailerLite (the default)
-    takes its own field names (fields[email], fields[company]) and confirms each address by email
+    takes its own field names: fields[email], and the business in fields[name] (the form's "Company"
+    box is MailerLite's Name field). It confirms each address by email
     (double opt-in, set in MailerLite); Formspree takes plain names and a hidden spam trap."""
     ml = WAITLIST_PROVIDER.lower() == "mailerlite"
-    email, business = ("fields[email]", "fields[company]") if ml else ("email", "business")
+    email, business = ("fields[email]", "fields[name]") if ml else ("email", "business")
     extra = ('<input type="hidden" name="ml-submit" value="1"><input type="hidden" name="anticsrf" value="true">' if ml
              else f'<input type="text" name="_gotcha" tabindex="-1" autocomplete="off" class="wl-hp" aria-hidden="true"><input type="hidden" name="source" value="{e(where)}">')
     return f"""<form class="waitlist" data-waitlist data-provider="{e(WAITLIST_PROVIDER.lower())}" action="{e(WAITLIST_ENDPOINT)}" method="post" data-where="{e(where)}">

@@ -163,5 +163,23 @@ class Editions(unittest.TestCase):
         self.assertIn("See the demo", (ROOT / "website" / "index.html").read_text())
 
 
+
+class Waitlist(unittest.TestCase):
+    def test_mailerlite_form_uses_its_field_names_and_an_empty_setting_keeps_the_default(self):
+        saved = build.WAITLIST_PROVIDER
+        try:
+            build.WAITLIST_PROVIDER = "MailerLite"
+            f = build.waitlist_form("test")
+            for part in ['name="fields[email]"', 'name="fields[name]"', 'name="ml-submit" value="1"', 'name="anticsrf" value="true"', 'data-provider="mailerlite"']:
+                self.assertIn(part, f)
+            self.assertNotIn("_gotcha", f)
+        finally:
+            build.WAITLIST_PROVIDER = saved
+        import subprocess, sys
+        out = subprocess.run([sys.executable, "-c", "import importlib.util as u;s=u.spec_from_file_location('b','build.py');b=u.module_from_spec(s);s.loader.exec_module(b);print(b.WAITLIST_PROVIDER)"],
+                             cwd=ROOT, env={"WAITLIST_PROVIDER": "", "PATH": "/usr/bin:/bin"}, capture_output=True, text=True)
+        self.assertEqual(out.stdout.strip(), "MailerLite")
+
+
 if __name__ == "__main__":
     unittest.main()
