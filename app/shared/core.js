@@ -5,7 +5,7 @@
   'use strict';
   const BW = (window.BW = window.BW || {});
 
-  BW.brand = { name: 'Busywork', tagline: 'Boring business stuff, made fun.' };
+  BW.brand = { name: 'Busywork', tagline: 'Make your paperwork fun again.' };
   // The website. build.py puts the real address in the copies it publishes and zips.
   BW.siteUrl = 'https://busywork.example';
   // The release, shown in problem reports and written into the business folder (data/meta.json).
@@ -165,6 +165,38 @@
     stringify(rows) {
       return rows.map((r) => r.map((c) => { c = String(c == null ? '' : c); return /[",\n;]/.test(c) ? '"' + c.replace(/"/g, '""') + '"' : c; }).join(',')).join('\r\n');
     },
+  };
+
+  // Markdown for AI answers: escape everything first, then render a small, safe subset.
+  BW.md = function md(src) {
+    const esc = BW.esc;
+    const lines = esc(src || '').split('\n'), out = [];
+    let i = 0;
+    const inline = (t) => t.replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>').replace(/(^|[^*])\*([^*\s][^*]*)\*/g, '$1<i>$2</i>')
+      .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+    while (i < lines.length) {
+      const l = lines[i];
+      if (/^```/.test(l)) { const buf = []; i++; while (i < lines.length && !/^```/.test(lines[i])) buf.push(lines[i++]); i++; out.push(`<pre><code>${buf.join('\n')}</code></pre>`); continue; }
+      if (/^#{1,4} /.test(l)) { const n = l.match(/^#+/)[0].length; out.push(`<h${n}>${inline(l.slice(n + 1))}</h${n}>`); i++; continue; }
+      if (/^\s*(---|\*\*\*)\s*$/.test(l)) { out.push('<hr>'); i++; continue; }
+      if (/^\|/.test(l) && i + 1 < lines.length && /^\|?\s*:?-+:?\s*\|/.test(lines[i + 1])) {
+        const row = (r) => r.replace(/^\||\|$/g, '').split('|').map((c) => c.trim());
+        const head = row(l); i += 2; const body = [];
+        while (i < lines.length && /^\|/.test(lines[i])) body.push(row(lines[i++]));
+        out.push(`<table><tr>${head.map((h) => `<th>${inline(h)}</th>`).join('')}</tr>${body.map((r) => `<tr>${r.map((c) => `<td>${inline(c)}</td>`).join('')}</tr>`).join('')}</table>`); continue;
+      }
+      if (/^\s*([-*]|\d+\.) /.test(l)) {
+        const ordered = /^\s*\d+\./.test(l), items = [];
+        while (i < lines.length && /^\s*([-*]|\d+\.) /.test(lines[i])) items.push(lines[i++].replace(/^\s*([-*]|\d+\.) /, '').replace(/^\[( |x)\] /i, (m0, x) => (x.trim() ? '☑ ' : '☐ ')));
+        out.push(`<${ordered ? 'ol' : 'ul'}>${items.map((t) => `<li>${inline(t)}</li>`).join('')}</${ordered ? 'ol' : 'ul'}>`); continue;
+      }
+      if (/^&gt; ?/.test(l)) { const buf = []; while (i < lines.length && /^&gt; ?/.test(lines[i])) buf.push(lines[i++].replace(/^&gt; ?/, '')); out.push(`<blockquote>${inline(buf.join('<br>'))}</blockquote>`); continue; }
+      if (!l.trim()) { i++; continue; }
+      // A line no branch above took (say a lone "|" row) still starts a paragraph, so the loop always moves on.
+      const buf = [lines[i++]]; while (i < lines.length && lines[i].trim() && !/^(#{1,4} |```|\||\s*([-*]|\d+\.) |&gt;)/.test(lines[i])) buf.push(lines[i++]);
+      out.push(`<p>${inline(buf.join('<br>'))}</p>`);
+    }
+    return out.join('');
   };
 
   BW.exportCsv = (filename, headers, rows) => {
@@ -669,7 +701,7 @@
     let pool = BW.sponsors.length ? BW.sponsors.map((s) => Object.assign({ sponsored: true }, s)) : BW.houseAds().filter((h) => h.id !== here);
     const olaf = pool.find((h) => h.id === 'olaf');
     if (olaf && !BW.sponsors.length) {
-      olaf.title = 'Want more customers? Meet Olaf'; olaf.text = 'Your AI marketing expert: a 90-day plan, a weekly check-in and the work done with you.'; olaf.cta = 'Meet Olaf';
+      olaf.title = 'Want more customers? Meet Olaf'; olaf.text = 'Your AI expert for marketing and projects: a 90-day plan, a weekly check-in and the work done with you.'; olaf.cta = 'Meet Olaf';
       if (BW.olafEdition !== 'full') { olaf.href = BW.olafEdition === 'demo' ? olaf.href : BW.olafPage(); olaf.external = BW.olafEdition !== 'demo'; }
       pool = pool.concat([olaf, olaf, olaf]); // about one in four cards
     }
@@ -896,29 +928,24 @@
   };
 
   // ---------- connecting storage ----------
-  function welcome() {
+  async function welcome() {
+    // The paid edition says where Olaf's requests go; the free download has no AI to mention.
+    const olafHere = await BW.olafInstalled();
     return new Promise((resolve) => {
       const ob = overlay(`<div class="ob-card card wide">
         <div class="ob-emoji">👋</div>
         <h1>Hi! Where should your business live?</h1>
-        <p class="sub">Everything you make here is saved as normal files. Pick a home for them. You can move them later.</p>
-        <div class="options">
-          <button class="option" data-folder ${BW.canUseFolders ? '' : 'disabled'}>
-            <span class="chip chip-mint tag">Recommended</span>
-            <span class="emo">📁</span><b>A folder on my computer</b>
-            <p>${BW.canUseFolders
-              ? 'Make a new folder like <b>“My Business”</b>. <br>Tip: put it inside Google Drive, Dropbox or OneDrive and it backs up and syncs by itself.'
-              : 'Your browser can’t open folders yet. Open this page in <b>Chrome</b> or <b>Edge</b> to use this.'}</p>
+        <p class="sub">Busywork saves everything as normal files in a folder you choose, so your business is yours: easy to back up, never lost when a browser is cleared.</p>
+        ${BW.canUseFolders ? `<div class="options" style="grid-template-columns:1fr">
+          <button class="option" data-folder>
+            <span class="emo">📁</span><b>Choose a folder for my business</b>
+            <p>Make a new folder like <b>“My Business”</b>. <br>Tip: put it inside Google Drive, Dropbox, OneDrive or iCloud Drive and it backs up and syncs by itself.</p>
           </button>
-          <button class="option" data-browser>
-            <span class="emo">🧪</span><b>Just try it out</b>
-            <p>Saves inside this browser only. Great for a test drive. Move everything to a folder whenever you like.</p>
-          </button>
-        </div>
-        <div class="privacy-note"><span>🔒</span><span><b>Private by design.</b> There's no account and no server, and nothing you type is sent to us. AI features, if you switch them on, send only what you ask about to Anthropic, with your own key.</span></div>
+        </div>` : `<div class="idea"><span class="e">🧭</span><div><b>Open Busywork in Chrome or Edge.</b> This browser can't save to a folder on your computer, and Busywork keeps your business in files, not inside a browser where clearing your history would delete it. Chrome and Edge are free for Mac and Windows: open the same <b>index.html</b> in one of them.</div></div>`}
+        <div class="privacy-note"><span>🔒</span><span><b>Private by design.</b> There's no account and no server, and nothing you type is sent to us.${olafHere ? ' Olaf sends only what you ask it to Anthropic, the maker of Claude, with your own key.' : ''}</span></div>
       </div>`);
-      BW.$('[data-browser]', ob).onclick = () => { ls.set('bw.mode', 'browser'); drv = BrowserDriver(); ob.remove(); resolve(); };
-      BW.$('[data-folder]', ob).onclick = async () => {
+      const folder = BW.$('[data-folder]', ob);
+      if (folder) folder.onclick = async () => {
         const ok = await pickFolder();
         if (ok) { ob.remove(); resolve(); }
       };
@@ -1054,7 +1081,7 @@
       ${BW.canUseFolders ? `<button class="menu-item" data-a="folder">📁 ${drv.kind === 'folder' ? 'Switch to another folder' : 'Move everything to a folder'}</button>` : ''}
       <button class="menu-item" data-a="backup">💾 Download a backup</button>
       <button class="menu-item" data-a="restore">♻️ Restore a backup</button>
-      ${drv.kind === 'folder' ? '<div class="lbl" style="padding-top:4px">A copy is saved in backups/ every day</div><button class="menu-item" data-a="browser">🧪 Use this browser instead</button>' : ''}
+      ${drv.kind === 'folder' ? '<div class="lbl" style="padding-top:4px">A copy is saved in backups/ every day</div>' : ''}
       <button class="menu-item" data-a="report">🩺 Download a problem report</button>
     </div>`);
     const r = btn.getBoundingClientRect();
@@ -1351,6 +1378,14 @@
     try {
       await connect();
       const data = await BW.migrate();
+      // Business kept in the browser (older versions offered it): say so plainly, with the way out.
+      if (drv.kind === 'browser') {
+        if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+        const warn = BW.html(`<div class="readonly-bar" role="status">⚠️ Your business is saved only in this browser: clearing your browsing data would delete it. ${BW.canUseFolders ? '<button class="link" data-move>Move it to a folder</button>' : '<button class="link" data-backup>Download a backup</button>'}</div>`);
+        bar.append(warn);
+        const mv = BW.$('[data-move]', warn); if (mv) mv.onclick = moveToFolder;
+        const bk = BW.$('[data-backup]', warn); if (bk) bk.onclick = backup;
+      }
       if (data.status === 'newer') {
         readOnly = 'This business was last saved by a newer Busywork, so this copy only shows it. Download the latest Busywork to make changes.';
         bar.append(BW.html(`<div class="readonly-bar" role="status">🔒 ${readOnly}</div>`));
@@ -1360,9 +1395,11 @@
     } catch (e) { BW.error(e); return; }
     const chip = BW.$('[data-store]', bar);
     chip.hidden = false;
-    BW.$('span', chip).textContent = drv.kind === 'folder' ? '📁' : '🧪';
-    BW.$('.lbl', chip).textContent = drv.kind === 'folder' ? drv.label : 'This browser';
-    chip.onclick = () => storeMenu(chip);
+    // A shell's own storage (the website demo, a desktop app) shows its own label.
+    const [icon, label] = drv.kind === 'folder' ? ['📁', drv.label] : drv.kind === 'browser' ? ['🧪', 'This browser'] : ['🎭', drv.label.replace(/^\w/, (c) => c.toUpperCase())];
+    BW.$('span', chip).textContent = icon;
+    BW.$('.lbl', chip).textContent = label;
+    chip.onclick = () => (drv.kind === 'folder' || drv.kind === 'browser' ? storeMenu(chip) : BW.toast(`Saving to ${BW.esc(drv.label)}. Download Busywork to keep your business in your own folder.`, icon));
     const sb = BW.$('[data-settings]', bar); sb.hidden = false; sb.onclick = BW.openSettings;
     const pb = BW.$('[data-palette]', bar); pb.hidden = false; pb.onclick = () => BW.openPalette();
     const nb = BW.$('[data-new]', bar); nb.hidden = false; nb.onclick = () => BW.openPalette('new');
@@ -1377,6 +1414,7 @@
 
   // On the hosted copy (https), the suite can be installed like an app and keeps working offline.
   function installable() {
+    if (host.installable === false) return;
     if (!('serviceWorker' in navigator) || !/^https:$/.test(location.protocol) && !/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) return;
     if (!BW.$('link[rel=manifest]')) document.head.append(BW.html(`<link rel="manifest" href="${BW.root}manifest.webmanifest">`));
     navigator.serviceWorker.register(BW.root + 'sw.js').catch(() => { /* still works online */ });

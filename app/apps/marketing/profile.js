@@ -127,7 +127,7 @@
     </div>
     <div class="w-chips">${[['Why', 'my laptop died before a deadline'], ['When', 'just before the holidays'], ['Where', 'on my way to work'], ['With or for whom', 'a gift for my mum'], ['With what', 'when we renovate the kitchen'], ['Feeling', 'stressed about my tax return']].map(([w, ex]) => `<button type="button" data-ex="${esc(ex)}">${w}…</button>`).join('')}</div>
     <form class="row-flex" data-addcep><input class="in" style="flex:1" placeholder="Add a buying moment and press Enter" aria-label="New buying moment"><button class="btn">Add</button></form>
-    ${BW.ai && BW.ai.ready() ? '<button type="button" class="btn btn-primary" data-suggest style="margin-top:10px">✨ Suggest buying moments for me</button>' : '<p class="faint" style="margin-top:8px;font-size:.85rem">Tip: add your Claude key (last step) and the Studio can suggest buying moments for you.</p>'}</div>`;
+    <p class="faint" style="margin-top:8px;font-size:.85rem">Tip: think of the last ten customers. What was going on when they needed you?</p></div>`;
   }
   function bindCeps(box, p, changed) {
     const rows = $('[data-rows="ceps"]', box);
@@ -142,29 +142,7 @@
     const form = $('[data-addcep]', box);
     form.onsubmit = (e) => { e.preventDefault(); const i = $('input', form); if (!i.value.trim()) return; p.ceps.push({ text: i.value.trim(), common: 3, ours: 0, priority: false }); redraw(); $('[data-addcep] input', box).focus(); };
     $$('[data-ex]', box).forEach((b) => b.onclick = () => { const i = $('input', form); i.placeholder = `e.g. "${b.dataset.ex}"`; i.focus(); });
-    const sug = $('[data-suggest]', box);
-    if (sug) sug.onclick = async () => {
-      readCommon(box, p);
-      sug.disabled = true; sug.textContent = '✨ Thinking of buying moments…';
-      try {
-        const list = await M.suggestCeps(p);
-        const known = new Set(p.ceps.map((c) => c.text.toLowerCase()));
-        list.filter((c) => !known.has(c.text.toLowerCase())).forEach((c) => p.ceps.push({ text: c.text, common: c.common || 3, ours: 0, priority: false }));
-        BW.toast(`Added ${list.length} suggestions. Star the ones that matter most.`, '✨');
-      } catch (err) { BW.error(err); }
-      redraw();
-    };
   }
-  M.suggestCeps = async (p) => {
-    const r = await BW.ai.run({
-      system: [{ type: 'text', text: BW.mktLibrary.foundation }, { type: 'text', text: '# Brand Profile\n\n' + M.text(p) }],
-      messages: [{ role: 'user', content: 'List 15 category entry points (buying moments) for this business\'s category and area, written in buyers\' own words, short. Cover why, when, where, with or for whom, with what, and feelings. For each, estimate how common it is among category buyers (1–5). Reply with only a JSON array like [{"text":"…","common":4}].' }],
-      maxTokens: 4000,
-    });
-    const m = r.text.match(/\[[\s\S]*\]/);
-    if (!m) throw new Error('The suggestions came back in an unexpected shape. Try again.');
-    return JSON.parse(m[0]).filter((c) => c && c.text).slice(0, 20);
-  };
 
   // ---------- distinctive assets editor ----------
   function assetHtml(p) {

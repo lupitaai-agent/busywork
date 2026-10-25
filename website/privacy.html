@@ -5,8 +5,8 @@
 <meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Privacy · Busywork: your data stays yours</title>
-<meta name="description" content="How Busywork handles your data: the tools send us nothing, AI goes from your browser to Anthropic on your own key, and what the Olaf waitlist keeps.">
-<meta property="og:title" content="Privacy · Busywork: your data stays yours"><meta property="og:description" content="How Busywork handles your data: the tools send us nothing, AI goes from your browser to Anthropic on your own key, and what the Olaf waitlist keeps."><meta property="og:image" content="https://busywork.example/assets/og-busywork.png"><meta name="twitter:card" content="summary_large_image">
+<meta name="description" content="How Busywork handles your data: the tools send us nothing, Olaf (paid) talks to Anthropic on your own key, and what the Olaf waitlist keeps.">
+<meta property="og:title" content="Privacy · Busywork: your data stays yours"><meta property="og:description" content="How Busywork handles your data: the tools send us nothing, Olaf (paid) talks to Anthropic on your own key, and what the Olaf waitlist keeps."><meta property="og:image" content="https://busywork.example/assets/og-busywork.png"><meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="icon" href="app/shared/icons/icon-192.png" sizes="192x192">
 <link rel="stylesheet" href="app/shared/brand.css">
 <link rel="stylesheet" href="assets/site.css">
@@ -19,30 +19,29 @@
 <main class="page">
   <!-- DRAFT: have this checked before launch, and fill in the company details and contact address. -->
   <h1>Privacy 🔒</h1>
-  <p>Short version: the tools never send us anything. Only if you join the Olaf waitlist do we get your email address. If you switch on the AI features, what you ask about goes from your browser to Anthropic, the maker of Claude, with your own key, and nowhere else. This website shows ads from Google, and Google uses cookies for that, but only after you agree.</p>
+  <p>Short version: the tools never send us anything. Only if you join the Olaf waitlist do we get your email address. The free tools have no AI. If you use Olaf, the paid edition, what you ask it goes from your browser to Anthropic, the maker of Claude, with your own key, and nowhere else. This website shows ads from Google, and Google uses cookies for that, but only after you agree.</p>
 
   <h2>The tools</h2>
-  <p>The Busywork tools run in your own browser. Everything you enter is saved in a folder you choose on your computer, or inside your browser if you chose “just try it out”. We have no server that receives this data, no account system and no analytics inside the tools.</p>
+  <p>The Busywork tools run in your own browser. Everything you enter is saved in a folder you choose on your computer. (Older versions could also keep it inside the browser; they now offer to move it to a folder.) We have no server that receives this data, no account system and no analytics inside the tools.</p>
   <p>Links you click inside the tools, for example to open Gmail or Outlook with a ready-made email, go straight to that service. Sponsor cards shown under the tools are part of the download; they load nothing from the internet.</p>
 
-  <h2>AI features: the Marketing Studio and Olaf</h2>
-  <p>The AI features are off until you add your own Claude API key. Your key is stored only in the browser on that computer, never in your business folder, and is sent only to Anthropic.</p>
-  <p>When you use them, your browser sends the request straight to Anthropic's API. A request contains what the feature needs to answer you:</p>
+  <h2>AI: only in Olaf, the paid edition</h2>
+  <p>The free tools have no AI. Olaf uses Claude with your own API key. Your key is stored only in the browser on that computer, never in your business folder, and is sent only to Anthropic.</p>
+  <p>When you use Olaf, your browser sends the request straight to Anthropic's API. A request contains what Olaf needs to answer you:</p>
   <ul>
-    <li><b>Marketing Studio:</b> the marketing foundation, the playbook you picked, your brand profile, your house rules, and what you type.</li>
-    <li><b>Olaf:</b> the same, plus the files in Olaf's workspace that it reads while working (your brand documents, its memory, its finished work, anything you put in its inbox), and, when it asks for them, your sales numbers per month from your Busywork invoices: counts of customers and revenue, not names or invoice details.</li>
-    <li><b>Web search and page reading</b> (Olaf, and the Studio when you allow it) are done by Anthropic's own tools. The websites you or Olaf look up see Anthropic, not you.</li>
+    <li><b>What Olaf sends:</b> the marketing or project foundation, the skill it runs, your brand profile, what you type, and the files in Olaf's workspace that it reads while working (your brand documents, its memory, its finished work, anything you put in its inbox), and, when it asks for them, your sales numbers per month from your Busywork invoices: counts of customers and revenue, not names or invoice details.</li>
+    <li><b>Web search and page reading</b> are done by Anthropic's own tools. The websites Olaf looks up see Anthropic, not you.</li>
   </ul>
   <p>Anthropic handles this data under its own terms and privacy policy, which you agreed to when you created your key. You can read them at <a href="https://www.anthropic.com/legal/privacy" rel="noopener">anthropic.com/legal/privacy</a>. We never see these requests or their answers, and the cost is billed by Anthropic to your account.</p>
-  <p>Conversations with Olaf and its files are saved like everything else: in your business folder, or in your browser. Delete them in Olaf, or by deleting the files.</p>
+  <p>Conversations with Olaf and its files are saved like everything else: in your business folder. Delete them in Olaf, or by deleting the files.</p>
 
   <h2>This website</h2>
   <p>This website uses Google AdSense to show ads. Google and its partners may use cookies to show ads based on your visits to this and other websites. In the EU and UK you are asked for permission first, and you can change your choice at any time with the privacy link Google shows.</p>
   <p>You can turn off personalised ads in <a href="https://adssettings.google.com" rel="noopener">Google’s ad settings</a>, and read how Google uses data from sites that use its services at <a href="https://policies.google.com/technologies/partner-sites" rel="noopener">policies.google.com/technologies/partner-sites</a>.</p>
-  <p>The online version of the tools on this website works exactly like the download: what you enter stays in your browser.</p>
+  <p>The demo on this website runs on a pretend business. What you change stays in that browser tab and is gone when you close it; nothing is sent to us.</p>
 
   <h2 id="waitlist">The Olaf waitlist</h2>
-  <p>If you put your name on the Olaf waitlist, we keep your email address (and your business name, if you give it) to tell you when Olaf can be bought. That is all we use it for. The form is handled by Formspree (formspree.io), which stores the sign-ups for us. Ask us at the address below to be removed, or use the unsubscribe link in our email, and we delete your details. We delete the list once checkout is open and everyone on it has been told.</p>
+  <p>If you put your name on the Olaf waitlist, we keep your email address (and your business name, if you give it) to tell you when Olaf can be bought. That is all we use it for. The list is kept by MailerLite (mailerlite.com, a company in the EU), which sends you one email to confirm your address before you are added, and later the email that Olaf can be bought. Ask us at the address below to be removed, or use the unsubscribe link in our email, and we delete your details. We delete the list once checkout is open and everyone on it has been told.</p>
 
   <h2>Your rights</h2>
   <p>Because we hold no data about you from the tools, there is nothing for us to show, correct or delete there: it is all in your own folder or browser. For data processed by Anthropic or Google, use their privacy pages linked above. For anything else, contact us at the address below.</p>

@@ -12,9 +12,15 @@
     if (!f.getAttribute('action')) { msg.textContent = 'The list is not connected yet. Please try again soon.'; msg.className = 'wl-msg err'; return; }
     btn.disabled = true; msg.textContent = 'Sending…'; msg.className = 'wl-msg';
     try {
-      const res = await fetch(f.action, { method: 'POST', body: new FormData(f), headers: { Accept: 'application/json' } });
-      if (!res.ok) throw new Error(String(res.status));
-      f.reset(); msg.textContent = "You're on the list. We'll email you when Olaf can be bought."; msg.className = 'wl-msg ok';
+      const data = new FormData(f);
+      data.delete('consent'); // the tick is required to send; the service needs only the details
+      const res = await fetch(f.action, { method: 'POST', body: data, headers: { Accept: 'application/json' } });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || json.success === false) throw new Error(String(res.status));
+      f.reset();
+      // MailerLite asks each person to confirm by email first (double opt-in).
+      msg.textContent = f.dataset.provider === 'mailerlite' ? 'Almost there: check your inbox and confirm your email. Then you are on the list.' : "You're on the list. We'll email you when Olaf can be bought.";
+      msg.className = 'wl-msg ok';
     } catch (e) { msg.textContent = 'That did not go through. Check your email address and try again.'; msg.className = 'wl-msg err'; }
     btn.disabled = false;
   }));

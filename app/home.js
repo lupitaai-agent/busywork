@@ -46,8 +46,8 @@
       [BW.store.kind === 'folder', '📁', 'Keep your work in a folder', 'Pick one inside Google Drive to sync it', null],
     ];
     const doneN = steps.filter((x) => x[0]).length;
-    let hidden = false; try { hidden = localStorage.getItem('bw.hideStart') === '1'; } catch (e) { /* private window */ }
-    const hasExamples = clients.some((x) => x.example) || invoices.some((x) => x.example);
+    let hidden = BW.store.kind === 'demo'; // the website demo: the pretend studio is already set up
+    try { hidden = hidden || localStorage.getItem('bw.hideStart') === '1'; } catch (e) { /* private window */ }
     const recent = [].concat(
       invoices.map((x) => [x.updatedAt, x.kind === 'quote' ? '💬' : '🧾', `${x.number} · ${x.client ? x.client.name : 'No client'}`, `apps/invoices/index.html#edit/${x.id}`]),
       clients.map((x) => [x.updatedAt, '📇', x.name, `apps/clients/index.html#open/${x.id}`]),
@@ -72,8 +72,8 @@
         <div class="start-steps">${steps.map(([ok, e, t, sub, go], i) => `<${typeof go === 'string' && !ok ? `a href="${go}"` : 'button type="button"'} class="step ${ok ? 'ok' : ''}" data-step="${i}"><span class="tick">${ok ? '✓' : e}</span><span><b>${t}</b><small>${sub}</small></span></${typeof go === 'string' && !ok ? 'a' : 'button'}>`).join('')}</div>
       </section>` : ''}
       <div class="home-row">
-        <section class="card demo"><span class="emo">${hasExamples ? '🧹' : '👀'}</span><div><b>${hasExamples ? 'Example data is switched on' : 'Just looking around?'}</b><small>${hasExamples ? 'A pretend design studio fills every tool. Remove it before you start for real.' : 'Fill every tool with a pretend design studio. One click removes it again.'}</small></div>
-          <button class="btn ${hasExamples ? '' : 'btn-primary'}" data-demo>${hasExamples ? 'Remove example data' : 'Show me with example data'}</button></section>
+        <section class="card demo" data-olaf-up hidden><span class="emo">🧭</span><div><b>Get more done with Olaf</b><small>Olaf, our AI expert for marketing and projects, plans your marketing, runs your projects with you and does the work. Paid edition, €149 once.</small></div>
+          <a class="btn btn-primary" data-olaf-go>Register your interest</a></section>
         ${recent.length ? `<section class="card recent"><b>🕒 Recently changed</b>${recent.map(([at, e, l, href]) => `<a href="${href}"><span>${e}</span><span class="t">${esc(l)}</span><small>${BW.fmtDate(at.slice(0, 10), { day: 'numeric', month: 'short' })}</small></a>`).join('')}</section>` : ''}
       </div>
       <p class="tip">💡 Press <kbd>${/Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl'} K</kbd> anywhere to find a client, an invoice or a tool. Press <kbd>?</kbd> for every shortcut.</p>
@@ -85,20 +85,19 @@
     $$('button[data-step]', main).forEach((b) => b.onclick = () => { const go = steps[Number(b.dataset.step)][4]; if (typeof go === 'function') go(); else if (!steps[Number(b.dataset.step)][0]) BW.toast('Use the 📁 button at the top to pick a folder', '📁'); });
     // Olaf is only in the paid download: without it, the tile goes to the Olaf page.
     const ot = $('[data-addon="olaf"]', main);
+    // Without Olaf, the home screen says where more help is: register interest, or see the demo.
+    BW.entitlements.edition('olaf').then((ed) => {
+      const up = $('[data-olaf-up]', main), go = up && $('[data-olaf-go]', up);
+      if (!up || ed === 'full' || ed === 'locked') return;
+      if (ed === 'demo') { go.href = 'apps/olaf/index.html'; go.textContent = 'See Olaf in action'; }
+      else { go.href = BW.olafPage() + '#get'; go.target = '_blank'; go.rel = 'noopener'; }
+      up.hidden = false;
+    });
     if (ot) BW.entitlements.edition('olaf').then((ed) => {
       if (ed === 'full') { ot.querySelector('[data-addon-chip]').remove(); return; }
       if (ed === 'locked') { ot.querySelector('[data-addon-chip]').textContent = 'Add your licence'; return; }
       if (ed === 'demo') { ot.querySelector('[data-addon-chip]').textContent = 'Demo'; return; }
       ot.href = BW.olafPage(); ot.target = '_blank'; ot.rel = 'noopener'; ot.querySelector('.go').innerHTML = 'See Olaf <span>→</span>';
     });
-    $('[data-demo]', main).onclick = async (e) => {
-      const b = e.currentTarget; b.disabled = true;
-      try {
-        if (!BW.examples) await BW.loadScript('shared/examples.js');
-        if (hasExamples) { const n = await BW.examples.remove(); BW.toast(`Removed ${n} example records. Fresh start!`, '🧹'); }
-        else { await BW.examples.load(); BW.confetti(); BW.toast('Meet the pretend clients. Have a look around!', '👀'); }
-      } catch (err) { BW.error(err); }
-      render();
-    };
   }
 })();

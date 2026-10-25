@@ -9,8 +9,9 @@ do their own marketing.
 whether Olaf is installed (`apps/olaf/olaf-installed.js`) and otherwise link to the Olaf page.
 
 Everything runs in the browser. There is no server and no account: data lives in a folder the
-owner picks (or in the browser), and AI features use the owner's own Claude API key, sent only to
-Anthropic.
+owner picks. The free tools have no AI; Olaf (paid, private repository) uses the owner's own Claude
+API key, sent only to Anthropic. The website's copy of the tools is a demo with a pretend business
+(`website/assets/demo.js`): nothing is kept after the tab closes.
 
 | Folder | What it is |
 |---|---|

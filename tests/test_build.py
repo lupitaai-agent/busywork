@@ -126,5 +126,42 @@ class WebsitePolicy(unittest.TestCase):
             shutil.rmtree(tmp)
 
 
+
+class Editions(unittest.TestCase):
+    """The free download has no AI and no pretend business; the website's tools are the demo."""
+
+    def test_free_download_has_no_ai_and_no_example_business(self):
+        import zipfile
+        z = zipfile.ZipFile(ROOT / "website" / "downloads" / "busywork.zip")
+        names = z.namelist()
+        self.assertNotIn("Busywork/shared/ai.js", names)
+        self.assertNotIn("Busywork/shared/examples.js", names)
+        self.assertFalse(any("/apps/olaf/" in n for n in names), "Olaf is not in the free download")
+        banned = ["x-api-key", "Claude API key", "Connect AI", "AI settings", "Show me with example data", "Just try it out", "examples.load(", "data-key", "demo.js"]
+        for n in names:
+            if n.endswith((".js", ".html", ".txt")):
+                text = z.read(n).decode("utf-8", "ignore")
+                for b in banned:
+                    self.assertNotIn(b, text, f"{n} mentions {b!r}")
+        lib = z.read("Busywork/apps/marketing/library.js").decode()
+        self.assertNotIn('"body"', lib, "the Studio ships playbook names only")
+        self.assertNotIn('"foundation"', lib, "no AI prompt in the free Studio")
+
+    def test_every_website_tool_page_is_the_demo(self):
+        pages = sorted((ROOT / "website" / "app").rglob("index.html"))
+        self.assertGreater(len(pages), 10)
+        for p in pages:
+            html_text = p.read_text()
+            demo, core = html_text.find("assets/demo.js"), html_text.find("shared/core.js")
+            self.assertTrue(0 < demo < core, f"{p.relative_to(ROOT)} loads demo.js before core.js")
+
+    def test_website_offers_the_demo_not_a_browser_version(self):
+        for p in list((ROOT / "website").glob("*.html")) + list((ROOT / "website" / "tools").glob("*.html")):
+            t = p.read_text()
+            for b in ["Try it in your browser", "Try it online", "Try it now", "Add your own Claude key for AI", "just try it out"]:
+                self.assertNotIn(b, t, f"{p.name}: {b}")
+        self.assertIn("See the demo", (ROOT / "website" / "index.html").read_text())
+
+
 if __name__ == "__main__":
     unittest.main()

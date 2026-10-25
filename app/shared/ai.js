@@ -252,36 +252,6 @@
     ] });
   };
 
-  // Markdown for AI answers: escape everything first, then render a small, safe subset.
-  BW.md = function md(src) {
-    const esc = BW.esc;
-    const lines = esc(src || '').split('\n'), out = [];
-    let i = 0;
-    const inline = (t) => t.replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>').replace(/(^|[^*])\*([^*\s][^*]*)\*/g, '$1<i>$2</i>')
-      .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
-    while (i < lines.length) {
-      const l = lines[i];
-      if (/^```/.test(l)) { const buf = []; i++; while (i < lines.length && !/^```/.test(lines[i])) buf.push(lines[i++]); i++; out.push(`<pre><code>${buf.join('\n')}</code></pre>`); continue; }
-      if (/^#{1,4} /.test(l)) { const n = l.match(/^#+/)[0].length; out.push(`<h${n}>${inline(l.slice(n + 1))}</h${n}>`); i++; continue; }
-      if (/^\s*(---|\*\*\*)\s*$/.test(l)) { out.push('<hr>'); i++; continue; }
-      if (/^\|/.test(l) && i + 1 < lines.length && /^\|?\s*:?-+:?\s*\|/.test(lines[i + 1])) {
-        const row = (r) => r.replace(/^\||\|$/g, '').split('|').map((c) => c.trim());
-        const head = row(l); i += 2; const body = [];
-        while (i < lines.length && /^\|/.test(lines[i])) body.push(row(lines[i++]));
-        out.push(`<table><tr>${head.map((h) => `<th>${inline(h)}</th>`).join('')}</tr>${body.map((r) => `<tr>${r.map((c) => `<td>${inline(c)}</td>`).join('')}</tr>`).join('')}</table>`); continue;
-      }
-      if (/^\s*([-*]|\d+\.) /.test(l)) {
-        const ordered = /^\s*\d+\./.test(l), items = [];
-        while (i < lines.length && /^\s*([-*]|\d+\.) /.test(lines[i])) items.push(lines[i++].replace(/^\s*([-*]|\d+\.) /, '').replace(/^\[( |x)\] /i, (m0, x) => (x.trim() ? '☑ ' : '☐ ')));
-        out.push(`<${ordered ? 'ol' : 'ul'}>${items.map((t) => `<li>${inline(t)}</li>`).join('')}</${ordered ? 'ol' : 'ul'}>`); continue;
-      }
-      if (/^&gt; ?/.test(l)) { const buf = []; while (i < lines.length && /^&gt; ?/.test(lines[i])) buf.push(lines[i++].replace(/^&gt; ?/, '')); out.push(`<blockquote>${inline(buf.join('<br>'))}</blockquote>`); continue; }
-      if (!l.trim()) { i++; continue; }
-      // A line no branch above took (say a lone "|" row) still starts a paragraph, so the loop always moves on.
-      const buf = [lines[i++]]; while (i < lines.length && lines[i].trim() && !/^(#{1,4} |```|\||\s*([-*]|\d+\.) |&gt;)/.test(lines[i])) buf.push(lines[i++]);
-      out.push(`<p>${inline(buf.join('<br>'))}</p>`);
-    }
-    return out.join('');
-  };
+
 
 })();

@@ -1,6 +1,6 @@
 /* The content calendar, shared by the Marketing Studio and Olaf (collection 'mktcontent').
    A post or piece: { date, channel, title, text, status idea|draft|ready|posted, cep, planId, by }.
-   The Studio owner writes posts themselves, or with AI on their own key; Olaf fills the calendar
+   The Studio owner writes posts themselves; Olaf (paid) fills the calendar
    itself. Each app passes `write(item)` and `suggest(weekStart)` actions. */
 (function () {
   'use strict';
@@ -24,11 +24,11 @@
           <div class="post-top"><button class="chip-btn ps-${esc(x.status || 'idea')}" data-st="${esc(x.id)}" title="Change status">${STATUS[x.status] || STATUS.idea}</button><small>${esc(BW.fmtDate(x.date, { weekday: 'short', day: 'numeric', month: 'short' }))} · ${esc(x.channel || 'Any channel')}${x.by === 'olaf' ? ' · by Olaf' : ''}</small></div>
           <b>${esc(x.title || 'Untitled')}</b>${x.cep ? `<small class="faint">🚪 ${esc(x.cep)}</small>` : ''}
           ${x.text ? `<p>${esc(x.text.length > 220 ? x.text.slice(0, 220) + '…' : x.text)}</p>` : ''}
-          <div class="row-flex">${x.text ? `<button class="btn ${x.status === 'posted' ? 'btn-ghost' : ''}" data-post="${esc(x.id)}">📤 Post it</button><button class="btn btn-ghost" data-copy="${esc(x.id)}">📋 Copy</button>` : ''}${opts.write && !x.text ? `<button class="btn btn-ghost" data-write="${esc(x.id)}">${opts.guided ? '🧭 Ask Olaf to write it' : '✨ Write it with AI'}</button>` : ''}<button class="btn btn-ghost" data-edit="${esc(x.id)}">✏️ Edit</button></div>
+          <div class="row-flex">${x.text ? `<button class="btn ${x.status === 'posted' ? 'btn-ghost' : ''}" data-post="${esc(x.id)}">📤 Post it</button><button class="btn btn-ghost" data-copy="${esc(x.id)}">📋 Copy</button>` : ''}${opts.write && !x.text ? `<button class="btn btn-ghost" data-write="${esc(x.id)}">🧭 Ask Olaf to write it</button>` : ''}<button class="btn btn-ghost" data-edit="${esc(x.id)}">✏️ Edit</button></div>
         </div>`;
       v.innerHTML = `
         <div class="row-flex" style="margin-bottom:14px"><div><b>${posted30} posted in the last 30 days</b><br><small class="faint">A steady rhythm you can keep beats bursts. Link each post to a buying moment and show your brand assets.</small></div>
-          <div class="spacer"></div><button class="btn btn-ghost" data-export>⬇️ Export</button>${opts.suggest ? `<button class="btn" data-suggest>${opts.guided ? '🧭 Ask Olaf to fill the next weeks' : '✨ Suggest posts with AI'}</button>` : ''}<button class="btn btn-primary" data-add>＋ Add a post</button></div>
+          <div class="spacer"></div><button class="btn btn-ghost" data-export>⬇️ Export</button>${opts.suggest ? `<button class="btn" data-suggest>🧭 Ask Olaf to fill the next weeks</button>` : opts.upsell ? `<button class="btn btn-ghost" data-upsell>🧭 Let Olaf write your posts</button>` : ''}<button class="btn btn-primary" data-add>＋ Add a post</button></div>
         ${late.length ? `<section class="card dash-card" style="margin-bottom:16px"><h3>⏰ Not posted yet <small>planned before this week</small></h3><div class="posts">${late.map(card).join('')}</div></section>` : ''}
         ${weeks.map((w, i) => { const list = inWeek(w); const planNow = plan.filter((a) => (a.month || '').slice(0, 7) === w.slice(0, 7));
           return `<section class="card dash-card" style="margin-bottom:16px"><h3>${i === 0 ? 'This week' : i === 1 ? 'Next week' : 'Week of ' + BW.fmtDate(w, { day: 'numeric', month: 'short' })} <small>${list.length} planned${!list.length && planNow.length ? ` · plan this month: ${esc(planNow.slice(0, 2).map((a) => a.title).join('; '))}` : ''}</small></h3>
@@ -46,6 +46,7 @@
       $$('[data-post]', v).forEach((b) => b.onclick = () => C.postIt(find(b.dataset.post), again));
       $('[data-export]', v).onclick = () => C.exportMenu(items.filter((x) => x.date >= start && x.date < BW.addDays(start, 28)));
       const sg = $('[data-suggest]', v); if (sg) sg.onclick = () => opts.suggest(weeks[0], again, sg);
+      const up = $('[data-upsell]', v); if (up) up.onclick = () => opts.upsell();
     },
 
     edit(x, ceps, after) {
@@ -56,7 +57,7 @@
           { k: 'channel', label: 'Channel', type: 'select', options: [['', 'Any channel']].concat(CHANNELS.map((c) => [c, c])) },
           { k: 'status', label: 'Status', type: 'chips', options: Object.entries(STATUS) },
           { k: 'cep', label: 'Buying moment it links to', type: 'select', options: [['', '—']].concat(ceps.map((c) => [c, c])), span: 2 },
-          { k: 'text', label: 'The post', type: 'textarea', span: 2, ph: 'Write it here, or leave it empty and let AI draft it.' },
+          { k: 'text', label: 'The post', type: 'textarea', span: 2, ph: 'Write it here, or leave it empty for now.' },
         ],
         onSaved: after, confirmDelete: true });
     },

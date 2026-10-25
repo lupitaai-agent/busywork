@@ -142,7 +142,8 @@
         <section class="card dash-card" style="margin:16px 0">
           <h3>💡 What stands out <small>${opts.guided ? 'Olaf picks these up in your check-ins' : 'and what to do about it'}</small></h3>
           ${obs.length ? obs.map((o, i) => `<div class="obs"><span class="e">${o.icon}</span><p>${esc(o.text)}</p>${o.skill ? `<button class="btn btn-ghost" data-obs="${i}">${esc(o.label)} →</button>` : ''}</div>`).join('') : '<p>Nothing urgent. Keep going.</p>'}
-          ${opts.explain ? `<div class="row-flex" style="margin-top:6px"><button class="btn btn-primary" data-explain>${opts.guided ? '🧭 Ask Olaf to review the month' : '✨ Explain my month with AI'}</button><small class="faint">${opts.guided ? 'Olaf reads all of this, updates your plan and tells you what to change.' : 'Uses your Claude key. A short, plain summary of what changed and why it matters.'}</small></div>` : ''}
+          ${opts.explain ? `<div class="row-flex" style="margin-top:6px"><button class="btn btn-primary" data-explain>🧭 Ask Olaf to review the month</button><small class="faint">Olaf reads all of this, updates your plan and tells you what to change.</small></div>`
+            : opts.upsell ? `<div class="row-flex" style="margin-top:6px"><button class="btn" data-upsell>🧭 Olaf reviews your month with you</button><small class="faint">With Olaf, the AI expert in the paid edition, this turns into a plan every month.</small></div>` : ''}
         </section>
         <h2 style="margin:24px 0 12px">Channel health</h2>
         <div class="dash">${CHANNELS.map((ch) => {
@@ -166,6 +167,7 @@
       $$('[data-obs]', v).forEach((b) => b.onclick = () => { const o = obs[Number(b.dataset.obs)]; opts.run && opts.run(o.skill, o.text); });
       $$('[data-skill]', v).forEach((b) => b.onclick = () => opts.run && opts.run(b.dataset.skill, ''));
       const ex = $('[data-explain]', v); if (ex) ex.onclick = () => opts.explain(c, d);
+      const up = $('[data-upsell]', v); if (up) up.onclick = () => opts.upsell();
       $('[data-goal]', v).onclick = () => I.editGoal(d, again);
       $('[data-add]', v).onclick = () => I.addNumbers(d, again);
       $('[data-csv]', v).onchange = (e) => { const f = e.target.files[0]; if (f) f.text().then((txt) => I.importCsv(txt, f.name, d, again)); };

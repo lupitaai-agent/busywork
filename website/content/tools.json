@@ -328,7 +328,7 @@
       ],
       [
         "Can it read the amount from the photo?",
-        "Not yet. Reading receipts with AI, using your own Claude key, is on the workbench."
+        "Not yet. You type the amount; the photo is kept with the expense."
       ],
       [
         "Does it work on my phone?",
@@ -1024,39 +1024,39 @@
     "emoji": "📣",
     "color": "pink",
     "title": "Free DIY marketing studio for small businesses",
-    "description": "Plan, make and measure your own marketing with 47 playbooks built on proven marketing science. Free, private, optional AI on your own Claude key.",
+    "description": "Plan, make and measure your own marketing on proven marketing science: a brand profile, a year plan, a content calendar and insights from your invoices. Free and private.",
     "h1": "Do your own marketing, the way brands really grow.",
-    "lead": "Plan, make and measure your marketing yourself, with 47 expert playbooks that all work from your brand profile and follow decades of research into how people really buy. Add your own Claude key for AI help. Free, and your data stays yours.",
+    "lead": "Plan, make and measure your marketing yourself: a brand profile, an always-on year plan, a content calendar and insights from your own invoices, all built on decades of research into how people really buy. Free, and your data stays yours.",
     "features": [
       [
         "🧭",
         "A brand profile, not a persona",
-        "Your category, the moments people need you, your distinctive look, your voice and your budget. Every skill reads it."
-      ],
-      [
-        "🛠️",
-        "47 expert playbooks",
-        "Plans, ads, social posts, local presence, reviews, SEO, newsletters, press releases and more. Each one tailored to your brand with one click."
-      ],
-      [
-        "🔬",
-        "Built on the evidence",
-        "Every answer follows the laws of brand growth: reach more buyers, own the buying moments, be recognisable, be easy to buy."
+        "Your category, the moments people need you, your distinctive look, your voice and your budget. Your plan and posts build on it."
       ],
       [
         "🗓️",
         "A year at a glance",
-        "An always-on plan that shows the months you're invisible, so you can fix them."
+        "An always-on plan that shows the months you're invisible, so you can fix them. Every action is also a task on your Project Board."
+      ],
+      [
+        "✍️",
+        "A content calendar",
+        "Plan your posts, link each to a buying moment, copy and post, and get a reminder in your own calendar."
       ],
       [
         "📊",
         "Measure what matters",
-        "New customers from your invoices, a simple survey of how often you come to mind, and your brand assets on a fame and uniqueness grid."
+        "New customers from your invoices, where they came from, a simple survey of how often you come to mind, and your brand assets on a fame and uniqueness grid."
       ],
       [
-        "🔒",
-        "Your key, your data",
-        "Runs in your browser with your own Claude key. Nothing goes through us. A monthly spending limit keeps costs predictable."
+        "🔬",
+        "Built on the evidence",
+        "A short guide to the laws of brand growth: reach more buyers, own the buying moments, be recognisable, be easy to buy."
+      ],
+      [
+        "🧭",
+        "Olaf, when you want help",
+        "See what Olaf, the AI expert in the paid edition, would do for you: the playbooks it runs with you, one by one."
       ]
     ],
     "steps": [
@@ -1065,12 +1065,12 @@
         "Eight short questions, about ten minutes."
       ],
       [
-        "Pick what you need",
-        "Choose a playbook and say what you want. It already knows your business."
+        "Plan the year",
+        "A little marketing every month, within your budget."
       ],
       [
-        "Plan, publish, measure",
-        "Add it to your year plan, check it before it goes out, and track new customers."
+        "Post, measure, learn",
+        "Fill the content calendar and watch new customers in your insights."
       ]
     ],
     "checklistTitle": "What a growing brand does every year",
@@ -1085,23 +1085,23 @@
     "faq": [
       [
         "Is it really free?",
-        "Yes. The Studio is part of the free Busywork toolbox. The only cost is optional: if you add your own Claude key for AI help, you pay Anthropic directly, usually a few cents per answer."
+        "Yes. The Studio is part of the free Busywork toolbox: no account, no subscription, no costs."
       ],
       [
         "Do I need to know marketing?",
-        "No. The Studio explains the why in plain words and walks you through each playbook. You stay in the driving seat."
+        "No. The Studio explains the why in plain words: the guide, the profile and the plan walk you through it. You stay in the driving seat."
       ],
       [
         "What if I would rather be guided?",
         "Then Olaf is for you: our AI expert for marketing and projects, right inside Busywork. It looks at your business, makes a 90-day plan, checks in every week and does the work each step needs, using the same marketing science. It starts from your Studio profile."
       ],
       [
-        "What does the AI cost?",
-        "You use your own Claude API key and pay Anthropic directly, usually a few cents per answer. You can set a monthly limit."
+        "Is there AI in the free Studio?",
+        "No. The free Studio is do-it-yourself. The AI is Olaf, in the paid edition."
       ],
       [
         "Is my data shared?",
-        "Your brand profile and results stay in your own folder. Requests go from your browser straight to Anthropic, never through us."
+        "No. Your brand profile, plan and numbers stay in your own folder. Nothing is sent to us."
       ],
       [
         "Which marketing approach does it use?",

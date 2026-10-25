@@ -54,8 +54,8 @@
   .start-steps .ok { opacity: .6; }
   .start-steps .ok .tick { background: var(--mint); font-weight: 900; color: var(--on-app); }
   .start-steps .ok b { text-decoration: line-through; }
-  .home-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 10px; }
-  @media (max-width: 760px) { .home-row { grid-template-columns: 1fr; } }
+  .home-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; margin-bottom: 10px; }
+  @media (max-width: 760px) { .home-row { grid-template-columns: minmax(0, 1fr); } }
   .demo { padding: 18px 20px; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
   .demo .emo { font-size: 2rem; }
   .demo div { flex: 1; min-width: 180px; }

@@ -248,7 +248,6 @@
     v.innerHTML = `
       ${key ? '' : `<div class="next rise" style="margin-bottom:16px"><button data-key><span class="e">🔌</span><span><b>Connect your Claude key</b><small>Olaf runs on your own key. It stays in this browser and is only sent to Anthropic.</small></span></button></div>`}
       ${st.complete ? doneHtml(st) : setupHtml(st)}
-      ${!st.complete && !j && !st.topics[0].done ? `<div class="row-flex" style="margin:-4px 0 18px"><small class="faint">Just looking around?</small><button class="btn btn-ghost" data-example>👀 Show an example business</button></div>` : ''}
       ${j ? `<div class="card coach-hero rise">
           <div><h2>Stage ${Math.min(j.stages.filter((s) => s.done).length + 1, 6)} of 6: ${esc((j.stages.find((s) => !s.done) || { title: 'Keep it going' }).title)}</h2>
             <p>Next check-in ${esc(j['Next check-in'] || 'when you are ready')}${j['Hours per week'] ? ' · planned around ' + esc(j['Hours per week']) + ' hours a week' : ''}</p></div>
@@ -271,16 +270,6 @@
     $$('[data-week]', v).forEach((li) => li.onclick = async () => { await toggleWeek(Number(li.dataset.week)); viewHome(v); });
     const go = { weekly: 'Weekly check-in', monthly: 'Monthly review' };
     $$('[data-go]', v).forEach((b) => b.onclick = () => (b.dataset.go === 'ask' ? ask() : start('marketing-journey', go[b.dataset.go])));
-    const ex = $('[data-example]', v);
-    if (ex) ex.onclick = async () => {
-      ex.disabled = true;
-      try {
-        if (!BW.examples) await BW.loadScript('../../shared/examples.js');
-        if (await BW.examples.present()) await BW.examples.loadMarketing(); else await BW.examples.load();
-        await WS.load(); render();
-        BW.toast('Meet the example studio: set up, at stage 2, with work waiting. Remove it from the Busywork home screen.', '👀');
-      } catch (e) { BW.error(e); ex.disabled = false; }
-    };
   }
 
   // The owner ticks off a step: flip that line in the journey file Olaf keeps.
