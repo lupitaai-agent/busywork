@@ -25,6 +25,7 @@ ROOT = Path(__file__).resolve().parent
 APP = ROOT / "app"
 SITE = ROOT / "website"
 MKT = ROOT / "marketing"
+TOOLS_JSON = SITE / "content" / "tools.json"  # the product-page copy for every tool
 # The live address of the website. Used for canonical links, Open Graph tags and the sitemap.
 # The GitHub workflow passes the real one (the Pages address, or your custom domain).
 SITE_URL = os.environ.get("SITE_URL", "https://busywork.example").rstrip("/")
@@ -248,7 +249,7 @@ def paths_block(prefix: str) -> str:
           <h3>Do it yourself</h3>
           <p class="path-sub">The Busywork toolbox with the Marketing Studio</p>
           <ul>
-            <li>All 12 tools, from invoices to stock, free forever</li>
+            <li>All {len(json.loads(TOOLS_JSON.read_text()))} tools, from invoices to stock, free forever</li>
             <li>47 marketing playbooks and the same foundation Olaf uses</li>
             <li>You decide what to work on, and when</li>
             <li>Add your own Claude key for AI help on each task</li>
@@ -360,6 +361,11 @@ def jsonld(obj) -> str:
     return '<script type="application/ld+json">' + json.dumps(obj, ensure_ascii=False).replace("</", "<\\/") + "</script>\n"
 
 
+def words(n: int) -> str:
+    """Small counts in words, for copy like "all thirteen tools"."""
+    return ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen"][n] if n <= 16 else str(n)
+
+
 def tool_page(t: dict, tools: list, scene: str) -> str:
     by_id = {x["id"]: x for x in tools}
     title = f'{t["title"]} · Busywork'
@@ -386,7 +392,7 @@ def tool_page(t: dict, tools: list, scene: str) -> str:
         <p class="kicker">{e(t["name"])} · free, private, no account</p>
         <h1>{e(t["h1"])}</h1>
         <p class="lead">{e(t["lead"])}</p>
-        <div class="ctas"><a class="btn btn-primary btn-big" href="../app/apps/{t["id"]}/index.html">✨ Try it now, free</a><a class="btn btn-big" href="../download.html" data-download>⬇️ Download all 12 tools</a></div>
+        <div class="ctas"><a class="btn btn-primary btn-big" href="../app/apps/{t["id"]}/index.html">✨ Try it now, free</a><a class="btn btn-big" href="../download.html" data-download>⬇️ Download all {len(tools)} tools</a></div>
         <p class="note">Works in your browser · Nothing is sent to us · Replaces {e(t["replaces"])}</p>
       </div>
       <div class="stage solo reveal from-right"><div class="mock" style="--active:var(--{t["color"]})"><div class="mock-bar"><i></i><i></i><i></i><b>{e(t["name"])}</b></div><div class="scenes">{scene}</div></div></div>
@@ -406,7 +412,7 @@ def tool_page(t: dict, tools: list, scene: str) -> str:
   </div></section>
   <div class="ad-slot" data-ad="tool"></div>
   <section class="section"><div class="wrap">
-    <div class="center reveal"><h2 class="big">Works even better with</h2><p class="lead">All twelve tools share your clients, your logo and your folder.</p></div>
+    <div class="center reveal"><h2 class="big">Works even better with</h2><p class="lead">All {words(len(tools))} tools share your clients, your logo and your folder.</p></div>
     <div class="rel-grid">{related}</div>
   </div></section>
 {"" if t["id"] == "marketing" else olaf_strip("../")}  <section class="section" id="faq"><div class="wrap">
@@ -429,12 +435,12 @@ def tool_page(t: dict, tools: list, scene: str) -> str:
 
 def tools_index(tools: list) -> str:
     cards = "".join(f'<a class="card rel big reveal pop" href="{t["id"]}.html" style="--c:var(--{t["color"]})"><span class="em">{t["emoji"]}</span><b>{e(t["name"])}</b><small>{e(t["h1"])}</small><span class="go">See what it does →</span></a>' for t in tools)
-    desc = "Twelve free, private tools for small businesses and freelancers: invoices, time, receipts, money, projects, marketing and more. No account."
+    desc = f"{words(len(tools)).capitalize()} free, private tools for small businesses and freelancers: invoices, time, receipts, money, projects, marketing and more. No account."
     return f"""{head("All tools · Busywork", desc, "tools/index.html", "../")}
 <body class="site app-sun">
 {nav("../")}
 <main id="main" class="wrap">
-  <section class="center" style="padding:70px 0 40px"><h1 class="reveal">The whole toolbox 🧰</h1><p class="lead reveal">Twelve free tools that share one folder, one client list and one look. Pick one to see what it does.</p></section>
+  <section class="center" style="padding:70px 0 40px"><h1 class="reveal">The whole toolbox 🧰</h1><p class="lead reveal">{words(len(tools)).capitalize()} free tools that share one folder, one client list and one look. Pick one to see what it does.</p></section>
   <div class="rel-grid all">{cards}</div>
 {olaf_strip("../")}
   <div class="ad-slot" data-ad="tool"></div>
@@ -478,6 +484,12 @@ def olaf_page(tools: list) -> str:
              ("✍️", "Does the work with you", "Writes the posts, review requests, newsletter, press pitch and plan, and saves them in your folder."),
              ("🌐", "Researches for you", "Searches the web for your reviews, competitors, local media and the numbers it needs."),
              ("📊", "Reviews the month", "Counts new customers from your Busywork invoices and adjusts the plan to what works.")]
+    project_feats = [
+        ("🚀", "A kick-off that writes the plan", "Tell Olaf the job and the date that matters. It asks a few questions and puts the milestones, tasks, people and risks in your Project Planner."),
+        ("📋", "A weekly check-in", "Olaf reads the plan, sees what slipped, what waits on whom and who has too much on, agrees the week with you and updates the plan."),
+        ("🛟", "Back on track", "When a project slips, Olaf works out how late it really is and lays out the options: cut scope, move a date, or get help. You choose; it re-plans."),
+        ("📣", "Updates and notes, done", "Updates your client reads, a brief for a freelancer, and meeting notes turned into tasks and decisions."),
+    ]
     faq = [("Is Olaf a person?", "No. Olaf is an AI marketing expert running on Claude, Anthropic's AI. It follows proven marketing science, explains its reasoning in plain words, checks its writing, and never invents facts, reviews or numbers. You approve everything before it goes out."),
            ("What does it cost?", "Olaf is €149 once for your business; checkout opens soon, and the waitlist on this page gets the early-access price. On top of that you pay Anthropic directly for the AI you use, with your own Claude key. You see the cost of every conversation, and you set a monthly limit and a limit per conversation."),
            ("What does the AI cost to run?", "You pay Anthropic directly, on your own Claude key, for what Olaf uses. In our own tests with Claude Sonnet: a weekly check-in cost about $0.10 to $0.15, making a full plan about $0.25 to $0.30, and writing a month of posts about $0.15. You see the cost of every conversation and set a monthly limit."),
@@ -501,7 +513,7 @@ def olaf_page(tools: list) -> str:
     <div class="wrap tool-hero-grid">
       <div class="reveal from-left">
         <img class="olaf-hero-mark" src="assets/olaf-mark.svg" alt="" width="96" height="96">
-        <p class="kicker">Olaf · your AI marketing expert · by Busywork</p>
+        <p class="kicker">Olaf · your AI expert for marketing and projects · by Busywork</p>
         <h1>A marketing expert in your corner, every week.</h1>
         <p class="lead">Olaf works out where your business stands, plans your next 90 days and checks in every week. Then it does the work with you: the posts, the review requests, the newsletter, the plan. Everything rests on decades of marketing science about how people really buy.</p>
         <div class="ctas"><a class="btn btn-primary btn-big" href="#get">🧭 Get Olaf</a><a class="btn btn-big" href="app/apps/olaf/index.html">👀 Try the demo</a></div>
@@ -526,6 +538,10 @@ def olaf_page(tools: list) -> str:
     <div class="steps six">{"".join(f'<div class="card step reveal" style="--c:var(--grape);transition-delay:{i * .06:.2f}s"><span class="num">{i + 1}</span><h3>{e(s)}</h3><p>{e(stage_why[i])}</p></div>' for i, s in enumerate(stages))}</div>
   </div></section>
 {paths_block("")}
+  <section class="section" id="projects"><div class="wrap">
+    <div class="center reveal"><h2 class="big">Your projects, run with you</h2><p class="lead">The free Project Planner holds the plan. Olaf keeps it honest: it writes the plan with you, checks in every week and does the paperwork.</p></div>
+    <div class="feats">{"".join(f'<div class="card feat reveal pop" style="transition-delay:{i * .06:.2f}s"><span class="fe">{f[0]}</span><h3>{e(f[1])}</h3><p>{e(f[2])}</p></div>' for i, f in enumerate(project_feats))}</div>
+  </div></section>
   <section class="section" id="skills"><div class="wrap">
     <div class="center reveal"><h2 class="big">{len(lib["skills"])} skills behind the coach</h2><p class="lead">Olaf picks the right one for each step. You can also run any of them yourself.</p></div>
     <div class="sk-groups">{groups}</div>

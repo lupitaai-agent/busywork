@@ -15,7 +15,6 @@
   // entitlements. A plain browser tab sets nothing and gets the defaults below. See ARCHITECTURE.md.
   const host = window.BW_HOST || {};
 
-  // Every tool in the suite. `ready: false` tools show as "coming soon" on the home screen.
   // Every tool in the suite. `ready: false` tools show on the home screen as "on the workbench".
   BW.apps = [
     { id: 'invoices', name: 'Invoices & Quotes', emoji: '🧾', color: 'tomato', ready: true, tagline: 'Get paid without the paperwork pain.' },
@@ -30,8 +29,8 @@
     { id: 'trips', name: 'Trip Log', emoji: '🚗', color: 'mint', ready: true, tagline: 'Log business kilometres for the taxman.' },
     { id: 'stock', name: 'Stock Keeper', emoji: '📦', color: 'sun', ready: true, tagline: 'Know what is on the shelf before it runs out.' },
     { id: 'marketing', name: 'Marketing Studio', emoji: '📣', color: 'pink', ready: true, tagline: 'Do your own marketing, the way brands really grow.' },
-    { id: 'olaf', name: 'Olaf', emoji: '🧭', color: 'grape', ready: true, tagline: 'Your AI marketing expert: a plan, a weekly check-in, and the work done with you.', addon: true },
-    { id: 'projects', name: 'Project Planner', emoji: '🧭', color: 'teal', ready: false, tagline: 'Timelines, milestones and a shared plan for your team.' },
+    { id: 'olaf', name: 'Olaf', emoji: '🧭', color: 'grape', ready: true, tagline: 'Your AI expert for marketing and projects: a plan, a weekly check-in, and the work done with you.', addon: true },
+    { id: 'projects', name: 'Project Planner', emoji: '🗓️', color: 'sky', ready: true, tagline: 'Milestones, a timeline and who does what, for every project.' },
     { id: 'team', name: 'Team Mode', emoji: '👥', color: 'mint', ready: false, tagline: 'Share one business folder with your team and see who did what.' },
   ];
 

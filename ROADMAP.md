@@ -19,7 +19,7 @@
   calculator, workflow and audience sections, footer sitemap, structured data, sitemap and robots.
 
 - Olaf (2026-10-24): the AI marketing expert, now part of Busywork and running in the browser
-  (`app/apps/olaf/`, how it works in `olaf/README.md`). Growth coach, 52 skills on the marketing
+  (`app/apps/olaf/`, how it works in `olaf/README.md`). Growth coach, 52 skills (61 with the project skills since 2026-10-25) on the marketing
   foundation, its own workspace in the owner's folder, web search and fetch through Anthropic,
   sales numbers from Busywork invoices. Product page `website/olaf.html`; the homepage, the Studio
   page, every tool page and the download page show the free vs guided choice.
@@ -33,11 +33,24 @@
   skills) and `shared/mkt-content.js` (a content calendar). Free: AI help per post or month on the
   owner's key. Olaf: fills the calendar and reviews the month itself.
 
+- Project Planner (2026-10-25): the thirteenth tool (`app/apps/projects/`, sums in
+  `app/shared/projects.js`). Same projects and cards as the Project Board, plus a brief with a time
+  budget, milestones, a timeline you drag (what waits for a task moves along), people and workload,
+  health with reasons, risks and decisions, and a weekly update drafted from the plan; six templates;
+  calendar and spreadsheet export. Olaf runs it with nine project skills of our own (kick-off,
+  weekly check-in, recovery, risk review, notes to tasks, client update, task brief, close) and
+  project tools on the same plan. Research and the vetting of outside skills: the Olaf repository's
+  `docs/project-research.md`.
+
 ## Next up
 
-### 1. Project management (Project Planner)
-The Project Board is the light version. The planner adds timelines and milestones (a simple
-Gantt strip), budget vs. hours spent, and team members once team mode exists (see 5).
+### 1. Project Planner, next steps
+- Hours spent: link Time Tracker entries to a task (the "track time on this" button already knows
+  the task), then show budget against hours spent per project.
+- Invoice from a project: turn finished milestones of a client project into invoice lines.
+- Real-key test of Olaf's project skills: a kick-off and two weekly check-ins on the example
+  studio; cost per conversation.
+- Team members on different computers need sync (see Team Mode and ARCHITECTURE.md).
 
 ### 2. Payments, the rest
 Scan-to-pay QR codes and pay-now links are done. Still to do: automatic “paid” status from the

@@ -387,3 +387,14 @@ body.site { overflow-x: hidden; }
 .get-list { list-style: none; padding: 0; margin: 10px 0 4px; display: flex; flex-direction: column; gap: 6px; }
 .get-list li { padding-left: 26px; position: relative; color: var(--ink); font-weight: 650; }
 .get-list li::before { content: "✓"; position: absolute; left: 0; top: 0; width: 18px; height: 18px; border-radius: 50%; background: var(--grape); color: #fff; font-size: .7rem; font-weight: 900; display: grid; place-items: center; }
+
+/* Project Planner scene: a small timeline whose last bars slide along when an earlier one moves */
+.mini-gantt { position: relative; width: 100%; display: flex; flex-direction: column; gap: 8px; font-size: .72rem; font-weight: 800; }
+.mini-gantt > div { position: relative; height: 22px; }
+.mini-gantt > div span { display: inline-block; padding: 3px 0; }
+.mini-gantt i { position: absolute; top: 2px; height: 18px; left: var(--l); width: var(--w); background: var(--c); border: 2px solid var(--border); border-radius: 7px; }
+.on .mini-gantt i.slide { animation: ganttSlide 3.2s cubic-bezier(.6, 0, .3, 1) infinite; }
+.mini-gantt .today { position: absolute; top: 0; bottom: 0; left: 46%; width: 2px; background: var(--tomato); }
+@keyframes ganttSlide { 0%, 30% { transform: translateX(0); } 50%, 80% { transform: translateX(14%); } 100% { transform: translateX(0); } }
+@media (prefers-reduced-motion: reduce) { .on .mini-gantt i.slide { animation: none; } }
+

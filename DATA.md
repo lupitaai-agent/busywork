@@ -98,8 +98,20 @@ update steps run on the next start.
 ### Stock and projects
 - `stock`: items with quantity, minimum, cost and price.
 - `stockmoves`: every change to a count, with the reason and the count after.
-- `projects` and `tasks`: the Project Board. Task `status` is `todo`, `doing`, `waiting` or
-  `done`; `checklist` items are `{ id, text, done }`.
+- `projects`: shared by the Project Planner, the Project Board and Olaf. The brief: `goal`,
+  `doneMeans`, `start`, `due` (deadline), `budgetHours` (a time budget: what it is worth, not what it
+  takes), `ownerId` (a person), `status` (`active`, `paused`, `done`) and `health` (empty: worked out
+  from the plan; or `green`, `amber`, `red` set by hand).
+- `tasks`: cards on the Board, bars on the Planner's timeline. `status` is `todo`, `doing`,
+  `waiting` or `done` (`doneAt` is the day it was done); `start` and `due` (a task with only `due`
+  is one day long); `milestoneId`; `assigneeId` (a person); `hours` (estimate; none counts as 2);
+  `after` (ids of tasks it waits for); `checklist` items are `{ id, text, done }`.
+- `milestones`: per project, a `title`, a `due` date and `done`.
+- `people`: the team, without accounts: `name`, `role`, `email`, `hours` a week for project work
+  (none counts as 32).
+- `projectlog`: per project, one record per risk (`kind: "risk"`, `likelihood` and `impact` 1 to 3,
+  `next` step, `owner`, `state` open/closed), decision (`kind: "decision"`, `title`, `text` why) or
+  weekly update (`kind: "update"`, `health`, `text`).
 - `documents` and `doctemplates`: letters and agreements, and templates the owner saved.
 
 ### Marketing (shared by the free Marketing Studio and Olaf)

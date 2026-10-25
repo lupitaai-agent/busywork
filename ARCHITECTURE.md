@@ -31,6 +31,8 @@ without starting again. Read with [DATA.md](DATA.md) (the data format) and [READ
    │
  shared UI        core.js: top bar, modals, drawers, forms, toasts, command palette, onboarding
    │              ai.css/ai.js chat UI, mkt-*.js marketing dashboard, insights, content calendar
+   │              projects.js: plan sums (health, dependencies, workload, weekly update), shared
+   │              by the Project Planner, the Project Board and Olaf
    │
  services         BW.store (records)          BW.ai (Claude)           BW.platform (download, links, clipboard)
                   BW.migrate (data versions)  BW.entitlements (paid)   BW.problems / BW.diagnostics

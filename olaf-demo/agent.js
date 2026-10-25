@@ -14,9 +14,11 @@
 
   const BASE = 'Demo edition: Olaf\'s instructions ship only with the paid download.';
 
-  const foundation = () => { const s = LIB.skills.find((x) => x.id === 'marketing-foundation'); return s ? s.body : ''; };
+  // Project skills stand on the project foundation; every other skill on the marketing foundation.
+  const isProject = (id) => id.startsWith('project-');
+  const foundation = (id) => { const s = LIB.skills.find((x) => x.id === (isProject(id) ? 'project-foundation' : 'marketing-foundation')); return s ? s.body : ''; };
 
-  function brandContext() {
+  function brandContext(skillId = '') {
     const parts = [];
     for (const path of ['brand-documents/brand-growth-profile.md', 'brand-documents/product-marketing-context.md', 'brand-documents/brand-voice.md', 'brand-documents/icps.md', 'memory/hot-cache.md', 'memory/marketing-journey.md']) {
       const c = WS.read(path);
@@ -25,7 +27,7 @@
     const s = BW.settings;
     const facts = [['Business name', s.businessName], ['Website', s.website], ['Location', [s.city, s.country].filter(Boolean).join(', ')], ['Currency', s.currency]].filter(([, v]) => v);
     if (facts.length) parts.unshift('### From Busywork settings\n\n' + facts.map(([k, v]) => `**${k}:** ${v}`).join('\n'));
-    if (!WS.isFilled('brand-documents/brand-growth-profile.md')) parts.push('Note: the growth profile is still mostly blank. Do the work anyway, and say that running onboarding first would make the output specific to this business.');
+    if (!isProject(skillId) && !WS.isFilled('brand-documents/brand-growth-profile.md')) parts.push('Note: the growth profile is still mostly blank. Do the work anyway, and say that running onboarding first would make the output specific to this business.');
     return '## Who you are working for\n\nThese are the owner\'s own files. Follow them; the voice rules are not suggestions.\n\n' + parts.join('\n\n---\n\n');
   }
 
@@ -47,8 +49,8 @@
       const s = LIB.skills.find((x) => x.id === skillId);
       if (!s) throw new Error('There is no skill called ' + skillId);
       const system = [{ type: 'text', text: BASE }];
-      if (skillId !== 'marketing-foundation') system.push({ type: 'text', text: foundation() });
-      system.push({ type: 'text', text: brandContext() }, { type: 'text', text: skillContext(s) });
+      if (skillId !== 'marketing-foundation' && skillId !== 'project-foundation') system.push({ type: 'text', text: foundation(skillId) });
+      system.push({ type: 'text', text: brandContext(skillId) }, { type: 'text', text: skillContext(s) });
       const opening = [`Run the ${s.id} skill now.`];
       if (instruction && instruction.trim()) opening.push('\nWhat the owner asked for:\n' + instruction.trim());
       else opening.push(`\nNo extra instruction was given. Work from brand-documents/ and memory/, and ask the owner for what you genuinely need${s.hint ? ` (${s.hint})` : ''}.`);
@@ -139,6 +141,14 @@
     if (b.name === 'content_list') return 'Reading your content calendar';
     if (b.name === 'content_add') return `Adding ${((b.input || {}).items || []).length} posts to your calendar`;
     if (b.name === 'content_update') return 'Updating your content calendar';
+    if (b.name === 'project_list') return 'Reading your projects';
+    if (b.name === 'project_get') return 'Reading the project plan';
+    if (b.name === 'project_create') return 'Creating the project';
+    if (b.name === 'project_update') return 'Updating the project brief';
+    if (b.name === 'people_add') return 'Adding people to the team';
+    if (b.name === 'plan_items_add') { const i = b.input || {}; return `Adding ${(i.milestones || []).length} milestones and ${(i.tasks || []).length} tasks to the plan`; }
+    if (b.name === 'task_update') return 'Updating a task';
+    if (b.name === 'project_log_add') return `Writing a ${(b.input || {}).kind || 'note'} in the project log`;
     return b.name;
   }
 

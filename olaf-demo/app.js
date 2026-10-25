@@ -1,4 +1,4 @@
-/* Olaf: the AI marketing expert. Coach (the owner's journey), every skill, Olaf's files, and the
+/* Olaf: the AI expert for marketing and projects. Coach (the owner's journey), projects, every skill, Olaf's files, and the
    conversation panel where Olaf works and asks. The loop itself is agent.js; files and tools are
    workspace.js. */
 (function () {
@@ -6,12 +6,13 @@
   const { $, $$, esc } = BW;
   const LIB = BW.olafLibrary, WS = BW.olafWs, A = BW.olafAgent;
   const main = $('#main');
-  const TABS = [['home', '🏠 Dashboard'], ['insights', '📊 Insights'], ['content', '✍️ Content'], ['skills', '🛠️ Skills'], ['files', '🗂️ Files'], ['history', '💬 Conversations']];
+  const TABS = [['home', '🏠 Dashboard'], ['insights', '📊 Insights'], ['content', '✍️ Content'], ['projects', '🗓️ Projects'], ['skills', '🛠️ Skills'], ['files', '🗂️ Files'], ['history', '💬 Conversations']];
   const GROUPS = LIB.groups; // olaf/groups.json, shared with the website's skill list
   const STAGES = ['Know how you grow', 'Be easy to find and buy', 'Own your moments and assets', 'Plan always-on reach', 'Show up every month', 'Measure and learn'];
 
   let tab = 'home', session = null, running = null, query = '', openFile = null;
-  let locked = false; // licences are on and none is valid: only the unlock screen may show
+  let locked = false;
+  let focusProject = null; // a project opened from the Project Planner // licences are on and none is valid: only the unlock screen may show
 
   /* Editions. The website runs a demo: Olaf's screens with the example business, no instructions
      and no AI. The paid download is the full Olaf. */
@@ -28,7 +29,7 @@
       if (DEMO) await demoData();
       await WS.ensureSeeded();
       render();
-      BW.route({ tab: (t) => { tab = t === 'coach' ? 'home' : t; session = null; render(); }, skill: (id) => start(id, ''), file: (f) => { openFile = decodeURIComponent(f); tab = 'files'; session = null; render(); } });
+      BW.route({ tab: (t) => { tab = t === 'coach' ? 'home' : t; session = null; render(); }, skill: (id) => start(id, ''), projects: (id) => { tab = 'projects'; focusProject = id || null; session = null; render(); }, file: (f) => { openFile = decodeURIComponent(f); tab = 'files'; session = null; render(); } });
     },
     onChange: async (name) => { if (['olaf-files', 'mktplan', 'mktnumbers', 'mktcontent', 'mktsettings', 'invoices', 'clients', '*'].includes(name)) { await WS.load(); if (!session) render(); } },
   });
@@ -44,7 +45,7 @@
     main.innerHTML = `
       <div class="page-head" style="padding-bottom:10px">
         <div><h1><img class="olaf-title-mark" src="../../shared/icons/olaf.svg" alt=""> Olaf <span class="chip chip-sun" style="vertical-align:middle;font-size:.75rem">Early access</span></h1>
-          <p class="lead">Your AI marketing expert. It works out where you stand, plans your next 90 days, checks in every week and does the work with you.</p></div>
+          <p class="lead">Your AI expert for marketing and projects. It works out where you stand, plans what comes next, checks in every week and does the work with you.</p></div>
         <div class="spacer"></div>
         <button class="btn" data-ai>${BW.ai.ready() ? '🤖 AI is on' : '🔌 Connect AI'}</button>
       </div>
@@ -53,7 +54,7 @@
       <div data-view></div>`;
     $$('[data-tab]', main).forEach((b) => b.onclick = () => { tab = b.dataset.tab; render(); });
     $('[data-ai]', main).onclick = settings;
-    const views = { home: viewHome, insights: viewInsights, content: viewContent, skills: viewSkills, files: viewFiles, history: viewHistory };
+    const views = { home: viewHome, insights: viewInsights, content: viewContent, projects: viewProjects, skills: viewSkills, files: viewFiles, history: viewHistory };
     (views[tab] || viewHome)($('[data-view]', main));
   }
 
@@ -140,6 +141,51 @@
       write: (item) => start('social-media', `Write this post and put the text on my content calendar (item ${item.id}): "${item.title}", ${item.channel || 'any channel'}, ${item.date}${item.cep ? `, buying moment: ${item.cep}` : ''}.`),
       suggest: (w) => start('social-media', `Fill my content calendar for the four weeks from ${w}: a rhythm I can keep with my hours, linked to my plan and buying moments, with the finished text for this week's posts.`),
     }).catch(BW.error);
+  }
+
+  /* ---------- projects: the same plan as the Project Planner, with Olaf running the rhythm ---------- */
+  async function viewProjects(v) {
+    const P = BW.pm, d = await P.load();
+    const list = d.projects.filter((p) => (p.status || 'active') === 'active').map((p) => { const x = P.of(d, p.id); return { x, h: P.health(x, d), pr: P.progress(x) }; })
+      .sort((a, b) => (a.x.p.id === focusProject ? -1 : b.x.p.id === focusProject ? 1 : ['red', 'amber', 'green'].indexOf(a.h.level) - ['red', 'amber', 'green'].indexOf(b.h.level)));
+    const ref = (x) => `Project: ${x.p.name} (id ${x.p.id}).`;
+    const ACTIONS = [
+      ['project-weekly-checkin', '📋 Weekly check-in', (x) => `${ref(x)} Do this week's check-in for this project.`],
+      ['project-meeting-actions', '📝 Notes to tasks', null],
+      ['project-status-update', '📣 Update for the client', (x) => `${ref(x)} Write this week's update for ${x.client ? x.client.name : 'the client'}.`],
+      ['project-risk-review', '⚠️ Risk review', (x) => `${ref(x)} Review the risks.`],
+      ['project-recovery', '🛟 Back on track', (x) => `${ref(x)} This project is not on track. Work out how late it really is and give me the options.`],
+      ['project-task-brief', '✉️ Brief someone', null],
+      ['project-close', '🏁 Close the project', (x) => `${ref(x)} The work is done. Close it properly.`],
+    ];
+    v.innerHTML = `<div class="row-flex" style="margin-bottom:18px"><button class="btn btn-primary" data-kick>🚀 Plan a new project with Olaf</button>${list.length ? '<button class="btn" data-all>📋 Check in on all projects</button>' : ''}<a class="btn btn-ghost" href="../projects/index.html">🗓️ Open the Project Planner</a></div>
+      ${list.length ? `<div class="grid-cards">${list.map(({ x, h, pr }) => {
+        const next = x.milestones.find((m) => !m.done);
+        return `<article class="card pcard" ${x.p.id === focusProject ? 'style="outline:3px solid var(--app)"' : ''}>
+          <h3>${esc(x.p.emoji || '📁')} ${esc(x.p.name)}</h3>
+          <p><b>${P.HEALTH[h.level].emoji} ${P.HEALTH[h.level].label}</b>${x.client ? ` · for ${esc(x.client.name)}` : ''}${x.p.due ? ` · deadline ${BW.fmtDate(x.p.due, { day: 'numeric', month: 'short' })}` : ''}</p>
+          ${h.reasons.length ? `<ul style="margin:6px 0 0 18px">${h.reasons.slice(0, 3).map((r) => `<li>${esc(r)}</li>`).join('')}</ul>` : ''}
+          <p style="margin-top:6px">${pr.done} of ${pr.total} tasks done${next ? ` · next: ${esc(next.title)}${next.due ? ' ' + BW.fmtDate(next.due, { day: 'numeric', month: 'short' }) : ''}` : ''}</p>
+          <div class="row-flex" style="margin-top:12px;gap:6px">${ACTIONS.filter(([id]) => id !== 'project-recovery' || h.level !== 'green').filter(([id]) => id !== 'project-close' || pr.pct >= 70)
+            .map(([id, label]) => `<button class="btn ${id === 'project-weekly-checkin' ? 'btn-primary' : ''}" data-act="${id}" data-p="${x.p.id}">${label}</button>`).join('')}
+            <a class="btn btn-ghost" href="../projects/index.html#p/${x.p.id}">Open plan →</a></div>
+        </article>`;
+      }).join('')}</div>`
+        : `<div class="card empty"><div class="big">🗓️</div><h2>No projects yet</h2><p>Tell Olaf about a job, a launch, an event or a move. Olaf asks a few questions and writes the plan into the Project Planner: milestones, tasks, who does what, and the risks worth watching.</p></div>`}
+      <p class="faint" style="margin-top:18px">The plan is the same one your team sees in the Project Planner and on the Project Board. Olaf reads it, keeps it current and writes the weekly update; you make the decisions.</p>`;
+    $('[data-kick]', v).onclick = () => ask('🚀 Plan a new project', 'What is the project, for whom, and is there a date that matters?', 'e.g. New signs for Café Morgenrood, install before 10 November. Daan does the printing.', (t) => start('project-kickoff', t));
+    const all = $('[data-all]', v); if (all) all.onclick = () => start('project-weekly-checkin', 'Do the weekly check-in for all my active projects.');
+    $$('[data-act]', v).forEach((b) => b.onclick = () => {
+      const x = list.find((r) => r.x.p.id === b.dataset.p).x, act = ACTIONS.find(([id]) => id === b.dataset.act);
+      if (act[0] === 'project-meeting-actions') return ask('📝 Notes to tasks', 'Paste the notes, call summary or email. Olaf turns them into tasks, decisions and risks in the plan.', 'Notes from the call with Sam…', (t) => start(act[0], `${ref(x)}\n\nThe notes:\n${t}`), 12);
+      if (act[0] === 'project-task-brief') return ask('✉️ Brief someone', 'Which task, and who will do it?', 'e.g. The final print run, for Daan', (t) => start(act[0], `${ref(x)} ${t}`));
+      start(act[0], act[2](x));
+    });
+  }
+  // A short question before Olaf starts, so the conversation begins with what Olaf needs.
+  function ask(title, question, ph, go, rows = 4) {
+    const box = BW.html(`<div><p style="margin-bottom:10px">${esc(question)}</p><textarea class="in" rows="${rows}" data-q placeholder="${esc(ph)}" style="width:100%"></textarea></div>`);
+    BW.modal({ title, body: box, wide: rows > 4, actions: [{ label: 'Cancel', kind: 'ghost' }, { label: 'Start', kind: 'primary', onClick: () => { const t = $('[data-q]', box).value.trim(); if (!t) return false; go(t); } }] });
   }
 
   /* ---------- setup: onboarding as a visible checklist ---------- */

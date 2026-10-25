@@ -12,7 +12,8 @@
     app: 'board',
     onReady: async () => {
       await load(); render();
-      BW.route({ new: () => { const i = $('[data-add="todo"] input', main); if (i) i.focus(); }, open: (id) => { const t = tasks.find((x) => x.id === id); if (t) editTask(t); } });
+      BW.route({ new: () => { const i = $('[data-add="todo"] input', main); if (i) i.focus(); }, open: (id) => { const t = tasks.find((x) => x.id === id); if (t) editTask(t); },
+        project: (id) => { if (projects.some((p) => p.id === id)) { current = id; render(); } } });
     },
     onChange: async () => { await load(); if (!$('.drawer-wrap') && !dragging && !(document.activeElement && document.activeElement.matches('.add-card input'))) render(); },
   });
@@ -99,6 +100,7 @@
     siblings.forEach((x, i) => { x.order = i; });
     const wasDone = t.status === 'done';
     t.status = status;
+    t.doneAt = status === 'done' ? (wasDone ? t.doneAt : BW.today()) : ''; // the Project Planner's weekly update counts these
     dragging = null;
     try { await BW.store.putMany('tasks', siblings); } catch (err) { return BW.error(err); }
     render();
@@ -177,7 +179,7 @@
       confirmDelete: 'This also deletes every card in this project.',
       onSaved: (r, isNew) => { if (isNew) current = r.id; },
       onClose: async (r) => {
-        if (r.deleted) { const gone = tasks.filter((t) => t.projectId === r.id); for (const t of gone) await BW.store.remove('tasks', t.id); current = null; }
+        if (r.deleted) { for (const n of ['tasks', 'milestones', 'projectlog']) await BW.store.removeWhere(n, (x) => x.projectId === r.id); current = null; }
         await load(); render();
       },
     });

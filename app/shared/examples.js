@@ -4,7 +4,7 @@
   'use strict';
   const BW = window.BW;
   const day = (n) => BW.addDays(BW.today(), n);
-  const COLLECTIONS = ['clients', 'invoices', 'time', 'expenses', 'subscriptions', 'trips', 'stock', 'projects', 'tasks', 'catalog', 'mktprofile', 'mktplan', 'mktwaves', 'mktruns', 'mktnumbers', 'mktcontent', 'olaf-files', 'olaf-sessions'];
+  const COLLECTIONS = ['clients', 'invoices', 'time', 'expenses', 'subscriptions', 'trips', 'stock', 'projects', 'tasks', 'milestones', 'people', 'projectlog', 'catalog', 'mktprofile', 'mktplan', 'mktwaves', 'mktruns', 'mktnumbers', 'mktcontent', 'olaf-files', 'olaf-sessions'];
 
   async function load() {
     const id = () => BW.uid();
@@ -44,12 +44,37 @@
       .map(([d, from, to, km, k]) => ({ date: day(d), from, to, km, roundTrip: 1, purpose: 'Client meeting', clientId: c[k].id }));
     const stock = [['Sourdough loaf', '🍞', 3, 5, 2.1, 5.5, 'Bakery'], ['Logo mugs', '☕', 24, 6, 4, 12.5, 'Merch'], ['Tote bags', '👜', 12, 5, 3.2, 9.95, 'Merch'], ['Sticker sheets', '✨', 2, 10, 0.4, 3, 'Merch']]
       .map(([name, emoji, qty, min, cost, price, category]) => ({ name, emoji, qty, min, cost, price, category }));
-    const project = { id: id(), name: 'Signage for Café Morgenrood', emoji: '☕', color: 'teal', clientId: c.cafe.id };
-    const tasks = [['Measure the walls', 'done'], ['Three sketch directions', 'doing', [['Retro', true], ['Minimal', true], ['Playful', false]]], ['Get feedback from Sam', 'waiting'], ['Order sample prints', 'todo'], ['Install day', 'todo']]
-      .map(([title, status, checks], i) => ({ title, status, projectId: project.id, order: i, due: status === 'todo' ? day(5 + i) : '', checklist: (checks || []).map(([text, done]) => ({ id: id(), text, done })) }));
+    // Two projects with a real plan for the Project Planner: one slipping a little, one on track.
+    const people = [{ id: id(), name: 'Noor Visser', role: 'Owner, designer', hours: 30, color: 'grape' }, { id: id(), name: 'Daan Bakker', role: 'Freelance sign maker', hours: 12, color: 'sun' }];
+    const [noor, daan] = people.map((p) => p.id);
+    const project = { id: id(), name: 'Signage for Café Morgenrood', emoji: '☕', color: 'teal', clientId: c.cafe.id, start: day(-21), due: day(16), status: 'active', ownerId: noor, budgetHours: 40,
+      goal: 'New window and wall signs that make people walking past the harbour stop for coffee.', doneMeans: 'Signs installed, Sam has signed off, invoice sent.' };
+    const ms = [['Design approved', day(-3)], ['Signs printed', day(8)], ['Installed', day(14)]].map(([title, due], i) => ({ id: id(), projectId: project.id, title, due, done: false, order: i }));
+    const tid = Array.from({ length: 6 }, id);
+    const tasks = [
+      [tid[0], 'Measure the walls', 'done', -21, -19, 0, noor, 2, [], null, day(-19)],
+      [tid[1], 'Three sketch directions', 'doing', -17, -5, 0, noor, 10, [tid[0]], [['Retro', true], ['Minimal', true], ['Playful', false]]],
+      [tid[2], 'Get feedback from Sam', 'waiting', -4, -2, 0, noor, 1, [tid[1]]],
+      [tid[3], 'Order sample prints', 'todo', -1, 3, 1, daan, 3, [tid[2]]],
+      [tid[4], 'Final print run', 'todo', 4, 8, 1, daan, 6, [tid[3]]],
+      [tid[5], 'Install day', 'todo', 13, 14, 2, daan, 10, [tid[4]]],
+    ].map(([tId, title, status, s, e, m, who, hours, after, checks, doneAt], i) => ({ id: tId, title, status, projectId: project.id, order: i, start: day(s), due: day(e), milestoneId: ms[m].id, assigneeId: who, hours, after,
+      doneAt: doneAt || '', checklist: (checks || []).map(([text, done]) => ({ id: id(), text, done })) }));
+    const site = { id: id(), name: 'Website care plan for Studio Blauw', emoji: '🌐', color: 'sky', clientId: c.blauw.id, start: day(-10), due: day(25), status: 'active', ownerId: noor, budgetHours: 16,
+      goal: 'Move Studio Blauw to the monthly care plan and refresh the homepage.', doneMeans: 'New homepage live, care plan running.' };
+    const siteMs = [{ id: id(), projectId: site.id, title: 'Homepage live', due: day(20), done: false, order: 0 }];
+    [['Collect new photos', 'done', -10, -6, 2], ['Rewrite the homepage words', 'doing', -5, 6, 5], ['Build the new homepage', 'todo', 7, 18, 7], ['Go live and check on phones', 'todo', 19, 20, 2]]
+      .forEach(([title, status, s, e, hours], i) => tasks.push({ id: id(), title, status, projectId: site.id, order: i, start: day(s), due: day(e), milestoneId: siteMs[0].id, assigneeId: noor, hours,
+        after: i ? [tasks[tasks.length - 1].id] : [], doneAt: status === 'done' ? day(-6) : '', checklist: [] }));
+    const projectlog = [
+      { kind: 'risk', projectId: project.id, date: day(-12), title: 'The printer is busy before the holidays, so the print run could slip a week', likelihood: '3', impact: '2', next: 'Book the print slot now, before the design is final', owner: 'Daan', state: 'open' },
+      { kind: 'risk', projectId: project.id, date: day(-12), title: 'Rain on install day', likelihood: '1', impact: '1', next: 'Keep the next morning free', owner: 'Noor', state: 'open' },
+      { kind: 'decision', projectId: project.id, date: day(-8), title: 'Matte finish, not gloss', text: 'Gloss reflects the harbour light. Sam agreed on the call.' },
+      { kind: 'update', projectId: project.id, date: day(-7), health: 'green', text: 'Signage for Café Morgenrood: on track\n\nDone this week:\n- Measured the walls\n\nNext week:\n- Three sketch directions (Noor)' },
+    ];
     const catalog = [['Logo design', 850], ['Hourly design work', 75], ['Website page', 400]].map(([name, price]) => ({ name, price, vat }));
 
-    const all = { clients: Object.values(c), invoices: made, time, expenses, subscriptions, trips, stock, projects: [project], tasks, catalog };
+    const all = { clients: Object.values(c), invoices: made, time, expenses, subscriptions, trips, stock, projects: [project, site], tasks, catalog, milestones: ms.concat(siteMs), people, projectlog };
     for (const [name, recs] of Object.entries(all)) { recs.forEach((r) => { r.example = true; }); await BW.store.putMany(name, recs); }
     await loadMarketing();
   }

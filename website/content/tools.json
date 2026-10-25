@@ -428,6 +428,93 @@
     "replaces": "a dashboard or bookkeeping add-on"
   },
   {
+    "id": "projects",
+    "name": "Project Planner",
+    "emoji": "🗓️",
+    "color": "sky",
+    "title": "Free project planner with timeline for small businesses",
+    "description": "Plan client jobs, launches, events and moves: milestones, a drag-and-drop timeline, who does what, workload, risks and a weekly update written for you. Free and private.",
+    "h1": "Every project on one page.",
+    "lead": "Start from a template, drag the timeline to fit your dates, give each task a name, and see at a glance what is late, what waits on whom and who has too much on. No account, no per-seat price.",
+    "features": [
+      [
+        "📅",
+        "A timeline you drag",
+        "Move a task and everything that waits for it moves along. Late work turns red."
+      ],
+      [
+        "◆",
+        "Milestones",
+        "The promises that matter to you and your client, ticked off when reached."
+      ],
+      [
+        "👥",
+        "Who does what",
+        "Give each task a person and an estimate, and see each person's hours for the next six weeks."
+      ],
+      [
+        "🚦",
+        "On track or not",
+        "On track, at risk or off track, with the reasons in plain words."
+      ],
+      [
+        "⚠️",
+        "Risks and decisions",
+        "Name what could go wrong with a next step, and write down what was decided and why."
+      ],
+      [
+        "📣",
+        "The weekly update, drafted",
+        "What got done, what is next and what is stuck, ready to copy or email to your client."
+      ]
+    ],
+    "steps": [
+      [
+        "Pick a starting point",
+        "Client job, launch, event, website, move, or blank."
+      ],
+      [
+        "Fit it to your dates",
+        "Drag bars and milestones; give tasks to people."
+      ],
+      [
+        "Check in once a week",
+        "See what slipped and send the update."
+      ]
+    ],
+    "checklistTitle": "Every project plan deserves",
+    "checklist": [
+      "A goal and a line that says what done means",
+      "A deadline, and a time budget for what it is worth",
+      "Three to six milestones",
+      "Tasks someone can finish in a day or two"
+    ],
+    "faq": [
+      [
+        "Is it the same as the Project Board?",
+        "Same projects, same cards. The Board is for moving cards along each day; the Planner adds dates, milestones, people, risks and updates."
+      ],
+      [
+        "Can my team use it?",
+        "Add everyone as a person, no accounts needed. Share the business folder through Google Drive or Dropbox so everyone sees the same plan."
+      ],
+      [
+        "Can it go into my calendar?",
+        "Yes. Export the milestones and due dates as a calendar file for Google, Apple or Outlook, or every task as a spreadsheet."
+      ],
+      [
+        "Is there an AI version?",
+        "Olaf, the AI expert in the paid edition, runs the plan with you: a kick-off that writes the plan, a weekly check-in, a recovery plan when it slips, and updates for your client."
+      ]
+    ],
+    "related": [
+      "board",
+      "time",
+      "clients"
+    ],
+    "replaces": "a project-management subscription"
+  },
+  {
     "id": "board",
     "name": "Project Board",
     "emoji": "🗂️",
@@ -496,7 +583,7 @@
       ],
       [
         "Is there a timeline or Gantt view?",
-        "Not yet. The Project Planner with timelines and milestones is on the workbench."
+        "Yes, in the Project Planner: the same projects and cards, with milestones, a timeline you drag, who does what and the workload per person."
       ],
       [
         "Does it work with the keyboard?",
@@ -504,8 +591,8 @@
       ]
     ],
     "related": [
+      "projects",
       "time",
-      "docs",
       "clients"
     ],
     "replaces": "a project-management subscription"

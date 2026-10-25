@@ -9,7 +9,7 @@
   const GROUPS = [
     ['💶 Get paid', ['invoices', 'time', 'clients']],
     ['🧮 Keep track', ['expenses', 'money', 'subscriptions', 'trips']],
-    ['🗂️ Get organised', ['board', 'docs', 'stock', 'brand']],
+    ['🗂️ Get organised', ['projects', 'board', 'docs', 'stock', 'brand']],
     ['📣 Grow', ['marketing', 'olaf']],
   ];
 
