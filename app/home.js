@@ -85,8 +85,9 @@
     $$('button[data-step]', main).forEach((b) => b.onclick = () => { const go = steps[Number(b.dataset.step)][4]; if (typeof go === 'function') go(); else if (!steps[Number(b.dataset.step)][0]) BW.toast('Use the 📁 button at the top to pick a folder', '📁'); });
     // Olaf is only in the paid download: without it, the tile goes to the Olaf page.
     const ot = $('[data-addon="olaf"]', main);
-    if (ot) BW.olafInstalled().then((ed) => {
+    if (ot) BW.entitlements.edition('olaf').then((ed) => {
       if (ed === 'full') { ot.querySelector('[data-addon-chip]').remove(); return; }
+      if (ed === 'locked') { ot.querySelector('[data-addon-chip]').textContent = 'Add your licence'; return; }
       if (ed === 'demo') { ot.querySelector('[data-addon-chip]').textContent = 'Demo'; return; }
       ot.href = BW.olafPage(); ot.target = '_blank'; ot.rel = 'noopener'; ot.querySelector('.go').innerHTML = 'See Olaf <span>→</span>';
     });

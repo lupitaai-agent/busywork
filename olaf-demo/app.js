@@ -11,24 +11,20 @@
   const STAGES = ['Know how you grow', 'Be easy to find and buy', 'Own your moments and assets', 'Plan always-on reach', 'Show up every month', 'Measure and learn'];
 
   let tab = 'home', session = null, running = null, query = '', openFile = null;
+  let locked = false; // licences are on and none is valid: only the unlock screen may show
 
   /* Editions. The website runs a demo: Olaf's screens with the example business, no instructions
      and no AI. The paid download is the full Olaf. */
   const DEMO = LIB.edition === 'demo';
   const OLAF_PAGE = (BW.siteUrl || '') + '/olaf.html';
-  /* Licence keys, for when checkout exists. Off until then. A check in the
-     browser stops casual sharing of a bought copy, not a determined copier. */
-  const LICENCE = {
-    required: false,
-    stored() { try { return localStorage.getItem('bw.olafLicence') || ''; } catch (e) { return ''; } },
-    // Replace with the payment provider's licence check (it answers valid / invalid for a key).
-    async check(key) { return /^[A-Z0-9]{4,}(-[A-Z0-9]{4,}){2,}$/i.test(key.trim()); },
-  };
+  /* Licences: signed by the seller, checked offline by BW.licence (core.js) against the public keys
+     the paid build ships. Asked for only when the build switches it on (OLAF_REQUIRE_LICENCE). */
 
   BW.boot({
     app: 'olaf',
     onReady: async () => {
-      if (LICENCE.required && !DEMO && !(await LICENCE.check(LICENCE.stored()))) return licenceScreen();
+      locked = !DEMO && (await BW.entitlements.edition('olaf')) === 'locked';
+      if (locked) return licenceScreen();
       if (DEMO) await demoData();
       await WS.ensureSeeded();
       render();
@@ -43,6 +39,7 @@
 
   // ---------- frame ----------
   function render() {
+    if (locked) return; // the unlock screen stays until a valid licence reloads the page
     if (session) return renderSession();
     main.innerHTML = `
       <div class="page-head" style="padding-bottom:10px">
@@ -75,14 +72,25 @@
     } catch (e) { /* the demo still opens, just emptier */ }
   }
   function licenceScreen() {
-    main.innerHTML = `<div class="card licence"><h1>🧭 Olaf</h1><p>Enter the licence key from your purchase email. You only need to do this once on this computer.</p>
-      <input class="in" data-lk placeholder="XXXX-XXXX-XXXX" autocomplete="off"><div class="row-flex"><button class="btn btn-primary" data-lgo>Unlock Olaf</button><a class="btn btn-ghost" href="${OLAF_PAGE}">Buy a licence</a></div><small class="faint" data-lmsg></small></div>`;
-    $('[data-lgo]', main).onclick = async () => {
-      const key = $('[data-lk]', main).value.trim();
-      if (await LICENCE.check(key)) { try { localStorage.setItem('bw.olafLicence', key); } catch (e) { /* private window */ } location.reload(); }
-      else $('[data-lmsg]', main).textContent = 'That key was not recognised. Check it against your purchase email.';
+    main.innerHTML = `<div class="card licence"><h1>🧭 Unlock Olaf</h1>
+      <p>Paste the licence key from your purchase email, or choose the licence file that came with it. You do this once: the licence is saved with your business, so every computer that opens it is ready.</p>
+      <textarea class="in" data-lk rows="3" placeholder="BWL1.…" autocomplete="off" spellcheck="false"></textarea>
+      <div class="row-flex"><button class="btn btn-primary" data-lgo>Unlock Olaf</button><label class="btn btn-ghost">📄 Choose the licence file<input type="file" accept=".txt,.licence,text/plain" data-lfile hidden></label><div class="spacer"></div><a class="btn btn-ghost" href="${OLAF_PAGE}">Buy Olaf</a></div>
+      <small class="faint" data-lmsg role="status"></small></div>`;
+    const msg = $('[data-lmsg]', main);
+    const unlock = async (text) => {
+      msg.textContent = 'Checking…';
+      let r;
+      try { r = await BW.licence.add(text, 'olaf'); } catch (e) { msg.textContent = e.message; return; }
+      if (!r.ok) { msg.textContent = BW.licence.explain(r.reason); return; }
+      BW.toast(`Olaf is unlocked for ${esc(r.licence.licensee || 'your business')}`, '🧭');
+      BW.confetti();
+      setTimeout(() => location.reload(), 900);
     };
+    $('[data-lgo]', main).onclick = () => unlock($('[data-lk]', main).value);
+    $('[data-lfile]', main).onchange = async (e) => { const f = e.target.files[0]; if (f) unlock(await f.text()); };
   }
+
 
   function settings() {
     if (DEMO) return demoNotice('marketing-journey');
@@ -93,6 +101,9 @@
       const f = BW.html(`<label class="field" style="margin-top:14px"><span>Olaf: limit per conversation, in US dollars</span><input class="in" inputmode="decimal" data-runcap value="${A.runCap}"><em>Olaf stops and reports when one conversation reaches this.</em></label>`);
       box.parentElement.append(f);
       $('[data-runcap]').oninput = (e) => { A.runCap = BW.num(e.target.value) || 2; };
+      BW.licence.current('olaf').then((lic) => {
+        if (lic) box.parentElement.append(BW.html(`<p class="faint" style="margin-top:12px">🧾 Olaf licence <b>${esc(lic.id)}</b>, licensed to ${esc(lic.licensee || 'this business')}.</p>`));
+      });
     });
   }
 
@@ -315,6 +326,7 @@
 
   async function start(id, instruction) {
     if (DEMO) return demoNotice(id);
+    if (locked) return licenceScreen();
     if (!BW.ai.ready()) return settings();
     if (running) return BW.toast('Olaf is already working on something', '⏳');
     try { session = A.create(id, instruction); } catch (e) { return BW.error(e); }

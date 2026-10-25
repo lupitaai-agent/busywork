@@ -74,6 +74,10 @@ update steps run on the next start.
   `"21, 9, 0"`, payment terms in days, document language `en`/`nl`, brand colour, hourly rate,
   mileage rate, tax reserve, email signature fields).
 
+- `licences`: licences for paid parts, one per record: `product` (`olaf`), `licenceId`, the
+  signed `key` (`BWL1.…`) and the `licensee` it names. Checked offline against the public keys in
+  the paid download; a record that no longer checks out is ignored, never deleted.
+
 ### Clients and money
 - `clients`: the Client Book. Name, contact, email, phone, address, VAT number, language,
   payment days, default hourly rate, notes, and `source` (how they found you), which marketing uses.

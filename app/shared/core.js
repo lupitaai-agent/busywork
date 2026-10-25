@@ -1223,10 +1223,93 @@
   // installed: the paid download includes Olaf. Later it may be a licence key, an app-store receipt
   // or an account: only this object changes (or a shell passes its own through window.BW_HOST).
   // edition(): 'full', 'demo' or null (not here).
+  // 'locked': the paid files are here but licences are switched on and none is valid.
   BW.entitlements = Object.assign({
-    async edition(feature) { return feature === 'olaf' ? BW.olafInstalled() : null; },
+    async edition(feature) {
+      if (feature !== 'olaf') return null;
+      const ed = await BW.olafInstalled();
+      if (ed !== 'full' || !BW.licence.required('olaf')) return ed;
+      return (await BW.licence.current('olaf')) ? 'full' : 'locked';
+    },
     async has(feature) { return (await this.edition(feature)) === 'full'; },
   }, host.entitlements);
+
+  // ---------- licences ----------
+  // A licence is one line of text, BWL1.<details>.<signature>, sent to a buyer as a key to paste
+  // or a small file. The details are JSON: { v: 1, product, id, licensee, email, issued, kid }.
+  // The seller signs it with a private key that never leaves them (the Olaf repository's
+  // tools/licence.js); this copy checks it with the public key its paid build ships in
+  // BW.licenceConfig[product] = { required, keys: { kid: public JWK }, revoked: [ids] }.
+  // ECDSA P-256 with SHA-256: built into every current browser and Node, works offline and from
+  // file://, no server. It stops casual sharing (a licence names the business it was sold to),
+  // not a determined copier. Licences live in the business folder ('licences'), so every computer
+  // that opens the business is licensed.
+  async function verifyOne(t, product, config) {
+    const m = /^(BWL1\.([A-Za-z0-9_-]+))\.([A-Za-z0-9_-]+)$/.exec(t);
+    if (!m) return { ok: false, reason: 'format' };
+    let lic;
+    try { lic = JSON.parse(new TextDecoder().decode(b64u(m[2]))); } catch (e) { return { ok: false, reason: 'format' }; }
+    if (!lic || lic.v !== 1 || !lic.id) return { ok: false, reason: 'format' };
+    if (lic.product !== product) return { ok: false, reason: 'product' };
+    const jwk = config && config.keys && config.keys[lic.kid];
+    if (!jwk) return { ok: false, reason: 'key' };
+    if ((config.revoked || []).includes(lic.id)) return { ok: false, reason: 'revoked' };
+    if (lic.expires && lic.expires < BW.today()) return { ok: false, reason: 'expired' };
+    if (!(window.crypto && crypto.subtle)) return { ok: false, reason: 'unsupported' };
+    try {
+      const key = await crypto.subtle.importKey('jwk', { kty: 'EC', crv: 'P-256', x: jwk.x, y: jwk.y, ext: true }, { name: 'ECDSA', namedCurve: 'P-256' }, false, ['verify']);
+      const ok = await crypto.subtle.verify({ name: 'ECDSA', hash: 'SHA-256' }, key, b64u(m[3]), new TextEncoder().encode(m[1]));
+      return ok ? { ok: true, licence: lic, text: t } : { ok: false, reason: 'signature' };
+    } catch (e) { return { ok: false, reason: 'signature' }; }
+  }
+  const b64u = (s) => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((s.length + 3) % 4)), (c) => c.charCodeAt(0));
+  BW.licenceConfig = BW.licenceConfig || {};
+  BW.licence = {
+    required: (product) => !!(BW.licenceConfig[product] && BW.licenceConfig[product].required),
+    // { ok: true, licence } or { ok: false, reason } with reason one of: format, product, key,
+    // revoked, expired, signature, unsupported.
+    // Takes the key on its own, the whole licence file, or a key an email programme wrapped over lines.
+    async verify(text, product, config = BW.licenceConfig[product]) {
+      text = String(text || '');
+      const found = text.match(/BWL1\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/);
+      const tries = [found && found[0], text.replace(/\s+/g, '')].filter(Boolean);
+      let first = null;
+      for (const t of tries) {
+        const r = await verifyOne(t, product, config);
+        if (r.ok) return r;
+        first = first || r;
+      }
+      return first || { ok: false, reason: 'format' };
+    },
+    // The first valid licence for a product in this business, or null.
+    async current(product) {
+      for (const r of await BW.store.all('licences')) {
+        if (r.product !== product) continue;
+        const v = await BW.licence.verify(r.key, product);
+        if (v.ok) return v.licence;
+      }
+      return null;
+    },
+    // Checks a pasted key or the text of a licence file, and keeps it when it is valid.
+    async add(text, product) {
+      const v = await BW.licence.verify(text, product);
+      if (v.ok) {
+        const old = (await BW.store.all('licences')).find((r) => r.licenceId === v.licence.id);
+        await BW.store.put('licences', Object.assign(old || {}, { product, licenceId: v.licence.id, key: v.text, licensee: v.licence.licensee || '' }));
+      }
+      return v;
+    },
+    // What to tell the owner when a key does not work.
+    explain(reason) {
+      return { format: 'That isn’t a whole licence key. Copy everything from BWL1 to the end, or choose the licence file.',
+        product: 'That licence is for a different product.',
+        key: 'This licence was made for a newer Busywork. Download the latest version from your purchase email.',
+        revoked: 'This licence has been withdrawn. Write to us if you think that is a mistake.',
+        expired: 'This licence has ended.',
+        signature: 'That licence key isn’t valid. Check that nothing was changed when it was copied.',
+        unsupported: 'This browser can’t check licences. Open Busywork in a current Chrome, Edge, Safari or Firefox.' }[reason] || 'That licence key isn’t valid.';
+    },
+  };
   BW.olafPage = () => BW.siteUrl + '/olaf.html';
   /* A gentle pointer to Olaf at a good moment (a paid invoice, a new client). At most once a week,
      never when Olaf is already installed, never inside documents. */

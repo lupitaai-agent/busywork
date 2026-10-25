@@ -64,7 +64,7 @@ Anything left out keeps the browser default. Each seam has tests showing a repla
 | Storage driver | `readJSON`, `writeJSON`, `list`, `readFile`, `writeFile`, `listFiles`, `removeFile` (core.js) | `folder`, `browser`, `memory` (tests) | native files in a desktop shell, app storage on a phone, a sync service |
 | Platform | `kind`, `download`, `openUrl`, `copy` | browser | native save dialog, system browser, native clipboard |
 | AI transport | `send(body, { key, beta, signal })` returns the API's stream | `direct`: browser to Anthropic with the owner's key | `proxy(url)`: a server that holds the key and bills per use (already written, not switched on) |
-| Entitlements | `edition('olaf')` is `'full'`, `'demo'` or `null` | which files are installed | a signed licence file, an app-store receipt, an account |
+| Entitlements | `edition('olaf')` is `'full'`, `'demo'`, `'locked'` or `null` | which files are installed, plus a signed licence when the paid build asks for one | an app-store receipt, an account |
 
 ## Data
 
@@ -125,7 +125,7 @@ Anything left out keeps the browser default. Each seam has tests showing a repla
 |---|---|---|---|
 | **Microsoft Store (and Google Play)** as an installable web app | **Near** | The hosted copy is already an installable web app (manifest, offline worker) | The live website; packaging with PWABuilder; store listings, privacy text, icons in store sizes |
 | **Mac App Store / Microsoft Store as a desktop app** (Tauri or Electron shell) | **Medium** | All four seams; the apps need no changes | A shell with a native file driver (sandboxed folder access on the Mac), store receipts for Olaf in the entitlements seam, code signing and notarisation, an update channel |
-| **Licence keys for Olaf** without a server | **Near** | Entitlements seam; switched-off licence screen in Olaf | A payment provider that issues keys (Lemon Squeezy, Paddle), and checking a signed licence file in the app with a public key, so it works offline |
+| **Licence keys for Olaf** without a server | **Ready** | Signed licences checked offline (`BW.licence`, ECDSA P-256), the seller's tool (`tools/licence.js` in the Olaf repo), unlock screen, switch in the paid build | A payment provider; signing by hand per sale until its webhook signs automatically |
 | **Phone apps (iOS, Android)** | **Far** | Data format, store contract, AI transport | Phones can't open a folder the same way: a phone driver and probably sync; layouts designed for phones first; Apple requires in-app purchase for unlocking Olaf (Apple takes 15 to 30%) |
 | **Cloud sync between devices** | **Far** | Records have ids and `updatedAt`; drivers are swappable; data versions | Deleted records need to leave a marker (`deletedAt`) so a sync can tell "deleted" from "not here yet": that is data version 2. Then a sync service, accounts, encryption so we still can't read the data, conflict handling |
 | **Fully hosted Busywork (accounts, our servers)** | **Far, and against principle 1** | The proxy transport; a cloud driver would fit the seam | Servers, accounts, billing, security work, privacy law (we'd hold business data). Possible as an option next to local, not instead of it |

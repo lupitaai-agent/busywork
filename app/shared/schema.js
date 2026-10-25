@@ -66,6 +66,8 @@
     mktcontent: { app: 'marketing', shape: R, about: 'The content calendar: one post per record.',
       fields: { date: 'date', channel: 'text', title: 'text', cep: 'text', text: 'text', status: 'text', by: 'text' } },
     mktsettings: { app: 'marketing', shape: R, about: 'One record (id settings): marketing goals.', fields: { goalNew: 'num' } },
+    licences: { app: 'core', shape: R, about: 'Signed licences for paid parts (Olaf), checked offline. Every computer that opens the business is licensed.',
+      fields: { product: 'text', licenceId: 'text', key: 'text', licensee: 'text' } },
     'olaf-files': { app: 'olaf', shape: R, about: "Olaf's workspace: one markdown file per record, by path.", fields: { path: 'text', content: 'text', status: 'text' } },
     'olaf-sessions': { app: 'olaf', shape: R, about: 'Conversations with Olaf, kept exactly as sent so they can continue.',
       fields: { skillId: 'text', title: 'text', finished: 'bool', cost: 'num', model: 'text', files: 'list', system: 'list', messages: 'list', view: 'list' } },
