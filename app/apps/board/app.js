@@ -22,6 +22,7 @@
   BW.shortcut('/', 'Filter cards', () => { const i = $('[data-find]', main); if (i) i.focus(); });
 
   async function load() {
+    if (BW.pm) await BW.pm.linkMarketing().catch((e) => console.warn('Marketing link skipped', e)); // marketing actions and posts are cards too
     [projects, tasks, clients] = await Promise.all(['projects', 'tasks', 'clients'].map((n) => BW.store.all(n)));
     if (current && !projects.some((p) => p.id === current)) current = null;
   }
@@ -86,7 +87,7 @@
     const p = projectOf(t), late = t.due && t.due < BW.today() && t.status !== 'done';
     return `<article class="tcard ${t.status === 'done' ? 'done' : ''}" draggable="true" data-id="${t.id}" tabindex="0">
       <b>${t.hot ? '🔥 ' : ''}${esc(t.title)}</b>
-      <div class="meta">${!current && p ? `<span>${esc(p.emoji || '📁')} ${esc(p.name)}</span>` : ''}${(t.checklist || []).length ? `<span class="${t.checklist.every((c) => c.done) ? 'all' : ''}">☑ ${t.checklist.filter((c) => c.done).length}/${t.checklist.length}</span>` : ''}${t.due ? `<span class="${late ? 'late' : ''}">📅 ${BW.fmtDate(t.due, { day: 'numeric', month: 'short' })}</span>` : ''}${t.notes ? '<span>📝</span>' : ''}</div>
+      <div class="meta">${!current && p ? `<span>${esc(p.emoji || '📁')} ${esc(p.name)}</span>` : ''}${t.link ? `<span title="From the marketing plan: ticking it off here ticks it off there">📣 ${t.link.startsWith('content:') ? 'Post' : 'Marketing'}</span>` : ''}${(t.checklist || []).length ? `<span class="${t.checklist.every((c) => c.done) ? 'all' : ''}">☑ ${t.checklist.filter((c) => c.done).length}/${t.checklist.length}</span>` : ''}${t.due ? `<span class="${late ? 'late' : ''}">📅 ${BW.fmtDate(t.due, { day: 'numeric', month: 'short' })}</span>` : ''}${t.notes ? '<span>📝</span>' : ''}</div>
     </article>`;
   }
 

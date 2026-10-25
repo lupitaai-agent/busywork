@@ -233,7 +233,7 @@
     const st = t.status || 'todo';
     return `<div class="trow ${st}" data-task="${t.id}" tabindex="0">
       <button class="st ${st}" data-st="${t.id}" title="Change status">${P.STATUS[st]}</button>
-      <span class="t">${esc(t.title)}${withProject && p ? `<small>${esc(p.emoji || '📁')} ${esc(p.name)}</small>` : t.hours ? `<small>${esc(t.hours)} h</small>` : ''}</span>
+      <span class="t">${t.link ? `<span title="From the marketing ${t.link.startsWith('content:') ? 'content calendar' : 'plan'}">📣 </span>` : ''}${esc(t.title)}${withProject && p ? `<small>${esc(p.emoji || '📁')} ${esc(p.name)}</small>` : t.hours ? `<small>${esc(t.hours)} h</small>` : ''}</span>
       ${who ? `<span class="faces">${face(who)}</span>` : '<span></span>'}
       ${when(P.endOf(t), st === 'done')}
     </div>`;
@@ -254,7 +254,8 @@
     const x = P.of(d, t.projectId);
     const before = { start: t.start, due: t.due, status: t.status };
     BW.recordDrawer({
-      collection: 'tasks', rec: t, title: 'Task',
+      collection: 'tasks', rec: t, title: t.link ? '📣 Marketing task' : 'Task',
+      top: () => (t.link ? `<p class="faint" style="margin-bottom:12px">From the marketing ${t.link.startsWith('content:') ? 'content calendar' : 'plan'} (Marketing Studio and Olaf). The title, the ${t.link.startsWith('content:') ? 'day' : 'month'} and whether it is done stay the same in both places; who does it and the hours are only here. Deleting it here leaves the marketing item as it is.</p>` : ''),
       fields: [
         { k: 'title', label: 'What needs doing?', span: 2 },
         { k: 'status', label: 'Where is it at?', type: 'chips', options: Object.entries(P.STATUS) },

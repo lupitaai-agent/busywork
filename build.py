@@ -241,16 +241,17 @@ def paths_block(prefix: str) -> str:
     n_skills = len(olaf_lib()["skills"]) or 52
     return f"""  <section class="section" id="grow">
     <div class="wrap">
-      <div class="center reveal"><h2 class="big">Two ways to grow your business</h2><p class="lead">Both run on the same proven marketing science. The difference is who does the thinking, the remembering and the work.</p></div>
+      <div class="center reveal"><h2 class="big">Two ways to grow your business</h2><p class="lead">Both run on the same proven marketing science and the same project plan. The difference is who does the thinking, the remembering and the work.</p></div>
       <div class="paths">
         <article class="card path reveal pop">
           <span class="chip chip-mint">Free</span>
           <span class="e">🧰</span>
           <h3>Do it yourself</h3>
-          <p class="path-sub">The Busywork toolbox with the Marketing Studio</p>
+          <p class="path-sub">The Busywork toolbox with the Marketing Studio and the Project Planner</p>
           <ul>
             <li>All {len(json.loads(TOOLS_JSON.read_text()))} tools, from invoices to stock, free forever</li>
             <li>47 marketing playbooks and the same foundation Olaf uses</li>
+            <li>A Project Planner: timeline, who does what, and a weekly update</li>
             <li>You decide what to work on, and when</li>
             <li>Add your own Claude key for AI help on each task</li>
           </ul>
@@ -260,14 +261,15 @@ def paths_block(prefix: str) -> str:
         <article class="card path featured reveal pop" style="transition-delay:.1s">
           <span class="chip chip-sun">Most help</span>
           <span class="e">🧭</span>
-          <h3>Guided by Olaf, your AI marketing expert</h3>
-          <p class="path-sub">A coach and a marketing team in one, inside Busywork</p>
+          <h3>Guided by Olaf, your AI expert for marketing and projects</h3>
+          <p class="path-sub">A marketing coach and a project lead in one, inside Busywork</p>
           <ul>
             <li><b>Looks at your business</b> and tells you where you stand</li>
-            <li><b>A 90-day plan</b>, then a ten-minute check-in each week with one to three steps that fit your hours</li>
+            <li><b>A 90-day marketing plan</b>, then a ten-minute check-in each week with one to three steps that fit your hours</li>
             <li><b>Does the work with you</b>: writes the posts, review requests, newsletter and plan, fixes your listing text</li>
-            <li><b>Remembers everything</b> and researches the web: your reviews, competitors, local press</li>
-            <li><b>A monthly review</b> of new customers, straight from your Busywork invoices</li>
+            <li><b>Runs your projects</b>: writes the plan, checks in every week, re-plans when something slips, drafts the update for your client</li>
+            <li><b>One plan for both</b>: every marketing action is a task on your team's Project Board</li>
+            <li><b>Remembers everything</b>, researches the web and reads your sales numbers for a monthly review</li>
           </ul>
           <p class="price"><b>€149</b> <small>once, plus your own Claude usage · checkout opens soon</small></p>
           <div class="row-flex"><a class="btn btn-big btn-primary" href="{prefix}olaf.html#get">🧭 Get on the list</a><a class="btn btn-big" href="{prefix}olaf.html">Meet Olaf</a><a class="btn btn-big" href="{prefix}app/apps/olaf/index.html">Try the demo</a></div>
@@ -280,12 +282,14 @@ def paths_block(prefix: str) -> str:
           <thead><tr><th></th><th>Do it yourself</th><th>Guided by Olaf</th></tr></thead>
           <tbody>
             <tr><td>Proven brand growth science built in</td><td>✓</td><td>✓</td></tr>
-            <tr><td>Marketing playbooks</td><td>47</td><td>{n_skills} skills, the growth coach among them</td></tr>
+            <tr><td>Marketing playbooks</td><td>47</td><td>{n_skills} skills, with the growth coach and a project lead</td></tr>
             <tr><td>Who decides what to do next</td><td>You</td><td>Olaf suggests, you approve</td></tr>
             <tr><td>Weekly check-ins and a 90-day plan</td><td>You plan it yourself</td><td>✓</td></tr>
             <tr><td>Multi-step work (reads your files, researches, writes it all)</td><td>One answer at a time</td><td>✓</td></tr>
             <tr><td>Remembers past work and results</td><td>Your brand profile</td><td>Profile, plans, journey and every output</td></tr>
             <tr><td>Reads your sales numbers</td><td>New customers on the Monitor tab</td><td>✓ Uses them in every monthly review</td></tr>
+            <tr><td>Project planning</td><td>Project Planner: timeline, workload, updates you send</td><td>Olaf writes the plan, checks in weekly, re-plans and drafts updates</td></tr>
+            <tr><td>Marketing actions as tasks on your Project Board</td><td>✓</td><td>✓</td></tr>
             <tr><td>Your data</td><td>Your folder, never sent to us</td><td>Your folder, never sent to us</td></tr>
             <tr><td>Price</td><td>€0</td><td>€149 once, plus Claude usage</td></tr>
           </tbody>
@@ -300,7 +304,7 @@ def paths_block(prefix: str) -> str:
 def olaf_strip(prefix: str = "../") -> str:
     return f"""  <section class="wrap olaf-strip reveal"><div class="card">
     <span class="e">🧭</span>
-    <div><b>Want more customers, too?</b><p>Olaf, our AI marketing expert, looks at your business, plans your next 90 days and checks in every week to do the work with you.</p></div>
+    <div><b>Want more customers, and projects that run on time?</b><p>Olaf, our AI expert for marketing and projects, looks at your business, plans what comes next and checks in every week to do the work with you.</p></div>
     <a class="btn" href="{prefix}olaf.html">Meet Olaf →</a>
   </div></section>"""
 
@@ -331,7 +335,7 @@ def footer(prefix: str, tools: list) -> str:
   <div><span class="brandmark"><span class="blob">✦</span>Busywork</span><p class="faint">Boring business stuff, made fun.<br>Free tools that keep your data on your own computer.</p></div>
   <div><b>Tools</b><ul>{links}</ul></div>
   <div><b>Busywork</b><ul><li><a href="{prefix}download.html">Download</a></li><li><a href="{prefix}app/index.html">Try it online</a></li><li><a href="{prefix}tools/index.html">All tools</a></li><li><a href="{prefix}privacy.html">Privacy</a></li><li><a href="{prefix}terms.html">Terms</a></li></ul></div>
-  <div><b>Guided marketing</b><ul><li><a href="{prefix}olaf.html">🧭 Olaf, AI marketing expert</a></li><li><a href="{prefix}app/apps/olaf/index.html">Try the Olaf demo</a></li></ul></div>
+  <div><b>Guided by Olaf</b><ul><li><a href="{prefix}olaf.html">🧭 Olaf, AI expert for marketing and projects</a></li><li><a href="{prefix}app/apps/olaf/index.html">Try the Olaf demo</a></li></ul></div>
 </div></footer>"""
 
 
@@ -490,7 +494,7 @@ def olaf_page(tools: list) -> str:
         ("🛟", "Back on track", "When a project slips, Olaf works out how late it really is and lays out the options: cut scope, move a date, or get help. You choose; it re-plans."),
         ("📣", "Updates and notes, done", "Updates your client reads, a brief for a freelancer, and meeting notes turned into tasks and decisions."),
     ]
-    faq = [("Is Olaf a person?", "No. Olaf is an AI marketing expert running on Claude, Anthropic's AI. It follows proven marketing science, explains its reasoning in plain words, checks its writing, and never invents facts, reviews or numbers. You approve everything before it goes out."),
+    faq = [("Is Olaf a person?", "No. Olaf is an AI expert for marketing and projects, running on Claude, Anthropic's AI. It follows proven marketing science, explains its reasoning in plain words, checks its writing, and never invents facts, reviews or numbers. You approve everything before it goes out."),
            ("What does it cost?", "Olaf is €149 once for your business; checkout opens soon, and the waitlist on this page gets the early-access price. On top of that you pay Anthropic directly for the AI you use, with your own Claude key. You see the cost of every conversation, and you set a monthly limit and a limit per conversation."),
            ("What does the AI cost to run?", "You pay Anthropic directly, on your own Claude key, for what Olaf uses. In our own tests with Claude Sonnet: a weekly check-in cost about $0.10 to $0.15, making a full plan about $0.25 to $0.30, and writing a month of posts about $0.15. You see the cost of every conversation and set a monthly limit."),
            ("Do I need the Marketing Studio first?", "No. If you have filled in the Studio's brand profile, Olaf starts from it. If not, Olaf's onboarding asks the questions itself, one at a time."),
@@ -500,11 +504,11 @@ def olaf_page(tools: list) -> str:
            ("Is Olaf in the free download?", "No. The free download has every Busywork tool and the Marketing Studio. Olaf comes in its own download when you buy it, with Busywork included. The demo on this site shows what it looks like with an example business.")]
     ld = jsonld({"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Olaf by Busywork", "applicationCategory": "BusinessApplication",
                  "operatingSystem": "Windows, macOS, ChromeOS (in Chrome or Edge)", "url": f"{SITE_URL}/olaf.html",
-                 "description": "An AI marketing expert for small businesses: a 90-day plan, a weekly check-in and the work done with you, built on proven marketing science.",
+                 "description": "An AI expert for marketing and projects for small businesses: a 90-day marketing plan, project plans, a weekly check-in and the work done with you, built on proven marketing science.",
                  "offers": {"@type": "Offer", "price": "149", "priceCurrency": "EUR"}}) + jsonld({
         "@context": "https://schema.org", "@type": "FAQPage",
         "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in faq]})
-    return f"""{head("Olaf: an AI marketing expert for small businesses · Busywork", "Olaf plans your next 90 days, checks in every week and does the marketing work with you. Built on proven marketing science. Runs on your own Claude key.", "olaf.html", "", ld, image="og-olaf.png")}
+    return f"""{head("Olaf: an AI expert for marketing and projects · Busywork", "Olaf plans your marketing and your projects, checks in every week and does the work with you. Built on proven marketing science. Runs on your own Claude key.", "olaf.html", "", ld, image="og-olaf.png")}
 <body class="site app-grape">
 {nav("")}
 <main id="main">
@@ -575,7 +579,7 @@ def olaf_page(tools: list) -> str:
     <div class="faq reveal">{"".join(f"<details><summary>{e(q)}</summary><p>{e(a)}</p></details>" for q, a in faq)}</div>
   </div></section>
   <section class="final">
-    <h2 class="reveal pop">Your marketing, with an expert.</h2>
+    <h2 class="reveal pop">Your marketing and your projects, with an expert.</h2>
     <p class="lead reveal" style="margin-top:14px;color:var(--ink-2);font-size:1.2rem">Start your journey in the browser, or download Busywork and keep it all in your own folder.</p>
     <div class="row-flex" style="justify-content:center;margin-top:10px"><a class="btn btn-big" href="#get">🧭 Get Olaf</a><a class="btn btn-big ghost-light" href="app/apps/olaf/index.html">👀 Try the demo</a></div>
   </section>

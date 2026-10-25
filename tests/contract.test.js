@@ -186,3 +186,14 @@ test('no script declares the same function name twice', () => {
   }
   assert.deepEqual(dupes, []);
 });
+
+// The homepage showcase picture is position: sticky. overflow hidden (or auto) on html or body turns
+// one of them into its own scroll box, and the picture then scrolls away with the page. Use clip.
+test('the website never makes html or body a scroll box', () => {
+  for (const f of ['website/assets/site.css', 'app/shared/brand.css']) {
+    const css = read(path.join(ROOT, f));
+    for (const m of css.matchAll(/(^|[},]\s*)((?:html|body)[^{,]*)(?:,[^{]*)?\{([^}]*)\}/gm)) {
+      assert.ok(!/overflow(-x|-y)?\s*:\s*(hidden|auto|scroll)/.test(m[3]), `${f}: ${m[2].trim()} { ${m[3].trim()} }`);
+    }
+  }
+});

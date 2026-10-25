@@ -27,10 +27,99 @@
   const startOf = (t) => t.start || t.due || '';
   const endOf = (t) => t.due || t.start || '';
 
+  let linking = null;
+  const PLAN_ST = { planned: 'todo', live: 'doing', done: 'done' }, PLAN_BACK = { todo: 'planned', doing: 'live', done: 'done' };
+  const monthEnd = (m) => BW.addDays(BW.addPeriod(m + '-01', 'month'), -1);
+  // Both sides of a link in the same terms: title, when (the plan's month or the post's day) and a status of todo, doing or done.
+  const mktSide = (kind, r) => ({ title: String(r.title || ''), when: kind === 'plan' ? String(r.month || '').slice(0, 7) : String(r.date || ''),
+    status: kind === 'plan' ? PLAN_ST[r.status || 'planned'] || 'todo' : r.status === 'posted' ? 'done' : 'todo' });
+  const taskSide = (kind, t) => ({ title: String(t.title || ''), when: kind === 'plan' ? (t.start || t.due || '').slice(0, 7) : (t.due || t.start || ''),
+    status: (t.status || 'todo') === 'done' ? 'done' : kind === 'plan' && ['doing', 'waiting'].includes(t.status) ? 'doing' : 'todo' });
+
+  async function linkOnce() {
+    const [plan, content, projects, tasks] = await Promise.all(['mktplan', 'mktcontent', 'projects', 'tasks'].map((n) => BW.store.all(n)));
+    const items = plan.filter((a) => a.title && /^\d{4}-\d{2}/.test(a.month || '')).map((rec) => ({ kind: 'plan', rec }))
+      .concat(content.filter((c) => c.title && /^\d{4}-\d{2}-\d{2}$/.test(c.date || '')).map((rec) => ({ kind: 'content', rec })));
+    const linked = tasks.filter((t) => t.link);
+    const exists = new Set(plan.map((a) => 'plan:' + a.id).concat(content.map((c) => 'content:' + c.id)));
+    const gone = linked.filter((t) => !exists.has(t.link)).map((t) => t.id);
+    let project = projects.find((p) => p.source === 'marketing');
+    if (!items.length && !gone.length) {
+      // Nothing to link. An empty Marketing project (the example business removed, say) goes too.
+      if (project && !tasks.some((t) => t.projectId === project.id)) await BW.store.remove('projects', project.id);
+      return { tasks: 0, marketing: 0, removed: 0 };
+    }
+    const outTasks = [], outPlan = [], outContent = [];
+    if (items.length && !project) {
+      project = { id: BW.uid(), name: 'Marketing', emoji: '📣', color: 'pink', status: 'active', source: 'marketing',
+        goal: 'The marketing plan and the content calendar, as tasks. Made by the Marketing Studio and Olaf; change them here or there.', doneMeans: '' };
+    }
+    let order = tasks.filter((t) => project && t.projectId === project.id).length;
+    for (const { kind, rec } of items) {
+      const link = kind + ':' + rec.id;
+      let t = linked.find((x) => x.link === link);
+      const m = mktSide(kind, rec);
+      if (!t) {
+        if (rec.taskId) continue; // its task was deleted on purpose: the link has ended
+        t = { id: BW.uid(), projectId: project.id, link, source: 'marketing', title: m.title, status: m.status, order: order++, hours: kind === 'content' ? 1 : '',
+          start: kind === 'plan' ? m.when + '-01' : m.when, due: kind === 'plan' ? monthEnd(m.when) : m.when, doneAt: m.status === 'done' ? today() : '',
+          notes: kind === 'plan' ? `From the marketing plan${rec.channel ? ': ' + rec.channel : ''}${rec.cep ? '. Buying moment: ' + rec.cep : ''}${rec.cost ? '. Budget ' + BW.money(BW.num(rec.cost)) : ''}.`
+            : `A post${rec.channel ? ' for ' + rec.channel : ''} on the content calendar.${rec.text ? '\n\n' + String(rec.text).slice(0, 600) : ''}` };
+        t.sync = m;
+        if (rec.example) t.example = true; // removed with the example business
+        rec.taskId = t.id;
+        outTasks.push(t); (kind === 'plan' ? outPlan : outContent).push(rec);
+        continue;
+      }
+      const tv = taskSide(kind, t), sv = t.sync || m;
+      let tChanged = false, mChanged = false;
+      const next = {};
+      for (const f of ['title', 'when', 'status']) {
+        const mDiff = m[f] !== sv[f], tDiff = tv[f] !== sv[f];
+        let v = sv[f];
+        if (mDiff && tDiff) v = (rec.updatedAt || '') >= (t.updatedAt || '') ? m[f] : tv[f];
+        else if (mDiff) v = m[f];
+        else if (tDiff) v = tv[f];
+        next[f] = v;
+        if (v !== tv[f]) {
+          tChanged = true;
+          if (f === 'title') t.title = v;
+          if (f === 'when') { if (kind === 'plan') { t.start = v + '-01'; t.due = monthEnd(v); } else { t.start = v; t.due = v; } }
+          if (f === 'status') { if (!(v === 'doing' && t.status === 'waiting')) t.status = v; t.doneAt = v === 'done' ? (t.doneAt || today()) : ''; }
+        }
+        if (v !== m[f]) {
+          mChanged = true;
+          if (f === 'title') rec.title = v;
+          if (f === 'when') { if (kind === 'plan') rec.month = v; else rec.date = v; }
+          if (f === 'status') { if (kind === 'plan') rec.status = PLAN_BACK[v]; else if (v === 'done') rec.status = 'posted'; else if (rec.status === 'posted') rec.status = 'ready'; }
+        }
+      }
+      if (!t.sync || ['title', 'when', 'status'].some((f) => t.sync[f] !== next[f])) { t.sync = next; tChanged = true; }
+      if (rec.taskId !== t.id) { rec.taskId = t.id; mChanged = true; }
+      if (tChanged) outTasks.push(t);
+      if (mChanged) (kind === 'plan' ? outPlan : outContent).push(rec);
+    }
+    // The Marketing project spans its tasks.
+    if (project) {
+      const mine = tasks.filter((t) => t.projectId === project.id && !gone.includes(t.id)).concat(outTasks.filter((t) => !tasks.includes(t)));
+      const starts = mine.map(startOf).filter(Boolean).sort(), ends = mine.map(endOf).filter(Boolean).sort();
+      const span = { start: starts[0] || '', due: ends[ends.length - 1] || '' };
+      if (!projects.includes(project) || project.start !== span.start || project.due !== span.due) { Object.assign(project, span); await BW.store.put('projects', project); }
+    }
+    if (outTasks.length) await BW.store.putMany('tasks', outTasks);
+    if (outPlan.length) await BW.store.putMany('mktplan', outPlan);
+    if (outContent.length) await BW.store.putMany('mktcontent', outContent);
+    if (gone.length) await BW.store.removeWhere('tasks', (t) => gone.includes(t.id));
+    if (project && !items.length && !tasks.some((t) => t.projectId === project.id && !gone.includes(t.id))) await BW.store.remove('projects', project.id);
+    return { tasks: outTasks.length, marketing: outPlan.length + outContent.length, removed: gone.length };
+  }
+
   const P = (BW.pm = {
     STATUS, HEALTH, LEVELS, DEFAULT_HOURS, DEFAULT_WEEK, startOf, endOf, days, monday,
 
-    async load() {
+    // Links marketing work first (see linkMarketing), so every view sees the same tasks.
+    async load({ link = true } = {}) {
+      if (link) await P.linkMarketing().catch((e) => console.warn('Marketing link skipped', e));
       const names = ['projects', 'tasks', 'milestones', 'people', 'projectlog', 'clients'];
       const [projects, tasks, milestones, people, log, clients] = await Promise.all(names.map((n) => BW.store.all(n)));
       return { projects, tasks, milestones, people, log, clients };
@@ -214,6 +303,21 @@
       const tasks = tpl.tasks.map(([title, at, len, msi, hours, after], i) => ({ id: ids[i], projectId: p.id, title, status: 'todo', order: i, start: BW.addDays(start, at),
         due: BW.addDays(start, at + Math.max(0, len - 1)), milestoneId: ms[msi] ? ms[msi].id : '', hours, after: (after || []).map((k) => ids[k]) }));
       return { project: p, milestones: ms, tasks };
+    },
+
+    /* Marketing work is project work too. Every action in the marketing plan and every post on the
+       content calendar (made in the Marketing Studio or by Olaf) is also a task in one "Marketing"
+       project, so it is on the Project Board, the timeline and in each person's workload.
+       Both sides can change it. Each linked task remembers the values of the last link (`sync`); a
+       field changed on one side since then is copied to the other, and when both changed, the newer
+       change wins. Title, date (the plan's month, the post's day) and status are linked; who does it,
+       the estimate and what it waits for belong to the task. Deleting the task ends the link for that
+       item (the marketing item stays); deleting the marketing item removes its task.
+       Safe to run any time and as often as you like: it writes only what changed. */
+    async linkMarketing() {
+      if (linking) return linking;
+      linking = linkOnce().finally(() => { linking = null; });
+      return linking;
     },
 
     // Milestones and dated tasks as calendar events (all-day), for Google, Apple or Outlook calendars.

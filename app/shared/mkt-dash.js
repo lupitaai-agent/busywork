@@ -18,6 +18,8 @@
   const D = (BW.mktDash = {
     STATUS, WORK,
     async load() {
+      // Marketing actions and posts are also tasks in the Project Planner: bring both sides up to date first.
+      if (BW.pm) await BW.pm.linkMarketing().catch((e) => console.warn('Marketing link skipped', e));
       const names = ['mktplan', 'mktnumbers', 'mktwaves', 'mktruns', 'olaf-files', 'invoices', 'mktprofile'];
       const [plan, numbers, waves, runs, files, invoices, prof] = await Promise.all(names.map((n) => BW.store.all(n)));
       return { plan, numbers: numbers.sort((a, b) => (a.month || '').localeCompare(b.month || '')), waves: waves.sort((a, b) => (a.date || '').localeCompare(b.date || '')),
@@ -43,7 +45,8 @@
         ${ms.map((m) => { const acts = d.plan.filter((a) => (a.month || '').slice(0, 7) === m);
           return `<div class="dash-month"><b>${label(m)}</b>${acts.length ? acts.map((a) => `<div class="dash-act"><button class="chip-btn st-${esc(a.status || 'planned')}" data-plan="${esc(a.id)}" title="Change status">${STATUS[a.status] || STATUS.planned}</button><span>${esc(a.title)}<small>${esc([a.channel, a.cost ? BW.money(a.cost) : ''].filter(Boolean).join(' · '))}</small></span></div>`).join('')
             : '<p class="dash-gap">Nothing planned yet. Buyers enter the market every month.</p>'}</div>`; }).join('')}
-        ${planLink ? `<a class="btn btn-ghost" href="${planLink}">Open the full year plan →</a>` : ''}</section>`;
+        ${planLink ? `<a class="btn btn-ghost" href="${planLink}">Open the full year plan →</a>` : ''}
+        <p class="faint" style="font-size:.85rem;margin-top:8px">📣 Every action and post is also a task in the <a href="${BW.root}apps/projects/index.html">Project Planner</a> and on the Project Board. Tick it off in either place.</p></section>`;
     },
 
     numbersHtml(d) {

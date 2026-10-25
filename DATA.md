@@ -106,6 +106,12 @@ update steps run on the next start.
   `waiting` or `done` (`doneAt` is the day it was done); `start` and `due` (a task with only `due`
   is one day long); `milestoneId`; `assigneeId` (a person); `hours` (estimate; none counts as 2);
   `after` (ids of tasks it waits for); `checklist` items are `{ id, text, done }`.
+  Marketing work is linked in: every `mktplan` action and `mktcontent` post has a task in the
+  project with `source: "marketing"`. The task carries `link` (`plan:<id>` or `content:<id>`) and
+  `sync` (title, when and status at the last link); the marketing item carries `taskId`. Title, date
+  and done-or-not follow whichever side changed (the newer change when both did); a marketing item
+  whose `taskId` points nowhere had its task deleted on purpose and is not linked again
+  (`BW.pm.linkMarketing` in `shared/projects.js`).
 - `milestones`: per project, a `title`, a `due` date and `done`.
 - `people`: the team, without accounts: `name`, `role`, `email`, `hours` a week for project work
   (none counts as 32).

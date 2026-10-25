@@ -5,8 +5,9 @@
 
 html { scroll-behavior: smooth; }
 /* The tilted marquee bands are wider than the screen on purpose; clip them so phones cannot pan sideways. */
-html { overflow-x: clip; }
-body.site { overflow-x: hidden; }
+/* clip, never hidden: hidden turns the body into its own scroll box, and the showcase picture
+   (position: sticky) then scrolls away instead of following the text. */
+html, body.site { overflow-x: clip; }
 .progress { position: fixed; top: 0; left: 0; height: 5px; width: 100%; z-index: 60; transform-origin: left; transform: scaleX(0); background: linear-gradient(90deg, var(--tomato), var(--sun), var(--mint), var(--sky), var(--grape), var(--pink)); }
 
 /* ---------- nav ---------- */

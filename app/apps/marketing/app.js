@@ -24,6 +24,7 @@
   BW.shortcut('k', 'Skills', () => { tab = 'skills'; skillId = null; render(); });
 
   async function load() {
+    if (BW.pm) await BW.pm.linkMarketing().catch((e) => console.warn('Marketing link skipped', e)); // actions and posts are tasks in the Project Planner too
     const [prof, pl, rn, wv, inv, of] = await Promise.all(['mktprofile', 'mktplan', 'mktruns', 'mktwaves', 'invoices', 'olaf-files'].map((n) => BW.store.all(n)));
     const g = of.find((f) => f.path === 'brand-documents/brand-growth-profile.md');
     olafProfile = g && ((g.content.match(/\[FILL/g) || []).length < 8) ? g.content : '';
@@ -96,7 +97,7 @@
       <aside class="card olaf-card rise">
         <span class="e">🧭</span>
         <div><b>Rather have an expert guide you?</b>
-          <p>The Studio is do-it-yourself. Olaf, our AI marketing expert, works out where you stand, plans your next 90 days, checks in every week and does the work with you. Same marketing science, and it starts from this brand profile.</p></div>
+          <p>The Studio is do-it-yourself. Olaf, our AI expert for marketing and projects, works out where you stand, plans your next 90 days, checks in every week and does the work with you. Same marketing science, and it starts from this brand profile.</p></div>
         <div class="row-flex"><a class="btn btn-primary" data-olaf href="../olaf/index.html">Meet Olaf →</a></div>
       </aside>
       <div style="height:40px"></div>`;
