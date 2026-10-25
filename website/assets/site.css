@@ -194,8 +194,13 @@ html, body.site { overflow-x: clip; }
 
 @media (prefers-reduced-motion: reduce) {
   .reveal, .panel { opacity: 1 !important; transform: none !important; }
-  .scene { transition: none; }
+  /* The gentle version. brand.css stops every animation for Reduce motion (stickers, bands and the
+     movement inside the scenes stay still); two things fade instead of moving, because a fade is
+     change without motion: the headline word, and the showcase picture as you scroll. */
+  .hero .swap.fade span { animation: fadeWord .6s ease !important; }
+  .showcase .scene { transform: none !important; transition: opacity .45s ease !important; }
 }
+@keyframes fadeWord { from { opacity: 0; } to { opacity: 1; } }
 
 /* ---------- accessibility ---------- */
 .skip { position: absolute; left: -9999px; top: 8px; z-index: 100; background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 10px; font-weight: 800; }

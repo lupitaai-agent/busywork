@@ -73,14 +73,16 @@
   if (swap) {
     const words = JSON.parse(swap.dataset.swap), colors = ['var(--tomato)', 'var(--sun)', 'var(--mint)', 'var(--sky)', 'var(--pink)', 'var(--grape)', 'var(--teal)'];
     let n = 0;
+    // With Reduce motion on, the word still changes, with a soft fade instead of the flip (site.css).
+    const cls = calm ? 'fade' : 'flip';
     const show = () => {
       const span = $('span', swap);
       span.textContent = words[n % words.length]; span.style.background = colors[n % colors.length];
-      swap.classList.remove('flip'); void swap.offsetWidth; swap.classList.add('flip');
+      swap.classList.remove(cls); void swap.offsetWidth; swap.classList.add(cls);
       n++;
     };
     show();
-    if (!calm) setInterval(show, 2200);
+    setInterval(show, calm ? 3000 : 2200);
   }
 
   // ---------- floating stickers follow the mouse and the scroll ----------
