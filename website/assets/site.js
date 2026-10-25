@@ -21,8 +21,8 @@
       if (badEmail) { msg.textContent = 'That email address does not look right. Check it and try again.'; msg.className = 'wl-msg err'; btn.disabled = false; return; }
       if (!res.ok || json.success === false) throw new Error(json.message || String(res.status));
       f.reset();
-      // MailerLite asks each person to confirm by email first (double opt-in).
-      msg.textContent = f.dataset.provider === 'mailerlite' ? 'Almost there: check your inbox and confirm your email. Then you are on the list.' : "You're on the list. We'll email you when Olaf can be bought.";
+      // Right whether or not the list asks people to confirm by email first (double opt-in).
+      msg.textContent = "You're on the list. We'll email you when Olaf can be bought. If an email asks you to confirm your address, click the link in it.";
       msg.className = 'wl-msg ok';
     } catch (e) { msg.textContent = 'Something went wrong on our side, not yours. Please try again in a little while.'; msg.className = 'wl-msg err'; }
     btn.disabled = false;
