@@ -259,6 +259,10 @@ class Visibility(unittest.TestCase):
                 self.assertIn('"applicationCategory": "GameApplication"', t)
                 self.assertIn('"isAccessibleForFree": true', t)
                 self.assertIn(f'data-game="{g}"', t)
+        home = (self.SITE / "index.html").read_text()
+        self.assertIn('id="games"', home, "the homepage has a brain games section")
+        for g in ["index"] + [x["id"] for x in build.GAMES]:
+            self.assertIn(f'href="games/{g}.html"', home)
         for p in list(self.SITE.glob("*.html")) + list((self.SITE / "tools").glob("*.html")):
             if p.name != "404.html":
                 self.assertRegex(p.read_text(), r'href="(\.\./|/)?games/index\.html">Games</a>', f"{p.name} links to the games")

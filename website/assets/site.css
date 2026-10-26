@@ -410,3 +410,14 @@ html, body.site { overflow-x: clip; }
 .about-facts dd { margin: 0; color: var(--ink-2); }
 @media (max-width: 640px) { .about-facts { grid-template-columns: minmax(0, 1fr); gap: 4px; } .about-facts dd { margin-bottom: 12px; } }
 
+
+/* Homepage: the brain games band */
+.games-band { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: center; }
+.games-band .chip { margin-bottom: 10px; }
+.games-band .lead { margin-bottom: 18px; }
+.games-mini { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.games-mini .card { display: flex; flex-direction: column; gap: 4px; padding: 16px; text-decoration: none; color: var(--ink); background: color-mix(in srgb, var(--c) 20%, var(--surface)); transition: transform .15s; }
+.games-mini .card:hover { transform: translate(-2px, -2px); }
+.games-mini .e { font-size: 1.8rem; }
+.games-mini small { color: var(--ink-2); }
+@media (max-width: 760px) { .games-band { grid-template-columns: 1fr; } }
