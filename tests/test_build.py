@@ -189,7 +189,7 @@ class Visibility(unittest.TestCase):
     SITE = ROOT / "website"
 
     def pages(self):
-        return [p for p in list(self.SITE.glob("*.html")) + list((self.SITE / "tools").glob("*.html")) if p.name != "404.html"]
+        return [p for p in list(self.SITE.glob("*.html")) + list((self.SITE / "tools").glob("*.html")) + list((self.SITE / "games").glob("*.html")) if p.name != "404.html"]
 
     def test_every_page_has_title_description_canonical_alt_and_the_shared_graph(self):
         for p in self.pages():
@@ -241,6 +241,27 @@ class Visibility(unittest.TestCase):
         for f in ["favicon.ico", "apple-touch-icon.png", "site.webmanifest", "assets/logo-512.png"]:
             self.assertTrue((self.SITE / f).is_file(), f)
         self.assertIn('name="robots" content="noindex"', (self.SITE / "404.html").read_text())
+
+    def test_brain_games_are_free_findable_pages(self):
+        """The games hub and one page per game: in the sitemap, in llms.txt, linked from every page's nav,
+        loading the puzzle engine, with a free product in the structured data and no ad slots."""
+        sm = (self.SITE / "sitemap.xml").read_text()
+        llms = (self.SITE / "llms.txt").read_text()
+        for g in ["index"] + [x["id"] for x in build.GAMES]:
+            page = self.SITE / "games" / f"{g}.html"
+            t = page.read_text()
+            self.assertIn(f"/games/{g}.html", sm)
+            self.assertIn(f"/games/{g}.html", llms)
+            self.assertIn("../assets/games/engine.js", t)
+            self.assertIn("../assets/games/play.js", t)
+            self.assertNotIn("data-ad=", t, "no ads inside the games")
+            if g != "index":
+                self.assertIn('"applicationCategory": "GameApplication"', t)
+                self.assertIn('"isAccessibleForFree": true', t)
+                self.assertIn(f'data-game="{g}"', t)
+        for p in list(self.SITE.glob("*.html")) + list((self.SITE / "tools").glob("*.html")):
+            if p.name != "404.html":
+                self.assertRegex(p.read_text(), r'href="(\.\./|/)?games/index\.html">Games</a>', f"{p.name} links to the games")
 
     def test_the_name_is_busy_with_the_old_name_and_the_namesake_explained(self):
         """Busy is a common word and another company's name; every machine-readable place says which Busy."""

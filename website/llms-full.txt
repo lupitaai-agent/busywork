@@ -299,6 +299,59 @@ Questions:
 - Which computers does it work on? Any computer with Chrome or Edge, Mac or Windows. Busy keeps your business as files in a folder, and Safari and Firefox cannot save to folders yet.
 - Is Olaf in the free download? No. The free download has every Busy tool and the Marketing Studio. Olaf comes in its own download when you buy it, with Busy included. The demo on this site shows what it looks like with an example business.
 
+## Brain games (free)
+
+Page: https://busywork.example/games/index.html. Four logic puzzles that run in the browser, a new one every day and 10,000 levels each. Progress stays in the browser; no account.
+
+### Stars (Star Battle)
+
+Stars is a one-star Star Battle, a classic logic puzzle. Every board has exactly one answer, so you can always find it by reasoning, without guessing.
+Page: https://busywork.example/games/stars.html
+
+Rules:
+- Put one star in every row, every column and every colour patch.
+- Stars never touch, not even corner to corner.
+- Tap a cell once for a cross (no star can go there) and twice for a star. Drag to cross out several cells at once.
+
+### Duo (Takuzu (Binairo))
+
+Duo is a Takuzu, also known as Binairo or the binary puzzle, a classic logic puzzle. Every board has exactly one answer.
+Page: https://busywork.example/games/duo.html
+
+Rules:
+- Fill every cell with a sun (yellow circle) or a grape (purple square).
+- Every row and every column has as many suns as grapes.
+- Never three of the same next to each other, across or down.
+- No two rows are the same, and no two columns.
+- Tap a cell to go from sun to grape to empty. Grey cells are given.
+
+### Trail (a path puzzle)
+
+Trail is a classic kind of path puzzle: one route that visits every cell exactly once. Every board has exactly one answer.
+Page: https://busywork.example/games/trail.html
+
+Rules:
+- Start at 1 and draw one line through every cell of the board.
+- Pass the numbers in order, and finish on the highest number.
+- The line never crosses itself and never goes through a thick wall.
+- Drag to draw. Go back over the line to undo, or tap a cell on the line to cut it there. On a keyboard, use the arrow keys.
+
+### Six (6 × 6 Sudoku)
+
+Six is Sudoku on a smaller 6 × 6 grid with 2 × 3 boxes. Every puzzle has exactly one answer.
+Page: https://busywork.example/games/six.html
+
+Rules:
+- Fill every row, every column and every 2 × 3 box with the numbers 1 to 6.
+- Each number appears once in each row, column and box.
+- Tap a cell, then a number below the board. On a keyboard, type 1 to 6; Backspace erases.
+
+Questions:
+- Is it free? Yes. Every puzzle and every level is free to play in your browser, with no account and nothing to download.
+- How many levels are there? 10,000 per game, from gentle small boards to expert ones, plus a new daily puzzle. Every puzzle has exactly one answer, so it can always be solved by reasoning.
+- Is there a new puzzle every day? Yes: one per game, the same for everyone, gentle on Monday and hardest at the weekend. Solve it to keep your streak going.
+- Where is my progress kept? In this browser only: your streak, solved levels and an unfinished puzzle. Nothing is sent to us, and there is no account. Another browser or a private window starts fresh.
+
 ## Privacy in short
 
 The tools never send us anything. Business data stays in the owner's folder. The Olaf waitlist keeps an email address (and optionally a business name) in MailerLite, only to say when Olaf can be bought. Olaf's requests go from the owner's browser to Anthropic with the owner's own key.

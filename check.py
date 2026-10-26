@@ -27,7 +27,7 @@ def run(title, cmd):
 
 def main():
     scripts = [str(p) for p in sorted((ROOT / "app").rglob("*.js")) if p.name not in GENERATED]
-    scripts += [str(p) for p in sorted((ROOT / "website" / "assets").glob("*.js"))]
+    scripts += [str(p) for p in sorted((ROOT / "website" / "assets").rglob("*.js"))]
     for s in scripts:
         r = subprocess.run(["node", "--check", s], capture_output=True, text=True)
         if r.returncode:

@@ -357,7 +357,7 @@ def nav(prefix: str) -> str:
 <a class="skip" href="#main">Skip to content</a>
 <header class="nav"><div class="wrap">
   <a class="brandmark" href="{prefix}index.html"><span class="blob">✦</span><span class="word">Busy</span></a>
-  <nav class="links" aria-label="Main"><a href="{prefix}tools/index.html">Tools</a><a href="{prefix}olaf.html">Olaf</a><a href="{prefix}index.html#how">How it works</a><a href="{prefix}index.html#private">Privacy</a><a href="{prefix}index.html#faq">Questions</a></nav>
+  <nav class="links" aria-label="Main"><a href="{prefix}tools/index.html">Tools</a><a href="{prefix}olaf.html">Olaf</a><a href="{prefix}games/index.html">Games</a><a href="{prefix}index.html#how">How it works</a><a href="{prefix}index.html#private">Privacy</a><a href="{prefix}index.html#faq">Questions</a></nav>
   <a class="btn btn-primary" href="{prefix}download.html">⬇️ Download free</a>
 </div></header>"""
 
@@ -367,7 +367,7 @@ def footer(prefix: str, tools: list) -> str:
     return f"""<footer class="footer sitemap"><div class="wrap">
   <div><span class="brandmark"><span class="blob">✦</span>Busy</span><p class="faint">Make your paperwork fun again.<br>Free tools that keep your data on your own computer.</p></div>
   <div><b>Tools</b><ul>{links}</ul></div>
-  <div><b>Busy</b><ul><li><a href="{prefix}download.html">Download</a></li><li><a href="{prefix}app/index.html">See the demo</a></li><li><a href="{prefix}tools/index.html">All tools</a></li><li><a href="{prefix}about.html">About</a></li><li><a href="{prefix}privacy.html">Privacy</a></li><li><a href="{prefix}terms.html">Terms</a></li></ul></div>
+  <div><b>Busy</b><ul><li><a href="{prefix}download.html">Download</a></li><li><a href="{prefix}app/index.html">See the demo</a></li><li><a href="{prefix}tools/index.html">All tools</a></li><li><a href="{prefix}games/index.html">🧩 Brain games</a></li><li><a href="{prefix}about.html">About</a></li><li><a href="{prefix}privacy.html">Privacy</a></li><li><a href="{prefix}terms.html">Terms</a></li></ul></div>
   <div><b>Guided by Olaf</b><ul><li><a href="{prefix}olaf.html">🧭 Olaf, AI expert for marketing and projects</a></li><li><a href="{prefix}app/apps/olaf/index.html">Try the Olaf demo</a></li></ul></div>
 </div></footer>"""
 
@@ -685,6 +685,124 @@ def olaf_page(tools: list) -> str:
 """
 
 
+# ---------- brain games: free, daily, in the browser ----------
+# The puzzles themselves are made in the browser by website/assets/games/engine.js; these are the
+# pages around them. Classic puzzle types under our own names, never another site's names or art.
+GAME_LEVELS = 10000
+GAMES = [
+    {"id": "stars", "name": "Stars", "emoji": "⭐", "color": "sun", "classic": "Star Battle",
+     "title": "Stars: free daily Star Battle puzzles · Busy",
+     "desc": "Stars, a free Star Battle logic puzzle: one star per row, column and colour patch. A new puzzle every day and 10,000 levels. No account.",
+     "h1": "Stars", "lead": "One star in every row, column and colour patch. Simple rules, real thinking.",
+     "rules": ["Put one star in every row, every column and every colour patch.",
+               "Stars never touch, not even corner to corner.",
+               "Tap a cell once for a cross (no star can go there) and twice for a star. Drag to cross out several cells at once."],
+     "about": "Stars is a one-star Star Battle, a classic logic puzzle. Every board has exactly one answer, so you can always find it by reasoning, without guessing."},
+    {"id": "duo", "name": "Duo", "emoji": "🟡", "color": "grape", "classic": "Takuzu (Binairo)",
+     "title": "Duo: free daily Takuzu (Binairo) puzzles · Busy",
+     "desc": "Duo, a free Takuzu (Binairo) logic puzzle with suns and grapes: half and half, never three in a row. A new puzzle every day and 10,000 levels.",
+     "h1": "Duo", "lead": "Suns and grapes, half and half, never three in a row.",
+     "rules": ["Fill every cell with a sun (yellow circle) or a grape (purple square).",
+               "Every row and every column has as many suns as grapes.",
+               "Never three of the same next to each other, across or down.",
+               "No two rows are the same, and no two columns.",
+               "Tap a cell to go from sun to grape to empty. Grey cells are given."],
+     "about": "Duo is a Takuzu, also known as Binairo or the binary puzzle, a classic logic puzzle. Every board has exactly one answer."},
+    {"id": "trail", "name": "Trail", "emoji": "🐾", "color": "tomato", "classic": "a path puzzle",
+     "title": "Trail: free daily path puzzles · Busy",
+     "desc": "Trail, a free path puzzle: draw one line through every cell, passing the numbers in order. A new puzzle every day and 10,000 levels. No account.",
+     "h1": "Trail", "lead": "One line through every cell, passing the numbers in order.",
+     "rules": ["Start at 1 and draw one line through every cell of the board.",
+               "Pass the numbers in order, and finish on the highest number.",
+               "The line never crosses itself and never goes through a thick wall.",
+               "Drag to draw. Go back over the line to undo, or tap a cell on the line to cut it there. On a keyboard, use the arrow keys."],
+     "about": "Trail is a classic kind of path puzzle: one route that visits every cell exactly once. Every board has exactly one answer."},
+    {"id": "six", "name": "Six", "emoji": "🎲", "color": "mint", "classic": "6 × 6 Sudoku",
+     "title": "Six: free daily 6×6 Sudoku · Busy",
+     "desc": "Six, a free 6×6 Sudoku: fill every row, column and box with 1 to 6. A new puzzle every day and 10,000 levels, from easy to expert. No account.",
+     "h1": "Six", "lead": "Sudoku on a 6 × 6 grid: quick to start, tricky to finish.",
+     "rules": ["Fill every row, every column and every 2 × 3 box with the numbers 1 to 6.",
+               "Each number appears once in each row, column and box.",
+               "Tap a cell, then a number below the board. On a keyboard, type 1 to 6; Backspace erases."],
+     "about": "Six is Sudoku on a smaller 6 × 6 grid with 2 × 3 boxes. Every puzzle has exactly one answer."},
+]
+GAMES_FAQ = [
+    ("Is it free?", "Yes. Every puzzle and every level is free to play in your browser, with no account and nothing to download."),
+    ("How many levels are there?", f"{GAME_LEVELS:,} per game, from gentle small boards to expert ones, plus a new daily puzzle. Every puzzle has exactly one answer, so it can always be solved by reasoning."),
+    ("Is there a new puzzle every day?", "Yes: one per game, the same for everyone, gentle on Monday and hardest at the weekend. Solve it to keep your streak going."),
+    ("Where is my progress kept?", "In this browser only: your streak, solved levels and an unfinished puzzle. Nothing is sent to us, and there is no account. Another browser or a private window starts fresh."),
+]
+
+
+def games_hub() -> str:
+    cards = "".join(f'<a class="card game-card reveal pop" href="{g["id"]}.html" style="--c:var(--{g["color"]})"><span class="em">{g["emoji"]}</span><h2>{e(g["name"])}</h2>'
+                    f'<p>{e(g["lead"])}</p><p class="status" data-status="{g["id"]}">🗓️ Today\'s puzzle is waiting<br>🏁 {GAME_LEVELS:,} levels to play</p><span class="go">Play {e(g["name"])} →</span></a>' for g in GAMES)
+    faq = "".join(f"<details><summary>{e(q)}</summary><p>{e(a)}</p></details>" for q, a in GAMES_FAQ)
+    ld = jsonld({"@context": "https://schema.org", "@type": "FAQPage",
+                 "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in GAMES_FAQ]})
+    desc = f"Free daily brain games from Busy: Stars, Duo, Trail and Six. A new logic puzzle every day and {GAME_LEVELS:,} levels each. No account, nothing to install."
+    return f"""{head("Free brain games: a new puzzle every day · Busy", desc, "games/index.html", "../", ld + '<link rel="stylesheet" href="../assets/games/games.css">')}
+<body class="site app-sun" data-hub>
+{nav("../")}
+<main id="main" class="wrap">
+  <section class="games-hero">
+    <h1 class="reveal">Brain breaks 🧩</h1>
+    <p class="lead reveal">Four free logic puzzles. A new one every day, and {GAME_LEVELS:,} levels each when you want more. Make your coffee break fun again.</p>
+    <span class="streak" data-streak></span>
+  </section>
+  <div class="game-cards">{cards}</div>
+  <section class="section" id="faq"><div class="center reveal"><h2 class="big">Questions</h2></div><div class="faq reveal">{faq}</div></section>
+</main>
+{footer("../", json.loads(TOOLS_JSON.read_text()))}
+<script src="../assets/games/engine.js"></script>
+<script src="../assets/games/play.js"></script>
+<script src="../assets/site.js"></script>
+</body>
+</html>
+"""
+
+
+def game_page(g: dict) -> str:
+    faq_items = [(f"What is {g['name']}?", g["about"])] + GAMES_FAQ
+    ld = jsonld({"@context": "https://schema.org", "@type": "SoftwareApplication", "name": f'Busy {g["name"]}', "applicationCategory": "GameApplication",
+                 "operatingSystem": "Any modern browser", "description": g["desc"], "url": f'{SITE_URL}/games/{g["id"]}.html',
+                 "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}}) + jsonld({
+        "@context": "https://schema.org", "@type": "FAQPage",
+        "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in faq_items]})
+    rules = "".join(f"<li>{e(r)}</li>" for r in g["rules"])
+    faq = "".join(f"<details><summary>{e(q)}</summary><p>{e(a)}</p></details>" for q, a in faq_items)
+    others = "".join(f'<a class="card rel" href="{o["id"]}.html" style="--c:var(--{o["color"]})"><span class="em">{o["emoji"]}</span><b>{e(o["name"])}</b><small>{e(o["lead"])}</small></a>' for o in GAMES if o["id"] != g["id"])
+    return f"""{head(g["title"], g["desc"], f'games/{g["id"]}.html', "../", ld + '<link rel="stylesheet" href="../assets/games/games.css">')}
+<body class="site app-{g["color"]}" data-game="{g["id"]}">
+{nav("../")}
+<main id="main" class="game-page">
+  <a class="crumbs" href="index.html">← All games</a>
+  <h1>{g["emoji"]} {e(g["h1"])}</h1>
+  <p class="lead">{e(g["lead"])}</p>
+  <section id="play" class="play" aria-label="{e(g["name"])} puzzle"><noscript><p>The puzzles need JavaScript switched on.</p></noscript></section>
+  <section class="game-rules card" style="padding:18px 22px"><h2>How to play</h2><ol>{rules}</ol></section>
+  <section class="section" style="padding-bottom:0"><h2>More brain breaks</h2><div class="more-games">{others}</div></section>
+  <section class="section" id="faq"><h2>Questions</h2><div class="faq">{faq}</div></section>
+</main>
+{footer("../", json.loads(TOOLS_JSON.read_text()))}
+<script src="../assets/games/engine.js"></script>
+<script src="../assets/games/play.js"></script>
+<script src="../assets/site.js"></script>
+</body>
+</html>
+"""
+
+
+def build_games() -> list:
+    out = SITE / "games"
+    out.mkdir(exist_ok=True)
+    (out / "index.html").write_text(games_hub())
+    for g in GAMES:
+        (out / f'{g["id"]}.html').write_text(game_page(g))
+    print(f"website/games: {len(GAMES)} games + hub, {GAME_LEVELS:,} levels each")
+    return ["games/index.html"] + [f'games/{g["id"]}.html' for g in GAMES]
+
+
 def build_pages() -> None:
     tools = json.loads((SITE / "content" / "tools.json").read_text())
     sc = scenes()
@@ -695,7 +813,8 @@ def build_pages() -> None:
     (out / "index.html").write_text(tools_index(tools))
     (SITE / "olaf.html").write_text(olaf_page(tools))
     (SITE / "about.html").write_text(about_page(tools))
-    pages = ["", "olaf.html", "download.html", "about.html", "privacy.html", "terms.html", "tools/index.html"] + [f'tools/{t["id"]}.html' for t in tools]
+    game_pages = build_games()
+    pages = ["", "olaf.html", "download.html", "about.html", "privacy.html", "terms.html", "tools/index.html"] + [f'tools/{t["id"]}.html' for t in tools] + game_pages
     today = date.today().isoformat()
     (SITE / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
                                       + "".join(f"  <url><loc>{SITE_URL}/{p}</loc><lastmod>{page_date(p)}</lastmod></url>\n" for p in pages) + "</urlset>\n")
@@ -730,6 +849,8 @@ def page_date(rel: str) -> str:
     sources = {"": ["website/index.html"], "download.html": ["website/download.html"], "privacy.html": ["website/privacy.html"],
                "terms.html": ["website/terms.html"], "about.html": ["build.py", "website/content/tools.json"],
                "olaf.html": ["build.py", "olaf-demo/library.js"]}.get(rel, ["build.py", "website/content/tools.json"])
+    if rel.startswith("games/"):
+        sources = ["build.py", "website/assets/games/engine.js", "website/assets/games/play.js"]
     dates = []
     for src in sources:
         try:
@@ -775,7 +896,7 @@ def site_seo() -> None:
     """Every website page, hand-written or generated, gets the same basics: a canonical address,
     share-image alt text, icons crawlers can fetch, and the shared structured data, linked to the
     page's own (a product, its questions). The 404 page is kept out of search."""
-    pages = list(SITE.glob("*.html")) + list((SITE / "tools").glob("*.html"))
+    pages = list(SITE.glob("*.html")) + list((SITE / "tools").glob("*.html")) + list((SITE / "games").glob("*.html"))
     for f in pages:
         rel = f.relative_to(SITE).as_posix()
         rel = "" if rel == "index.html" else rel
@@ -850,6 +971,9 @@ def write_llms(tools: list) -> None:
              "- Language: English. Invoices, quotes and documents can be made in English or Dutch.",
              "", "## Tools", ""]
     lines += [f"- [{t['name']}]({b}/tools/{t['id']}.html): {t['description']}" for t in tools]
+    lines += ["", "## Brain games (free)", "",
+              f"- [Brain games]({b}/games/index.html): four free logic puzzles in the browser, a new one every day and {GAME_LEVELS:,} levels each. No account."]
+    lines += [f"- [{g['name']}]({b}/games/{g['id']}.html): {g['desc']}" for g in GAMES]
     lines += ["", "## Olaf (paid edition)", "",
               f"- [Olaf, the AI expert for marketing and projects]({b}/olaf.html): a 90-day marketing plan, project plans, a weekly check-in and the work done with the owner, on proven marketing science. {OLAF_PRICE.split(' ·')[0]}.",
               "", "## Get started", "",
@@ -881,6 +1005,10 @@ def write_llms(tools: list) -> None:
              f"Page: {b}/olaf.html. Price: {OLAF_PRICE}.", "", "Marketing:"]
     full += [f"- {f[1]}: {f[2]}" for f in OLAF_FEATS] + ["", "Projects:"] + [f"- {f[1]}: {f[2]}" for f in OLAF_PROJECT_FEATS]
     full += ["", "Questions:"] + [f"- {q} {a}" for q, a in OLAF_FAQ]
+    full += ["", "## Brain games (free)", "", f"Page: {b}/games/index.html. Four logic puzzles that run in the browser, a new one every day and {GAME_LEVELS:,} levels each. Progress stays in the browser; no account.", ""]
+    for g in GAMES:
+        full += [f"### {g['name']} ({g['classic']})", "", g["about"], f"Page: {b}/games/{g['id']}.html", "", "Rules:"] + [f"- {r}" for r in g["rules"]] + [""]
+    full += ["Questions:"] + [f"- {q} {a}" for q, a in GAMES_FAQ]
     full += ["", "## Privacy in short", "",
              "The tools never send us anything. Business data stays in the owner's folder. The Olaf waitlist keeps an email address (and optionally a business name) in MailerLite, only to say when Olaf can be bought. Olaf's requests go from the owner's browser to Anthropic with the owner's own key.",
              f"Full text: {b}/privacy.html", ""]
@@ -938,7 +1066,7 @@ def site_csp() -> None:
             raise SystemExit("WAITLIST_ENDPOINT must be an https:// address")
         forms += " " + m.group(0)
     meta = f'<meta http-equiv="Content-Security-Policy" content="object-src \'none\'; base-uri \'self\'; form-action {forms}">'
-    for f in list(SITE.glob("*.html")) + list((SITE / "tools").glob("*.html")):
+    for f in list(SITE.glob("*.html")) + list((SITE / "tools").glob("*.html")) + list((SITE / "games").glob("*.html")):
         text = re.sub(r'<meta http-equiv="Content-Security-Policy"[^>]*>\n?', "", f.read_text())
         text, n = re.subn(r'(<meta charset="[^"]+">\n?)', lambda m: m.group(1) + meta + "\n", text, count=1, flags=re.I)
         if not n:

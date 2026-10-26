@@ -27,6 +27,14 @@ Key facts:
 - [Stock Keeper](https://busywork.example/tools/stock.html): Tap plus and minus as stock comes and goes, get low-stock warnings, scan barcodes, see stock value, margins and a full history per item. Free and private.
 - [Marketing Studio](https://busywork.example/tools/marketing.html): Do your own marketing on proven science: a brand profile, a year plan, a content calendar and insights from your invoices. Free and private.
 
+## Brain games (free)
+
+- [Brain games](https://busywork.example/games/index.html): four free logic puzzles in the browser, a new one every day and 10,000 levels each. No account.
+- [Stars](https://busywork.example/games/stars.html): Stars, a free Star Battle logic puzzle: one star per row, column and colour patch. A new puzzle every day and 10,000 levels. No account.
+- [Duo](https://busywork.example/games/duo.html): Duo, a free Takuzu (Binairo) logic puzzle with suns and grapes: half and half, never three in a row. A new puzzle every day and 10,000 levels.
+- [Trail](https://busywork.example/games/trail.html): Trail, a free path puzzle: draw one line through every cell, passing the numbers in order. A new puzzle every day and 10,000 levels. No account.
+- [Six](https://busywork.example/games/six.html): Six, a free 6×6 Sudoku: fill every row, column and box with 1 to 6. A new puzzle every day and 10,000 levels, from easy to expert. No account.
+
 ## Olaf (paid edition)
 
 - [Olaf, the AI expert for marketing and projects](https://busywork.example/olaf.html): a 90-day marketing plan, project plans, a weekly check-in and the work done with the owner, on proven marketing science. €149 once.
