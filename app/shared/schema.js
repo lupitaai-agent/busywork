@@ -85,7 +85,7 @@
     // Busy Growth (a growth folder): the person's own knowledge base, learning, skills and wins.
     library: { app: 'library', shape: R, about: 'The Library: links, notes and files (kept in library/), tagged by topic and skill.',
       fields: { kind: 'text', title: 'text', url: 'text', path: 'text', fileName: 'text', size: 'num', notes: 'text', highlights: 'text', text: 'text',
-        tags: 'text', skillIds: 'list', status: 'text', addedAt: 'date', readAt: 'date' } },
+        tags: 'text', skillIds: 'list', status: 'text', addedAt: 'date', readAt: 'date', textTried: 'bool' } },
     learning: { app: 'learning', shape: R, about: 'Things to learn: courses, books, videos and projects, with the hours spent on each.',
       fields: { title: 'text', kind: 'text', provider: 'text', url: 'text', skillIds: 'list', start: 'date', due: 'date', hoursPlanned: 'num',
         status: 'text', doneAt: 'date', notes: 'text', sessions: 'list' } },

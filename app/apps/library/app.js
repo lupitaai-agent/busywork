@@ -25,19 +25,31 @@
 
   async function load() { [items, skills] = await Promise.all([BW.store.all('library'), BW.store.all('skills')]); }
 
-  // Files dropped into library/ with Finder or Explorer get a record the next time the Library opens.
+  // Files dropped into library/ with Finder or Explorer get a record the next time the Library opens,
+  // and files that can be read (text, PDF, Word and other Office files) get their text, once.
   async function pickUpFiles() {
     if (BW.store.kind !== 'folder' || BW.store.readOnly) return;
     const fresh = G.newFiles(items, await BW.store.listFiles('library'));
-    if (!fresh.length) return;
     for (const r of fresh) await readText(r);
-    try { await BW.store.putMany('library', fresh); } catch (e) { return BW.error(e); }
-    BW.toast(`Picked up ${fresh.length} new file${fresh.length === 1 ? '' : 's'} from your library folder`, '📎');
+    const unread = items.filter((x) => x.kind === 'file' && x.path && !x.text && !x.textTried && readable(x.fileName));
+    for (const r of unread) await readText(r);
+    const changed = fresh.concat(unread);
+    if (!changed.length) return;
+    try { await BW.store.putMany('library', changed); } catch (e) { return BW.error(e); }
+    if (fresh.length) BW.toast(`Picked up ${fresh.length} new file${fresh.length === 1 ? '' : 's'} from your library folder`, '📎');
+    else if (unread.some((x) => x.text)) BW.toast(`Made ${unread.filter((x) => x.text).length} file${unread.filter((x) => x.text).length === 1 ? '' : 's'} searchable`, '🔎');
     await load();
   }
-  async function readText(r) {
-    if (!G.TEXT_FILES.test(r.fileName || '')) return;
-    try { const f = await BW.store.readFile(r.path); if (f) r.text = G.textOf(r.fileName, await f.text()); } catch (e) { /* kept without text */ }
+  const readable = (name) => G.TEXT_FILES.test(name || '') || (BW.fileText && BW.fileText.CAN.test(name || ''));
+  // The words in a file, for search: plain text read directly, PDF and Office files through fileText.
+  async function textFrom(name, blob) {
+    if (G.TEXT_FILES.test(name)) return G.textOf(name, await blob.text());
+    return BW.fileText && BW.fileText.CAN.test(name) ? BW.fileText.read(name, blob) : '';
+  }
+  async function readText(r, blob) {
+    if (!readable(r.fileName)) return;
+    try { const f = blob || await BW.store.readFile(r.path); if (f) r.text = await textFrom(r.fileName, f); } catch (e) { /* kept without text */ }
+    r.textTried = true;
   }
 
   const tagsOf = () => {
@@ -151,7 +163,8 @@
       collection: 'library', rec: Object.assign({ addedAt: BW.today() }, x), title: k === 'note' ? 'Note' : k === 'file' ? 'File' : 'Link',
       newTitle: k === 'note' ? 'Write a note' : 'Save a link', fields,
       top: (r) => (r.kind === 'file' || (r.kind === 'link' && r.url) ? `<div class="open-row"><button type="button" class="btn" data-open-this>${r.kind === 'file' ? `📂 Open ${esc(r.fileName || 'file')}` : '↗ Open the link'}</button>
-        ${r.kind === 'file' && r.size ? `<span class="faint">${Math.max(1, Math.round(r.size / 1024)).toLocaleString('en-GB')} KB · in library/</span>` : ''}</div>` : ''),
+        ${r.kind === 'file' && r.size ? `<span class="faint">${Math.max(1, Math.round(r.size / 1024)).toLocaleString('en-GB')} KB · in library/</span>` : ''}</div>
+        ${r.kind === 'file' ? `<p class="faint" style="margin:-4px 0 14px">${fileSearch(r)}</p>` : ''}` : ''),
       bottom: (r) => G.skillPickerHtml(skills, G.skillIds(r)),
       bind: (box, r, save) => {
         G.bindSkillPicker(box, r, save, skills);
@@ -168,6 +181,14 @@
       },
       confirmDelete: x.kind === 'file' ? 'This removes the file from your library folder too.' : null,
     });
+  }
+  // Whether a file's words are in the search, and why not when they aren't.
+  function fileSearch(r) {
+    const words = r.text ? r.text.split(/\s+/).filter(Boolean).length : 0;
+    if (words) return `🔎 Searchable: about ${words.toLocaleString('en-GB')} words${words >= 3000 ? ' (the first part)' : ''}`;
+    if (/\.doc$/i.test(r.fileName || '')) return '🔎 Old Word files (.doc) can’t be searched. Save it as .docx and add it again.';
+    if (readable(r.fileName)) return r.textTried ? '🔎 No text found: perhaps a scan, a photo of text or a protected file. Add notes to find it by.' : '🔎 Not read yet';
+    return '🔎 Found by its title, tags and notes';
   }
   const titleFromUrl = (u) => {
     const m = u.match(/^https?:\/\/(?:www\.)?([^/?#]+)(\/[^?#]*)?/i);
@@ -195,7 +216,7 @@
       taken.push(name);
       try { await BW.store.writeFile('library/' + name, f, { download: false }); } catch (e) { BW.error(e); continue; }
       const r = { kind: 'file', title: f.name.replace(/\.[^.]+$/, ''), path: 'library/' + name, fileName: name, size: f.size, status: 'to-read', tags: '', addedAt: BW.today() };
-      if (G.TEXT_FILES.test(name)) { try { r.text = G.textOf(name, await f.text()); } catch (e) { /* kept without text */ } }
+      await readText(r, f);
       recs.push(r);
     }
     if (!recs.length) return;

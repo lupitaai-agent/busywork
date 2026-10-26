@@ -140,8 +140,8 @@ A growth folder holds one person's growth, not a business. Its `settings` add `s
 `headline` (what they do now), `targetRole`, `goal` and `learnHoursWeek`. Files kept in the Library
 sit in `library/` inside the folder; files dropped there outside Busy are picked up as records.
 - `library`: the Library. `kind` is `link`, `note` or `file`; `url`, `path` (`library/…`) and
-  `fileName`; `notes` (why it matters), `highlights`, `text` (readable text of text-like files, for
-  search), `tags` (comma-separated text), `skillIds`, `status` (`to-read`, `reading`, `read`),
+  `fileName`; `notes` (why it matters), `highlights`, `text` (the words of text, PDF, Word and other
+  Office files, for search; `textTried` once Busy has tried), `tags` (comma-separated text), `skillIds`, `status` (`to-read`, `reading`, `read`),
   `addedAt`, `readAt`.
 - `learning`: things to learn: `title`, `kind` (`course`, `book`, `video`, `project`, `certificate`,
   `other`), `provider`, `url`, `skillIds`, `start`, `due`, `hoursPlanned`, `status` (`planned`,

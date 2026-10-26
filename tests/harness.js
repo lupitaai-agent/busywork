@@ -48,7 +48,7 @@ function load(files, opts = {}) {
     addEventListener() {}, removeEventListener() {},
     innerWidth: 1280, innerHeight: 800, scrollY: 0,
     setTimeout, clearTimeout, setInterval, clearInterval, queueMicrotask, console,
-    Blob, URL, TextEncoder, TextDecoder, atob, btoa, ReadableStream, Response, Headers, AbortController, crypto, structuredClone,
+    Blob, URL, TextEncoder, TextDecoder, atob, btoa, ReadableStream, Response, Headers, AbortController, crypto, structuredClone, DecompressionStream,
     fetch: opts.fetch || (async () => { throw new Error('No network in tests'); }),
     getComputedStyle: () => ({ getPropertyValue: () => '' }),
     requestAnimationFrame: (f) => setTimeout(f, 0),
