@@ -32,7 +32,26 @@
     { id: 'olaf', name: 'Olaf', emoji: '🧭', color: 'grape', ready: true, tagline: 'Your AI expert for marketing and projects: a plan, a weekly check-in, and the work done with you.', addon: true },
     { id: 'projects', name: 'Project Planner', emoji: '🗓️', color: 'sky', ready: true, tagline: 'Milestones, a timeline and who does what, for every project.' },
     { id: 'team', name: 'Team Mode', emoji: '👥', color: 'mint', ready: false, tagline: 'Share one business folder with your team and see who did what.' },
-  ];
+  ].map((a) => Object.assign({ suite: 'business' }, a)).concat([
+    { id: 'library', suite: 'growth', name: 'Library', emoji: '📚', color: 'sky', ready: true, tagline: 'Everything you read and learn, kept and easy to find again.' },
+    { id: 'learning', suite: 'growth', name: 'Learning Planner', emoji: '🎓', color: 'grape', ready: true, tagline: 'Courses, books and projects, planned week by week.' },
+    { id: 'skills', suite: 'growth', name: 'Skills Map', emoji: '🧠', color: 'pink', ready: true, tagline: 'What you can do, how well, and the proof behind it.' },
+    { id: 'wins', suite: 'growth', name: 'Wins Log', emoji: '🏆', color: 'sun', ready: true, tagline: 'Every achievement, ready for your CV and your next review.' },
+    { id: 'jobs', suite: 'growth', name: 'Job Tracker', emoji: '🎯', color: 'tomato', ready: false, tagline: 'Every application on a board, with follow-ups that never slip.' },
+    { id: 'cv', suite: 'growth', name: 'CV Builder', emoji: '📄', color: 'teal', ready: false, tagline: 'CVs and cover letters from your real skills and wins.' },
+    { id: 'stories', suite: 'growth', name: 'Interview Stories', emoji: '🎤', color: 'mint', ready: false, tagline: 'Your best stories, linked to the skills they prove.' },
+    { id: 'ivy', suite: 'growth', name: 'Ivy', emoji: '🌿', color: 'mint', ready: false, tagline: 'Your AI coach for professional growth. Learn it, prove it, land it.' },
+  ]);
+
+  // A suite is a set of tools with its own home page and its own folder. Business folders and growth
+  // folders never mix: each suite remembers its own folder on this computer.
+  BW.SUITES = {
+    business: { name: 'Busy Business', home: 'index.html', noun: 'business', folder: 'My Business', details: 'Business details', key: '' },
+    growth: { name: 'Busy Growth', home: 'growth.html', noun: 'growth folder', folder: 'My Growth', details: 'Your details', key: ':growth' },
+  };
+  BW.suite = 'business';
+  const suite = () => BW.SUITES[BW.suite] || BW.SUITES.business;
+  BW.suiteApps = () => BW.apps.filter((a) => a.suite === BW.suite);
 
   const DEFAULTS = {
     businessName: '', ownerName: '', email: '', phone: '', website: '',
@@ -430,6 +449,8 @@
     }, 'settings'),
     writeFile: (path, blob, opts) => { writable(); return drv.writeFile(path, blob, opts); },
     readFile: (path) => drv.readFile(path),
+    listFiles: (path) => drv.listFiles(path),
+    removeFile: (path) => { writable(); return drv.removeFile(path); },
   };
 
   // ---------- data versions ----------
@@ -692,9 +713,9 @@
   BW.sponsors = [
     // { emoji: '🏦', title: 'Sponsor name', text: 'One line about the offer.', cta: 'Learn more', href: 'https://…' },
   ];
-  BW.houseAds = () => BW.apps.filter((a) => a.ready).map((a) => ({
+  BW.houseAds = () => BW.suiteApps().filter((a) => a.ready).map((a) => ({
     id: a.id, emoji: a.emoji, title: `Try ${a.name}`, text: a.tagline, cta: 'Open it', href: `${BW.root}apps/${a.id}/index.html`, color: a.color,
-  })).concat(BW.apps.filter((a) => !a.ready).map((a) => ({
+  })).concat(BW.suiteApps().filter((a) => !a.ready).map((a) => ({
     id: a.id, emoji: a.emoji, title: `Coming soon: ${a.name}`, text: a.tagline, color: a.color,
   })));
   BW.adSlot = (here) => {
@@ -746,6 +767,22 @@
       { k: 'docLang', label: 'Invoice language', type: 'chips', options: [['en', '🇬🇧 English'], ['nl', '🇳🇱 Nederlands']] },
     ] },
   ];
+  // Busy Growth asks about the person, not a business.
+  const GROWTH_STEPS = [
+    { emoji: '👋', title: 'Hi! What should we call you?', sub: 'Busy Growth is your own place to learn, keep track of what you can do, and land what’s next.', fields: [
+      { k: 'ownerName', label: 'Your name', ph: 'e.g. Sam Jansen', required: true },
+      { k: 'headline', label: 'What you do now', ph: 'e.g. Marketing coordinator at a bakery chain', hint: 'Or “Student”, “Between jobs”, anything that fits.' },
+    ] },
+    { emoji: '🌱', title: 'Where would you like to grow?', sub: 'A rough idea is fine. You can change it any time.', fields: [
+      { k: 'targetRole', label: 'A role you’d like next', ph: 'e.g. Product marketing manager' },
+      { k: 'goal', label: 'In a year I’d like to…', ph: 'e.g. lead my own campaigns and be paid for it', span: 2 },
+      { k: 'learnHoursWeek', label: 'Hours a week for learning', type: 'chips', options: [[1, '1 hour'], [2, '2 hours'], [3, '3 hours'], [5, '5 hours']] },
+    ] },
+  ];
+  const GROWTH_DETAILS = GROWTH_STEPS[0].fields.concat(GROWTH_STEPS[1].fields, [
+    { k: 'email', label: 'Email', type: 'email', ph: 'you@example.com', hint: 'For your CV, later.' },
+    { k: 'linkedin', label: 'LinkedIn', ph: 'linkedin.com/in/you' },
+  ]);
   const COLORS = ['#FF6B4A', '#F5A623', '#2FD18C', '#22C3C3', '#4DA3FF', '#9B6BFF', '#FF7AC6', '#1E1B2E'];
 
   function fieldsHtml(fields, data) {
@@ -857,25 +894,25 @@
     return ob;
   }
 
-  function runWizard() {
+  function runWizard(steps = BW.suite === 'growth' ? GROWTH_STEPS : STEPS) {
     return new Promise((resolve) => {
-      const data = Object.assign({}, BW.settings);
+      const data = Object.assign({}, BW.settings, BW.suite === 'business' ? {} : { suite: BW.suite });
       let i = 0;
       const ob = overlay('<div class="ob-card card"></div>');
       const card = BW.$('.ob-card', ob);
       const render = () => {
-        const done = i >= STEPS.length;
-        const st = STEPS[i] || {};
+        const done = i >= steps.length;
+        const st = steps[i] || {};
         card.innerHTML = done
           ? `<div style="text-align:center"><div class="ob-emoji">🎉</div><h1>You're all set, ${BW.esc((data.ownerName || '').split(' ')[0] || data.businessName)}!</h1>
-             <p class="sub">Your business details are saved. Change them any time with the ⚙️ button at the top.</p>
+             <p class="sub">Your ${BW.suite === 'growth' ? 'details are' : 'business details are'} saved. Change them any time with the ⚙️ button at the top.</p>
              <button class="btn btn-primary btn-big" data-go>Let's go →</button></div>`
-          : `<div class="dots">${STEPS.map((_, n) => `<i class="${n === i ? 'on' : n < i ? 'done' : ''}"></i>`).join('')}</div>
+          : `<div class="dots">${steps.map((_, n) => `<i class="${n === i ? 'on' : n < i ? 'done' : ''}"></i>`).join('')}</div>
              <div class="ob-emoji">${st.emoji}</div><h1>${st.title}</h1><p class="sub">${st.sub}</p>
              <form data-step>${st.custom === 'look' ? lookHtml(data) : fieldsHtml(st.fields, data)}</form>
              <div class="ob-foot">${i > 0 ? '<button class="btn btn-ghost" data-back>← Back</button>' : ''}<div class="spacer"></div>
                ${i > 0 ? '<button class="btn btn-ghost" data-skip>Skip for now</button>' : ''}
-               <button class="btn btn-primary btn-big" data-next>${i === STEPS.length - 1 ? 'Finish' : 'Next'} →</button></div>`;
+               <button class="btn btn-primary btn-big" data-next>${i === steps.length - 1 ? 'Finish' : 'Next'} →</button></div>`;
         if (done) {
           BW.confetti();
           BW.$('[data-go]', card).onclick = () => { ob.remove(); resolve(); };
@@ -904,6 +941,7 @@
   }
 
   BW.openSettings = () => {
+    if (BW.suite === 'growth') return growthSettings();
     const data = Object.assign({}, BW.settings);
     const box = document.createElement('div');
     const render = () => {
@@ -927,6 +965,24 @@
     });
   };
 
+  function growthSettings() {
+    const data = Object.assign({}, BW.settings);
+    const box = BW.html(`<div>${fieldsHtml(GROWTH_DETAILS, data)}</div>`);
+    bindChips(box);
+    BW.modal({
+      title: '⚙️ Your details', body: box, wide: true,
+      actions: [
+        { label: 'Cancel', kind: 'ghost' },
+        { label: 'Save', kind: 'primary', onClick: async () => {
+          readFields(box, data);
+          if (!data.ownerName) { BW.toast('What should we call you? 🙂', '✏️'); return false; }
+          try { await BW.store.saveSettings(Object.assign(data, { suite: 'growth' })); BW.toast('Saved.', '✨'); listeners.forEach((fn) => fn('settings')); }
+          catch (e) { BW.error(e); return false; }
+        } },
+      ],
+    });
+  }
+
   // ---------- connecting storage ----------
   async function welcome() {
     // The paid edition says where Olaf's requests go; the free download has no AI to mention.
@@ -934,12 +990,12 @@
     return new Promise((resolve) => {
       const ob = overlay(`<div class="ob-card card wide">
         <div class="ob-emoji">👋</div>
-        <h1>Hi! Where should your business live?</h1>
-        <p class="sub">Busy saves everything as normal files in a folder you choose, so your business is yours: easy to back up, never lost when a browser is cleared.</p>
+        <h1>Hi! Where should your ${suite().noun} live?</h1>
+        <p class="sub">Busy saves everything as normal files in a folder you choose, so it’s yours: easy to back up, never lost when a browser is cleared.</p>
         ${BW.canUseFolders ? `<div class="options" style="grid-template-columns:1fr">
           <button class="option" data-folder>
-            <span class="emo">📁</span><b>Choose a folder for my business</b>
-            <p>Make a new folder like <b>“My Business”</b>. <br>Tip: put it inside Google Drive, Dropbox, OneDrive or iCloud Drive and it backs up and syncs by itself.</p>
+            <span class="emo">📁</span><b>Choose a folder for my ${suite().noun}</b>
+            <p>Make a new folder like <b>“${suite().folder}”</b>. <br>Tip: put it inside Google Drive, Dropbox, OneDrive or iCloud Drive and it backs up and syncs by itself.</p>
           </button>
         </div>` : `<div class="idea"><span class="e">🧭</span><div><b>Open Busy in Chrome or Edge.</b> This browser can't save to a folder on your computer, and Busy keeps your business in files, not inside a browser where clearing your history would delete it. Chrome and Edge are free for Mac and Windows: open the same <b>index.html</b> in one of them.</div></div>`}
         <div class="privacy-note"><span>🔒</span><span><b>Private by design.</b> There's no account and no server, and nothing you type is sent to us.${olafHere ? ' Olaf sends only what you ask it to Anthropic, the maker of Claude, with your own key.' : ''}</span></div>
@@ -956,8 +1012,8 @@
     let h;
     try { h = await window.showDirectoryPicker({ id: 'busywork', mode: 'readwrite' }); }
     catch (e) { if (e.name !== 'AbortError') BW.error(e); return false; }
-    await kv.set('root', h);
-    ls.set('bw.mode', 'folder');
+    await kv.set('root' + suite().key, h);
+    ls.set('bw.mode' + suite().key, 'folder');
     drv = FolderDriver(h);
     return true;
   }
@@ -978,10 +1034,10 @@
 
   async function connect() {
     if (host.driver) { drv = await host.driver(); return; }
-    const mode = ls.get('bw.mode');
+    const mode = ls.get('bw.mode' + suite().key);
     if (mode === 'browser') { drv = BrowserDriver(); return; }
     if (mode === 'folder' && BW.canUseFolders) {
-      const h = await kv.get('root');
+      const h = await kv.get('root' + suite().key);
       if (h) {
         if ((await h.queryPermission({ mode: 'readwrite' })) === 'granted') { drv = FolderDriver(h); return; }
         return reconnect(h);
@@ -1147,6 +1203,8 @@
     ['🧾', 'New invoice', 'invoices', '#new/invoice'], ['💬', 'New quote', 'invoices', '#new/quote'], ['📇', 'New client', 'clients', '#new'],
     ['⏱️', 'Start the timer', 'time', '#start'], ['📸', 'Add an expense', 'expenses', '#new'], ['🗂️', 'New task', 'board', '#new'],
     ['📝', 'New document', 'docs', ''], ['🚗', 'Log a trip', 'trips', '#new'], ['📦', 'Add a product', 'stock', '#new'], ['🔁', 'Add a subscription', 'subscriptions', '#new'],
+    ['🔗', 'Save a link', 'library', '#new/link'], ['📝', 'Write a note', 'library', '#new/note'], ['📎', 'Add files to the Library', 'library', '#new/file'],
+    ['🎓', 'Plan something to learn', 'learning', '#new'], ['🧠', 'Add a skill', 'skills', '#new'], ['🏆', 'Log a win', 'wins', '#new'],
     ['📣', 'Ask the marketing team', 'marketing', '#tab/skills'], ['🗺️', 'Make a marketing plan', 'marketing', '#skill/marketing-plan'], ['🧐', 'Check an ad or post', 'marketing', '#skill/creative-check'], ['🧭', 'Weekly check-in with Olaf', 'olaf', '#tab/coach'],
   ];
   const go = (href) => {
@@ -1157,16 +1215,17 @@
     if (BW.$('.palette-wrap')) return;
     const app = (a) => `${BW.root}apps/${a}/index.html`;
     const base = [];
-    CREATE.forEach(([e, l, a, h]) => base.push({ group: 'Create', emoji: e, label: l, href: app(a) + h }));
+    const mine = new Set(BW.suiteApps().map((a) => a.id));
+    CREATE.filter((c) => mine.has(c[2])).forEach(([e, l, a, h]) => base.push({ group: 'Create', emoji: e, label: l, href: app(a) + h }));
     if (mode !== 'new') {
-      BW.apps.filter((a) => a.ready).forEach((a) => base.push({ group: 'Go to', emoji: a.emoji, label: a.name, sub: a.tagline, href: app(a.id) }));
-      base.push({ group: 'Go to', emoji: '🏠', label: 'Home', href: BW.root + 'index.html' });
-      base.push({ group: 'Do', emoji: '⚙️', label: 'Business details', run: BW.openSettings });
+      BW.suiteApps().filter((a) => a.ready).forEach((a) => base.push({ group: 'Go to', emoji: a.emoji, label: a.name, sub: a.tagline, href: app(a.id) }));
+      base.push({ group: 'Go to', emoji: '🏠', label: 'Home', href: BW.root + suite().home });
+      base.push({ group: 'Do', emoji: '⚙️', label: suite().details, run: BW.openSettings });
       base.push({ group: 'Do', emoji: '🌓', label: 'Switch light / dark mode', run: BW.cycleTheme });
       base.push({ group: 'Do', emoji: '💾', label: 'Download a backup', run: backup });
       base.push({ group: 'Do', emoji: '♻️', label: 'Restore a backup', run: restore });
       base.push({ group: 'Do', emoji: '⌨️', label: 'Keyboard shortcuts', run: showKeys });
-      base.push({ group: 'Do', emoji: '👀', label: 'Load or remove example data', sub: 'A pretend design studio, gone again in one click', href: BW.root + 'index.html' });
+      if (BW.suite === 'business') base.push({ group: 'Do', emoji: '👀', label: 'Load or remove example data', sub: 'A pretend design studio, gone again in one click', href: BW.root + 'index.html' });
     }
     const found = [];
     const load = (async () => {
@@ -1176,6 +1235,11 @@
       docs.forEach((d) => found.push({ group: 'Documents', emoji: '📝', label: d.title || 'Untitled', href: app('docs') + '#edit/' + d.id }));
       tasks.forEach((t) => found.push({ group: 'Tasks', emoji: t.status === 'done' ? '✅' : '🗂️', label: t.title, href: app('board') + '#open/' + t.id }));
       stock.forEach((s) => found.push({ group: 'Stock', emoji: s.emoji || '📦', label: s.name, sub: `${BW.num(s.qty)} in stock`, href: app('stock') + '#open/' + s.id }));
+      const [lib, learn, skills, wins] = await Promise.all(['library', 'learning', 'skills', 'wins'].map((n) => BW.store.all(n).catch(() => [])));
+      lib.forEach((x) => found.push({ group: 'Library', emoji: x.kind === 'link' ? '🔗' : x.kind === 'note' ? '📝' : '📎', label: x.title || x.url || 'Untitled', sub: x.tags || '', href: app('library') + '#open/' + x.id }));
+      learn.forEach((x) => found.push({ group: 'Learning', emoji: '🎓', label: x.title, sub: x.provider || '', href: app('learning') + '#open/' + x.id }));
+      skills.forEach((x) => found.push({ group: 'Skills', emoji: '🧠', label: x.name, sub: x.category || '', href: app('skills') + '#open/' + x.id }));
+      wins.forEach((x) => found.push({ group: 'Wins', emoji: '🏆', label: x.title, sub: x.date || '', href: app('wins') + '#open/' + x.id }));
     })();
     const wrap = BW.html(`<div class="palette-wrap"><div class="palette card" role="dialog" aria-modal="true" aria-label="Search and commands">
       <div class="pal-in"><span aria-hidden="true">${mode === 'new' ? '＋' : '🔍'}</span><input type="text" placeholder="${mode === 'new' ? 'What do you want to make?' : 'Search clients, invoices, tasks… or type an action'}" aria-label="Search" autocomplete="off"><kbd>esc</kbd></div>
@@ -1359,14 +1423,14 @@
   function topbar(app) {
     const theme = THEMES.find((t) => t[0] === (ls.get('bw.theme') || '')) || THEMES[0];
     const bar = BW.html(`<header class="topbar"><div class="wrap">
-      <a class="brandmark" href="${BW.root}index.html" title="All tools"><span class="blob">✦</span><span class="word">${BW.brand.name}</span></a>
+      <a class="brandmark" href="${BW.root}${suite().home}" title="All tools"><span class="blob">✦</span><span class="word">${BW.brand.name}</span></a>
       ${app ? `<div class="crumb"><span class="slash">/</span><span>${app.emoji}</span><span class="app-name">${app.name}</span></div>` : ''}
       <div class="spacer"></div>
       <button class="btn btn-ghost search-btn" data-palette hidden title="Search everything (⌘K)"><span>🔍</span><span class="lbl">Search</span><kbd class="lbl">⌘K</kbd></button>
       <button class="btn btn-primary new-btn" data-new hidden title="Make something new"><span>＋</span><span class="lbl">New</span></button>
       <button class="icon-btn" data-theme-btn title="Light, dark or automatic">${theme[1]}</button>
       <button class="btn btn-ghost store-chip" data-store hidden><span>📁</span><span class="lbl"></span></button>
-      <button class="btn settings-btn" data-settings hidden title="Business details"><span class="emo">⚙️</span><span class="lbl">Business details</span></button>
+      <button class="btn settings-btn" data-settings hidden title="${suite().details}"><span class="emo">⚙️</span><span class="lbl">${suite().details}</span></button>
     </div></header>`);
     document.body.prepend(bar);
     BW.$('[data-theme-btn]', bar).onclick = BW.cycleTheme;
@@ -1376,8 +1440,9 @@
   // Every page calls this once: draws the top bar, connects storage, runs first-time setup, then hands over.
   BW.boot = async ({ app: appId, onReady, onChange } = {}) => {
     BW.root = document.body.dataset.root || '';
-    BW.olafInstalled(); // early, so tip cards know whether Olaf is here
     const app = BW.apps.find((a) => a.id === appId);
+    BW.suite = document.body.dataset.suite || (app && app.suite) || 'business';
+    if (BW.suite === 'business') BW.olafInstalled(); // early, so tip cards know whether Olaf is here
     const bar = topbar(app);
     if (onChange) BW.onChange(onChange);
     try {
@@ -1396,7 +1461,7 @@
         bar.append(BW.html(`<div class="readonly-bar" role="status">🔒 ${readOnly}</div>`));
       }
       BW.settings = await BW.store.settings();
-      if (!BW.settings.businessName && !readOnly) await runWizard();
+      if (!readOnly && (BW.suite === 'growth' ? !BW.settings.ownerName : !BW.settings.businessName)) await runWizard();
     } catch (e) { BW.error(e); return; }
     const chip = BW.$('[data-store]', bar);
     chip.hidden = false;
@@ -1404,7 +1469,7 @@
     const [icon, label] = drv.kind === 'folder' ? ['📁', drv.label] : drv.kind === 'browser' ? ['🧪', 'This browser'] : ['🎭', drv.label.replace(/^\w/, (c) => c.toUpperCase())];
     BW.$('span', chip).textContent = icon;
     BW.$('.lbl', chip).textContent = label;
-    chip.onclick = () => (drv.kind === 'folder' || drv.kind === 'browser' ? storeMenu(chip) : BW.toast(`Saving to ${BW.esc(drv.label)}. Download Busy to keep your business in your own folder.`, icon));
+    chip.onclick = () => (drv.kind === 'folder' || drv.kind === 'browser' ? storeMenu(chip) : BW.toast(`Saving to ${BW.esc(drv.label)}. Download Busy to keep your ${suite().noun} in your own folder.`, icon));
     const sb = BW.$('[data-settings]', bar); sb.hidden = false; sb.onclick = BW.openSettings;
     const pb = BW.$('[data-palette]', bar); pb.hidden = false; pb.onclick = () => BW.openPalette();
     const nb = BW.$('[data-new]', bar); nb.hidden = false; nb.onclick = () => BW.openPalette('new');

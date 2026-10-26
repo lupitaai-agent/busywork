@@ -151,6 +151,16 @@ class Editions(unittest.TestCase):
         self.assertNotIn('"body"', lib, "the Studio ships playbook names only")
         self.assertNotIn('"foundation"', lib, "no AI prompt in the free Studio")
 
+    def test_busy_growth_stays_out_of_the_demo_and_the_download_until_it_launches(self):
+        import zipfile
+        names = zipfile.ZipFile(ROOT / "website" / "downloads" / "busy.zip").namelist()
+        self.assertFalse([n for n in names if build.growth_part(n[len("Busy/"):])], "no Busy Growth in the Busy Business download")
+        site = ROOT / "website" / "app"
+        self.assertFalse((site / "growth.html").exists())
+        for a in build.GROWTH_APPS:
+            self.assertFalse((site / "apps" / a).exists(), f"{a} is not in the website demo yet")
+            self.assertTrue((ROOT / "app" / "apps" / a / "index.html").is_file(), f"{a} is built in app/")
+
     def test_every_website_tool_page_is_the_demo(self):
         pages = sorted((ROOT / "website" / "app").rglob("index.html"))
         self.assertGreater(len(pages), 10)

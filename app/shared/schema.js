@@ -25,7 +25,8 @@
       fields: { businessName: 'text', ownerName: 'text', email: 'text', phone: 'text', website: 'text', address: 'text', postcode: 'text', city: 'text', country: 'text',
         vatNumber: 'text', regNumber: 'text', iban: 'text', bic: 'text', currency: 'text', vatRates: 'text', paymentDays: 'num', quoteDays: 'num', docLang: 'text',
         brandColor: 'text', logo: 'text', logoW: 'num', logoH: 'num', hourlyRate: 'num', timeRound: 'num', taxReserve: 'num', kmRate: 'num',
-        sigTitle: 'text', sigStyle: 'text', sigLogoUrl: 'text', instagram: 'text', linkedin: 'text' } },
+        sigTitle: 'text', sigStyle: 'text', sigLogoUrl: 'text', instagram: 'text', linkedin: 'text',
+        suite: 'text', headline: 'text', targetRole: 'text', goal: 'text', learnHoursWeek: 'num' } },
     clients: { app: 'clients', shape: R, about: 'The Client Book: who you work for and how they found you.',
       fields: Object.assign({}, party, { phone: 'text', lang: 'text', paymentDays: 'num', rate: 'num', notes: 'text', source: 'text' }) },
     invoices: { app: 'invoices', shape: R, about: 'Invoices, quotes (kind quote) and credit notes (kind credit).',
@@ -81,6 +82,17 @@
     'olaf-sessions': { app: 'olaf', shape: R, about: 'Conversations with Olaf, kept exactly as sent so they can continue.',
       fields: { skillId: 'text', title: 'text', finished: 'bool', cost: 'num', model: 'text', files: 'list', system: 'list', messages: 'list', view: 'list' } },
     'olaf-setup': { app: 'olaf', shape: R, about: "One record (id setup): which setup steps the owner skipped.", fields: { skipped: 'list' } },
+    // Busy Growth (a growth folder): the person's own knowledge base, learning, skills and wins.
+    library: { app: 'library', shape: R, about: 'The Library: links, notes and files (kept in library/), tagged by topic and skill.',
+      fields: { kind: 'text', title: 'text', url: 'text', path: 'text', fileName: 'text', size: 'num', notes: 'text', highlights: 'text', text: 'text',
+        tags: 'text', skillIds: 'list', status: 'text', addedAt: 'date', readAt: 'date' } },
+    learning: { app: 'learning', shape: R, about: 'Things to learn: courses, books, videos and projects, with the hours spent on each.',
+      fields: { title: 'text', kind: 'text', provider: 'text', url: 'text', skillIds: 'list', start: 'date', due: 'date', hoursPlanned: 'num',
+        status: 'text', doneAt: 'date', notes: 'text', sessions: 'list' } },
+    skills: { app: 'skills', shape: R, about: 'The Skills Map: each skill with its level and target (1 to 5).',
+      fields: { name: 'text', category: 'text', level: 'num', target: 'num', notes: 'text' } },
+    wins: { app: 'wins', shape: R, about: 'The Wins Log: achievements with the result, the proof and the skills they show.',
+      fields: { date: 'date', title: 'text', what: 'text', result: 'text', proof: 'text', skillIds: 'list', tags: 'text' } },
   };
   // Fields the store itself manages, and the example flag the example business carries.
   const COMMON = { id: 'id', createdAt: 'time', updatedAt: 'time', example: 'bool' };

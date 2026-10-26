@@ -135,6 +135,20 @@ update steps run on the next start.
   `status` (`idea`, `draft`, `ready`, `posted`).
 - `mktsettings`: one record with the marketing goal (`goalNew`: new customers per month).
 
+### Busy Growth (a growth folder)
+A growth folder holds one person's growth, not a business. Its `settings` add `suite: "growth"`,
+`headline` (what they do now), `targetRole`, `goal` and `learnHoursWeek`. Files kept in the Library
+sit in `library/` inside the folder; files dropped there outside Busy are picked up as records.
+- `library`: the Library. `kind` is `link`, `note` or `file`; `url`, `path` (`library/…`) and
+  `fileName`; `notes` (why it matters), `highlights`, `text` (readable text of text-like files, for
+  search), `tags` (comma-separated text), `skillIds`, `status` (`to-read`, `reading`, `read`),
+  `addedAt`, `readAt`.
+- `learning`: things to learn: `title`, `kind` (`course`, `book`, `video`, `project`, `certificate`,
+  `other`), `provider`, `url`, `skillIds`, `start`, `due`, `hoursPlanned`, `status` (`planned`,
+  `doing`, `done`, `dropped`), `doneAt`, `notes`, and `sessions`: `{ date, minutes }` per sitting.
+- `skills`: the Skills Map: `name`, `category`, `level` and `target`, each 1 (aware) to 5 (expert).
+- `wins`: the Wins Log: `date`, `title`, `what`, `result`, `proof`, `skillIds`, `tags`.
+
 ### Olaf (paid edition)
 - `olaf-files`: Olaf's workspace, one markdown file per record by `path`.
 - `olaf-sessions`: conversations, kept exactly as sent so they can continue (the newest 15

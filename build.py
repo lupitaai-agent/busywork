@@ -59,11 +59,21 @@ def site_core(text: str) -> str:
     return text.replace("BW.siteUrl = 'https://busywork.example';", f"BW.siteUrl = '{SITE_URL}';")
 
 
+# Busy Growth is built in app/ next to the business tools, but stays out of the website demo and the
+# Busy Business download until it launches (its page on the site says "coming soon").
+GROWTH_APPS = ("library", "learning", "skills", "wins")
+GROWTH_FILES = {"growth.html", "growth-home.js", "shared/growth.js", "shared/growth.css"}
+
+
+def growth_part(rel: str) -> bool:
+    return rel in GROWTH_FILES or any(rel == f"apps/{a}" or rel.startswith(f"apps/{a}/") for a in GROWTH_APPS)
+
+
 def copy_app() -> None:
     target = SITE / "app"
     if target.exists():
         shutil.rmtree(target)
-    shutil.copytree(APP, target, ignore=lambda d, names: [n for n in names if n.startswith(".")])
+    shutil.copytree(APP, target, ignore=lambda d, names: [n for n in names if n.startswith(".") or growth_part((Path(d) / n).relative_to(APP).as_posix())])
     core = target / "shared" / "core.js"
     core.write_text(site_core(core.read_text()))
     print(f"website/app: {sum(1 for _ in target.rglob('*') if _.is_file())} files")
@@ -79,7 +89,7 @@ def make_zip() -> None:
     downloads.mkdir(exist_ok=True)
     out = downloads / "busy.zip"
     files = sorted(p for p in APP.rglob("*") if p.is_file() and not any(skip(part) for part in p.relative_to(APP).parents if part.name) and not skip(p)
-                   and p.relative_to(APP).as_posix() not in NOT_IN_DOWNLOAD)
+                   and p.relative_to(APP).as_posix() not in NOT_IN_DOWNLOAD and not growth_part(p.relative_to(APP).as_posix()))
     with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
         z.writestr("Busy/START HERE.txt", START_HERE)
         for p in files:
