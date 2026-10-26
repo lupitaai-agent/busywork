@@ -88,7 +88,7 @@
         { k: 'result', label: 'The result', ph: 'With a number if you have one: hours saved, sales, ratings, people helped', span: 2 },
         { k: 'proof', label: 'Proof', ph: 'A link, an email to find, a document in your library', span: 2 },
       ],
-      bottom: (r) => G.skillPickerHtml(skills, G.skillIds(r)),
+      bottom: (r) => G.skillPickerHtml(skills, G.skillIds(r)) + (r.id ? `<p style="margin-top:14px"><a class="btn" href="../stories/index.html#new/win:${r.id}">🎤 Make it an interview story</a></p>` : ''),
       bind: (box, r, save) => G.bindSkillPicker(box, r, save, skills),
       onSaved: (r, isNew) => { if (isNew) BW.toast('Nice one. Logged!', '🏆'); },
       onClose: async () => { await load(); render(); },

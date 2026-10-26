@@ -93,6 +93,16 @@
       fields: { name: 'text', category: 'text', level: 'num', target: 'num', notes: 'text' } },
     wins: { app: 'wins', shape: R, about: 'The Wins Log: achievements with the result, the proof and the skills they show.',
       fields: { date: 'date', title: 'text', what: 'text', result: 'text', proof: 'text', skillIds: 'list', tags: 'text' } },
+    applications: { app: 'jobs', shape: R, about: 'The Job Tracker: one application per record, from saved to offer.',
+      fields: { company: 'text', role: 'text', url: 'text', location: 'text', salary: 'text', source: 'text', contact: 'text', status: 'text', savedAt: 'date', appliedAt: 'date',
+        nextDate: 'date', nextStep: 'text', closedAt: 'date', reachedInterview: 'bool', heardBack: 'bool', adText: 'text', notes: 'text', letter: 'text',
+        cvId: 'ref:cvs', storyIds: 'list', history: 'list' } },
+    career: { app: 'cv', shape: R, about: 'Career history, shared by every CV version: jobs, education, projects, volunteering.',
+      fields: { type: 'text', title: 'text', org: 'text', place: 'text', start: 'month', end: 'month', current: 'bool', bullets: 'text' } },
+    cvs: { app: 'cv', shape: R, about: 'CV versions: which career entries, skills and wins each one shows.',
+      fields: { name: 'text', headline: 'text', summary: 'text', include: 'list', skillIds: 'list', winIds: 'list', extras: 'text' } },
+    stories: { app: 'stories', shape: R, about: 'Interview stories in the STAR shape, often grown from a win.',
+      fields: { title: 'text', situation: 'text', task: 'text', action: 'text', result: 'text', skillIds: 'list', winId: 'ref:wins', tags: 'text', practised: 'num', lastPractised: 'date' } },
   };
   // Fields the store itself manages, and the example flag the example business carries.
   const COMMON = { id: 'id', createdAt: 'time', updatedAt: 'time', example: 'bool' };

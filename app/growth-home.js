@@ -15,7 +15,7 @@
 
   async function render() {
     const s = BW.settings;
-    const [library, learning, skills, wins] = await Promise.all(['library', 'learning', 'skills', 'wins'].map((n) => BW.store.all(n)));
+    const [library, learning, skills, wins, apps] = await Promise.all(['library', 'learning', 'skills', 'wins', 'applications'].map((n) => BW.store.all(n)));
     const today = BW.today();
     const h = new Date().getHours();
     const hello = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
@@ -26,8 +26,9 @@
     const doing = learning.filter((x) => x.status === 'doing');
     const month = today.slice(0, 7);
     const winsMonth = wins.filter((w) => String(w.date || '').startsWith(month));
-    const gap = G.gaps(skills)[0];
+    const gap = G.gaps(skills)[0], followUps = G.followUpsDue(apps, today);
     const glance = [
+      followUps.length && ['tomato', '⏰', 'Follow-ups due', String(followUps.length), followUps.map((a) => a.company || a.role).slice(0, 3).join(', '), 'jobs'],
       ['grape', '🎓', 'Learning this week', `${G.hours(weekMin)}${target ? ` of ${G.hours(target)}` : ''}`, streak > 1 ? `🔥 ${streak} weeks in a row` : doing.length ? `${doing.length} thing${doing.length === 1 ? '' : 's'} on the go` : 'Plan something to learn', 'learning'],
       ['sky', '📚', 'To read', String(toRead.length), toRead[0] ? toRead[0].title || toRead[0].url : 'Save what you want to read', 'library'],
       ['sun', '🏆', 'Wins this month', String(winsMonth.length), winsMonth[0] ? winsMonth[0].title : 'Write one down while you remember', 'wins'],

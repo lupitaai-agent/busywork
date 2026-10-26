@@ -61,7 +61,7 @@ def site_core(text: str) -> str:
 
 # Busy Growth is built in app/ next to the business tools, but stays out of the website demo and the
 # Busy Business download until it launches (its page on the site says "coming soon").
-GROWTH_APPS = ("library", "learning", "skills", "wins")
+GROWTH_APPS = ("library", "learning", "skills", "wins", "jobs", "cv", "stories")
 GROWTH_FILES = {"growth.html", "growth-home.js", "shared/growth.js", "shared/growth.css", "shared/filetext.js"}
 
 

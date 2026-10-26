@@ -172,7 +172,8 @@
         const url = $('[name="url"]', box), title = $('[name="title"]', box);
         // A pasted link gets a readable title until you write a better one.
         if (url && title) url.addEventListener('change', () => { if (!title.value.trim() && url.value.trim()) { title.value = titleFromUrl(url.value.trim()); save(); } });
-        if (r.kind !== 'note') box.addEventListener('click', (e) => { const b = e.target.closest('[data-name="status"] button'); if (b && b.dataset.v === 'read' && !r.readAt) { r.readAt = BW.today(); save(); } });
+        const st = $('[data-name="status"]', box);
+        if (st) st.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b && b.dataset.v === 'read' && !r.readAt) { r.readAt = BW.today(); save(); } });
       },
       isComplete: (r) => !!(r.url || r.title || r.notes || r.path),
       onClose: async (r) => {

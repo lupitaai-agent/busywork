@@ -133,7 +133,7 @@
         <div class="list">${r.sessions.slice().reverse().slice(0, 12).map((s) => `<div class="row"><span class="main">${BW.fmtDate(s.date)}</span><b>${G.hours(BW.num(s.minutes))}</b></div>`).join('')}</div>` : ''),
       bind: (box, r, save) => {
         G.bindSkillPicker(box, r, save, skills);
-        box.addEventListener('click', (e) => { const b = e.target.closest('[data-name="status"] button'); if (b && b.dataset.v === 'done' && !r.doneAt) { r.doneAt = BW.today(); save(); } });
+        $('[data-name="status"]', box).addEventListener('click', (e) => { const b = e.target.closest('button'); if (b && b.dataset.v === 'done' && !r.doneAt) { r.doneAt = BW.today(); save(); } });
       },
       onClose: async () => { await load(); render(); },
     });

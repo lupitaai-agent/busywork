@@ -103,7 +103,7 @@ test('the brag document lists one year of wins by month, with results, proof and
 test('Growth is its own suite: its tools, its home page, its own pages', async () => {
   const { BW } = await busywork();
   const growthApps = BW.apps.filter((a) => a.suite === 'growth');
-  assert.deepEqual(plain(growthApps.filter((a) => a.ready).map((a) => a.id)), ['library', 'learning', 'skills', 'wins']);
+  assert.deepEqual(plain(growthApps.filter((a) => a.ready).map((a) => a.id)), ['library', 'learning', 'skills', 'wins', 'jobs', 'cv', 'stories']);
   assert.ok(BW.apps.filter((a) => a.suite === 'business').some((a) => a.id === 'invoices'));
   assert.ok(BW.apps.every((a) => BW.SUITES[a.suite]), 'every tool belongs to a known suite');
   assert.equal(BW.SUITES.growth.home, 'growth.html');
@@ -114,4 +114,90 @@ test('Growth is its own suite: its tools, its home page, its own pages', async (
     assert.match(page, /shared\/growth\.js/);
   }
   assert.match(fs.readFileSync(path.join(APP, 'growth.html'), 'utf8'), /data-suite="growth"[\s\S]*growth-home\.js/);
+});
+
+test('job ads: which of your skills they name, as whole words', async () => {
+  const BW = await growth();
+  const skills = [{ id: 'a', name: 'SQL' }, { id: 'b', name: 'Data analysis' }, { id: 'c', name: 'C++' }, { id: 'd', name: 'Design' }, { id: 'e', name: 'Excel' }];
+  const ad = 'You know SQL and data-analysis, some C++; design-thinking is a plus. We use Excel/Sheets daily. No designer needed.';
+  assert.deepEqual(plain(BW.growth.matchSkills(ad, skills).map((s) => s.name)), ['SQL', 'Data analysis', 'C++', 'Design', 'Excel']);
+  assert.deepEqual(plain(BW.growth.matchSkills('We need a designer', skills)), [], '“designer” is not “design”');
+  assert.deepEqual(plain(BW.growth.matchSkills('', skills)), []);
+});
+
+test('moving an application keeps its history, sets the follow-up a week after applying, and counts replies', async () => {
+  const BW = await growth();
+  let a = { company: 'Acme', status: 'saved' };
+  a = BW.growth.moveTo(a, 'applied', '2026-10-26');
+  assert.deepEqual([a.appliedAt, a.nextDate], ['2026-10-26', '2026-11-02']);
+  assert.equal(BW.growth.followUpsDue([a], '2026-11-01').length, 0);
+  assert.equal(BW.growth.followUpsDue([a], '2026-11-02').length, 1, 'due on the day');
+  a = BW.growth.moveTo(a, 'interview', '2026-11-05');
+  a = BW.growth.moveTo(a, 'rejected', '2026-11-20');
+  assert.deepEqual(plain(a.history.map((h) => h.status)), ['applied', 'interview', 'rejected']);
+  assert.equal(a.nextDate, '', 'nothing to follow up once it’s closed');
+  assert.equal(BW.growth.stageOf(a), 'closed');
+  assert.ok(a.reachedInterview, 'an interview stays an interview in the stats');
+  const apps = [a, BW.growth.moveTo({ status: 'saved' }, 'applied', '2026-10-01'), { status: 'saved' }, BW.growth.moveTo({ status: 'applied' }, 'offer', '2026-10-30')];
+  assert.deepEqual(plain(BW.growth.jobStats(apps)), { active: 2, sent: 3, interviews: 2, offers: 1, replyRate: 67 });
+});
+
+test('a CV version shows what it includes, newest job first, with highlights and skills in your order', async () => {
+  const BW = await growth();
+  const career = [
+    { id: 'j1', type: 'job', title: 'Assistant', org: 'Shop', start: '2019-01', end: '2021-06', bullets: '- Opened the shop\n• Ran the till' },
+    { id: 'j2', type: 'job', title: 'Coordinator', org: 'Bakery', start: '2021-07', current: 1, bullets: 'Weekly newsletter for 4,000 customers' },
+    { id: 'e1', type: 'education', title: 'BSc Marketing', org: 'HU', start: '2015-09', end: '2019-06' },
+    { id: 'x', type: 'job', title: 'Left out', start: '2010-01', end: '2011-01' },
+  ];
+  const cv = { headline: 'Marketer', include: ['j1', 'j2', 'e1'], skillIds: ['s2', 's1'], winIds: ['w1'], extras: 'Dutch (native)\nEnglish (fluent)' };
+  const m = BW.growth.cvModel(cv, { career, skills: [{ id: 's1', name: 'SQL' }, { id: 's2', name: 'Writing' }], wins: [{ id: 'w1', title: 'Faster report', result: '3 h to 20 min' }],
+    settings: { ownerName: 'Sam Jansen', email: 'sam@example.com', linkedin: 'linkedin.com/in/sam' } });
+  assert.equal(m.name, 'Sam Jansen');
+  assert.deepEqual(plain(m.work.map((w) => w.title)), ['Coordinator', 'Assistant']);
+  assert.match(m.work[0].period, /2021 – now$/);
+  assert.deepEqual(plain(m.work[1].bullets), ['Opened the shop', 'Ran the till']);
+  assert.deepEqual(plain(m.education.map((x) => x.title)), ['BSc Marketing']);
+  assert.deepEqual(plain(m.skills), ['Writing', 'SQL']);
+  assert.deepEqual(plain(m.highlights), ['Faster report: 3 h to 20 min']);
+  assert.deepEqual(plain(m.extras), ['Dutch (native)', 'English (fluent)']);
+  assert.deepEqual(plain(m.contact), ['sam@example.com', 'linkedin.com/in/sam']);
+  assert.equal(BW.growth.cvModel({}, { career }).work.length, 3, 'no choice yet means everything');
+});
+
+test('a cover letter draft uses the wins that prove the skills the ad asks for, and leaves room to write', async () => {
+  const BW = await growth();
+  const skills = [{ id: 's1', name: 'SQL' }, { id: 's2', name: 'Writing' }];
+  const wins = [{ title: 'Faster report', result: '3 h to 20 min', skillIds: ['s1'], date: '2026-01-01' }, { title: 'Blog relaunch', skillIds: ['s2'], date: '2026-05-01' }];
+  const letter = BW.growth.coverLetter({ company: 'Acme', role: 'Data analyst', contact: 'Anna', adText: 'Strong SQL needed' }, { settings: { ownerName: 'Sam', headline: 'A marketing coordinator' }, wins, skills });
+  assert.match(letter, /^Dear Anna,/);
+  assert.match(letter, /the Data analyst role at Acme/);
+  assert.match(letter, /You’re looking for SQL\./, 'skill names keep their capitals');
+  assert.match(letter, /currently a marketing coordinator/);
+  assert.match(letter, /- Faster report: 3 h to 20 min\./);
+  assert.doesNotMatch(letter, /Blog relaunch/, 'only the wins that match the ad');
+  assert.match(letter, /\[One line on why this company/, 'a gap only you can fill');
+  assert.match(letter, /Kind regards,\nSam$/);
+});
+
+test('interview stories: which questions they answer, and a win becomes a story to finish', async () => {
+  const BW = await growth();
+  const skills = [{ id: 'd', name: 'Data analysis' }];
+  const stories = [
+    { title: 'The broken newsletter', situation: 'The week the newsletter broke', action: 'I fixed the template', result: 'Sent on time' },
+    { title: 'Weekly report', result: 'Saved 3 hours', skillIds: ['d'] },
+    { title: 'Half a story' },
+  ];
+  const q = (s) => BW.growth.QUESTIONS.find((x) => x[0].startsWith(s))[0];
+  assert.deepEqual(plain(BW.growth.storiesFor(q('Tell me about a time you used data'), stories, skills).map((s) => s.title)), ['Weekly report'], 'found through the skill’s name');
+  const solved = plain(BW.growth.storiesFor(q('Tell me about a time you solved'), stories, skills).map((s) => s.title));
+  assert.ok(solved.includes('The broken newsletter') && !solved.includes('Half a story'), '“I fixed…” answers a problem question');
+  assert.equal(BW.growth.storiesFor(q('Tell me about yourself'), stories, skills).length, 2, 'open questions: any story with a result');
+  const cov = BW.growth.coverage(stories, skills);
+  assert.equal(cov.length, BW.growth.QUESTIONS.length);
+  assert.ok(cov.some((c) => !c.stories.length), 'and the questions still without a story');
+  const learned = [{ title: 'Learned SQL', action: 'I learned SQL in a week', result: 'Report done' }];
+  assert.equal(BW.growth.storiesFor(q('Tell me about a mistake'), learned, skills).length, 0, 'learning something is not a story about a mistake');
+  const s = plain(BW.growth.storyFromWin({ id: 'w1', title: 'Faster report', what: 'Rebuilt it in SQL', result: '3 h to 20 min', skillIds: ['d'] }));
+  assert.deepEqual([s.title, s.situation, s.result, s.winId, s.skillIds], ['Faster report', 'Rebuilt it in SQL', '3 h to 20 min', 'w1', ['d']]);
 });

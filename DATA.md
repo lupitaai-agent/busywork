@@ -148,6 +148,19 @@ sit in `library/` inside the folder; files dropped there outside Busy are picked
   `doing`, `done`, `dropped`), `doneAt`, `notes`, and `sessions`: `{ date, minutes }` per sitting.
 - `skills`: the Skills Map: `name`, `category`, `level` and `target`, each 1 (aware) to 5 (expert).
 - `wins`: the Wins Log: `date`, `title`, `what`, `result`, `proof`, `skillIds`, `tags`.
+- `applications`: the Job Tracker. `company`, `role`, `url`, `location`, `salary`, `source`, `contact`;
+  `status` is `saved`, `applied`, `interview`, `offer`, or closed as `accepted`, `rejected`, `withdrawn`,
+  `no-answer`; `savedAt`, `appliedAt`, `closedAt`; `nextDate` and `nextStep` (the follow-up, set a week
+  after applying); `reachedInterview` and `heardBack` for the stats; `adText` (the pasted job ad),
+  `notes`, `letter` (the cover letter); `cvId` (the CV version sent), `storyIds`; `history`:
+  `{ date, status }` per move.
+- `career`: the career history every CV version picks from: `type` (`job`, `education`, `project`,
+  `volunteer`), `title`, `org`, `place`, `start` and `end` (months), `current`, `bullets` (one per line).
+- `cvs`: CV versions: `name`, `headline`, `summary`, `include` (career ids shown; absent means all),
+  `skillIds` and `winIds` (in the order shown), `extras` (one per line). PDFs are saved in `CVs/`.
+- `stories`: interview stories: `title`, `situation`, `task`, `action`, `result`, `skillIds`, `winId`
+  (the win it grew from), `tags`, `practised` (times) and `lastPractised`.
+  Growth settings also hold `phone` and `city`, for the CV.
 
 ### Olaf (paid edition)
 - `olaf-files`: Olaf's workspace, one markdown file per record by `path`.

@@ -144,6 +144,106 @@
     return lines.join('\n');
   };
 
+  // ---------- Job Tracker ----------
+  G.STAGES = [['saved', '⭐ Saved'], ['applied', '📨 Applied'], ['interview', '🎤 Interview'], ['offer', '🎉 Offer'], ['closed', '📦 Closed']];
+  G.CLOSED = [['accepted', '🥳 Accepted'], ['rejected', '🙅 Not this time'], ['withdrawn', '🚪 I withdrew'], ['no-answer', '👻 No answer']];
+  G.stageOf = (a) => (G.CLOSED.some((c) => c[0] === a.status) ? 'closed' : G.STAGES.some((s) => s[0] === a.status) ? a.status : 'saved');
+  const ACTIVE = ['applied', 'interview', 'offer'];
+  // Which of your skills a job ad mentions (by name, as whole words), and which it doesn't.
+  G.matchSkills = (ad, skills) => {
+    const text = ' ' + String(ad || '').toLowerCase().replace(/[^\p{L}\p{N}+#]+/gu, ' ') + ' ';
+    return skills.filter((s) => { const n = String(s.name || '').toLowerCase().replace(/[^\p{L}\p{N}+#]+/gu, ' ').trim(); return n && text.includes(' ' + n + ' '); });
+  };
+  G.followUpsDue = (apps, today) => apps.filter((a) => ACTIVE.includes(a.status) && a.nextDate && a.nextDate <= today)
+    .sort((a, b) => String(a.nextDate).localeCompare(String(b.nextDate)));
+  // How the search is going: applications sent, how many got a reply (an interview, an offer or a no).
+  G.jobStats = (apps) => {
+    const sent = apps.filter((a) => a.status !== 'saved' && a.status !== 'withdrawn');
+    const replied = sent.filter((a) => ['interview', 'offer', 'accepted', 'rejected'].includes(a.status) || a.heardBack);
+    return { active: apps.filter((a) => ACTIVE.includes(a.status)).length, sent: sent.length, interviews: apps.filter((a) => a.reachedInterview || ['interview', 'offer', 'accepted'].includes(a.status)).length,
+      offers: apps.filter((a) => ['offer', 'accepted'].includes(a.status)).length, replyRate: sent.length ? Math.round(replied.length / sent.length * 100) : 0 };
+  };
+  // Moving an application: keeps a small history, sets the next follow-up, remembers it reached an interview.
+  G.moveTo = (a, status, today) => {
+    const r = Object.assign({}, a, { status });
+    r.history = (Array.isArray(a.history) ? a.history : []).concat([{ date: today, status }]);
+    if (status === 'applied') { r.appliedAt = r.appliedAt || today; r.nextDate = BW.addDays(today, 7); r.nextStep = r.nextStep || 'Follow up if you haven’t heard back'; }
+    if (status === 'interview') { r.reachedInterview = true; r.heardBack = true; r.nextStep = 'Prepare: stories for the skills they ask for'; }
+    if (status === 'offer') r.heardBack = true;
+    if (G.CLOSED.some((c) => c[0] === status)) { r.closedAt = today; r.nextDate = ''; if (status === 'rejected' || status === 'accepted') r.heardBack = true; }
+    return r;
+  };
+
+  // ---------- CV Builder ----------
+  G.CAREER_TYPES = [['job', '💼 Job'], ['education', '🎓 Education'], ['project', '🛠️ Project'], ['volunteer', '🤝 Volunteering']];
+  const ym = (s) => String(s || '');
+  // Newest first; what you're still doing on top.
+  G.careerSort = (list) => list.slice().sort((a, b) => (b.current ? 1 : 0) - (a.current ? 1 : 0) || ym(b.end || b.start).localeCompare(ym(a.end || a.start)) || ym(b.start).localeCompare(ym(a.start)));
+  G.period = (e) => {
+    const f = (v) => (v ? new Date(v + '-15T12:00:00').toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : '');
+    return [f(e.start), e.current ? 'now' : f(e.end)].filter(Boolean).join(' – ');
+  };
+  const lines = (s) => String(s || '').split('\n').map((x) => x.replace(/^\s*[-•*]\s*/, '').trim()).filter(Boolean);
+  // Everything a CV version shows, in order, ready to draw on screen or in a PDF.
+  G.cvModel = (cv, { career = [], skills = [], wins = [], settings = {} }) => {
+    const pick = (ids, list) => (Array.isArray(ids) ? ids : []).map((id) => list.find((x) => x.id === id)).filter(Boolean);
+    const chosen = Array.isArray(cv.include) ? career.filter((e) => cv.include.includes(e.id)) : career;
+    return {
+      name: settings.ownerName || '', headline: cv.headline || settings.headline || '',
+      contact: [settings.email, settings.phone, settings.linkedin, settings.city].filter(Boolean),
+      summary: cv.summary || '',
+      work: G.careerSort(chosen.filter((e) => e.type !== 'education')).map((e) => ({ title: e.title, org: e.org, place: e.place, period: G.period(e), bullets: lines(e.bullets) })),
+      education: G.careerSort(chosen.filter((e) => e.type === 'education')).map((e) => ({ title: e.title, org: e.org, place: e.place, period: G.period(e), bullets: lines(e.bullets) })),
+      highlights: pick(cv.winIds, wins).map((w) => (w.result ? `${w.title}: ${w.result}` : w.title)),
+      skills: pick(cv.skillIds, skills).map((s) => s.name),
+      extras: lines(cv.extras),
+    };
+  };
+  const andList = (a) => (a.length > 1 ? `${a.slice(0, -1).join(', ')} and ${a[a.length - 1]}` : a.join(''));
+  // A first draft of a cover letter, from the job and your own wins. Meant to be rewritten, never sent as is.
+  G.coverLetter = (app, { settings = {}, wins = [], skills = [] }) => {
+    const matched = G.matchSkills(app.adText, skills);
+    const proof = wins.filter((w) => G.skillIds(w).some((id) => matched.some((s) => s.id === id))).slice(0, 2);
+    const best = proof.length ? proof : wins.slice().sort((a, b) => String(b.date).localeCompare(String(a.date))).slice(0, 2);
+    return [`Dear ${app.contact || 'hiring team'},`, '',
+      `I’d like to apply for the ${app.role ? `${app.role} role` : 'role'} at ${app.company || 'your company'}.${settings.headline ? ` I’m currently ${settings.headline.replace(/^(a|an|the)\s+/i, (m) => m.toLowerCase())}.` : ''} [One line on why this company, in your own words.]`, '',
+      matched.length ? `You’re looking for ${andList(matched.slice(0, 3).map((s) => (/[A-Z]{2}/.test(s.name) ? s.name : s.name.toLowerCase())))}. Two examples of what I bring:` : 'Two examples of what I bring:',
+      ...best.map((w) => `- ${w.title}${w.result ? `: ${w.result}` : ''}.`), '',
+      '[One line on what you’d like to do in this role.]', '',
+      'I’d be glad to talk about how I can help.', '', 'Kind regards,', settings.ownerName || ''].join('\n');
+  };
+
+  // ---------- Interview Stories ----------
+  // Common interview questions, with the words that tell which of your stories answer them.
+  G.QUESTIONS = [
+    ['Tell me about yourself.', []],
+    ['Tell me about your biggest achievement.', []],
+    ['Tell me about a time you solved a difficult problem.', ['problem', 'solve', 'fix', 'analysis', 'analys']],
+    ['Describe a time you led a team or a project.', ['lead', 'leadership', 'project', 'team', 'manage']],
+    ['Tell me about a conflict at work and how you handled it.', ['conflict', 'disagree', 'communication', 'team']],
+    ['Tell me about a mistake you made, and what you learned.', ['mistake', 'failed', 'went wrong', 'error', 'my fault']],
+    ['Describe a time you had to learn something quickly.', ['learn', 'course', 'new', 'quick']],
+    ['Tell me about a time you used data to make a decision.', ['data', 'sql', 'excel', 'analys', 'numbers', 'report']],
+    ['Describe a time you persuaded someone.', ['persuad', 'convinc', 'negotiat', 'sales', 'pitch', 'influence']],
+    ['Tell me about working to a tight deadline.', ['deadline', 'time', 'urgent', 'project', 'deliver']],
+    ['Describe a time you went the extra mile for a customer.', ['customer', 'client', 'service', 'user']],
+    ['Tell me about a time you improved a process.', ['process', 'improv', 'faster', 'automat', 'efficien', 'rebuilt', 'streamlin']],
+    ['Describe a time you had to prioritise.', ['priorit', 'busy', 'juggl', 'planning', 'deadline']],
+    ['Tell me about a presentation you gave.', ['present', 'talk', 'speak', 'pitch', 'workshop']],
+    ['Describe a time you took the initiative.', ['initiative', 'started', 'proposed', 'own', 'idea']],
+    ['Tell me about a time you got difficult feedback.', ['feedback', 'criticism', 'critique', 'review']],
+  ];
+  const storyText = (s, skills) => [s.title, s.situation, s.task, s.action, s.result, s.tags, G.skillIds(s).map((id) => (skills.find((k) => k.id === id) || {}).name).join(' ')].join(' ').toLowerCase();
+  // Your stories that answer a question: for the open questions, any story with a result.
+  G.storiesFor = (question, stories, skills = []) => {
+    const q = G.QUESTIONS.find((x) => x[0] === question), words = q ? q[1] : [];
+    if (!words.length) return stories.filter((s) => s.result);
+    return stories.filter((s) => { const t = storyText(s, skills); return words.some((w) => t.includes(w)); });
+  };
+  G.coverage = (stories, skills = []) => G.QUESTIONS.map(([q]) => ({ question: q, stories: G.storiesFor(q, stories, skills) }));
+  // A win becomes a story to fill in: what happened goes in the situation, the result stays the result.
+  G.storyFromWin = (w) => ({ title: w.title || '', situation: w.what || '', task: '', action: '', result: w.result || '', skillIds: G.skillIds(w).slice(), winId: w.id, tags: w.tags || '' });
+
   // ---------- on screen: link anything to skills ----------
   // Chips for every skill (on = linked), plus a box to add a new skill on the spot.
   G.skillPickerHtml = (skills, selected) => `<div class="field span-2 skill-pick" data-skill-pick><span>Skills this shows or builds</span>
