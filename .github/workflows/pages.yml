@@ -42,6 +42,7 @@ jobs:
           # Optional, set under Settings → Secrets and variables → Actions → Variables.
           WAITLIST_ENDPOINT: ${{ vars.WAITLIST_ENDPOINT }}
           WAITLIST_PROVIDER: ${{ vars.WAITLIST_PROVIDER }}
+          GROWTH_WAITLIST_ENDPOINT: ${{ vars.GROWTH_WAITLIST_ENDPOINT }}
           OLAF_CHECKOUT_URL: ${{ vars.OLAF_CHECKOUT_URL }}
       - uses: actions/upload-pages-artifact@v3
         with:

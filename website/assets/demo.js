@@ -64,8 +64,8 @@
     bar.style.cssText = 'display:flex;gap:10px 16px;flex-wrap:wrap;align-items:center;justify-content:center;padding:9px 16px;font-weight:700;font-size:.92rem;'
       + 'background:color-mix(in srgb, var(--grape) 30%, var(--surface));color:var(--ink);border-top:2px solid var(--border)';
     bar.innerHTML = '<span>🎭 A demo with a pretend design studio. Nothing you change is kept.</span>'
-      + `<a class="btn" style="padding:6px 14px" href="${site}download.html">⬇️ Download free</a>`
-      + `<a class="btn btn-primary" style="padding:6px 14px" href="${site}olaf.html#get">🧭 Get Olaf</a>`;
+      + `<a class="btn" style="padding:6px 14px" href="${site}business/download.html">⬇️ Download free</a>`
+      + `<a class="btn btn-primary" style="padding:6px 14px" href="${site}business/olaf.html#get">🧭 Get Olaf</a>`;
     const top = document.querySelector('.topbar');
     if (top) top.append(bar); else document.body.prepend(bar);
   });

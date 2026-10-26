@@ -231,8 +231,8 @@ def leak_check() -> None:
 # ---------- product pages ----------
 
 def scenes() -> dict:
-    """The little moving pictures from the homepage showcase, reused on each product page."""
-    src = (SITE / "index.html").read_text()
+    """The little moving pictures from the Busy Business showcase, reused on each product page."""
+    src = (SITE / "business" / "index.html").read_text()
     found = re.findall(r'(<div class="scene" data-scene="(\w+)">.*?</div>)(?=\s*<div class="scene"|\s*</div>\s*</div>\s*</div>)', src, re.S)
     return {sid: block.replace('class="scene"', 'class="scene on"', 1) for block, sid in found}
 
@@ -245,24 +245,28 @@ OLAF_CHECKOUT_URL = os.environ.get("OLAF_CHECKOUT_URL", "")
 # service that accepts a normal form POST and answers JSON). Set both in the GitHub repository:
 # Settings → Secrets and variables → Actions → Variables.
 WAITLIST_ENDPOINT = os.environ.get("WAITLIST_ENDPOINT", "")
-WAITLIST_PROVIDER = os.environ.get("WAITLIST_PROVIDER") or "MailerLite"  # an empty GitHub variable means the default
+WAITLIST_PROVIDER = os.environ.get("WAITLIST_PROVIDER") or "MailerLite"
+# Busy Growth has its own list (a second MailerLite form), so Olaf's list stays Olaf's.
+GROWTH_WAITLIST_ENDPOINT = os.environ.get("GROWTH_WAITLIST_ENDPOINT", "")  # an empty GitHub variable means the default
 
 
-def waitlist_form(where: str) -> str:
+def waitlist_form(where: str, endpoint: str = None, consent: str = None, button: str = "🧭 Put me on the list", who: str = None) -> str:
     """The sign-up form for people who want to buy Olaf when checkout opens. MailerLite (the default)
     takes its own field names: fields[email], and the business in fields[name] (the form's "Company"
     box is MailerLite's Name field). It confirms each address by email
     (double opt-in, set in MailerLite); Formspree takes plain names and a hidden spam trap."""
+    endpoint = WAITLIST_ENDPOINT if endpoint is None else endpoint
+    consent = consent or "Email me when Olaf can be bought, at the early-access price. Nothing else, and I can unsubscribe any time."
     ml = WAITLIST_PROVIDER.lower() == "mailerlite"
     email, business = ("fields[email]", "fields[name]") if ml else ("email", "business")
     extra = ('<input type="hidden" name="ml-submit" value="1"><input type="hidden" name="anticsrf" value="true">' if ml
              else f'<input type="text" name="_gotcha" tabindex="-1" autocomplete="off" class="wl-hp" aria-hidden="true"><input type="hidden" name="source" value="{e(where)}">')
-    return f"""<form class="waitlist" data-waitlist data-provider="{e(WAITLIST_PROVIDER.lower())}" action="{e(WAITLIST_ENDPOINT)}" method="post" data-where="{e(where)}">
+    return f"""<form class="waitlist" data-waitlist data-provider="{e(WAITLIST_PROVIDER.lower())}" action="{e(endpoint)}" method="post" data-where="{e(where)}">
           <label class="wl-field"><span>Your email</span><input class="in" type="email" name="{email}" required autocomplete="email" placeholder="you@yourbusiness.com"></label>
-          <label class="wl-field"><span>Your business <em>(optional)</em></span><input class="in" name="{business}" autocomplete="organization" placeholder="e.g. bike shop in Haarlem"></label>
-          <label class="wl-check"><input type="checkbox" name="consent" value="yes" required> <span>Email me when Olaf can be bought, at the early-access price. Nothing else, and I can unsubscribe any time.</span></label>
+          {who if who is not None else f'<label class="wl-field"><span>Your business <em>(optional)</em></span><input class="in" name="{business}" autocomplete="organization" placeholder="e.g. bike shop in Haarlem"></label>'}
+          <label class="wl-check"><input type="checkbox" name="consent" value="yes" required> <span>{e(consent)}</span></label>
           {extra}
-          <button class="btn btn-big btn-primary" type="submit">🧭 Put me on the list</button>
+          <button class="btn btn-big btn-primary" type="submit">{button}</button>
           <p class="wl-msg" role="status" aria-live="polite"></p>
           <small class="faint">We only use your email for this. How we handle it: <a href="privacy.html#waitlist">privacy</a>.</small>
         </form>"""
@@ -288,7 +292,7 @@ def paths_block(prefix: str) -> str:
             <li>No account and no AI: everything stays in your own folder</li>
           </ul>
           <p class="price"><b>€0</b> <small>forever</small></p>
-          <a class="btn btn-big" href="{prefix}download.html">⬇️ Download free</a>
+          <a class="btn btn-big" href="{prefix}business/download.html">⬇️ Download free</a>
         </article>
         <article class="card path featured reveal pop" style="transition-delay:.1s">
           <span class="chip chip-sun">Most help</span>
@@ -304,7 +308,7 @@ def paths_block(prefix: str) -> str:
             <li><b>Remembers everything</b>, researches the web and reads your sales numbers for a monthly review</li>
           </ul>
           <p class="price"><b>€149</b> <small>once, plus your own Claude usage · checkout opens soon</small></p>
-          <div class="row-flex"><a class="btn btn-big btn-primary" href="{prefix}olaf.html#get">🧭 Get on the list</a><a class="btn btn-big" href="{prefix}olaf.html">Meet Olaf</a><a class="btn btn-big" href="{prefix}app/apps/olaf/index.html">Try the demo</a></div>
+          <div class="row-flex"><a class="btn btn-big btn-primary" href="{prefix}business/olaf.html#get">🧭 Get on the list</a><a class="btn btn-big" href="{prefix}business/olaf.html">Meet Olaf</a><a class="btn btn-big" href="{prefix}app/apps/olaf/index.html">Try the demo</a></div>
           <p class="fine">Already using the Studio? Olaf starts from your brand profile.</p>
         </article>
       </div>
@@ -338,37 +342,112 @@ def olaf_strip(prefix: str = "../") -> str:
     return f"""  <section class="wrap olaf-strip reveal"><div class="card">
     <span class="e">🧭</span>
     <div><b>Want more customers, and projects that run on time?</b><p>Olaf, our AI expert for marketing and projects, looks at your business, plans what comes next and checks in every week to do the work with you.</p></div>
-    <a class="btn" href="{prefix}olaf.html">Meet Olaf →</a>
+    <a class="btn" href="{prefix}business/olaf.html">Meet Olaf →</a>
   </div></section>"""
 
 
+SIBLINGS = ("olaf.html", "download.html")  # business pages that sit next to each other in /business/
+
+
+def to_business(html_text: str) -> str:
+    """A page written for the site root, moved into /business/: links to the root get ../, business
+    pages stay siblings, and old /tools/ addresses become their /business/ ones."""
+    def fix(m):
+        attr, url = m.group(1), m.group(2)
+        if re.match(r"(?:[a-z]+:|#|/|\.\./|data:|mailto:)", url):
+            return m.group(0)
+        if url.startswith("tools/"):
+            url = "tools.html" + url[len("tools/index.html"):] if url.startswith("tools/index.html") else url[len("tools/"):]
+        elif url.startswith("business/"):
+            url = url[len("business/"):]
+        elif not url.split("#")[0] in SIBLINGS:
+            url = "../" + url
+        return f'{attr}="{url}"'
+    return re.sub(r'\b(href|src)="([^"]*)"', fix, html_text)
+
+
+FORWARD = '<meta name="busy-forward"'
+
+
+def forward_page(new_rel: str, depth: int) -> str:
+    """An old address, kept working: forwards at once (keeping #part), and names the new page as canonical."""
+    rel = "../" * depth + new_rel
+    return f"""<!doctype html>
+<html lang="en"><head><meta charset="utf-8">{FORWARD} content="{new_rel}">
+<title>Moved to {SITE_URL}/{new_rel}</title>
+<link rel="canonical" href="{SITE_URL}/{new_rel}">
+<meta http-equiv="refresh" content="0; url={rel}">
+<script>location.replace({json.dumps(rel)} + location.hash);</script>
+</head><body><p>This page moved to <a href="{rel}">{SITE_URL}/{new_rel}</a>.</p></body></html>
+"""
+
+
+def site_pages(forwards: bool = False) -> list:
+    """Every published page: the root, the suites, the games. Forwarding pages only when asked."""
+    pages = list(SITE.glob("*.html"))
+    for d in ("business", "games", "growth"):
+        pages += list((SITE / d).glob("*.html"))
+    return [p for p in pages if forwards or FORWARD not in p.read_text()]
+
+
 def sync_homepage_paths() -> None:
-    page = SITE / "index.html"
+    page = SITE / "business" / "index.html"
     html = page.read_text()
     new = re.sub(r"(  <!-- paths:start \(generated by build\.py\) -->\n).*?(  <!-- paths:end -->)",
-                 lambda m: m.group(1) + paths_block("") + m.group(2), html, flags=re.S)
+                 lambda m: m.group(1) + paths_block("../") + m.group(2), html, flags=re.S)
     if new == html and "paths:start" not in html:
-        raise SystemExit("website/index.html lost its paths:start marker")
+        raise SystemExit("website/business/index.html lost its paths:start marker")
     page.write_text(new)
 
 
-def nav(prefix: str) -> str:
-    return f"""<div class="progress" aria-hidden="true"></div>
-<a class="skip" href="#main">Skip to content</a>
-<header class="nav"><div class="wrap">
+# The hand-written pages get the same top bar and footer as the generated ones, at every build.
+HAND_WRITTEN = {"index.html": ("", "explore"), "privacy.html": ("", "explore"), "terms.html": ("", "explore"), "404.html": ("/", "explore"),
+                "business/index.html": ("../", None), "business/download.html": ("../", None)}
+
+
+def sync_chrome(tools: list) -> None:
+    for rel, (prefix, cta) in HAND_WRITTEN.items():
+        page = SITE / rel
+        html = page.read_text()
+        bar = nav_header(prefix, explore(prefix) if cta == "explore" else None)
+        # Keep a page's own variant of the bar (the solid one on text pages); 404 has no footer.
+        new, n1 = re.subn(r'<header class="(nav[^"]*)">.*?</header>', lambda m: bar.replace('<header class="nav">', f'<header class="{m.group(1)}">', 1), html, count=1, flags=re.S)
+        new = re.sub(r'<footer class="footer[^"]*">.*?</footer>', lambda m: footer(prefix, tools), new, count=1, flags=re.S)
+        if not n1:
+            raise SystemExit(f"website/{rel} has no <header class=\"nav\">")
+        page.write_text(new)
+
+
+def explore(prefix: str) -> tuple:
+    """The nav button outside a suite: to the suites on the homepage."""
+    return ("🧰 Explore free tools", f"{prefix}index.html#suites")
+
+
+def nav_header(prefix: str, cta: tuple = None) -> str:
+    """The top bar: Busy, the suites, and one button (inside Busy Business: the free download)."""
+    label, href = cta or ("⬇️ Download free", f"{prefix}business/download.html")
+    return f"""<header class="nav"><div class="wrap">
   <a class="brandmark" href="{prefix}index.html"><span class="blob">✦</span><span class="word">Busy</span></a>
-  <nav class="links" aria-label="Main"><a href="{prefix}tools/index.html">Tools</a><a href="{prefix}olaf.html">Olaf</a><a href="{prefix}games/index.html">Games</a><a href="{prefix}index.html#how">How it works</a><a href="{prefix}index.html#private">Privacy</a><a href="{prefix}index.html#faq">Questions</a></nav>
-  <a class="btn btn-primary" href="{prefix}download.html">⬇️ Download free</a>
+  <nav class="links" aria-label="Main"><a href="{prefix}business/index.html">💼 Business</a><a href="{prefix}growth/index.html">🌱 Growth</a><a href="{prefix}games/index.html">🧩 Games</a><a href="{prefix}about.html">About</a><a href="{prefix}privacy.html">Privacy</a></nav>
+  <a class="btn btn-primary" href="{href}">{label}</a>
 </div></header>"""
 
 
+def nav(prefix: str, cta: tuple = None) -> str:
+    return f"""<div class="progress" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+{nav_header(prefix, cta)}"""
+
+
 def footer(prefix: str, tools: list) -> str:
-    links = "".join(f'<li><a href="{prefix}tools/{t["id"]}.html">{t["emoji"]} {e(t["name"])}</a></li>' for t in tools)
+    links = "".join(f'<li><a href="{prefix}business/{t["id"]}.html">{t["emoji"]} {e(t["name"])}</a></li>' for t in tools)
+    games = "".join(f'<li><a href="{prefix}games/{g["id"]}.html">{g["emoji"]} {e(g["name"])}</a></li>' for g in GAMES)
     return f"""<footer class="footer sitemap"><div class="wrap">
-  <div><span class="brandmark"><span class="blob">✦</span>Busy</span><p class="faint">Make your paperwork fun again.<br>Free tools that keep your data on your own computer.</p></div>
-  <div><b>Tools</b><ul>{links}</ul></div>
-  <div><b>Busy</b><ul><li><a href="{prefix}download.html">Download</a></li><li><a href="{prefix}app/index.html">See the demo</a></li><li><a href="{prefix}tools/index.html">All tools</a></li><li><a href="{prefix}games/index.html">🧩 Brain games</a></li><li><a href="{prefix}about.html">About</a></li><li><a href="{prefix}privacy.html">Privacy</a></li><li><a href="{prefix}terms.html">Terms</a></li></ul></div>
-  <div><b>Guided by Olaf</b><ul><li><a href="{prefix}olaf.html">🧭 Olaf, AI expert for marketing and projects</a></li><li><a href="{prefix}app/apps/olaf/index.html">Try the Olaf demo</a></li></ul></div>
+  <div><span class="brandmark"><span class="blob">✦</span>Busy</span><p class="faint">Make your paperwork fun again.<br>Free, private tools for work and life.</p>
+    <ul><li><a href="{prefix}about.html">About Busy</a></li><li><a href="{prefix}privacy.html">Privacy</a></li><li><a href="{prefix}terms.html">Terms</a></li></ul></div>
+  <div><b>💼 Busy Business</b><ul>{links}<li><a href="{prefix}business/tools.html">All tools</a></li><li><a href="{prefix}business/download.html">Download free</a></li><li><a href="{prefix}app/index.html">See the demo</a></li><li><a href="{prefix}business/olaf.html">🧭 Olaf by Busy</a></li></ul></div>
+  <div><b>🧩 Busy Games</b><ul>{games}<li><a href="{prefix}games/index.html">All games</a></li></ul>
+    <p style="margin-top:22px"><b>🌱 Busy Growth</b></p><ul><li><a href="{prefix}growth/index.html">Coming soon</a></li><li><a href="{prefix}growth/index.html#ivy">🌿 Ivy by Busy</a></li></ul></div>
 </div></footer>"""
 
 
@@ -404,14 +483,19 @@ def head(title: str, desc: str, path: str, prefix: str, extra: str = "", image: 
 # chunks (Title, Description, Author, Copyright, Source) and an SVG <title>/<desc>. Written by
 # image_metadata() at build time; running it again changes nothing.
 IMAGES = {
-    "assets/og-busy.png": ("Busy: free tools for small businesses",
-                               "Busy share image: free, private business tools for invoices, time, receipts, money, projects and marketing."),
+    "assets/og-busy.png": ("Busy: free, private tools for work and life",
+                           "Busy share image: free, private tools for work and life, with suites for business, daily brain games and career growth."),
     "assets/og-olaf.png": ("Olaf by Busy: AI expert for marketing and projects",
                            "Olaf share image: the AI expert for marketing and projects in the paid edition of Busy."),
     "assets/logo-512.png": ("Busy logo", "The Busy logo: a sun-yellow rounded tile with a dark sparkle."),
     "apple-touch-icon.png": ("Busy icon", "The Busy app icon: a sun-yellow rounded tile with a dark sparkle."),
     "assets/favicon.svg": ("Busy logo", "The Busy logo: a sun-yellow rounded tile with a dark sparkle."),
     "assets/olaf-mark.svg": ("Olaf logo", "The Olaf logo: a purple compass pointing up and to the right."),
+    "assets/og-business.png": ("Busy Business: free tools for small businesses",
+                               "Busy Business share image: free, private business tools for invoices, time, receipts, money, projects and marketing."),
+    "assets/og-ivy.png": ("Ivy by Busy: AI coach for professional growth",
+                          "Ivy share image: the AI coach for professional growth in Busy Growth, coming soon."),
+    "assets/ivy-mark.svg": ("Ivy logo", "The Ivy logo: a green ivy leaf on a short stem, leaning up and to the right."),
 }
 
 
@@ -463,7 +547,7 @@ def tool_page(t: dict, tools: list, scene: str) -> str:
     by_id = {x["id"]: x for x in tools}
     title = f'{t["title"]} · Busy'
     ld = jsonld({"@context": "https://schema.org", "@type": "SoftwareApplication", "name": f'Busy {t["name"]}', "applicationCategory": "BusinessApplication",
-                 "operatingSystem": "Windows, macOS, ChromeOS (in Chrome or Edge)", "description": t["description"], "url": f'{SITE_URL}/tools/{t["id"]}.html',
+                 "operatingSystem": "Windows, macOS, ChromeOS (in Chrome or Edge)", "description": t["description"], "url": f'{SITE_URL}/business/{t["id"]}.html',
                  "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}}) + jsonld({
         "@context": "https://schema.org", "@type": "FAQPage",
         "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in t["faq"]]})
@@ -472,7 +556,7 @@ def tool_page(t: dict, tools: list, scene: str) -> str:
     checks = "".join(f"<li>{e(c)}</li>" for c in t["checklist"])
     faq = "".join(f"<details><summary>{e(q)}</summary><p>{e(a)}</p></details>" for q, a in t["faq"])
     related = "".join(f'<a class="card rel" href="{r}.html" style="--c:var(--{by_id[r]["color"]})"><span class="em">{by_id[r]["emoji"]}</span><b>{e(by_id[r]["name"])}</b><small>{e(by_id[r]["h1"])}</small></a>' for r in t["related"])
-    return f"""{head(title, t["description"], f'tools/{t["id"]}.html', "../", ld)}
+    return f"""{head(title, t["description"], f'business/{t["id"]}.html', "../", ld, image="og-business.png")}
 <body class="site app-{t["color"]}">
 {nav("../")}
 <main id="main">
@@ -480,12 +564,12 @@ def tool_page(t: dict, tools: list, scene: str) -> str:
     <div class="blob" style="width:460px;height:460px;background:var(--{t["color"]});right:-140px;top:-120px"></div>
     <div class="wrap tool-hero-grid">
       <div class="reveal from-left">
-        <a class="crumbs" href="index.html">← All tools</a>
+        <a class="crumbs" href="tools.html">← All Busy Business tools</a>
         <span class="em big" style="--c:var(--{t["color"]})">{t["emoji"]}</span>
         <p class="kicker">{e(t["name"])} · free, private, no account</p>
         <h1>{e(t["h1"])}</h1>
         <p class="lead">{e(t["lead"])}</p>
-        <div class="ctas"><a class="btn btn-primary btn-big" href="../app/apps/{t["id"]}/index.html">👀 See it in the demo</a><a class="btn btn-big" href="../download.html" data-download>⬇️ Download all {len(tools)} tools</a></div>
+        <div class="ctas"><a class="btn btn-primary btn-big" href="../app/apps/{t["id"]}/index.html">👀 See it in the demo</a><a class="btn btn-big" href="download.html" data-download>⬇️ Download all {len(tools)} tools</a></div>
         <p class="note">Free download · Works in Chrome and Edge · Nothing is sent to us · Replaces {e(t["replaces"])}</p>
       </div>
       <div class="stage solo reveal from-right"><div class="mock" style="--active:var(--{t["color"]})"><div class="mock-bar"><i></i><i></i><i></i><b>{e(t["name"])}</b></div><div class="scenes">{scene}</div></div></div>
@@ -515,7 +599,7 @@ def tool_page(t: dict, tools: list, scene: str) -> str:
   <section class="final">
     <h2 class="reveal pop">{e(t["name"])}, free.</h2>
     <p class="lead reveal" style="margin-top:14px;color:var(--ink-2);font-size:1.2rem">See it all in the demo with a pretend business, or download the whole toolbox.</p>
-    <div class="row-flex" style="justify-content:center;margin-top:10px"><a class="btn btn-big" href="../app/apps/{t["id"]}/index.html">✨ Try {e(t["name"])}</a><a class="btn btn-big ghost-light" href="../download.html">⬇️ Download</a></div>
+    <div class="row-flex" style="justify-content:center;margin-top:10px"><a class="btn btn-big" href="../app/apps/{t["id"]}/index.html">✨ Try {e(t["name"])}</a><a class="btn btn-big ghost-light" href="download.html">⬇️ Download</a></div>
   </section>
 </main>
 {footer("../", tools)}
@@ -529,7 +613,7 @@ def tool_page(t: dict, tools: list, scene: str) -> str:
 def tools_index(tools: list) -> str:
     cards = "".join(f'<a class="card rel big reveal pop" href="{t["id"]}.html" style="--c:var(--{t["color"]})"><span class="em">{t["emoji"]}</span><b>{e(t["name"])}</b><small>{e(t["h1"])}</small><span class="go">See what it does →</span></a>' for t in tools)
     desc = f"{words(len(tools)).capitalize()} free, private tools for small businesses and freelancers: invoices, time, receipts, money, projects, marketing and more. No account."
-    return f"""{head("All tools · Busy", desc, "tools/index.html", "../")}
+    return f"""{head("All tools · Busy Business", desc, "business/tools.html", "../", image="og-business.png")}
 <body class="site app-sun">
 {nav("../")}
 <main id="main" class="wrap">
@@ -601,7 +685,7 @@ def olaf_page(tools: list) -> str:
                  "offers": {"@type": "Offer", "price": "149", "priceCurrency": "EUR"}}) + jsonld({
         "@context": "https://schema.org", "@type": "FAQPage",
         "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in faq]})
-    return f"""{head("Olaf: an AI expert for marketing and projects · Busy", "Olaf plans your marketing and your projects, checks in every week and does the work with you. Built on proven marketing science. Runs on your own Claude key.", "olaf.html", "", ld, image="og-olaf.png")}
+    return f"""{head("Olaf: an AI expert for marketing and projects · Busy", "Olaf plans your marketing and your projects, checks in every week and does the work with you. Built on proven marketing science. Runs on your own Claude key.", "business/olaf.html", "", ld, image="og-olaf.png")}
 <body class="site app-grape">
 {nav("")}
 <main id="main">
@@ -743,7 +827,7 @@ def games_hub() -> str:
     desc = f"Free daily brain games from Busy: Stars, Duo, Trail and Six. A new logic puzzle every day and {GAME_LEVELS:,} levels each. No account, nothing to install."
     return f"""{head("Free brain games: a new puzzle every day · Busy", desc, "games/index.html", "../", ld + '<link rel="stylesheet" href="../assets/games/games.css">')}
 <body class="site app-sun" data-hub>
-{nav("../")}
+{nav("../", explore("../"))}
 <main id="main" class="wrap">
   <section class="games-hero">
     <h1 class="reveal">Brain breaks 🧩</h1>
@@ -774,7 +858,7 @@ def game_page(g: dict) -> str:
     others = "".join(f'<a class="card rel" href="{o["id"]}.html" style="--c:var(--{o["color"]})"><span class="em">{o["emoji"]}</span><b>{e(o["name"])}</b><small>{e(o["lead"])}</small></a>' for o in GAMES if o["id"] != g["id"])
     return f"""{head(g["title"], g["desc"], f'games/{g["id"]}.html', "../", ld + '<link rel="stylesheet" href="../assets/games/games.css">')}
 <body class="site app-{g["color"]}" data-game="{g["id"]}">
-{nav("../")}
+{nav("../", explore("../"))}
 <main id="main" class="game-page">
   <a class="crumbs" href="index.html">← All games</a>
   <h1>{g["emoji"]} {e(g["h1"])}</h1>
@@ -787,6 +871,55 @@ def game_page(g: dict) -> str:
 {footer("../", json.loads(TOOLS_JSON.read_text()))}
 <script src="../assets/games/engine.js"></script>
 <script src="../assets/games/play.js"></script>
+<script src="../assets/site.js"></script>
+</body>
+</html>
+"""
+
+
+GROWTH_TOOLS = [("📚", "Library", "Files, links and notes from everything you read and learn, tagged and searchable."),
+                ("🗓️", "Learning planner", "Courses, books and projects with goals, dates and hours a week."),
+                ("🧠", "Skills map", "What you can do, how well, and the proof behind it."),
+                ("🏆", "Wins log", "Achievements as they happen, ready for your CV and your next review."),
+                ("🗂️", "Job tracker", "Every application on a board, with follow-ups that don't slip."),
+                ("📄", "CV and letter builder", "CVs and cover letters built from your real skills and wins."),
+                ("🎤", "Interview story bank", "Your best stories, linked to the skills they prove.")]
+
+
+def growth_page(tools: list) -> str:
+    feats = "".join(f'<div class="card feat reveal pop"><span class="fe">{em}</span><h3>{e(n)}</h3><p>{e(d)}</p></div>' for em, n, d in GROWTH_TOOLS)
+    if GROWTH_WAITLIST_ENDPOINT:
+        signup = waitlist_form("growth", GROWTH_WAITLIST_ENDPOINT, "Email me when Busy Growth and Ivy are ready. Nothing else, and I can unsubscribe any time.", "🌱 Tell me when it's ready", who="")
+    else:
+        signup = '<p class="lead">The list opens soon. Meanwhile, keep your brain busy with <a href="../games/index.html">today\'s puzzles</a>.</p>'
+    desc = "Busy Growth, coming soon: free tools to grow your career. A library of what you learn, skills, wins, job tracker and CV builder, plus Ivy, an AI coach."
+    return f"""{head("Busy Growth: free tools to grow your career (soon)", desc, "growth/index.html", "../", image="og-ivy.png")}
+<body class="site app-mint">
+{nav("../", explore("../"))}
+<main id="main">
+  <section class="tool-hero">
+    <div class="blob" style="width:460px;height:460px;background:var(--mint);right:-140px;top:-120px"></div>
+    <div class="wrap center" style="padding:70px 16px 30px;display:block;text-align:center">
+      <span class="chip chip-grey">Coming soon</span>
+      <h1 class="reveal" style="margin-top:12px">Busy Growth 🌱</h1>
+      <p class="lead reveal" style="max-width:680px;margin:0 auto">Free tools to grow your career: learn something, prove it, show it and land the next role. Everything in your own folder, no account, like the rest of Busy.</p>
+    </div>
+  </section>
+  <section class="section"><div class="wrap">
+    <div class="center reveal"><h2 class="big">What's coming</h2><p class="lead">Free, the whole set.</p></div>
+    <div class="feats">{feats}</div>
+  </div></section>
+  <section class="section" id="ivy"><div class="wrap">
+    <div class="card ivy-card reveal"><img src="../assets/ivy-mark.svg" alt="" width="96" height="96">
+      <div><p class="kicker">Ivy by Busy · €30 once · coming soon</p><h2>Your AI coach for professional growth</h2>
+      <p>Ivy turns what you learn into skills and wins, those into a stronger CV, and helps with every application and interview. Learn it, prove it, land it. Ivy never invents experience: every line comes with its proof.</p></div></div>
+  </div></section>
+  <section class="section" id="get"><div class="wrap center">
+    <h2 class="big">Want to know when it's ready?</h2>
+    {signup}
+  </div></section>
+</main>
+{footer("../", tools)}
 <script src="../assets/site.js"></script>
 </body>
 </html>
@@ -806,15 +939,27 @@ def build_games() -> list:
 def build_pages() -> None:
     tools = json.loads((SITE / "content" / "tools.json").read_text())
     sc = scenes()
-    out = SITE / "tools"
-    out.mkdir(exist_ok=True)
+    business = SITE / "business"
+    business.mkdir(exist_ok=True)
     for t in tools:
-        (out / f'{t["id"]}.html').write_text(tool_page(t, tools, sc.get(t["id"], "")))
-    (out / "index.html").write_text(tools_index(tools))
-    (SITE / "olaf.html").write_text(olaf_page(tools))
+        (business / f'{t["id"]}.html').write_text(tool_page(t, tools, sc.get(t["id"], "")))
+    (business / "tools.html").write_text(tools_index(tools))
+    (business / "olaf.html").write_text(to_business(olaf_page(tools)))
     (SITE / "about.html").write_text(about_page(tools))
+    (SITE / "growth").mkdir(exist_ok=True)
+    (SITE / "growth" / "index.html").write_text(growth_page(tools))
     game_pages = build_games()
-    pages = ["", "olaf.html", "download.html", "about.html", "privacy.html", "terms.html", "tools/index.html"] + [f'tools/{t["id"]}.html' for t in tools] + game_pages
+    # The addresses from before the suites (October 2026) keep working.
+    old = SITE / "tools"
+    old.mkdir(exist_ok=True)
+    for t in tools:
+        (old / f'{t["id"]}.html').write_text(forward_page(f'business/{t["id"]}.html', 1))
+    (old / "index.html").write_text(forward_page("business/tools.html", 1))
+    (SITE / "olaf.html").write_text(forward_page("business/olaf.html", 0))
+    (SITE / "download.html").write_text(forward_page("business/download.html", 0))
+    sync_chrome(tools)
+    pages = (["", "about.html", "privacy.html", "terms.html", "business/index.html", "business/tools.html", "business/download.html", "business/olaf.html"]
+             + [f'business/{t["id"]}.html' for t in tools] + game_pages + ["growth/index.html"])
     today = date.today().isoformat()
     (SITE / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
                                       + "".join(f"  <url><loc>{SITE_URL}/{p}</loc><lastmod>{page_date(p)}</lastmod></url>\n" for p in pages) + "</urlset>\n")
@@ -824,31 +969,33 @@ def build_pages() -> None:
         "theme_color": "#FFC93C", "background_color": "#16141F", "icons": [{"src": "assets/logo-512.png", "sizes": "512x512", "type": "image/png"},
         {"src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png"}]}, indent=1) + "\n")
     missing = [t["id"] for t in tools if t["id"] not in sc]
-    print(f"website/tools: {len(tools)} product pages + index" + (f" (no scene for {missing})" if missing else ""))
+    print(f"website/business: {len(tools)} product pages + index; {len(tools) + 3} old addresses forwarded" + (f" (no scene for {missing})" if missing else ""))
 
 
 # ---------- who we are, for search engines and AI assistants ----------
 # One definition of Busy, used in the structured data, the About page, llms.txt and the web
 # manifest, so every place describes the same thing in the same words.
-ENTITY = ("Busy is a set of free, private business tools for small businesses and freelancers: invoices and quotes, "
-          "time tracking, receipts and expenses, a money dashboard, a client book, a project planner and board, documents, a brand kit, "
-          "subscriptions, a trip log, stock and a marketing studio. The tools run in the browser and save everything as files in "
-          "the owner's own folder, with no account and no subscription. Olaf, the AI expert for marketing and projects, is the paid edition.")
+ENTITY = ("Busy makes free, private tools for work and life, in suites: Busy Business (thirteen tools for small businesses and "
+          "freelancers: invoices and quotes, time, receipts, money, clients, projects, documents, a brand kit, subscriptions, trips, stock "
+          "and a marketing studio), Busy Games (free daily brain games) and Busy Growth (tools to grow your career, coming soon). The tools "
+          "run in the browser and keep everything in the owner's own folder, with no account and no subscription. Each suite can have a "
+          "paid AI expert: Olaf for business, Ivy for professional growth.")
 ORG_ID, WEBSITE_ID = "#organization", "#website"
+SECTIONS = {"business/": ("Busy Business", "business/index.html"), "games/": ("Busy Games", "games/index.html"), "growth/": ("Busy Growth", "growth/index.html")}
 # The name is a common word, and another company sells accounting software as BUSY. These tell search
 # engines and AI assistants which Busy this is; the old name stays as an alternate for a while.
-DESCRIPTOR = "free tools for small businesses"
+DESCRIPTOR = "free, private tools for work and life"
 ALT_NAMES = ["busy.com.ai", "Busywork"]
-DISAMBIGUATION = ("Busy at busy.com.ai: free, private business tools for small businesses and freelancers, formerly called Busywork. "
+DISAMBIGUATION = ("Busy at busy.com.ai: free, private tools for work and life, formerly called Busywork. "
                   "Not related to BUSY accounting software (busy.in).")
 
 
 def page_date(rel: str) -> str:
     """When a page last changed, from git: its own source file, or for generated pages, what they are made from.
     Honest freshness: the date moves when the content does, not on every build."""
-    sources = {"": ["website/index.html"], "download.html": ["website/download.html"], "privacy.html": ["website/privacy.html"],
-               "terms.html": ["website/terms.html"], "about.html": ["build.py", "website/content/tools.json"],
-               "olaf.html": ["build.py", "olaf-demo/library.js"]}.get(rel, ["build.py", "website/content/tools.json"])
+    sources = {"": ["website/index.html"], "business/index.html": ["website/business/index.html"], "business/download.html": ["website/business/download.html"],
+               "privacy.html": ["website/privacy.html"], "terms.html": ["website/terms.html"], "about.html": ["build.py", "website/content/tools.json"],
+               "business/olaf.html": ["build.py", "olaf-demo/library.js"], "growth/index.html": ["build.py"]}.get(rel, ["build.py", "website/content/tools.json"])
     if rel.startswith("games/"):
         sources = ["build.py", "website/assets/games/engine.js", "website/assets/games/play.js"]
     dates = []
@@ -873,18 +1020,21 @@ def site_graph(rel: str, title: str) -> dict:
     repo = os.environ.get("GITHUB_REPOSITORY")
     if repo:
         org["sameAs"] = [f"https://github.com/{repo}"]
-    page_type = {"about.html": "AboutPage", "tools/index.html": "CollectionPage"}.get(rel, "WebPage")
+    page_type = {"about.html": "AboutPage", "business/index.html": "CollectionPage", "business/tools.html": "CollectionPage",
+                 "games/index.html": "CollectionPage"}.get(rel, "WebPage")
     page = {"@type": page_type, "@id": url + "#webpage", "url": url, "name": title, "inLanguage": "en", "isPartOf": {"@id": base + WEBSITE_ID},
             "about": {"@id": base + ORG_ID}, "publisher": {"@id": base + ORG_ID}, "dateModified": page_date(rel)}
     graph = [org, {"@type": "WebSite", "@id": base + WEBSITE_ID, "url": base, "name": "Busy", "alternateName": ALT_NAMES, "description": ENTITY, "inLanguage": "en",
                    "publisher": {"@id": base + ORG_ID}}, page]
     crumbs = [("Busy", base)]
-    if rel.startswith("tools/"):
-        crumbs.append(("Tools", base + "tools/index.html"))
-    if rel not in ("", "tools/index.html"):
-        crumbs.append((re.sub(r"\s*·.*$", "", title), url))
-    elif rel == "tools/index.html":
-        crumbs.append(("Tools", url))
+    section = next((s for s in SECTIONS if rel.startswith(s)), None)
+    if section:
+        name, home = SECTIONS[section]
+        crumbs.append((name, base + home))
+        if rel != home:
+            crumbs.append((re.sub(r"\s*[·:(].*$", "", title), url))
+    elif rel:
+        crumbs.append((re.sub(r"\s*[·:].*$", "", title), url))
     if len(crumbs) > 1:
         page["breadcrumb"] = {"@id": url + "#breadcrumb"}
         graph.append({"@type": "BreadcrumbList", "@id": url + "#breadcrumb",
@@ -896,8 +1046,7 @@ def site_seo() -> None:
     """Every website page, hand-written or generated, gets the same basics: a canonical address,
     share-image alt text, icons crawlers can fetch, and the shared structured data, linked to the
     page's own (a product, its questions). The 404 page is kept out of search."""
-    pages = list(SITE.glob("*.html")) + list((SITE / "tools").glob("*.html")) + list((SITE / "games").glob("*.html"))
-    for f in pages:
+    for f in site_pages():
         rel = f.relative_to(SITE).as_posix()
         rel = "" if rel == "index.html" else rel
         prefix = "../" if "/" in rel else ""
@@ -960,36 +1109,38 @@ def robots_txt() -> str:
 def write_llms(tools: list) -> None:
     """llms.txt (llmstxt.org): a short, link-rich summary for AI assistants; llms-full.txt: the facts in one file."""
     b = SITE_URL
-    short = ENTITY.split(": ")[0] + "."
+    olaf_price = OLAF_PRICE.split(' ·')[0]
     lines = [f"# Busy", "", f"> {ENTITY}", "",
              f"Busy, {DESCRIPTOR}, lives at {b}. It was called Busywork until October 2026. It is not related to BUSY accounting software (busy.in).", "",
              "Key facts:",
-             f"- Price: the {len(tools)} tools are free, with no account and no subscription. Olaf is {OLAF_PRICE.split(' ·')[0]} for one business, plus the owner's own Claude usage.",
-             "- Data: saved as files in a folder the owner chooses on their own computer (it can sit in Google Drive, Dropbox, OneDrive or iCloud Drive). Nothing is sent to Busy.",
-             "- Works in: Chrome and Edge on Windows, macOS and ChromeOS, from a downloaded folder. No installation.",
-             "- AI: none in the free tools. Olaf (paid) runs on Claude with the owner's own API key; requests go from the browser to Anthropic only.",
+             f"- Price: every suite's tools are free, with no account and no subscription. Olaf (Busy Business) is {olaf_price} for one business; Ivy (Busy Growth, coming soon) is €30 once. Both run on the owner's own Claude usage.",
+             "- Data: saved as files in a folder the owner chooses on their own computer (it can sit in Google Drive, Dropbox, OneDrive or iCloud Drive). Nothing is sent to Busy. The games keep progress in the browser.",
+             "- Works in: the business tools run in Chrome and Edge on Windows, macOS and ChromeOS, from a downloaded folder. The games run in any modern browser.",
+             "- AI: none in the free tools. Olaf and Ivy run on Claude with the owner's own API key; requests go from the browser to Anthropic only.",
              "- Language: English. Invoices, quotes and documents can be made in English or Dutch.",
-             "", "## Tools", ""]
-    lines += [f"- [{t['name']}]({b}/tools/{t['id']}.html): {t['description']}" for t in tools]
-    lines += ["", "## Brain games (free)", "",
-              f"- [Brain games]({b}/games/index.html): four free logic puzzles in the browser, a new one every day and {GAME_LEVELS:,} levels each. No account."]
+             "", "## Busy Business: free tools for small businesses", "",
+             f"- [Busy Business]({b}/business/index.html): {len(tools)} free tools for small businesses and freelancers, and how they work together."]
+    lines += [f"- [{t['name']}]({b}/business/{t['id']}.html): {t['description']}" for t in tools]
+    lines += [f"- [Olaf, the AI expert for marketing and projects]({b}/business/olaf.html): a 90-day marketing plan, project plans, a weekly check-in and the work done with the owner, on proven marketing science. {olaf_price}.",
+              f"- [Download Busy Business]({b}/business/download.html): one zip file with every tool; unzip, open index.html, choose a folder.",
+              f"- [All business tools]({b}/business/tools.html): what each tool does.",
+              "", "## Busy Games: free daily brain games", "",
+              f"- [Busy Games]({b}/games/index.html): four free logic puzzles in the browser, a new one every day and {GAME_LEVELS:,} levels each. No account."]
     lines += [f"- [{g['name']}]({b}/games/{g['id']}.html): {g['desc']}" for g in GAMES]
-    lines += ["", "## Olaf (paid edition)", "",
-              f"- [Olaf, the AI expert for marketing and projects]({b}/olaf.html): a 90-day marketing plan, project plans, a weekly check-in and the work done with the owner, on proven marketing science. {OLAF_PRICE.split(' ·')[0]}.",
-              "", "## Get started", "",
-              f"- [Download Busy]({b}/download.html): one zip file with every tool; unzip, open index.html, choose a folder.",
-              f"- [All tools]({b}/tools/index.html): what each tool does.",
+    lines += ["", "## Busy Growth: free tools to grow your career (coming soon)", "",
+              f"- [Busy Growth]({b}/growth/index.html): a library of what you read and learn, skills, wins, a learning plan, a job tracker and a CV builder, plus Ivy, an AI coach for professional growth (€30 once). Not released yet.",
               "", "## About", "",
               f"- [About Busy]({b}/about.html): what it is, who it is for, and how it works.",
               f"- [Privacy]({b}/privacy.html): what happens to data (nothing is sent to us).",
               f"- [Terms]({b}/terms.html)",
               "", "## Optional", "",
-              f"- [llms-full.txt]({b}/llms-full.txt): all of the above with every tool's features and questions in one file."]
+              f"- [llms-full.txt]({b}/llms-full.txt): all of the above with every tool's and game's features and questions in one file."]
     (SITE / "llms.txt").write_text("\n".join(lines) + "\n")
 
     full = [f"# Busy: the full picture", "", ENTITY, "", f"Website: {b}/", "", DISAMBIGUATION, "",
+            "# Busy Business: free tools for small businesses", "", f"Page: {b}/business/index.html", "",
             "## How it works", "",
-            "1. Download Busy (one zip file) and unzip it somewhere you will find it again.",
+            "1. Download Busy Business (one zip file) and unzip it somewhere you will find it again.",
             "2. Double-click index.html. It opens in Chrome or Edge. Nothing is installed.",
             "3. Choose a folder for your business. Every tool saves plain files there; put the folder in Google Drive, Dropbox, OneDrive or iCloud Drive for backups and syncing.",
             "4. Busy also keeps a daily backup in that folder. There is no account and no server: nothing is sent to us.",
@@ -998,43 +1149,53 @@ def write_llms(tools: list) -> None:
             f"- Paid edition: the same tools plus Olaf, the AI expert for marketing and projects. {OLAF_PRICE}.",
             f"- Website demo: every tool filled with a pretend design studio, at {b}/app/index.html. Nothing is kept after the tab closes.", ""]
     for t in tools:
-        full += [f"## {t['name']}", "", f"{t['h1']} {t['lead']}", "", f"Page: {b}/tools/{t['id']}.html", "", "What it does:"]
+        full += [f"## {t['name']}", "", f"{t['h1']} {t['lead']}", "", f"Page: {b}/business/{t['id']}.html", "", "What it does:"]
         full += [f"- {f[1]}: {f[2]}" for f in t["features"]]
         full += ["", "Questions:"] + [f"- {q} {a}" for q, a in t["faq"]] + [""]
-    full += ["## Olaf, the AI expert for marketing and projects (paid edition)", "",
-             f"Page: {b}/olaf.html. Price: {OLAF_PRICE}.", "", "Marketing:"]
+    full += ["## Olaf, the AI expert for marketing and projects (paid edition of Busy Business)", "",
+             f"Page: {b}/business/olaf.html. Price: {OLAF_PRICE}.", "", "Marketing:"]
     full += [f"- {f[1]}: {f[2]}" for f in OLAF_FEATS] + ["", "Projects:"] + [f"- {f[1]}: {f[2]}" for f in OLAF_PROJECT_FEATS]
     full += ["", "Questions:"] + [f"- {q} {a}" for q, a in OLAF_FAQ]
-    full += ["", "## Brain games (free)", "", f"Page: {b}/games/index.html. Four logic puzzles that run in the browser, a new one every day and {GAME_LEVELS:,} levels each. Progress stays in the browser; no account.", ""]
+    full += ["", "# Busy Games: free daily brain games", "", f"Page: {b}/games/index.html. Four logic puzzles that run in the browser, a new one every day and {GAME_LEVELS:,} levels each. Progress stays in the browser; no account.", ""]
     for g in GAMES:
-        full += [f"### {g['name']} ({g['classic']})", "", g["about"], f"Page: {b}/games/{g['id']}.html", "", "Rules:"] + [f"- {r}" for r in g["rules"]] + [""]
+        full += [f"## {g['name']} ({g['classic']})", "", g["about"], f"Page: {b}/games/{g['id']}.html", "", "Rules:"] + [f"- {r}" for r in g["rules"]] + [""]
     full += ["Questions:"] + [f"- {q} {a}" for q, a in GAMES_FAQ]
-    full += ["", "## Privacy in short", "",
-             "The tools never send us anything. Business data stays in the owner's folder. The Olaf waitlist keeps an email address (and optionally a business name) in MailerLite, only to say when Olaf can be bought. Olaf's requests go from the owner's browser to Anthropic with the owner's own key.",
+    full += ["", "# Busy Growth: free tools to grow your career (coming soon)", "", f"Page: {b}/growth/index.html. Not released yet. Planned tools:", ""]
+    full += [f"- {n}: {d}" for _, n, d in GROWTH_TOOLS]
+    full += ["", "Ivy by Busy, the AI coach for professional growth, will be the paid part: €30 once, on the owner's own Claude usage. Ivy never invents experience: every CV line comes with its proof.",
+             "", "# Privacy in short", "",
+             "The tools never send us anything. Business data stays in the owner's folder; the games keep progress in the browser. The waitlists keep an email address in MailerLite, only to say when Olaf or Busy Growth can be had. Olaf's requests go from the owner's browser to Anthropic with the owner's own key.",
              f"Full text: {b}/privacy.html", ""]
     (SITE / "llms-full.txt").write_text("\n".join(full))
 
 
 def about_page(tools: list) -> str:
     """What Busy is, in plain facts: the page search engines and AI assistants read to describe us."""
-    facts = [("What it is", ENTITY), ("Who it is for", "Small businesses and freelancers who want their admin, projects and marketing done without a stack of subscriptions: shops, studios, trades, cafés, consultants."),
-             ("What it costs", f"The tools are free. Olaf, the AI expert for marketing and projects, is {OLAF_PRICE.split(' ·')[0]} for one business, plus the owner's own Claude usage."),
-             ("Where the data lives", "In a folder the owner chooses on their own computer, as plain files. There is no account and no server, so nothing is sent to us."),
-             ("What it runs on", "Chrome and Edge on Windows, macOS and ChromeOS. It opens from a downloaded folder; nothing is installed."),
-             ("How the marketing works", "The Marketing Studio and Olaf are built on proven marketing science: reach more buyers, be the business people think of in the moments they need you, and be easy to find and buy from."),
+    olaf_price = OLAF_PRICE.split(' ·')[0]
+    facts = [("What it is", ENTITY),
+             ("The suites", f"Busy Business: {len(tools)} free tools for small businesses and freelancers. Busy Games: four free daily logic puzzles with {GAME_LEVELS:,} levels each. Busy Growth: free tools to grow your career, coming soon."),
+             ("Who it is for", "People who would rather spend their time on what matters: small business owners and freelancers, anyone who likes a daily puzzle, and soon anyone growing their career."),
+             ("What it costs", f"Every suite's tools are free. The AI experts are paid once: Olaf for Busy Business is {olaf_price}, Ivy for Busy Growth will be €30. Both run on the owner's own Claude usage."),
+             ("Where the data lives", "In a folder the owner chooses on their own computer, as plain files. There is no account and no server, so nothing is sent to us. The games keep your streak in your browser."),
+             ("What it runs on", "The business tools run in Chrome and Edge on Windows, macOS and ChromeOS, from a downloaded folder; nothing is installed. The games run in any modern browser."),
+             ("How the marketing tools work", "Busy Business's Marketing Studio and Olaf are built on proven marketing science: reach more buyers, be the business people think of in the moments they need you, and be easy to find and buy from."),
              ("Languages", "English. Invoices, quotes and documents can be made in English or Dutch."),
              ("The name", f"Busy, {DESCRIPTOR}, at busy.com.ai. Called Busywork until October 2026. Not related to BUSY accounting software.")]
-    desc = "What Busy is: free, private business tools that save everything in your own folder, and Olaf, the paid AI expert for marketing and projects."
-    return f"""{head("About Busy: free, private tools for small businesses", desc, "about.html", "")}
+    desc = "What Busy is: free, private tools for work and life, in suites for business, brain games and soon career growth. Your files stay yours."
+    return f"""{head("About Busy: free, private tools for work and life", desc, "about.html", "")}
 <body class="site app-sun">
-{nav("")}
+{nav("", explore(""))}
 <main class="page">
   <h1 class="reveal">About Busy</h1>
   <p class="lead reveal">{e(ENTITY)}</p>
   <dl class="about-facts">{"".join(f"<dt>{e(k)}</dt><dd>{e(v)}</dd>" for k, v in facts)}</dl>
-  <h2>The tools</h2>
-  <ul>{"".join(f'<li><a href="tools/{t["id"]}.html">{t["emoji"]} {e(t["name"])}</a>: {e(t["description"])}</li>' for t in tools)}</ul>
-  <p style="margin-top:20px"><a class="btn btn-primary" href="download.html">⬇️ Download all {len(tools)} tools</a> <a class="btn" href="app/index.html">👀 See the demo</a> <a class="btn" href="olaf.html">🧭 Meet Olaf</a></p>
+  <h2>💼 Busy Business</h2>
+  <ul>{"".join(f'<li><a href="business/{t["id"]}.html">{t["emoji"]} {e(t["name"])}</a>: {e(t["description"])}</li>' for t in tools)}</ul>
+  <p style="margin-top:14px"><a class="btn btn-primary" href="business/download.html">⬇️ Download all {len(tools)} tools</a> <a class="btn" href="app/index.html">👀 See the demo</a> <a class="btn" href="business/olaf.html">🧭 Meet Olaf</a></p>
+  <h2>🧩 Busy Games</h2>
+  <ul>{"".join(f'<li><a href="games/{g["id"]}.html">{g["emoji"]} {e(g["name"])}</a>: {e(g["lead"])}</li>' for g in GAMES)}</ul>
+  <h2>🌱 Busy Growth</h2>
+  <p>Coming soon: <a href="growth/index.html">free tools to grow your career, and Ivy, an AI coach</a>.</p>
 </main>
 {footer("", tools)}
 <script src="assets/site.js"></script>
@@ -1048,7 +1209,7 @@ def apply_site_url() -> None:
     Locally nothing changes (the placeholder is the default); on GitHub the workflow passes the domain."""
     if SITE_URL == "https://busywork.example":
         return
-    for f in list(SITE.glob("*.html")) + [SITE / "assets" / "site.js"]:
+    for f in site_pages(forwards=True) + [SITE / "assets" / "site.js"]:
         text = f.read_text()
         if "https://busywork.example" in text:
             f.write_text(text.replace("https://busywork.example", SITE_URL))
@@ -1060,13 +1221,15 @@ def site_csp() -> None:
     loads its own; the tools under app/ carry a strict policy of their own (scripts from Busy's
     files only, network to Anthropic only), which is where the owner's API key lives."""
     forms = "'self'"
-    if WAITLIST_ENDPOINT:
-        m = re.match(r"https://[^/]+", WAITLIST_ENDPOINT)
-        if not m:
-            raise SystemExit("WAITLIST_ENDPOINT must be an https:// address")
-        forms += " " + m.group(0)
+    for name, url in (("WAITLIST_ENDPOINT", WAITLIST_ENDPOINT), ("GROWTH_WAITLIST_ENDPOINT", GROWTH_WAITLIST_ENDPOINT)):
+        if url:
+            m = re.match(r"https://[^/]+", url)
+            if not m:
+                raise SystemExit(f"{name} must be an https:// address")
+            if m.group(0) not in forms:
+                forms += " " + m.group(0)
     meta = f'<meta http-equiv="Content-Security-Policy" content="object-src \'none\'; base-uri \'self\'; form-action {forms}">'
-    for f in list(SITE.glob("*.html")) + list((SITE / "tools").glob("*.html")) + list((SITE / "games").glob("*.html")):
+    for f in site_pages():
         text = re.sub(r'<meta http-equiv="Content-Security-Policy"[^>]*>\n?', "", f.read_text())
         text, n = re.subn(r'(<meta charset="[^"]+">\n?)', lambda m: m.group(1) + meta + "\n", text, count=1, flags=re.I)
         if not n:

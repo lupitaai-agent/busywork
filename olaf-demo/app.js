@@ -17,7 +17,7 @@
   /* Editions. The website runs a demo: Olaf's screens with the example business, no instructions
      and no AI. The paid download is the full Olaf. */
   const DEMO = LIB.edition === 'demo';
-  const OLAF_PAGE = (BW.siteUrl || '') + '/olaf.html';
+  const OLAF_PAGE = (BW.siteUrl || '') + '/business/olaf.html';
   /* Licences: signed by the seller, checked offline by BW.licence (core.js) against the public keys
      the paid build ships. Asked for only when the build switches it on (OLAF_REQUIRE_LICENCE). */
 

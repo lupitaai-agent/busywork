@@ -80,12 +80,13 @@ class Homepage(unittest.TestCase):
         tmp = Path(tempfile.mkdtemp())
         saved = build.SITE
         try:
-            shutil.copy(ROOT / "website" / "index.html", tmp / "index.html")
+            (tmp / "business").mkdir()
+            shutil.copy(ROOT / "website" / "business" / "index.html", tmp / "business" / "index.html")
             build.SITE = tmp
             build.sync_homepage_paths()
-            once = (tmp / "index.html").read_text()
+            once = (tmp / "business" / "index.html").read_text()
             build.sync_homepage_paths()
-            self.assertEqual(once, (tmp / "index.html").read_text())
+            self.assertEqual(once, (tmp / "business" / "index.html").read_text())
             self.assertIn("paths:start", once)
         finally:
             build.SITE = saved
@@ -95,7 +96,8 @@ class Homepage(unittest.TestCase):
         tmp = Path(tempfile.mkdtemp())
         saved = build.SITE
         try:
-            (tmp / "index.html").write_text("<html></html>")
+            (tmp / "business").mkdir()
+            (tmp / "business" / "index.html").write_text("<html></html>")
             build.SITE = tmp
             with self.assertRaises(SystemExit):
                 build.sync_homepage_paths()
@@ -109,13 +111,13 @@ class WebsitePolicy(unittest.TestCase):
         tmp = Path(tempfile.mkdtemp())
         saved = (build.SITE, build.WAITLIST_ENDPOINT)
         try:
-            (tmp / "tools").mkdir()
-            for f in (tmp / "a.html", tmp / "tools" / "b.html"):
+            (tmp / "business").mkdir()
+            for f in (tmp / "a.html", tmp / "business" / "b.html"):
                 f.write_text('<html><head><meta charset="utf-8">\n<title>x</title></head></html>')
             build.SITE, build.WAITLIST_ENDPOINT = tmp, "https://formspree.io/f/abc"
             build.site_csp()
             build.site_csp()
-            for f in (tmp / "a.html", tmp / "tools" / "b.html"):
+            for f in (tmp / "a.html", tmp / "business" / "b.html"):
                 t = f.read_text()
                 self.assertEqual(t.count("Content-Security-Policy"), 1)
                 self.assertIn("form-action 'self' https://formspree.io", t)
@@ -158,11 +160,11 @@ class Editions(unittest.TestCase):
             self.assertTrue(0 < demo < core, f"{p.relative_to(ROOT)} loads demo.js before core.js")
 
     def test_website_offers_the_demo_not_a_browser_version(self):
-        for p in list((ROOT / "website").glob("*.html")) + list((ROOT / "website" / "tools").glob("*.html")):
+        for p in build.site_pages():
             t = p.read_text()
             for b in ["Try it in your browser", "Try it online", "Try it now", "Add your own Claude key for AI", "just try it out"]:
                 self.assertNotIn(b, t, f"{p.name}: {b}")
-        self.assertIn("See the demo", (ROOT / "website" / "index.html").read_text())
+        self.assertIn("See the demo", (ROOT / "website" / "business" / "index.html").read_text())
 
 
 
@@ -189,7 +191,7 @@ class Visibility(unittest.TestCase):
     SITE = ROOT / "website"
 
     def pages(self):
-        return [p for p in list(self.SITE.glob("*.html")) + list((self.SITE / "tools").glob("*.html")) + list((self.SITE / "games").glob("*.html")) if p.name != "404.html"]
+        return [p for p in build.site_pages() if p.name != "404.html"]
 
     def test_every_page_has_title_description_canonical_alt_and_the_shared_graph(self):
         for p in self.pages():
@@ -260,12 +262,58 @@ class Visibility(unittest.TestCase):
                 self.assertIn('"isAccessibleForFree": true', t)
                 self.assertIn(f'data-game="{g}"', t)
         home = (self.SITE / "index.html").read_text()
-        self.assertIn('id="games"', home, "the homepage has a brain games section")
+        self.assertIn('id="games-today"', home, "the homepage has a brain games section")
         for g in ["index"] + [x["id"] for x in build.GAMES]:
             self.assertIn(f'href="games/{g}.html"', home)
-        for p in list(self.SITE.glob("*.html")) + list((self.SITE / "tools").glob("*.html")):
-            if p.name != "404.html":
-                self.assertRegex(p.read_text(), r'href="(\.\./|/)?games/index\.html">Games</a>', f"{p.name} links to the games")
+        for p in build.site_pages():
+            self.assertRegex(p.read_text(), r'href="(\.\./|/)?games/index\.html">🧩 Games</a>', f"{p.name} links to the games")
+
+    def test_suites_old_addresses_forward_and_the_sitemap_lists_only_real_pages(self):
+        """Busy is one brand with suites. The business pages moved to /business/ in October 2026;
+        every old address still lands on its new page, and only real pages are in the sitemap."""
+        tools = json.loads((self.SITE / "content" / "tools.json").read_text())
+        old = {"olaf.html": "business/olaf.html", "download.html": "business/download.html", "tools/index.html": "business/tools.html"}
+        old.update({f'tools/{t["id"]}.html': f'business/{t["id"]}.html' for t in tools})
+        for rel, new in old.items():
+            t = (self.SITE / rel).read_text()
+            self.assertIn(build.FORWARD, t, rel)
+            self.assertIn(f'rel="canonical" href="{build.SITE_URL}/{new}"', t, rel)
+            self.assertIn("location.hash", t, f"{rel} keeps #get and other anchors")
+            self.assertTrue((self.SITE / new).is_file(), f"{rel} forwards to {new}, which exists")
+        sm = (self.SITE / "sitemap.xml").read_text()
+        for rel in old:
+            self.assertNotIn(f"<loc>{build.SITE_URL}/{rel}<", sm, f"the sitemap lists the forward {rel}")
+        for rel in ["business/index.html", "business/tools.html", "business/olaf.html", "business/download.html", "growth/index.html", "games/index.html"]:
+            self.assertIn(f"/{rel}<", sm)
+        home = (self.SITE / "index.html").read_text()
+        self.assertIn('id="suites"', home)
+        for rel in ["business/index.html", "games/index.html", "growth/index.html", "business/olaf.html"]:
+            self.assertIn(f'href="{rel}"', home)
+        for p in build.site_pages():
+            t = p.read_text()
+            for label in ["💼 Business", "🌱 Growth", "🧩 Games"]:
+                self.assertIn(f">{label}</a>", t, f"{p.name}: the nav shows every suite")
+
+    def test_busy_is_described_as_suites_everywhere_machines_read(self):
+        for word in ["Busy Business", "Busy Games", "Busy Growth", "Olaf", "Ivy"]:
+            self.assertIn(word, build.ENTITY)
+        self.assertEqual(build.DESCRIPTOR, "free, private tools for work and life")
+        llms = (self.SITE / "llms.txt").read_text()
+        for h in ["## Busy Business", "## Busy Games", "## Busy Growth"]:
+            self.assertIn(h, llms)
+        about = (self.SITE / "about.html").read_text()
+        self.assertIn("The suites", about)
+        growth = (self.SITE / "growth" / "index.html").read_text()
+        self.assertNotIn("Email me when Olaf", growth, "Busy Growth never signs people up for Olaf's list")
+        self.assertIn('id="ivy"', growth)
+
+    def test_a_root_page_moved_into_business_keeps_its_links(self):
+        moved = build.to_business('<a href="tools/invoices.html">x</a><a href="tools/index.html#top">x</a><a href="olaf.html#get">x</a>'
+                                  '<a href="business/download.html">x</a><img src="assets/a.svg"><a href="privacy.html">x</a>'
+                                  '<a href="#faq">x</a><a href="https://x.example/">x</a><a href="../games/index.html">x</a>')
+        for want in ['href="invoices.html"', 'href="tools.html#top"', 'href="olaf.html#get"', 'href="download.html"', 'src="../assets/a.svg"',
+                     'href="../privacy.html"', 'href="#faq"', 'href="https://x.example/"', 'href="../games/index.html"']:
+            self.assertIn(want, moved)
 
     def test_the_name_is_busy_with_the_old_name_and_the_namesake_explained(self):
         """Busy is a common word and another company's name; every machine-readable place says which Busy."""

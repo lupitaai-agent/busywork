@@ -1341,7 +1341,7 @@
         unsupported: 'This browser can’t check licences. Open Busy in a current Chrome, Edge, Safari or Firefox.' }[reason] || 'That licence key isn’t valid.';
     },
   };
-  BW.olafPage = () => BW.siteUrl + '/olaf.html';
+  BW.olafPage = () => BW.siteUrl + '/business/olaf.html';
   /* A gentle pointer to Olaf at a good moment (a paid invoice, a new client). At most once a week,
      never when Olaf is already installed, never inside documents. */
   BW.olafNudge = (msg) => {

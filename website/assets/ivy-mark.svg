@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Ivy logo">
+  <title>Ivy logo</title><desc>The Ivy logo: a green ivy leaf on a short stem, leaning up and to the right.</desc>
+  <!-- Ivy: a three-lobed ivy leaf in Busy's sticker style (thick ink outline, offset shadow) -->
+  <g transform="rotate(16 32 34)">
+    <path d="M32 46 L32 59" stroke="#1E1B2E" stroke-width="6.5" stroke-linecap="round" transform="translate(3 3)"/>
+    <path d="M32 6 C34 12 37 17 40 20 C46 20 53 21 56 26 C54 36 50 44 44 48 C39 51 34 50 32 46 C30 50 25 51 20 48 C14 44 10 36 8 26 C11 21 18 20 24 20 C27 17 30 12 32 6 Z" fill="#1E1B2E" transform="translate(3 3)"/>
+    <path d="M32 46 L32 59" stroke="#1E1B2E" stroke-width="6.5" stroke-linecap="round"/>
+    <path d="M32 47 L32 58.5" stroke="#2FD18C" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M32 6 C34 12 37 17 40 20 C46 20 53 21 56 26 C54 36 50 44 44 48 C39 51 34 50 32 46 C30 50 25 51 20 48 C14 44 10 36 8 26 C11 21 18 20 24 20 C27 17 30 12 32 6 Z" fill="#2FD18C" stroke="#1E1B2E" stroke-width="3.5" stroke-linejoin="round"/>
+    <path d="M32 43 L32 15 M32 36 L46 27 M32 36 L18 27" fill="none" stroke="#13834F" stroke-width="2.4" stroke-linecap="round"/>
+  </g>
+</svg>

@@ -1,48 +1,47 @@
 # Busy
 
-> Busy is a set of free, private business tools for small businesses and freelancers: invoices and quotes, time tracking, receipts and expenses, a money dashboard, a client book, a project planner and board, documents, a brand kit, subscriptions, a trip log, stock and a marketing studio. The tools run in the browser and save everything as files in the owner's own folder, with no account and no subscription. Olaf, the AI expert for marketing and projects, is the paid edition.
+> Busy makes free, private tools for work and life, in suites: Busy Business (thirteen tools for small businesses and freelancers: invoices and quotes, time, receipts, money, clients, projects, documents, a brand kit, subscriptions, trips, stock and a marketing studio), Busy Games (free daily brain games) and Busy Growth (tools to grow your career, coming soon). The tools run in the browser and keep everything in the owner's own folder, with no account and no subscription. Each suite can have a paid AI expert: Olaf for business, Ivy for professional growth.
 
-Busy, free tools for small businesses, lives at https://busywork.example. It was called Busywork until October 2026. It is not related to BUSY accounting software (busy.in).
+Busy, free, private tools for work and life, lives at https://busywork.example. It was called Busywork until October 2026. It is not related to BUSY accounting software (busy.in).
 
 Key facts:
-- Price: the 13 tools are free, with no account and no subscription. Olaf is €149 once for one business, plus the owner's own Claude usage.
-- Data: saved as files in a folder the owner chooses on their own computer (it can sit in Google Drive, Dropbox, OneDrive or iCloud Drive). Nothing is sent to Busy.
-- Works in: Chrome and Edge on Windows, macOS and ChromeOS, from a downloaded folder. No installation.
-- AI: none in the free tools. Olaf (paid) runs on Claude with the owner's own API key; requests go from the browser to Anthropic only.
+- Price: every suite's tools are free, with no account and no subscription. Olaf (Busy Business) is €149 once for one business; Ivy (Busy Growth, coming soon) is €30 once. Both run on the owner's own Claude usage.
+- Data: saved as files in a folder the owner chooses on their own computer (it can sit in Google Drive, Dropbox, OneDrive or iCloud Drive). Nothing is sent to Busy. The games keep progress in the browser.
+- Works in: the business tools run in Chrome and Edge on Windows, macOS and ChromeOS, from a downloaded folder. The games run in any modern browser.
+- AI: none in the free tools. Olaf and Ivy run on Claude with the owner's own API key; requests go from the browser to Anthropic only.
 - Language: English. Invoices, quotes and documents can be made in English or Dutch.
 
-## Tools
+## Busy Business: free tools for small businesses
 
-- [Invoices & Quotes](https://busywork.example/tools/invoices.html): Make professional invoices and quotes in a minute. VAT, numbering, PDF, scan-to-pay QR code, reminders and recurring invoices. Free, private, no account.
-- [Client Book](https://busywork.example/tools/clients.html): Keep every client in one friendly place: contact details, payment terms, rates, notes and invoice history. Import from Excel or Google Sheets. Free and private.
-- [Time Tracker](https://busywork.example/tools/time.html): Track hours with one button and turn them into an invoice in one click. Billable rates per client, rounding, a weekly timesheet. Free and private.
-- [Receipts & Expenses](https://busywork.example/tools/expenses.html): Snap or drop receipts and we file them in your folder, count the VAT you can claim back and make a spreadsheet for your accountant. Free and private.
-- [Money Dashboard](https://busywork.example/tools/money.html): See profit, VAT to set aside and cash flow at a glance, from your own invoices and receipts. Free, private, no account.
-- [Project Planner](https://busywork.example/tools/projects.html): Plan client jobs, launches and events: milestones, a drag-and-drop timeline, who does what, risks and a weekly update. Free, private, no account.
-- [Project Board](https://busywork.example/tools/board.html): A playful kanban board: drag cards from to-do to done, add checklists and due dates, and track time on any card. Free and private.
-- [Document Maker](https://busywork.example/tools/docs.html): Letters, payment reminders, proposals, price lists, project briefs and simple agreements, with names and addresses filled in and your logo on every PDF. Free.
-- [Brand Kit](https://busywork.example/tools/brand.html): Turn your logo and colour into a palette, a proper email signature for Gmail, Outlook and Apple Mail, and print-ready business cards with a QR code. Free.
-- [Subscriptions](https://busywork.example/tools/subscriptions.html): Every monthly and yearly bill in one place: true monthly cost, renewal warnings, a 12-month timeline and one-click expense logging. Free and private.
-- [Trip Log](https://busywork.example/tools/trips.html): Log business trips in seconds, with return trips, frequent routes and a yearly total worth money at tax time. Export for your accountant. Free and private.
-- [Stock Keeper](https://busywork.example/tools/stock.html): Tap plus and minus as stock comes and goes, get low-stock warnings, scan barcodes, see stock value, margins and a full history per item. Free and private.
-- [Marketing Studio](https://busywork.example/tools/marketing.html): Do your own marketing on proven science: a brand profile, a year plan, a content calendar and insights from your invoices. Free and private.
+- [Busy Business](https://busywork.example/business/index.html): 13 free tools for small businesses and freelancers, and how they work together.
+- [Invoices & Quotes](https://busywork.example/business/invoices.html): Make professional invoices and quotes in a minute. VAT, numbering, PDF, scan-to-pay QR code, reminders and recurring invoices. Free, private, no account.
+- [Client Book](https://busywork.example/business/clients.html): Keep every client in one friendly place: contact details, payment terms, rates, notes and invoice history. Import from Excel or Google Sheets. Free and private.
+- [Time Tracker](https://busywork.example/business/time.html): Track hours with one button and turn them into an invoice in one click. Billable rates per client, rounding, a weekly timesheet. Free and private.
+- [Receipts & Expenses](https://busywork.example/business/expenses.html): Snap or drop receipts and we file them in your folder, count the VAT you can claim back and make a spreadsheet for your accountant. Free and private.
+- [Money Dashboard](https://busywork.example/business/money.html): See profit, VAT to set aside and cash flow at a glance, from your own invoices and receipts. Free, private, no account.
+- [Project Planner](https://busywork.example/business/projects.html): Plan client jobs, launches and events: milestones, a drag-and-drop timeline, who does what, risks and a weekly update. Free, private, no account.
+- [Project Board](https://busywork.example/business/board.html): A playful kanban board: drag cards from to-do to done, add checklists and due dates, and track time on any card. Free and private.
+- [Document Maker](https://busywork.example/business/docs.html): Letters, payment reminders, proposals, price lists, project briefs and simple agreements, with names and addresses filled in and your logo on every PDF. Free.
+- [Brand Kit](https://busywork.example/business/brand.html): Turn your logo and colour into a palette, a proper email signature for Gmail, Outlook and Apple Mail, and print-ready business cards with a QR code. Free.
+- [Subscriptions](https://busywork.example/business/subscriptions.html): Every monthly and yearly bill in one place: true monthly cost, renewal warnings, a 12-month timeline and one-click expense logging. Free and private.
+- [Trip Log](https://busywork.example/business/trips.html): Log business trips in seconds, with return trips, frequent routes and a yearly total worth money at tax time. Export for your accountant. Free and private.
+- [Stock Keeper](https://busywork.example/business/stock.html): Tap plus and minus as stock comes and goes, get low-stock warnings, scan barcodes, see stock value, margins and a full history per item. Free and private.
+- [Marketing Studio](https://busywork.example/business/marketing.html): Do your own marketing on proven science: a brand profile, a year plan, a content calendar and insights from your invoices. Free and private.
+- [Olaf, the AI expert for marketing and projects](https://busywork.example/business/olaf.html): a 90-day marketing plan, project plans, a weekly check-in and the work done with the owner, on proven marketing science. €149 once.
+- [Download Busy Business](https://busywork.example/business/download.html): one zip file with every tool; unzip, open index.html, choose a folder.
+- [All business tools](https://busywork.example/business/tools.html): what each tool does.
 
-## Brain games (free)
+## Busy Games: free daily brain games
 
-- [Brain games](https://busywork.example/games/index.html): four free logic puzzles in the browser, a new one every day and 10,000 levels each. No account.
+- [Busy Games](https://busywork.example/games/index.html): four free logic puzzles in the browser, a new one every day and 10,000 levels each. No account.
 - [Stars](https://busywork.example/games/stars.html): Stars, a free Star Battle logic puzzle: one star per row, column and colour patch. A new puzzle every day and 10,000 levels. No account.
 - [Duo](https://busywork.example/games/duo.html): Duo, a free Takuzu (Binairo) logic puzzle with suns and grapes: half and half, never three in a row. A new puzzle every day and 10,000 levels.
 - [Trail](https://busywork.example/games/trail.html): Trail, a free path puzzle: draw one line through every cell, passing the numbers in order. A new puzzle every day and 10,000 levels. No account.
 - [Six](https://busywork.example/games/six.html): Six, a free 6×6 Sudoku: fill every row, column and box with 1 to 6. A new puzzle every day and 10,000 levels, from easy to expert. No account.
 
-## Olaf (paid edition)
+## Busy Growth: free tools to grow your career (coming soon)
 
-- [Olaf, the AI expert for marketing and projects](https://busywork.example/olaf.html): a 90-day marketing plan, project plans, a weekly check-in and the work done with the owner, on proven marketing science. €149 once.
-
-## Get started
-
-- [Download Busy](https://busywork.example/download.html): one zip file with every tool; unzip, open index.html, choose a folder.
-- [All tools](https://busywork.example/tools/index.html): what each tool does.
+- [Busy Growth](https://busywork.example/growth/index.html): a library of what you read and learn, skills, wins, a learning plan, a job tracker and a CV builder, plus Ivy, an AI coach for professional growth (€30 once). Not released yet.
 
 ## About
 
@@ -52,4 +51,4 @@ Key facts:
 
 ## Optional
 
-- [llms-full.txt](https://busywork.example/llms-full.txt): all of the above with every tool's features and questions in one file.
+- [llms-full.txt](https://busywork.example/llms-full.txt): all of the above with every tool's and game's features and questions in one file.
