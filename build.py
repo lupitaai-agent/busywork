@@ -708,7 +708,7 @@ GAMES = [
                "No two rows are the same, and no two columns.",
                "Tap a cell to go from sun to grape to empty. Grey cells are given."],
      "about": "Duo is a Takuzu, also known as Binairo or the binary puzzle, a classic logic puzzle. Every board has exactly one answer."},
-    {"id": "trail", "name": "Trail", "emoji": "🐾", "color": "tomato", "classic": "a path puzzle",
+    {"id": "trail", "name": "Trail", "emoji": "🧶", "color": "tomato", "classic": "a path puzzle",
      "title": "Trail: free daily path puzzles · Busy",
      "desc": "Trail, a free path puzzle: draw one line through every cell, passing the numbers in order. A new puzzle every day and 10,000 levels. No account.",
      "h1": "Trail", "lead": "One line through every cell, passing the numbers in order.",
