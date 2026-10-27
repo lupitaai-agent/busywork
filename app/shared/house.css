@@ -1,0 +1,90 @@
+/* Busy Home tools: shared bits on top of brand.css. The list and filter styles match Busy Growth's,
+   because each suite ships on its own. */
+.toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 0 0 18px; }
+.toolbar .search { flex: 1 1 260px; }
+.filters { display: flex; gap: 6px; flex-wrap: wrap; }
+.filters button { font: inherit; font-weight: 750; font-size: .88rem; padding: 6px 12px; border: 2px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--ink); cursor: pointer; }
+.filters button[aria-pressed="true"] { background: var(--app); color: var(--on-app); }
+.filters small { font-weight: 700; opacity: .7; margin-left: 4px; }
+.chip.mini { font-size: .75rem; padding: 2px 8px; }
+.row .meta { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+.row .snip { color: var(--ink-2); font-size: .88rem; margin-top: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.row .icon-big { font-size: 1.5rem; flex: none; width: 2rem; text-align: center; }
+.row .main { min-width: 0; flex: 1; }
+.row .main b { overflow-wrap: anywhere; }
+.month-h { margin: 22px 0 10px; font-weight: 850; display: flex; justify-content: space-between; gap: 10px; }
+.drop-hint { border: 3px dashed var(--border); border-radius: var(--r); padding: 22px; text-align: center; margin-bottom: 18px; color: var(--ink-2); font-weight: 700; cursor: pointer; }
+.drop-hint:hover, body.dragging .drop-hint { background: var(--app-soft); color: var(--ink); }
+.meta .chip { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+
+/* "When" pills: overdue, soon, fine. */
+.due { font-size: .78rem; font-weight: 800; padding: 3px 10px; border-radius: 999px; border: 2px solid var(--border); white-space: nowrap; background: var(--surface); }
+.due.late { background: var(--tomato); color: #1E1B2E; }
+.due.soon { background: var(--sun); color: #1E1B2E; }
+.due.ok { background: var(--mint); color: #1E1B2E; }
+.due.off { background: var(--hair); color: var(--ink-2); }
+
+/* A strip of what needs attention, at the top of a tool. */
+.attention { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; padding: 14px 16px; background: var(--app-soft); }
+.attention h2 { font-size: 1.05rem; margin: 0 0 2px; }
+.attention a, .attention button.link { display: flex; gap: 10px; align-items: center; color: inherit; text-decoration: none; font: inherit; text-align: left; background: none; border: 0; padding: 4px 0; cursor: pointer; }
+.attention a:hover b, .attention button.link:hover b { text-decoration: underline; }
+.attention .e { font-size: 1.2rem; flex: none; }
+.attention .main { flex: 1; min-width: 0; }
+.attention small { color: var(--ink-2); display: block; }
+
+/* Files attached to a record. */
+.files { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+.file-row { display: flex; gap: 10px; align-items: center; padding: 8px 12px; border: 2px solid var(--border); border-radius: var(--r-sm); background: var(--surface); }
+.file-row .main { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
+.file-row img { width: 44px; height: 44px; object-fit: cover; border-radius: 8px; }
+.photo-strip { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.photo-strip a img { width: 84px; height: 84px; object-fit: cover; border-radius: 12px; border: 2px solid var(--border); }
+
+/* Cards in a grid: contracts, rooms, letter templates. */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+.h-card { padding: 16px 18px; display: flex; flex-direction: column; gap: 6px; cursor: pointer; text-align: left; font: inherit; color: inherit; }
+.h-card:hover { transform: translate(-2px, -2px); }
+.h-card .top { display: flex; gap: 10px; align-items: flex-start; justify-content: space-between; }
+.h-card b { font-size: 1.05rem; overflow-wrap: anywhere; }
+.h-card small { color: var(--ink-2); }
+.h-card .big-date { font-weight: 850; }
+.h-card.ended { opacity: .6; }
+.tpl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; margin-bottom: 28px; }
+.tpl { text-align: left; font: inherit; color: inherit; cursor: pointer; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; }
+.tpl .e { font-size: 1.6rem; }
+.tpl small { color: var(--ink-2); line-height: 1.35; }
+.tpl:hover { transform: translate(-2px, -2px); }
+
+/* A letter or binder being written. */
+.writer { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 18px; align-items: start; }
+.writer textarea.body { min-height: 520px; font: 1rem/1.55 var(--font, inherit); white-space: pre-wrap; }
+.writer aside { display: flex; flex-direction: column; gap: 12px; position: sticky; top: 80px; }
+@media (max-width: 860px) { .writer { grid-template-columns: 1fr; } .writer aside { position: static; } .writer textarea.body { min-height: 360px; } }
+
+/* Checklists: moving tasks, who to tell. */
+.check-list { display: flex; flex-direction: column; gap: 6px; }
+.check-item { display: flex; gap: 10px; align-items: center; padding: 8px 12px; border: 2px solid var(--border); border-radius: var(--r-sm); background: var(--surface); }
+.check-item input { width: 20px; height: 20px; accent-color: var(--app); flex: none; }
+.check-item .main { flex: 1; min-width: 0; }
+.check-item.done .main { text-decoration: line-through; color: var(--ink-3); }
+.check-item small { color: var(--ink-2); white-space: nowrap; }
+.countdown { font-size: 2.6rem; font-weight: 900; line-height: 1; }
+
+/* Just in Case binder sections. */
+.binder-sec { padding: 16px 18px; margin-bottom: 14px; }
+.binder-sec h2 { font-size: 1.1rem; margin: 0; }
+.binder-sec .hint { color: var(--ink-2); font-size: .9rem; margin: 2px 0 10px; }
+.binder-entry { border-top: 2px dashed var(--hair); padding: 10px 0; cursor: pointer; }
+.binder-entry:first-of-type { border-top: 0; }
+.binder-entry b { display: block; }
+.binder-entry p { margin: 2px 0 0; color: var(--ink-2); white-space: pre-wrap; }
+
+/* Rows with buttons on a phone: the text gets the full width, the buttons go underneath. */
+.list .row .main { min-width: 0; }
+@media (max-width: 640px) {
+  .list .row .main { order: 1; flex: 1 1 calc(100% - 60px); }
+  .list .row > :not(.main):not(.icon-big) { order: 2; }
+  .list .row > .icon-big + .main ~ :not(.main) { margin-left: 46px; }
+  .list .row > .icon-big + .main ~ :not(.main) ~ :not(.main) { margin-left: 0; }
+}
