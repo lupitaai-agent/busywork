@@ -115,7 +115,7 @@
     // Busy Home (a home folder): the household's paperwork.
     papers: { app: 'papers', shape: R, about: 'Paper Trail: important documents, with their scans in Papers/ and the date they expire.',
       fields: { title: 'text', kind: 'text', person: 'text', reference: 'text', issued: 'date', expires: 'date', reviewAt: 'date', files: 'list', text: 'text',
-        where: 'text', tags: 'text', notes: 'text', replaced: 'bool' } },
+        where: 'text', tags: 'text', notes: 'text', replaced: 'text' } },
     contracts: { app: 'contracts', shape: R, about: 'Contracts & Renewals: what the household pays for, when it renews and the notice to cancel.',
       fields: { name: 'text', kind: 'text', provider: 'text', reference: 'text', cost: 'num', per: 'text', start: 'date', end: 'date', renews: 'text', renewMonths: 'num',
         notice: 'num', noticeUnit: 'text', cancelledAt: 'date', paperId: 'ref:papers', address: 'text', website: 'text', phone: 'text', notes: 'text' } },

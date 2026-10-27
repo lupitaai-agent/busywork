@@ -180,7 +180,7 @@ Busy makes go to `Letters/` and `Home/`.
 - `papers`: Paper Trail. `title`, `kind` (`id`, `insurance`, `contract`, `house`, `car`, `money`,
   `health`, `school`, `warranty`, `pet`, `other`), `person`, `reference`, `issued`, `expires`,
   `reviewAt` (a date to look at it again), `files` (paths in `Papers/`), `text` (the words of a PDF,
-  for search), `where` (where the original is), `tags`, `notes`, `replaced` (an older copy, never warned about).
+  for search), `where` (where the original is), `tags`, `notes`, `replaced` (`yes` for an older copy, never warned about).
 - `contracts`: Contracts & Renewals. `name`, `kind`, `provider`, `reference`, `cost` per `per`
   (`month`, `quarter`, `year`), `start`, `end` (the current term's end), `renews` (`yes`: renews by
   `renewMonths`, default 12; `no`: just ends; `rolling`: after the first term, cancel any time),
