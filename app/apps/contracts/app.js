@@ -26,8 +26,10 @@
     if (st === 'ended') return ['off', 'Ended', `Ended on ${long(c.end)}.`];
     if (st === 'cancelled') return ['off', end ? `Ends ${BW.fmtDate(end)}` : 'Cancelled', end ? `Cancelled. It ends on ${long(end)}.` : 'Cancelled.'];
     if (st === 'rolling') return ['ok', 'Cancel any time', `You can cancel any time with ${H.noticeText(c)} notice. Cancel today and it ends on ${long(H.endsIfCancelledToday(c, today))}.`];
+    if (c.renews === 'rolling') return [st === 'term' ? 'soon' : 'ok', `Term ends ${BW.fmtDate(c.end, { day: 'numeric', month: 'short' })}`,
+      `The fixed term ends on ${long(c.end)} (${H.when(H.days(today, c.end))}). After that you can cancel any time with ${H.noticeText(c)} notice, so there is no deadline to cancel by. Compare deals before the term ends: the price often goes up.`];
+    if (c.renews === 'no' && end) return ['ok', `Ends ${BW.fmtDate(end, { day: 'numeric', month: 'short' })}`, `It ends by itself on ${long(end)}. Nothing to cancel.`];
     if (!by) return ['off', 'No end date', 'Add the date the current term ends to see the last day to cancel.'];
-    if (c.renews === 'no') return ['ok', `Ends ${BW.fmtDate(end, { day: 'numeric', month: 'short' })}`, `It ends by itself on ${long(end)}. Nothing to cancel.`];
     const left = H.days(today, by);
     if (st === 'missed') return ['late', `Renews ${BW.fmtDate(end)}`, `The last day to cancel was ${long(by)}, so it renews on ${long(end)}.`];
     return [st === 'decide' ? 'soon' : 'ok', `Cancel by ${BW.fmtDate(by, { day: 'numeric', month: 'short' })}`,
@@ -51,11 +53,11 @@
       ${contracts.length ? `
       <div class="stats rise">
         <div class="card stat" style="--tint:var(--tomato)"><div class="k">💶 Per month</div><div class="v">${BW.money(perMonth)}</div><div class="s">${BW.money(perMonth * 12)} a year, ${live.length} contract${live.length === 1 ? '' : 's'}</div></div>
-        <div class="card stat" style="--tint:var(--sun)"><div class="k">✂️ Decide soon</div><div class="v">${decide.length}</div><div class="s">${decide.length ? 'Last day to cancel within two months' : 'Nothing to decide in the next two months'}</div></div>
+        <div class="card stat" style="--tint:var(--sun)"><div class="k">✂️ Decide soon</div><div class="v">${decide.length}</div><div class="s">${decide.length ? 'A date to act on within two months' : 'Nothing to decide in the next two months'}</div></div>
         <div class="card stat" style="--tint:var(--mint)"><div class="k">🔓 Cancel any time</div><div class="v">${live.filter((c) => H.contractState(c, today) === 'rolling').length}</div><div class="s">No end date, just the notice</div></div>
       </div>
       ${decide.length ? `<section class="card attention rise"><h2>✂️ Keep it, switch or cancel?</h2>${decide.map((d) => `
-        <a href="#open/${d.contract.id}"><span class="e">${H.contractKind(d.contract.kind).split(' ')[0]}</span><span class="main"><b>${esc(d.contract.name || d.contract.provider || 'A contract')}</b><small>Last day to cancel: ${long(d.by)} (${H.when(d.left)}). Otherwise it renews on ${BW.fmtDate(d.end)}.</small></span></a>`).join('')}</section>` : ''}
+        <a href="#open/${d.contract.id}"><span class="e">${H.contractKind(d.contract.kind).split(' ')[0]}</span><span class="main"><b>${esc(d.contract.name || d.contract.provider || 'A contract')}</b><small>${d.kind === 'term' ? `The fixed term ends ${long(d.by)} (${H.when(d.left)}). Compare deals before then; after it you can cancel any time.` : `Last day to cancel: ${long(d.by)} (${H.when(d.left)}). Otherwise it renews on ${BW.fmtDate(d.end)}.`}</small></span></a>`).join('')}</section>` : ''}
       <div class="filters" data-kind style="margin-bottom:18px"><button type="button" data-v="" aria-pressed="${!kind}">All</button>${H.CONTRACT_KINDS.filter((k) => counts[k[0]]).map((k) => `<button type="button" data-v="${k[0]}" aria-pressed="${kind === k[0]}">${k[1]}<small>${counts[k[0]]}</small></button>`).join('')}
         ${ended ? `<button type="button" data-ended aria-pressed="${showEnded}">Show ended<small>${ended}</small></button>` : ''}</div>
       <div class="card-grid rise">${shown.map((c) => card(c, today)).join('')}</div>

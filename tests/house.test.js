@@ -22,6 +22,13 @@ test('a contract that renews itself rolls on by its term, and the last day to ca
   assert.equal(H.contractState({ end: '2026-06-30', renews: 'no' }, T), 'ended');
   assert.equal(H.nextEnd({ end: '2025-06-30', renews: 'rolling', notice: 1 }, T), '', 'cancel any time: no end until notice');
   assert.equal(H.contractState({ end: '2025-06-30', renews: 'rolling', notice: 1 }, T), 'rolling');
+  const fixed = { name: 'Energy', end: '2026-11-27', renews: 'rolling', notice: 1, noticeUnit: 'month' };
+  assert.equal(H.cancelBy(fixed, T), '', 'a fixed term that becomes cancel any time has no deadline to cancel by');
+  assert.equal(H.contractState(fixed, T), 'term', 'but its end is the date to compare deals');
+  assert.deepEqual(plain(H.decisions([fixed], T).map((d) => [d.kind, d.by])), [['term', '2026-11-27']]);
+  assert.equal(H.decisionText(H.decisions([fixed], T)[0]), 'Fixed term ends: Energy');
+  assert.equal(H.cancelBy({ end: '2027-01-31', renews: 'no', notice: 1 }, T), '', 'one that just ends needs nothing');
+  assert.equal(H.contractState({ end: '2027-01-31', renews: 'no' }, T), 'ok');
   assert.equal(H.endsIfCancelledToday({ notice: 1, noticeUnit: 'month' }, T), '2026-11-27');
   assert.equal(H.contractState(Object.assign({}, c, { cancelledAt: '2026-10-01', end: '2027-01-31' }), T), 'cancelled');
   const due = H.decisions([c, Object.assign({}, c, { id: 'b', name: 'Gym', end: '2026-12-15', notice: 1 })], T);

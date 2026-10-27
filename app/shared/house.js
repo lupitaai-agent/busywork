@@ -62,26 +62,38 @@
     for (let guard = 0; end < today && guard < 400; guard++) end = BW.addPeriod(end, 'month', step);
     return end;
   };
-  // The last day to give notice so it ends at the next end date instead of renewing.
-  H.cancelBy = (c, today) => { const end = H.nextEnd(c, today); return end && !c.cancelledAt ? minusNotice(end, c) : ''; };
+  /* The last day to give notice so it ends at the next end date instead of renewing. Only a contract
+     that renews by itself has one: one that becomes "cancel any time" can be stopped later without a
+     penalty, and one that just ends needs nothing. */
+  H.cancelBy = (c, today) => {
+    if (c.cancelledAt || c.renews === 'rolling' || c.renews === 'no') return '';
+    const end = H.nextEnd(c, today); return end ? minusNotice(end, c) : '';
+  };
   // For a "cancel any time" contract: give notice today and it ends on this day.
   H.endsIfCancelledToday = (c, today) => minusNotice(today, Object.assign({}, c, { notice: -num(c.notice) }));
   /* What to know about a contract today: 'ended', 'cancelled' (ending), 'decide' (the last day to
-     cancel is within 45 days), 'missed' (that day passed, it renews), 'rolling' or 'ok'. */
+     cancel is within 45 days), 'missed' (that day passed, it renews), 'term' (a fixed term ends
+     within 45 days, after which it is cancel any time: time to compare), 'rolling' (cancel any time)
+     or 'ok'. */
   H.contractState = (c, today) => {
     if (c.cancelledAt) { const end = H.nextEnd(c, today); return end && end < today ? 'ended' : 'cancelled'; }
-    if (c.renews === 'no' && isDate(c.end) && c.end < today) return 'ended';
+    if (c.renews === 'no') return isDate(c.end) && c.end < today ? 'ended' : 'ok';
+    if (c.renews === 'rolling') return isDate(c.end) && c.end >= today ? (days(today, c.end) <= 45 ? 'term' : 'ok') : 'rolling';
     const by = H.cancelBy(c, today);
-    if (!by) return isDate(c.end) || c.renews === 'rolling' ? 'rolling' : 'ok';
+    if (!by) return 'ok';
     const left = days(today, by);
     return left < 0 ? 'missed' : left <= 45 ? 'decide' : 'ok';
   };
-  // Every contract that needs a decision soon, soonest first.
+  /* Every contract with a date to act on soon, soonest first: the last day to cancel one that renews
+     by itself (kind 'cancel'), or the end of a fixed term (kind 'term'). */
   H.decisions = (contracts, today, within = 45) => contracts
-    .map((c) => ({ c, by: H.cancelBy(c, today) }))
-    .filter(({ c, by }) => by && !c.cancelledAt && days(today, by) >= 0 && days(today, by) <= within)
+    .filter((c) => !c.cancelledAt)
+    .map((c) => (c.renews === 'rolling' ? { c, by: isDate(c.end) && c.end >= today ? c.end : '', kind: 'term' } : { c, by: H.cancelBy(c, today), kind: 'cancel' }))
+    .filter(({ by }) => by && days(today, by) >= 0 && days(today, by) <= within)
     .sort((a, b) => a.by.localeCompare(b.by))
-    .map(({ c, by }) => ({ contract: c, by, left: days(today, by), end: H.nextEnd(c, today) }));
+    .map(({ c, by, kind }) => ({ contract: c, by, kind, left: days(today, by), end: H.nextEnd(c, today) }));
+  // How a decision reads in a list.
+  H.decisionText = (d) => (d.kind === 'term' ? `Fixed term ends: ${d.contract.name || d.contract.provider || 'a contract'}` : `Last day to cancel ${d.contract.name || d.contract.provider || 'a contract'}`);
   H.totalMonthly = (contracts, today) => contracts.filter((c) => !['ended'].includes(H.contractState(c, today))).reduce((s, c) => s + H.monthly(c), 0);
 
   // ---------- Home Upkeep ----------
@@ -195,7 +207,7 @@
   H.upcoming = ({ papers = [], contracts = [], upkeep = [], inventory = [], moves = [] }, today, within = 60) => {
     const out = [];
     for (const e of H.expiring(papers, today)) out.push({ date: e.date, app: 'papers', id: e.paper.id, emoji: H.kind(e.paper.kind)[1], text: `${e.paper.title || 'A document'} ${e.left < 0 ? 'expired' : 'expires'}`, left: e.left });
-    for (const d of H.decisions(contracts, today, within)) out.push({ date: d.by, app: 'contracts', id: d.contract.id, emoji: '✂️', text: `Last day to cancel ${d.contract.name || d.contract.provider || 'a contract'}`, left: d.left });
+    for (const d of H.decisions(contracts, today, within)) out.push({ date: d.by, app: 'contracts', id: d.contract.id, emoji: d.kind === 'term' ? '🔁' : '✂️', text: H.decisionText(d), left: d.left });
     for (const j of upkeep) { const due = H.nextDue(j, today); const left = days(today, due); if (left <= Math.min(within, 30)) out.push({ date: due, app: 'upkeep', id: j.id, emoji: '🛠️', text: j.task || 'Upkeep', left }); }
     for (const x of H.warrantyEnding(inventory, today, within)) out.push({ date: x.warrantyUntil, app: 'inventory', id: x.id, emoji: '🧾', text: `Warranty ends: ${x.name || 'something you own'}`, left: days(today, x.warrantyUntil) });
     for (const m of moves) if (isDate(m.date) && days(today, m.date) >= 0 && !m.finished) out.push({ date: m.date, app: 'moving', id: m.id, emoji: '🚚', text: `Moving day${m.to ? ': ' + m.to : ''}`, left: days(today, m.date) });

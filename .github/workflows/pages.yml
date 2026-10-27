@@ -46,6 +46,8 @@ jobs:
           OLAF_CHECKOUT_URL: ${{ vars.OLAF_CHECKOUT_URL }}
           # Busy Growth's launch switch: 1 publishes its download and its demo, and the site stops saying "soon".
           GROWTH_LIVE: ${{ vars.GROWTH_LIVE }}
+          # Busy Home's launch switch, the same way.
+          HOME_LIVE: ${{ vars.HOME_LIVE }}
           IVY_CHECKOUT_URL: ${{ vars.IVY_CHECKOUT_URL }}
       - uses: actions/upload-pages-artifact@v3
         with:
