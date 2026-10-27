@@ -976,11 +976,28 @@ GAMES = [
                "Tap a cell, then a number below the board. On a keyboard, type 1 to 6; Backspace erases."],
      "about": "Six is Sudoku on a smaller 6 × 6 grid with 2 × 3 boxes. Every puzzle has exactly one answer."},
 ]
+# The free apps for Mac and Windows: one per suite (and one for the games), built by the private repo's
+# desktop/build-free.py and published as a GitHub release of this repository. The file names stay the
+# same from release to release, so these links always give the latest.
+APP_RELEASE = "https://github.com/lupitaai-agent/busywork/releases/latest/download/"
+
+
+def app_download(word: str, name: str) -> str:
+    """The download buttons for one free app, with what it runs on and how to open the beta."""
+    return f"""<div class="row-flex" style="justify-content:center">
+      <a class="btn btn-primary btn-big" href="{APP_RELEASE}Busy-{word}-Beta-Mac.dmg" data-download>⬇️ {e(name)} for Mac</a>
+      <a class="btn btn-primary btn-big" href="{APP_RELEASE}Busy-{word}-Beta-Windows.exe" data-download>⬇️ {e(name)} for Windows</a></div>
+    <p class="faint" style="margin-top:14px">Free · Beta · Mac: macOS 13 or newer, Apple chip or Intel · Windows 10 or 11, 64-bit</p>
+    <details class="first-open"><summary>Opening it the first time</summary><p>The beta isn’t signed by Apple or Microsoft yet, so your computer asks first, once.
+      <b>Mac:</b> open the downloaded file, drag {e(name)} into Applications and open it. Click Done, then open System Settings → Privacy &amp; Security, scroll down and click <b>Open Anyway</b>.
+      <b>Windows:</b> run the downloaded file; if Windows says it protected your PC, click <b>More info</b>, then <b>Run anyway</b>.</p></details>"""
+
+
 GAMES_FAQ = [
-    ("Is it free?", "Yes. Every puzzle and every level is free to play in your browser, with no account and nothing to download."),
+    ("Is it free?", "Yes. Every puzzle and every level is free: in your browser, or in the free Busy Games app for Mac and Windows. No account."),
     ("How many levels are there?", f"{GAME_LEVELS:,} per game, from gentle small boards to expert ones, plus a new daily puzzle. Every puzzle has exactly one answer, so it can always be solved by reasoning."),
     ("Is there a new puzzle every day?", "Yes: one per game, the same for everyone, gentle on Monday and hardest at the weekend. Solve it to keep your streak going."),
-    ("Where is my progress kept?", "In this browser only: your streak, solved levels and an unfinished puzzle. Nothing is sent to us, and there is no account. Another browser or a private window starts fresh."),
+    ("Where is my progress kept?", "In this browser (or the app) only: your streak, solved levels and an unfinished puzzle. Nothing is sent to us, and there is no account. Another browser or a private window starts fresh."),
 ]
 
 
@@ -990,7 +1007,7 @@ def games_hub() -> str:
     faq = "".join(f"<details><summary>{e(q)}</summary><p>{e(a)}</p></details>" for q, a in GAMES_FAQ)
     ld = jsonld({"@context": "https://schema.org", "@type": "FAQPage",
                  "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in GAMES_FAQ]})
-    desc = f"Free daily brain games from Busy: Stars, Duo, Trail and Six. A new logic puzzle every day and {GAME_LEVELS:,} levels each. No account, nothing to install."
+    desc = f"Free daily brain games from Busy: Stars, Duo, Trail and Six. A new logic puzzle every day and {GAME_LEVELS:,} levels each. In your browser or as an app. No account."
     return f"""{head("Free brain games: a new puzzle every day · Busy", desc, "games/index.html", "../", ld + '<link rel="stylesheet" href="../assets/games/games.css">')}
 <body class="site app-sun" data-hub>
 {nav("../", explore("../"))}
@@ -1001,6 +1018,9 @@ def games_hub() -> str:
     <span class="streak" data-streak></span>
   </section>
   <div class="game-cards">{cards}</div>
+  <section class="section" id="get-app"><div class="center reveal"><h2 class="big">Play without a browser</h2>
+    <p class="lead">Busy Games as a free app on your computer: the same puzzles, your streak kept, and it works offline.</p>
+    {app_download("Games", "Busy Games")}</div></section>
   <section class="section" id="faq"><div class="center reveal"><h2 class="big">Questions</h2></div><div class="faq reveal">{faq}</div></section>
 </main>
 {footer("../", json.loads(TOOLS_JSON.read_text()))}
@@ -1098,8 +1118,8 @@ def growth_page(tools: list) -> str:
 </html>
 """
     desc = f"Busy Growth: {len(GROWTH_TOOLS)} free tools to grow your career. A library of what you learn, skills, wins, a job tracker, CVs, interview stories and contacts. No account."
-    steps = [("⬇️", "Install Busy", "The free app for Mac and Windows, in beta. One app holds Busy Growth, Busy Business and Busy Home."),
-             ("🌱", "Open Busy Growth", "Pick it on the start screen. It works offline, and nothing is sent anywhere."),
+    steps = [("⬇️", "Install Busy Growth", "The free app for Mac and Windows, in beta. No account, no AI."),
+             ("🌱", "Open it", "It works offline, and nothing is sent anywhere."),
              ("📁", "Your own folder", "Your library, skills, wins and CVs are saved as plain files in Documents/Busy/Growth. Move it into Google Drive or Dropbox to sync it."),
              ("💼", "Start from LinkedIn", "Download your own data from LinkedIn and Busy fills in your jobs, education, skills and certificates in minutes.")]
     how = "".join(f'<div class="card feat reveal pop"><span class="fe">{em}</span><h3>{e(n)}</h3><p>{e(d)}</p></div>' for em, n, d in steps)
@@ -1113,7 +1133,7 @@ def growth_page(tools: list) -> str:
       <span class="chip chip-mint">Free · no account</span>
       <h1 class="reveal" style="margin-top:12px">Busy Growth 🌱</h1>
       <p class="lead reveal" style="max-width:680px;margin:0 auto">Free tools to grow your career: learn something, prove it, show it and land the next role. Everything in your own folder, no account, like the rest of Busy.</p>
-      <div class="row-flex reveal" style="justify-content:center;margin-top:22px"><a class="btn btn-primary btn-big" href="../business/download.html">⬇️ Download free</a><a class="btn btn-big" href="../app/growth.html">👀 See the demo</a></div>
+      <div class="row-flex reveal" style="justify-content:center;margin-top:22px"><a class="btn btn-primary btn-big" href="#get">⬇️ Download free</a><a class="btn btn-big" href="../app/growth.html">👀 See the demo</a></div>
     </div>
   </section>
   <section class="section"><div class="wrap">
@@ -1128,8 +1148,8 @@ def growth_page(tools: list) -> str:
   <section class="section" id="get"><div class="wrap">
     <div class="center reveal"><h2 class="big">Get Busy Growth</h2><p class="lead">Free, the whole set. No account, no subscription, nothing sent to us.</p></div>
     <div class="feats">{how}</div>
-    <div class="center" style="margin-top:22px"><a class="btn btn-primary btn-big" href="../business/download.html">⬇️ Download Busy for Mac or Windows</a>
-      <p class="faint" style="margin-top:14px">Free · Beta · Works offline · <a href="../downloads/busy-growth.zip" download>Or the browser version (zip)</a></p></div>
+    <div class="center" style="margin-top:22px">{app_download("Growth", "Busy Growth")}
+      <p class="faint" style="margin-top:10px">Can’t install apps? <a href="../downloads/busy-growth.zip" download>Use the browser version (zip)</a> in Chrome or Edge.</p></div>
   </div></section>
   {ivy}
   <section class="section"><div class="wrap center">
@@ -1166,17 +1186,17 @@ def home_page(tools: list) -> str:
   </div></section>"""
     hero_chip, hero_btns = ('<span class="chip chip-grey">Coming soon</span>', '') if not HOME_LIVE else (
         '<span class="chip chip-tomato">Free · no account</span>',
-        '<div class="row-flex reveal" style="justify-content:center;margin-top:22px"><a class="btn btn-primary btn-big" href="../business/download.html">⬇️ Download free</a><a class="btn btn-big" href="../app/home.html">👀 See the demo</a></div>')
-    steps = [("⬇️", "Install Busy", "The free app for Mac and Windows, in beta. One app holds Busy Home, Busy Business and Busy Growth."),
-             ("🏡", "Open Busy Home", "Pick it on the start screen. It works offline, and nothing is sent anywhere."),
+        '<div class="row-flex reveal" style="justify-content:center;margin-top:22px"><a class="btn btn-primary btn-big" href="#get">⬇️ Download free</a><a class="btn btn-big" href="../app/home.html">👀 See the demo</a></div>')
+    steps = [("⬇️", "Install Busy Home", "The free app for Mac and Windows, in beta. No account, no AI."),
+             ("🏡", "Open it", "It works offline, and nothing is sent anywhere."),
              ("📁", "Your own folder", "Your documents, scans and photos are saved as plain files in Documents/Busy/Home. Move it into Google Drive or Dropbox to share it with your partner."),
              ("🪪", "Start with your passports", "Add them with their expiry dates. Then your contracts: Busy shows the last day to cancel each one.")]
     how = "".join(f'<div class="card feat reveal pop"><span class="fe">{em}</span><h3>{e(n)}</h3><p>{e(d)}</p></div>' for em, n, d in steps)
     get = f"""<section class="section" id="get"><div class="wrap">
     <div class="center reveal"><h2 class="big">Get Busy Home</h2><p class="lead">Free, the whole set. No account, no subscription, nothing sent to us.</p></div>
     <div class="feats">{how}</div>
-    <div class="center" style="margin-top:22px"><a class="btn btn-primary btn-big" href="../business/download.html">⬇️ Download Busy for Mac or Windows</a>
-      <p class="faint" style="margin-top:14px">Free · Beta · Works offline · <a href="../downloads/busy-home.zip" download>Or the browser version (zip)</a></p></div>
+    <div class="center" style="margin-top:22px">{app_download("Home", "Busy Home")}
+      <p class="faint" style="margin-top:10px">Can’t install apps? <a href="../downloads/busy-home.zip" download>Use the browser version (zip)</a> in Chrome or Edge.</p></div>
   </div></section>""" if HOME_LIVE else """<section class="section" id="get"><div class="wrap center">
     <h2 class="big">On its way</h2><p class="lead">Busy Home is nearly ready. Meanwhile, keep your brain busy with <a href="../games/index.html">today's puzzles</a>.</p></div></section>"""
     title = "Busy Home: free tools for your household paperwork" + ("" if HOME_LIVE else " (soon)")
@@ -1407,28 +1427,28 @@ def write_llms(tools: list) -> None:
              "Key facts:",
              f"- Price: every suite's tools are free, with no account and no subscription. Olaf (Busy Business) is {olaf_price} for one business; Ivy (Busy Growth, coming soon) is €30 once. Both run on the owner's own Claude usage.",
              "- Data: saved as files in a folder the owner chooses on their own computer (it can sit in Google Drive, Dropbox, OneDrive or iCloud Drive). Nothing is sent to Busy. The games keep progress in the browser.",
-             "- Works in: a free app for Mac and Windows (beta) with every suite; or, without installing, Chrome and Edge from a downloaded folder (also on ChromeOS and Linux). The games run in any modern browser.",
+             "- Works in: a free app per suite for Mac and Windows (beta), Busy Games included; or, without installing, Chrome and Edge from a downloaded folder (also on ChromeOS and Linux). The games run in any modern browser.",
              "- AI: none in the free tools. Olaf, Ivy and Juno run on Claude with the owner's own API key; requests go from the browser to Anthropic only.",
              "- Language: English. Invoices, quotes and documents can be made in English or Dutch.",
              "", "## Busy Business: free tools for small businesses", "",
              f"- [Busy Business]({b}/business/index.html): {len(tools)} free tools for small businesses and freelancers, and how they work together."]
     lines += [f"- [{t['name']}]({b}/business/{t['id']}.html): {t['description']}" for t in tools]
     lines += [f"- [Olaf, the AI expert for marketing and projects]({b}/business/olaf.html): a 90-day marketing plan, project plans, a weekly check-in and the work done with the owner, on proven marketing science. {olaf_price}.",
-              f"- [Download Busy]({b}/business/download.html): the free app for Mac and Windows (beta), with Busy Business, Busy Growth and Busy Home; no AI, nothing sent anywhere. A zip for the browser is there too.",
+              f"- [Download Busy Business]({b}/business/download.html): the free Busy Business app for Mac and Windows (beta); no AI, nothing sent anywhere. A zip for the browser is there too.",
               f"- [All business tools]({b}/business/tools.html): what each tool does.",
               "", "## Busy Games: free daily brain games", "",
-              f"- [Busy Games]({b}/games/index.html): four free logic puzzles in the browser, a new one every day and {GAME_LEVELS:,} levels each. No account."]
+              f"- [Busy Games]({b}/games/index.html): four free logic puzzles in the browser or as a free app for Mac and Windows (beta), a new one every day and {GAME_LEVELS:,} levels each. No account."]
     lines += [f"- [{g['name']}]({b}/games/{g['id']}.html): {g['desc']}" for g in GAMES]
     if GROWTH_LIVE:
         lines += ["", "## Busy Growth: free tools to grow your career", "",
                   f"- [Busy Growth]({b}/growth/index.html): {len(GROWTH_TOOLS)} free tools: a library of what you read and learn, skills, wins, a learning plan, a job tracker, a CV builder, interview stories, contacts and a weekly review. Ivy, an AI coach for professional growth (€30 once), is coming soon.",
-                  f"- [Download Busy]({b}/business/download.html): Busy Growth is in the free app for Mac and Windows."]
+                  f"- [Download Busy Growth]({b}/growth/index.html#get): the free Busy Growth app for Mac and Windows (beta), or a zip for the browser."]
     else:
         lines += ["", "## Busy Growth: free tools to grow your career (coming soon)", "",
                   f"- [Busy Growth]({b}/growth/index.html): a library of what you read and learn, skills, wins, a learning plan, a job tracker and a CV builder, plus Ivy, an AI coach for professional growth (€30 once). Not released yet."]
     lines += (["", "## Busy Home: free tools for household paperwork", "",
                f"- [Busy Home]({b}/home/index.html): {len(HOME_TOOLS)} free tools: documents that warn before they expire, contracts with the last day to cancel, home upkeep, a home inventory with an insurance claim pack, letters, a moving planner and a Just in Case binder. Juno, an AI expert for household paperwork ({JUNO_PRICE} once), is coming soon.",
-               f"- [Download Busy]({b}/business/download.html): Busy Home is in the free app for Mac and Windows."]
+               f"- [Download Busy Home]({b}/home/index.html#get): the free Busy Home app for Mac and Windows (beta), or a zip for the browser."]
               if HOME_LIVE else ["", "## Busy Home: free tools for household paperwork (coming soon)", "",
                f"- [Busy Home]({b}/home/index.html): documents, contracts with the last day to cancel, upkeep, a home inventory, letters, moving and a Just in Case binder. Not released yet."])
     lines += [
@@ -1443,8 +1463,8 @@ def write_llms(tools: list) -> None:
     full = [f"# Busy: the full picture", "", ENTITY, "", f"Website: {b}/", "", DISAMBIGUATION, "",
             "# Busy Business: free tools for small businesses", "", f"Page: {b}/business/index.html", "",
             "## How it works", "",
-            f"1. Download the free Busy app for Mac or Windows (beta) from {b}/business/download.html and install it. Without installing, a zip that runs in Chrome or Edge is there too.",
-            "2. Open Busy and pick Busy Business on the start screen.",
+            f"1. Download the free Busy Business app for Mac or Windows (beta) from {b}/business/download.html and install it. Without installing, a zip that runs in Chrome or Edge is there too.",
+            "2. Open Busy Business.",
             "3. Every tool saves plain files in its own folder (Documents/Busy/Business, or one you choose); put the folder in Google Drive, Dropbox, OneDrive or iCloud Drive for backups and syncing.",
             "4. Busy also keeps a daily backup in that folder. There is no account and no server: nothing is sent to us.",
             "", "## Editions", "",
@@ -1463,11 +1483,11 @@ def write_llms(tools: list) -> None:
     for g in GAMES:
         full += [f"## {g['name']} ({g['classic']})", "", g["about"], f"Page: {b}/games/{g['id']}.html", "", "Rules:"] + [f"- {r}" for r in g["rules"]] + [""]
     full += ["Questions:"] + [f"- {q} {a}" for q, a in GAMES_FAQ]
-    full += (["", "# Busy Growth: free tools to grow your career", "", f"Page: {b}/growth/index.html. Free, in the Busy app for Mac and Windows ({b}/business/download.html) or its own zip ({b}/downloads/busy-growth.zip), with a demo at {b}/app/growth.html. The tools:", ""]
+    full += (["", "# Busy Growth: free tools to grow your career", "", f"Page: {b}/growth/index.html. Free, as its own app for Mac and Windows ({b}/growth/index.html#get) or a zip for the browser ({b}/downloads/busy-growth.zip), with a demo at {b}/app/growth.html. The tools:", ""]
              if GROWTH_LIVE else ["", "# Busy Growth: free tools to grow your career (coming soon)", "", f"Page: {b}/growth/index.html. Not released yet. Planned tools:", ""])
     full += [f"- {n}: {d}" for _, n, d in GROWTH_TOOLS]
     full += ["", "Ivy by Busy, the AI coach for professional growth, will be the paid part: €30 once, on the owner's own Claude usage. Ivy never invents experience: every CV line comes with its proof."]
-    full += (["", "# Busy Home: free tools for household paperwork", "", f"Page: {b}/home/index.html. Free, in the Busy app for Mac and Windows ({b}/business/download.html) or its own zip ({b}/downloads/busy-home.zip), with a demo at {b}/app/home.html. The tools:", ""]
+    full += (["", "# Busy Home: free tools for household paperwork", "", f"Page: {b}/home/index.html. Free, as its own app for Mac and Windows ({b}/home/index.html#get) or a zip for the browser ({b}/downloads/busy-home.zip), with a demo at {b}/app/home.html. The tools:", ""]
              if HOME_LIVE else ["", "# Busy Home: free tools for household paperwork (coming soon)", "", f"Page: {b}/home/index.html. Not released yet. Planned tools:", ""])
     full += [f"- {n}: {d}" for _, n, d in HOME_TOOLS]
     full += ["", f"Juno by Busy, the AI expert for household paperwork, is the paid part: {JUNO_PRICE} once, on the owner's own Claude usage. It explains letters, reads contracts and policies, writes replies and keeps renewals in view. It never gives legal advice.",

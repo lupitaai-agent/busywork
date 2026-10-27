@@ -445,3 +445,7 @@ html, body.site { overflow-x: clip; }
 .ivy-card.juno-card { background: #2A1611; color: #FFF3EC; }
 .juno-card .kicker { color: #FFB899; }
 @media (max-width: 600px) { .expert, .ivy-card { flex-direction: column; } }
+
+.first-open { max-width: 640px; margin: 14px auto 0; text-align: left; }
+.first-open summary { cursor: pointer; font-weight: 800; text-align: center; }
+.first-open p { color: var(--ink-2); margin-top: 8px; }

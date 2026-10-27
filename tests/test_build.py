@@ -135,14 +135,32 @@ class WebsitePolicy(unittest.TestCase):
 class Editions(unittest.TestCase):
     """The free download has no AI and no pretend business; the website's tools are the demo."""
 
-    def test_the_download_page_offers_the_free_apps(self):
-        """The free Mac and Windows apps come from the public repository's latest release, under
-        names every release keeps (see the private repo's desktop/README.md)."""
-        page = (ROOT / "website" / "business" / "download.html").read_text()
-        for name in ("Busy-Beta-Mac.dmg", "Busy-Beta-Windows.exe"):
-            self.assertIn(f'href="https://github.com/lupitaai-agent/busywork/releases/latest/download/{name}"', page)
-        self.assertIn("Open Anyway", page)
-        self.assertIn('href="../downloads/busy.zip"', page, "the browser version stays available")
+    def test_each_suite_offers_its_own_free_app(self):
+        """One free app per audience, from the public repository's latest release, under names every
+        release keeps (see the private repo's desktop/README.md). Built with every suite live."""
+        rel = "https://github.com/lupitaai-agent/busywork/releases/latest/download/"
+        tmp = Path(tempfile.mkdtemp())
+        try:
+            shutil.copytree(ROOT / "website", tmp / "website", ignore=shutil.ignore_patterns("app", "downloads"))
+            saved = build.SITE, build.GROWTH_LIVE, build.HOME_LIVE
+            build.SITE, build.GROWTH_LIVE, build.HOME_LIVE = tmp / "website", True, True
+            try:
+                pages = {"business/download.html": "Business", "growth/index.html": "Growth", "home/index.html": "Home", "games/index.html": "Games"}
+                (tmp / "website" / "growth" / "index.html").write_text(build.growth_page(json.loads(build.TOOLS_JSON.read_text())))
+                (tmp / "website" / "home" / "index.html").write_text(build.home_page(json.loads(build.TOOLS_JSON.read_text())))
+                (tmp / "website" / "games" / "index.html").write_text(build.games_hub())
+                for page, word in pages.items():
+                    html = (tmp / "website" / page).read_text()
+                    for name in (f"Busy-{word}-Beta-Mac.dmg", f"Busy-{word}-Beta-Windows.exe"):
+                        self.assertIn(f'href="{rel}{name}"', html, page)
+                    others = [w for w in pages.values() if w != word]
+                    self.assertFalse([w for w in others if f"Busy-{w}-Beta-" in html], f"{page} offers only its own app")
+                    self.assertIn("Open Anyway", html, page)
+            finally:
+                build.SITE, build.GROWTH_LIVE, build.HOME_LIVE = saved
+        finally:
+            shutil.rmtree(tmp)
+        self.assertIn('href="../downloads/busy.zip"', (ROOT / "website" / "business" / "download.html").read_text(), "the browser version stays available")
 
     def test_free_download_has_no_ai_and_no_example_business(self):
         import zipfile

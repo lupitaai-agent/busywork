@@ -724,10 +724,13 @@
   BW.sponsors = [
     // { emoji: '🏦', title: 'Sponsor name', text: 'One line about the offer.', cta: 'Learn more', href: 'https://…' },
   ];
+  const EXPERT_PAGES = { ivy: '/growth/index.html#ivy', juno: '/home/index.html#juno' };
   BW.houseAds = () => BW.suiteApps().filter((a) => a.ready).map((a) => ({
     id: a.id, emoji: a.emoji, title: `Try ${a.name}`, text: a.tagline, cta: 'Open it', href: `${BW.root}apps/${a.id}/index.html`, color: a.color,
   })).concat(BW.suiteApps().filter((a) => !a.ready).map((a) => ({
     id: a.id, emoji: a.emoji, title: `Coming soon: ${a.name}`, text: a.tagline, color: a.color,
+    // An expert that isn't here yet has its own section on its suite's page.
+    ...(EXPERT_PAGES[a.id] ? { href: BW.siteUrl + EXPERT_PAGES[a.id], cta: 'Learn more', external: true } : {}),
   })));
   BW.adSlot = (here) => {
     let pool = BW.sponsors.length ? BW.sponsors.map((s) => Object.assign({ sponsored: true }, s)) : BW.houseAds().filter((h) => h.id !== here);
@@ -1494,7 +1497,6 @@
     BW.suite = document.body.dataset.suite || (app && app.suite) || 'business';
     if (BW.suite === 'business') BW.olafInstalled(); // early, so tip cards know whether Olaf is here
     const bar = topbar(app);
-    if (onChange) BW.onChange(onChange);
     try {
       await connect();
       const data = await BW.migrate();
@@ -1511,6 +1513,8 @@
         bar.append(BW.html(`<div class="readonly-bar" role="status">🔒 ${readOnly}</div>`));
       }
       BW.settings = await BW.store.settings();
+      // Changes reach the page only once it has its settings: a change during start-up has nothing to redraw yet.
+      if (onChange) BW.onChange(onChange);
       if (!readOnly && (BW.suite === 'business' ? !BW.settings.businessName : !BW.settings.ownerName)) await runWizard();
     } catch (e) { BW.error(e); return; }
     const chip = BW.$('[data-store]', bar);

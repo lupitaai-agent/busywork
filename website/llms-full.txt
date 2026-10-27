@@ -12,8 +12,8 @@ Page: https://busywork.example/business/index.html
 
 ## How it works
 
-1. Download the free Busy app for Mac or Windows (beta) from https://busywork.example/business/download.html and install it. Without installing, a zip that runs in Chrome or Edge is there too.
-2. Open Busy and pick Busy Business on the start screen.
+1. Download the free Busy Business app for Mac or Windows (beta) from https://busywork.example/business/download.html and install it. Without installing, a zip that runs in Chrome or Edge is there too.
+2. Open Busy Business.
 3. Every tool saves plain files in its own folder (Documents/Busy/Business, or one you choose); put the folder in Google Drive, Dropbox, OneDrive or iCloud Drive for backups and syncing.
 4. Busy also keeps a daily backup in that folder. There is no account and no server: nothing is sent to us.
 
@@ -351,10 +351,10 @@ Rules:
 - Tap a cell, then a number below the board. On a keyboard, type 1 to 6; Backspace erases.
 
 Questions:
-- Is it free? Yes. Every puzzle and every level is free to play in your browser, with no account and nothing to download.
+- Is it free? Yes. Every puzzle and every level is free: in your browser, or in the free Busy Games app for Mac and Windows. No account.
 - How many levels are there? 10,000 per game, from gentle small boards to expert ones, plus a new daily puzzle. Every puzzle has exactly one answer, so it can always be solved by reasoning.
 - Is there a new puzzle every day? Yes: one per game, the same for everyone, gentle on Monday and hardest at the weekend. Solve it to keep your streak going.
-- Where is my progress kept? In this browser only: your streak, solved levels and an unfinished puzzle. Nothing is sent to us, and there is no account. Another browser or a private window starts fresh.
+- Where is my progress kept? In this browser (or the app) only: your streak, solved levels and an unfinished puzzle. Nothing is sent to us, and there is no account. Another browser or a private window starts fresh.
 
 # Busy Growth: free tools to grow your career (coming soon)
 

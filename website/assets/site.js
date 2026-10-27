@@ -41,6 +41,7 @@
   };
   function ads() {
     const slots = $$('[data-ad]');
+    if (!slots.length) return; // no ad on this page: load nothing from the ad network
     const preview = location.protocol === 'file:' || /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
     if (!ADSENSE.client) {
       slots.forEach((s) => { if (preview) s.innerHTML = '<div class="lbl">Advertisement</div><div class="placeholder">Ad space · Google AdSense shows here once the site is approved</div>'; else s.remove(); });
