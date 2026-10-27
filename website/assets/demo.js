@@ -1,5 +1,5 @@
-/* The website demo: every Busy tool, already filled with a pretend design studio (Busy Business) or a
-   pretend career switcher (Busy Growth), so visitors see what they get before they download or buy. Not part of any download: build.py adds this
+/* The website demo: every Busy tool, already filled with a pretend design studio (Busy Business), a
+   pretend career switcher (Busy Growth) or a pretend household (Busy Home), so visitors see what they get before they download or buy. Not part of any download: build.py adds this
    script to the website's copy of the tools only, before core.js.
 
    It uses the shell hook in core.js (window.BW_HOST): the business is kept in sessionStorage, so it
@@ -8,8 +8,9 @@
 (function () {
   'use strict';
   // Each suite has its own pretend data, as each has its own folder.
-  const GROWTH = document.body && document.body.dataset.suite === 'growth';
-  const PREFIX = GROWTH ? 'bw.demo.growth.' : 'bw.demo.';
+  const SUITE = (document.body && document.body.dataset.suite) || 'business';
+  const GROWTH = SUITE === 'growth', HOUSE = SUITE === 'house';
+  const PREFIX = GROWTH ? 'bw.demo.growth.' : HOUSE ? 'bw.demo.house.' : 'bw.demo.';
   const ss = {
     get(k) { try { return sessionStorage.getItem(PREFIX + k); } catch (e) { return null; } },
     set(k, v) { try { sessionStorage.setItem(PREFIX + k, v); } catch (e) { /* private window: it simply resets */ } },
@@ -50,6 +51,14 @@
         await BW.growthExamples.load();
         ss.set('seeded', '1');
       }
+      if (!ss.get('seeded') && HOUSE) {
+        BW.useDriver(d);
+        await BW.loadScript(BW.root + 'shared/house-examples.js');
+        await d.writeJSON('settings', BW.houseExamples.settings);
+        BW.settings = await BW.store.settings();
+        await BW.houseExamples.load();
+        ss.set('seeded', '1');
+      }
       if (!ss.get('seeded')) {
         BW.useDriver(d);
         await d.writeJSON('settings', {
@@ -73,7 +82,10 @@
     bar.setAttribute('role', 'note');
     bar.style.cssText = 'display:flex;gap:10px 16px;flex-wrap:wrap;align-items:center;justify-content:center;padding:9px 16px;font-weight:700;font-size:.92rem;'
       + 'background:color-mix(in srgb, var(--grape) 30%, var(--surface));color:var(--ink);border-top:2px solid var(--border)';
-    bar.innerHTML = GROWTH
+    bar.innerHTML = HOUSE
+      ? '<span>🎭 A demo with a pretend household. Nothing you change is kept.</span>'
+        + `<a class="btn btn-primary" style="padding:6px 14px" href="${site}home/index.html#get">⬇️ Download free</a>`
+      : GROWTH
       ? '<span>🎭 A demo with a pretend career switcher. Nothing you change is kept.</span>'
         + `<a class="btn btn-primary" style="padding:6px 14px" href="${site}growth/index.html#get">⬇️ Download free</a>`
       : '<span>🎭 A demo with a pretend design studio. Nothing you change is kept.</span>'

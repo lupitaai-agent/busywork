@@ -29,7 +29,7 @@
     const move = moves.filter((m) => !m.finished && m.date && m.date >= today).sort((a, b) => a.date.localeCompare(b.date))[0];
     const glance = [
       move && ['teal', '🚚', 'Moving day', String(H.days(today, move.date)), `days to go${move.to ? ', to ' + move.to : ''}`, 'moving'],
-      ['tomato', '✂️', 'Decide soon', String(decide.length), decide[0] ? `${decide[0].contract.name || decide[0].contract.provider}: cancel by ${BW.fmtDate(decide[0].by)}` : 'No last days to cancel in the next two months', 'contracts'],
+      ['tomato', '✂️', 'Decide soon', String(decide.length), decide[0] ? `${decide[0].contract.name || decide[0].contract.provider}: cancel ${decide[0].left === 0 ? 'today' : 'by ' + BW.fmtDate(decide[0].by, { day: 'numeric', month: 'short' })}` : 'No last days to cancel in the next two months', 'contracts'],
       ['sky', '🗂️', 'Expiring', String(expiring.length), expiring[0] ? `${expiring[0].paper.title}: ${H.when(expiring[0].left)}` : 'Every document is up to date', 'papers'],
       ['sun', '🛠️', 'Upkeep due', String(due.length), due[0] ? due.map((j) => j.task).slice(0, 2).join(', ') : upkeep.length ? 'All on schedule' : 'Pick jobs from a ready-made list', 'upkeep'],
       ['grape', '💶', 'Contracts a month', BW.money(H.totalMonthly(live, today)), `${live.length} contract${live.length === 1 ? '' : 's'}`, 'contracts'],

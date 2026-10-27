@@ -60,6 +60,7 @@ test('letters fill in the household, the addressee and the contract, and leave w
   const out = H.fill(tpl.body, { me: H.me({ ownerName: 'Sam Jansen', address: 'Oudegracht 1', postcode: '3511 AA', city: 'Utrecht' }), to: { name: 'Fit & Co' }, c: { name: 'Gym membership', end: '2026-12-15' }, today: T });
   assert.match(out, /^Sam Jansen\nOudegracht 1\n3511 AA Utrecht/);
   assert.match(out, /Fit & Co\n\[address\]/);
+  assert.match(H.fill('{{to.name}}\n{{to.address}}', { to: { name: 'Fit & Co', address: 'Fit & Co\nSportlaan 1' } }), /^Fit & Co\nSportlaan 1$/, 'the name is not written twice');
   assert.match(out, /Utrecht, 27 October 2026/);
   assert.match(out, /Reference: \[reference\]/);
   assert.match(out, /15 December 2026/);

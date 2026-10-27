@@ -27,6 +27,7 @@
     if (st === 'cancelled') return ['off', end ? `Ends ${BW.fmtDate(end)}` : 'Cancelled', end ? `Cancelled. It ends on ${long(end)}.` : 'Cancelled.'];
     if (st === 'rolling') return ['ok', 'Cancel any time', `You can cancel any time with ${H.noticeText(c)} notice. Cancel today and it ends on ${long(H.endsIfCancelledToday(c, today))}.`];
     if (!by) return ['off', 'No end date', 'Add the date the current term ends to see the last day to cancel.'];
+    if (c.renews === 'no') return ['ok', `Ends ${BW.fmtDate(end, { day: 'numeric', month: 'short' })}`, `It ends by itself on ${long(end)}. Nothing to cancel.`];
     const left = H.days(today, by);
     if (st === 'missed') return ['late', `Renews ${BW.fmtDate(end)}`, `The last day to cancel was ${long(by)}, so it renews on ${long(end)}.`];
     return [st === 'decide' ? 'soon' : 'ok', `Cancel by ${BW.fmtDate(by, { day: 'numeric', month: 'short' })}`,
@@ -69,9 +70,10 @@
   }
   function card(c, today) {
     const [cls, pill] = verdict(c, today), m = H.monthly(c);
-    return `<button class="card h-card ${cls === 'off' && H.contractState(c, today) === 'ended' ? 'ended' : ''}" data-id="${c.id}">
-      <span class="top"><span><small>${H.contractKind(c.kind)}</small><b style="display:block">${esc(c.name || c.provider || 'A contract')}</b></span><span class="due ${cls}">${pill}</span></span>
-      <small>${esc([c.provider && c.provider !== c.name ? c.provider : '', m ? `${BW.money(m)} a month` : ''].filter(Boolean).join(' · ')) || '&nbsp;'}</small></button>`;
+    return `<button class="card h-card ${H.contractState(c, today) === 'ended' ? 'ended' : ''}" data-id="${c.id}">
+      <small>${H.contractKind(c.kind)}</small><b>${esc(c.name || c.provider || 'A contract')}</b>
+      <small>${esc([c.provider && c.provider !== c.name ? c.provider : '', m ? `${BW.money(m)} a month` : ''].filter(Boolean).join(' · ')) || '&nbsp;'}</small>
+      <span><span class="due ${cls}">${pill}</span></span></button>`;
   }
 
   function edit(c) {
@@ -98,7 +100,7 @@
         { k: 'notes', label: 'Notes', type: 'textarea', ph: 'What’s included, the excess, what you agreed on the phone', span: 2 },
       ],
       isComplete: (r) => !!(r.name || r.provider),
-      bottom: (r) => `<div class="card" style="padding:14px 16px;margin-top:14px;background:var(--app-soft)" data-verdict>${verdictHtml(r, today)}</div>`,
+      top: (r) => `<div class="card" style="padding:14px 16px;margin-bottom:14px;background:var(--app-soft)" data-verdict>${verdictHtml(r, today)}</div>`,
       bind: (box, r, save) => {
         const redraw = () => setTimeout(() => { BW.readFields($('[data-form]', box), r); $('[data-verdict]', box).innerHTML = verdictHtml(r, today); bindVerdict(); });
         box.addEventListener('input', redraw); box.addEventListener('click', (e) => { if (e.target.closest('.choice-chips')) redraw(); });

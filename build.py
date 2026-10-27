@@ -249,7 +249,7 @@ def copy_olaf_demo() -> None:
 def make_demo() -> None:
     """The website's copy of the tools is a demo: every page loads assets/demo.js before core.js, which
     fills the tools with the pretend studio for as long as the tab is open (see that file)."""
-    pages = sorted((SITE / "app").rglob("index.html")) + [p for p in [SITE / "app" / "growth.html"] if p.exists()]
+    pages = sorted((SITE / "app").rglob("index.html")) + [p for p in [SITE / "app" / "growth.html", SITE / "app" / "home.html"] if p.exists()]
     for page in pages:
         html = page.read_text()
         rel = os.path.relpath(SITE / "assets" / "demo.js", page.parent).replace(os.sep, "/")

@@ -24,7 +24,7 @@
     .sort((a, b) => a.date.localeCompare(b.date))
     .map(({ p, date }) => ({ paper: p, date, left: days(today, date) }));
   // Words for "how long until": "in 12 days", "today", "3 days ago".
-  H.when = (left) => (left === 0 ? 'today' : left === 1 ? 'tomorrow' : left > 0 ? (left > 60 ? `in ${Math.round(left / 30)} months` : `in ${left} days`) : left === -1 ? 'yesterday' : `${-left} days ago`);
+  H.when = (left) => (left === 0 ? 'today' : left === 1 ? 'tomorrow' : left > 0 ? (left > 540 ? `in ${Math.round(left / 365)} years` : left > 60 ? `in ${Math.round(left / 30)} months` : `in ${left} days`) : left === -1 ? 'yesterday' : `${-left} days ago`);
   // A small search over title, kind, person, tags, notes and the PDF's own text.
   H.search = (list, q, fields = ['title', 'person', 'tags', 'notes', 'reference', 'text', 'name', 'provider', 'room', 'brand', 'task']) => {
     const words = String(q || '').toLowerCase().split(/\s+/).filter(Boolean);
@@ -148,6 +148,10 @@
   ];
   H.fill = (text, { me = {}, to = {}, c = {}, today = BW.today() } = {}) => {
     const s = Object.assign({}, me);
+    // An address that already starts with the company's name doesn't repeat it.
+    to = Object.assign({}, to);
+    const lines = String(to.address || '').split('\n');
+    if (to.name && lines[0].trim().toLowerCase() === String(to.name).trim().toLowerCase()) to.address = lines.slice(1).join('\n');
     const contract = Object.assign({}, c, { end: c.end ? BW.fmtDate(c.end, { day: 'numeric', month: 'long', year: 'numeric' }) : '' });
     return String(text).replace(/\{\{(\w+)\.?(\w*)\}\}/g, (all, a, b) => {
       if (a === 'today') return BW.fmtDate(today, { day: 'numeric', month: 'long', year: 'numeric' });
