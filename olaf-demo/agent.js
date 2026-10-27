@@ -31,6 +31,15 @@
     return '## Who you are working for\n\nThese are the owner\'s own files. Follow them; the voice rules are not suggestions.\n\n' + parts.join('\n\n---\n\n');
   }
 
+  // Weekdays worked out by the model go wrong, and a plan for "Wednesday" has to be Wednesday: every
+  // conversation gets the date in full and the next two weeks as a calendar.
+  const dayName = (iso, o) => new Date(iso + 'T12:00:00').toLocaleDateString('en-GB', o);
+  function today() {
+    const t = BW.today(), days = Array.from({ length: 14 }, (_, i) => BW.addDays(t, i));
+    return `Today is ${dayName(t, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} (${t}). The next two weeks: `
+      + days.map((d) => `${dayName(d, { weekday: 'short', day: 'numeric', month: 'short' })} = ${d}`).join(', ') + '.';
+  }
+
   function skillContext(s) {
     return `## The skill you are running: ${s.id}\n\n${s.description}\n\nFollow these instructions:\n\n${s.body}`;
   }
@@ -54,15 +63,20 @@
       const opening = [`Run the ${s.id} skill now.`];
       if (instruction && instruction.trim()) opening.push('\nWhat the owner asked for:\n' + instruction.trim());
       else opening.push(`\nNo extra instruction was given. Work from brand-documents/ and memory/, and ask the owner for what you genuinely need${s.hint ? ` (${s.hint})` : ''}.`);
-      opening.push('\nToday is ' + BW.today() + '.');
+      opening.push('\n' + today());
       return { skillId, title: (instruction && instruction.trim().slice(0, 80)) || s.id, system, messages: [{ role: 'user', content: opening.join('\n') }],
-        view: instruction && instruction.trim() ? [{ role: 'me', text: instruction.trim() }] : [], cost: 0, files: [], finished: false, model: BW.ai.model.id };
+        view: instruction && instruction.trim() ? [{ role: 'me', text: instruction.trim() }] : [], cost: 0, files: [], finished: false, model: BW.ai.model.id, day: BW.today() };
     },
 
     /* Takes one turn. `ui` gets live updates: text(chunk), status(text), tool(name, detail), file(path).
        Resolves when Claude ends its turn: finished work, or a question for the owner. */
     async send(s, text, ui = {}, signal) {
-      if (text && text.trim()) { s.messages.push({ role: 'user', content: text.trim() }); s.view.push({ role: 'me', text: text.trim() }); }
+      if (text && text.trim()) {
+        // Coming back on another day: Claude gets the new date with the message.
+        const dated = s.day && s.day !== BW.today() ? `(${today()})\n\n` : '';
+        s.day = BW.today();
+        s.messages.push({ role: 'user', content: dated + text.trim() }); s.view.push({ role: 'me', text: text.trim() });
+      }
       const m = BW.ai.MODELS.find((x) => x.id === s.model) || BW.ai.model; // a conversation stays on the model it started with
       const tools = WS.TOOLS.concat(BW.ai.webTools(m, { maxUses: 8 }));
       const bubble = { role: 'olaf', text: '' };
