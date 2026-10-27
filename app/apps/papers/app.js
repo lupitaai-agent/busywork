@@ -115,7 +115,7 @@
     const f = await BW.store.readFile(path).catch(() => null);
     if (!f) return BW.toast('That file is in your folder, but this browser can’t open it from here. Open the folder to see it.', '📁');
     const url = URL.createObjectURL(f);
-    window.open(url, '_blank', 'noopener');
+    BW.openUrl(url);
     setTimeout(() => URL.revokeObjectURL(url), 60000);
   }
 
