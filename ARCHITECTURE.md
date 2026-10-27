@@ -56,6 +56,8 @@ window.BW_HOST = {
   platform: { kind, download, openUrl, copy }, // what differs per platform
   aiTransport: { name, needsKey, send },    // how a request reaches Claude
   entitlements: { edition(feature) },      // what this copy may use
+  chooseFolder: async (suite) => true,      // optional: a native folder picker (desktop app)
+  revealFolder: (suite) => {},              // optional: show the folder in Finder or Explorer
 };
 ```
 

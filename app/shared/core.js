@@ -1169,7 +1169,8 @@
     const pop = BW.html(`<div class="popover card">
       <div class="lbl">Saving to</div>
       <div class="here">${drv.kind === 'folder' ? '📁 ' + BW.esc(drv.label) : '🧪 This browser'}</div>
-      ${BW.canUseFolders ? `<button class="menu-item" data-a="folder">📁 ${drv.kind === 'folder' ? 'Switch to another folder' : 'Move everything to a folder'}</button>` : ''}
+      ${host.chooseFolder ? `<button class="menu-item" data-a="native">📁 Switch to another folder</button>${host.revealFolder ? '<button class="menu-item" data-a="reveal">🔎 Show the folder</button>' : ''}`
+        : BW.canUseFolders ? `<button class="menu-item" data-a="folder">📁 ${drv.kind === 'folder' ? 'Switch to another folder' : 'Move everything to a folder'}</button>` : ''}
       <button class="menu-item" data-a="backup">💾 Download a backup</button>
       <button class="menu-item" data-a="restore">♻️ Restore a backup</button>
       ${drv.kind === 'folder' ? '<div class="lbl" style="padding-top:4px">A copy is saved in backups/ every day</div>' : ''}
@@ -1190,6 +1191,9 @@
         BW.download(new Blob([JSON.stringify(await BW.diagnostics(), null, 2)], { type: 'application/json' }), `busy-problem-report-${BW.today()}.json`);
         BW.toast('Report downloading. It counts your records but contains none of them.', '🩺');
       }
+      // A desktop shell picks and shows folders natively (window.BW_HOST.chooseFolder, revealFolder).
+      if (a.dataset.a === 'native' && await host.chooseFolder(BW.suite)) location.reload();
+      if (a.dataset.a === 'reveal') host.revealFolder(BW.suite);
       if (a.dataset.a === 'folder') {
         if (drv.kind === 'browser') moveToFolder();
         else if (await pickFolder()) location.reload();
