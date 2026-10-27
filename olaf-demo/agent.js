@@ -37,7 +37,13 @@
   function today() {
     const t = BW.today(), days = Array.from({ length: 14 }, (_, i) => BW.addDays(t, i));
     return `Today is ${dayName(t, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} (${t}). The next two weeks: `
-      + days.map((d) => `${dayName(d, { weekday: 'short', day: 'numeric', month: 'short' })} = ${d}`).join(', ') + '.';
+      + days.map((d) => `${dayName(d, { weekday: 'short', day: 'numeric', month: 'short' })} = ${d}`).join(', ') + '.'
+      // Deadlines are often further away: the Mondays of the next three months, to count from.
+      + ' After that, weeks start on Monday ' + mondays(BW.addDays(t, 14), 12).map((d) => dayName(d, { day: 'numeric', month: 'short' })).join(', ') + '.';
+  }
+  function mondays(from, n) {
+    let d = from; while (new Date(d + 'T12:00:00').getDay() !== 1) d = BW.addDays(d, 1);
+    return Array.from({ length: n }, (_, i) => BW.addDays(d, 7 * i));
   }
 
   function skillContext(s) {
