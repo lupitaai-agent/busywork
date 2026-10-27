@@ -384,7 +384,7 @@ Page: https://busywork.example/home/index.html. Not released yet. Planned tools:
 - Moving Planner: A checklist worked back from moving day, and everyone to tell, with your contracts already on the list.
 - Just in Case: Everything your family would need if something happened to you: people to call, where things are, wishes. One PDF.
 
-Juno by Busy, an AI expert for household paperwork, will be the paid part: it explains letters, reads contracts and policies and writes replies. It never gives legal advice.
+Juno by Busy, the AI expert for household paperwork, is the paid part: €30 once, on the owner's own Claude usage. It explains letters, reads contracts and policies, writes replies and keeps renewals in view. It never gives legal advice.
 
 # Privacy in short
 

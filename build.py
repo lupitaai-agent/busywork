@@ -367,6 +367,8 @@ WAITLIST_ENDPOINT = os.environ.get("WAITLIST_ENDPOINT", "")
 WAITLIST_PROVIDER = os.environ.get("WAITLIST_PROVIDER") or "MailerLite"
 # Busy Growth has its own list (a second MailerLite form), so Olaf's list stays Olaf's.
 GROWTH_WAITLIST_ENDPOINT = os.environ.get("GROWTH_WAITLIST_ENDPOINT", "")
+JUNO_CHECKOUT_URL = os.environ.get("JUNO_CHECKOUT_URL", "")  # Juno's checkout page; empty means "coming soon"
+JUNO_PRICE = "€30"
 IVY_CHECKOUT_URL = os.environ.get("IVY_CHECKOUT_URL", "")  # Ivy's checkout page, once it exists; empty means "coming soon"  # an empty GitHub variable means the default
 
 
@@ -523,7 +525,7 @@ HOMEPAGE_GROWTH = [
 
 # The same for Busy Home.
 HOMEPAGE_HOME = [
-    ('<span class="chip chip-grey">Soon</span><span class="expert-chip plain">🏡 Juno · soon</span>', f'<span class="chip chip-tomato">Live · {len(HOUSE_APPS)} tools</span><span class="expert-chip plain">🏡 Juno · soon</span>'),
+    ('<span class="chip chip-grey">Soon</span><span class="expert-chip juno">', f'<span class="chip chip-tomato">Live · {len(HOUSE_APPS)} tools</span><span class="expert-chip juno">'),
     ("Drowning in household paperwork? Busy Home is on its way.", "Drowning in household paperwork? Busy Home."),
 ]
 
@@ -657,6 +659,9 @@ IMAGES = {
     "assets/og-ivy.png": ("Ivy by Busy: AI coach for professional growth",
                           "Ivy share image: the AI coach for professional growth in Busy Growth, coming soon."),
     "assets/ivy-mark.svg": ("Ivy logo", "The Ivy logo: a green ivy leaf on a short stem, leaning up and to the right."),
+    "assets/og-juno.png": ("Juno by Busy: AI expert for household paperwork",
+                           "Juno share image: the AI expert for household paperwork in Busy Home. Explains the letter, writes the reply, keeps you ahead."),
+    "assets/juno-mark.svg": ("Juno logo", "The Juno logo: a coral house with a lit window and a chimney, leaning up and to the right."),
 }
 
 
@@ -1150,10 +1155,14 @@ HOME_TOOLS = [("🗂️", "Paper Trail", "Passports, policies, contracts and war
 
 def home_page(tools: list) -> str:
     feats = "".join(f'<div class="card feat reveal pop"><span class="fe">{em}</span><h3>{e(n)}</h3><p>{e(d)}</p></div>' for em, n, d in HOME_TOOLS)
-    juno = """<section class="section" id="juno"><div class="wrap">
-    <div class="card ivy-card reveal"><span style="font-size:4rem" aria-hidden="true">🏡</span>
-      <div><p class="kicker">Juno by Busy · coming soon</p><h2>Your AI expert for household paperwork</h2>
-      <p>Juno explains the letters you get and what you must do by when, reads your contracts and policies, writes the replies and keeps you ahead of every renewal, with a short briefing each month. It works on your own folder and never gives legal advice: it tells you when to ask a professional.</p></div></div>
+    buy = (f'<p style="margin-top:14px"><a class="btn btn-primary" href="{e(JUNO_CHECKOUT_URL)}">Get Juno · {JUNO_PRICE}</a> <a class="btn" href="../claude-key.html">How Juno connects to Claude</a></p>'
+           if JUNO_CHECKOUT_URL else '<p style="margin-top:12px"><a href="../claude-key.html">How Juno will connect to Claude →</a></p>')
+    juno = f"""<section class="section" id="juno"><div class="wrap">
+    <div class="card ivy-card juno-card reveal"><img src="../assets/juno-mark.svg" alt="" width="96" height="96">
+      <div><p class="kicker">Juno by Busy · {JUNO_PRICE} once{"" if JUNO_CHECKOUT_URL else " · coming soon"}</p><h2>Your AI expert for household paperwork</h2>
+      <p>Attach the letter you've been avoiding and Juno tells you what it means and what to do by when, with the reply already drafted. It reads your contracts and policies, says when to keep, switch or cancel, sorts a pile of scans, helps with a claim or a move, and sends you a short briefing each month. It works on your own folder and never gives legal advice: it tells you when to ask a professional.</p>
+      <ul class="get-list" style="margin-top:12px"><li>Explains letters, bills and decisions, and spots scams</li><li>Writes cancellations, complaints, claims and objections in the recipient's language</li><li>Keeps every renewal, expiry and upkeep date in view</li><li>Paid once, on your own Claude key: a typical conversation costs a few cents</li></ul>
+      {buy}</div></div>
   </div></section>"""
     hero_chip, hero_btns = ('<span class="chip chip-grey">Coming soon</span>', '') if not HOME_LIVE else (
         '<span class="chip chip-tomato">Free · no account</span>',
@@ -1173,7 +1182,7 @@ def home_page(tools: list) -> str:
     title = "Busy Home: free tools for your household paperwork" + ("" if HOME_LIVE else " (soon)")
     desc = (f"Busy Home: {len(HOME_TOOLS)} free tools for household paperwork. Documents that warn before they expire, contracts with the last day to cancel, upkeep, inventory, letters and moving. No account."
             if HOME_LIVE else "Busy Home, coming soon: free tools for household paperwork. Documents, contracts with the last day to cancel, upkeep, inventory, letters and moving.")
-    return f"""{head(title, desc, "home/index.html", "../")}
+    return f"""{head(title, desc, "home/index.html", "../", image="og-juno.png")}
 <body class="site app-tomato">
 {nav("../", ("⬇️ Download free", "#get") if HOME_LIVE else explore("../"))}
 <main id="main">
@@ -1399,7 +1408,7 @@ def write_llms(tools: list) -> None:
              f"- Price: every suite's tools are free, with no account and no subscription. Olaf (Busy Business) is {olaf_price} for one business; Ivy (Busy Growth, coming soon) is €30 once. Both run on the owner's own Claude usage.",
              "- Data: saved as files in a folder the owner chooses on their own computer (it can sit in Google Drive, Dropbox, OneDrive or iCloud Drive). Nothing is sent to Busy. The games keep progress in the browser.",
              "- Works in: the business tools run in Chrome and Edge on Windows, macOS and ChromeOS, from a downloaded folder. The games run in any modern browser.",
-             "- AI: none in the free tools. Olaf and Ivy run on Claude with the owner's own API key; requests go from the browser to Anthropic only.",
+             "- AI: none in the free tools. Olaf, Ivy and Juno run on Claude with the owner's own API key; requests go from the browser to Anthropic only.",
              "- Language: English. Invoices, quotes and documents can be made in English or Dutch.",
              "", "## Busy Business: free tools for small businesses", "",
              f"- [Busy Business]({b}/business/index.html): {len(tools)} free tools for small businesses and freelancers, and how they work together."]
@@ -1418,7 +1427,7 @@ def write_llms(tools: list) -> None:
         lines += ["", "## Busy Growth: free tools to grow your career (coming soon)", "",
                   f"- [Busy Growth]({b}/growth/index.html): a library of what you read and learn, skills, wins, a learning plan, a job tracker and a CV builder, plus Ivy, an AI coach for professional growth (€30 once). Not released yet."]
     lines += (["", "## Busy Home: free tools for household paperwork", "",
-               f"- [Busy Home]({b}/home/index.html): {len(HOME_TOOLS)} free tools: documents that warn before they expire, contracts with the last day to cancel, home upkeep, a home inventory with an insurance claim pack, letters, a moving planner and a Just in Case binder. Juno, an AI expert for household paperwork, is coming soon.",
+               f"- [Busy Home]({b}/home/index.html): {len(HOME_TOOLS)} free tools: documents that warn before they expire, contracts with the last day to cancel, home upkeep, a home inventory with an insurance claim pack, letters, a moving planner and a Just in Case binder. Juno, an AI expert for household paperwork ({JUNO_PRICE} once), is coming soon.",
                f"- [Download Busy Home]({b}/downloads/busy-home.zip): one zip file; unzip, open home.html, choose a folder."]
               if HOME_LIVE else ["", "## Busy Home: free tools for household paperwork (coming soon)", "",
                f"- [Busy Home]({b}/home/index.html): documents, contracts with the last day to cancel, upkeep, a home inventory, letters, moving and a Just in Case binder. Not released yet."])
@@ -1461,7 +1470,7 @@ def write_llms(tools: list) -> None:
     full += (["", "# Busy Home: free tools for household paperwork", "", f"Page: {b}/home/index.html. Free, in its own download ({b}/downloads/busy-home.zip), with a demo at {b}/app/home.html. The tools:", ""]
              if HOME_LIVE else ["", "# Busy Home: free tools for household paperwork (coming soon)", "", f"Page: {b}/home/index.html. Not released yet. Planned tools:", ""])
     full += [f"- {n}: {d}" for _, n, d in HOME_TOOLS]
-    full += ["", "Juno by Busy, an AI expert for household paperwork, will be the paid part: it explains letters, reads contracts and policies and writes replies. It never gives legal advice.",
+    full += ["", f"Juno by Busy, the AI expert for household paperwork, is the paid part: {JUNO_PRICE} once, on the owner's own Claude usage. It explains letters, reads contracts and policies, writes replies and keeps renewals in view. It never gives legal advice.",
              "", "# Privacy in short", "",
              "The tools never send us anything. Business data stays in the owner's folder; the games keep progress in the browser. The waitlists keep an email address in MailerLite, only to say when Olaf or Busy Growth can be had. Olaf's requests go from the owner's browser to Anthropic with the owner's own key.",
              f"Full text: {b}/privacy.html", ""]
@@ -1469,7 +1478,7 @@ def write_llms(tools: list) -> None:
 
 
 def ai_models() -> list:
-    """The models and list prices Olaf and Ivy offer, read from shared/ai.js so there is one source."""
+    """The models and list prices Olaf, Ivy and Juno offer, read from shared/ai.js so there is one source."""
     src = (APP / "shared" / "ai.js").read_text()
     rows = re.findall(r"\{ id: '([^']+)', name: '([^']+)', model: '([^']+)', input: ([\d.]+), output: ([\d.]+)", src)
     if not rows:
@@ -1478,7 +1487,7 @@ def ai_models() -> list:
 
 
 def claude_key_page(tools: list) -> str:
-    """How to get a Claude API key for Olaf or Ivy: the same steps as the guide inside them (ai.setup)."""
+    """How to get a Claude API key for Olaf, Ivy or Juno: the same steps as the guide inside them (ai.setup)."""
     def per_chat(m):  # about 30,000 tokens read and 2,000 written, as in ai.perChat
         v = (30000 * m["input"] + 2000 * m["output"]) / 1e6
         return "under $0.01" if v < 0.01 else f"about ${v:.2f}"
@@ -1487,27 +1496,27 @@ def claude_key_page(tools: list) -> str:
         ("Make a Claude Console account", "Go to <b>console.anthropic.com</b> and sign up with your email or Google account. Confirm your email. If it asks what you will build, “personal use” is fine."),
         ("Add a little credit", "Open <b>Settings → Billing</b> (it may be called Plans &amp; Billing), add a card and buy credit. The smallest amount, about $5, is enough to start. Leave auto-reload off if you never want to pay more than you put in. Under <b>Settings → Limits</b> you can also set a monthly spend limit."),
         ("Create your API key", "Open <b>Settings → API keys</b> and click <b>Create key</b>. Name it something like “Busy Olaf” or “Busy Ivy”. Copy it straight away: it starts with <code>sk-ant-</code> and is shown only once. Lost it? Delete it and make a new one."),
-        ("Paste it into Olaf or Ivy", "The first time you start one, a guide asks for the key, tests it with a tiny request and saves it in that browser. You also set a monthly limit in Busy, and Busy stops sending requests when you reach it."),
+        ("Paste it into Olaf, Ivy or Juno", "The first time you start one, a guide asks for the key, tests it with a tiny request and saves it in that browser. You also set a monthly limit in Busy, and Busy stops sending requests when you reach it."),
     ]
-    faq = [("Does my Claude Pro or Max subscription cover this?", "No. Chat subscriptions and the API are billed separately by Anthropic. Olaf and Ivy use the API, which is pay-as-you-go."),
+    faq = [("Does my Claude Pro or Max subscription cover this?", "No. Chat subscriptions and the API are billed separately by Anthropic. Olaf, Ivy and Juno use the API, which is pay-as-you-go."),
            ("Where is my key kept?", "In the browser on your computer only: never in your business or growth folder, never on a Busy server (there is none). It is sent only to Anthropic, with each request."),
            ("What if someone gets my key?", "Delete it in the console under Settings → API keys, make a new one and paste that in. The old one stops working at once."),
            ("Can I use it on two computers?", "Yes. Paste the same key on each, or make one key per computer so you can switch one off on its own."),
            ("How do I see what I spent?", "Busy shows an estimate for this month in AI settings. The exact amount is in the console under Usage and Billing.")]
-    desc = "Five minutes, once: a Claude Console account, a little credit, an API key pasted into Olaf or Ivy. What it costs, and how your key stays safe."
-    return f"""{head("How to get a Claude API key for Olaf and Ivy", desc, "claude-key.html", "")}
+    desc = "Five minutes, once: a Claude Console account, a little credit, an API key pasted into Olaf, Ivy or Juno. What it costs, and how your key stays safe."
+    return f"""{head("How to get a Claude API key for Olaf, Ivy and Juno", desc, "claude-key.html", "")}
 <body class="site app-grape">
 {nav("", explore(""))}
 <main class="page">
-  <h1 class="reveal">Connect Olaf or Ivy to Claude</h1>
-  <p class="lead reveal">Olaf and Ivy think with Claude, the AI made by Anthropic, on your own account. You pay Anthropic directly for what you use, and your key never leaves your browser except to go to Anthropic. Setting it up takes about five minutes, once.</p>
+  <h1 class="reveal">Connect Olaf, Ivy or Juno to Claude</h1>
+  <p class="lead reveal">Olaf, Ivy and Juno think with Claude, the AI made by Anthropic, on your own account. You pay Anthropic directly for what you use, and your key never leaves your browser except to go to Anthropic. Setting it up takes about five minutes, once.</p>
   <h2>You need</h2>
   <ul><li>An email address</li><li>A payment card</li><li>Five minutes</li></ul>
   <h2>The steps</h2>
   <ol>{"".join(f"<li><b>{e(n)}</b><br>{d}</li>" for n, d in steps)}</ol>
   <p><a class="btn" href="https://console.anthropic.com" rel="noopener" target="_blank">↗ Open console.anthropic.com</a></p>
   <h2>What it costs</h2>
-  <p>Anthropic's list prices, in US dollars per million tokens (about 750,000 words) read / written, and what a typical conversation costs. A conversation here means Olaf or Ivy reading about 30,000 tokens of your files and the chat, and writing about 2,000. Estimates: long documents and web searches cost more.</p>
+  <p>Anthropic's list prices, in US dollars per million tokens (about 750,000 words) read / written, and what a typical conversation costs. A conversation here means Olaf, Ivy or Juno reading about 30,000 tokens of your files and the chat, and writing about 2,000. Estimates: long documents and web searches cost more.</p>
   <div class="cmp" role="region" aria-label="What each model costs" tabindex="0"><table><thead><tr><th>Model</th><th>Read / write</th><th>A typical conversation</th></tr></thead><tbody>{costs}</tbody></table></div>
   <h2>Questions</h2>
   {"".join(f"<h3>{e(q)}</h3><p>{e(a)}</p>" for q, a in faq)}

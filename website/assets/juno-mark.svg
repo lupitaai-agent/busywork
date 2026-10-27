@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Juno logo">
+  <title>Juno logo</title><desc>The Juno logo: a coral house with a lit window and a chimney, leaning up and to the right.</desc>
+  <!-- Juno: a house in Busy's sticker style (thick ink outline, offset shadow); the lit window says someone is home and on top of things -->
+  <g transform="rotate(10 32 34)">
+    <path d="M40 9 L48 9 L48 21" fill="#1E1B2E" transform="translate(3 3)"/>
+    <path d="M10 30 L32 9 L54 30 L54 54 Q54 57 51 57 L13 57 Q10 57 10 54 Z" fill="#1E1B2E" transform="translate(3 3)"/>
+    <path d="M40 18 L40 9 L48 9 L48 25" fill="#FF8A5B" stroke="#1E1B2E" stroke-width="3.5" stroke-linejoin="round"/>
+    <path d="M10 30 L32 9 L54 30 L54 54 Q54 57 51 57 L13 57 Q10 57 10 54 Z" fill="#FF8A5B" stroke="#1E1B2E" stroke-width="3.5" stroke-linejoin="round"/>
+    <path d="M6 32 L32 7.5 L58 32" fill="none" stroke="#1E1B2E" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="17" y="35" width="13" height="12" rx="2.5" fill="#FFC93C" stroke="#1E1B2E" stroke-width="3"/>
+    <path d="M23.5 35.5 L23.5 46.5 M17.5 41 L29.5 41" stroke="#1E1B2E" stroke-width="2"/>
+    <path d="M36 57 L36 40 Q36 37 39 37 L44 37 Q47 37 47 40 L47 57" fill="#1E1B2E"/>
+    <circle cx="43.5" cy="48" r="1.6" fill="#FF8A5B"/>
+  </g>
+</svg>

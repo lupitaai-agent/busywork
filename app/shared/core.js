@@ -50,7 +50,7 @@
     { id: 'letters', suite: 'house', name: 'Letters', emoji: '✉️', color: 'pink', ready: true, tagline: 'Cancel, complain, claim or object, with your details already filled in.' },
     { id: 'moving', suite: 'house', name: 'Moving Planner', emoji: '🚚', color: 'teal', ready: true, tagline: 'Everything to do before and after the move, and everyone to tell.' },
     { id: 'binder', suite: 'house', name: 'Just in Case', emoji: '📕', color: 'mint', ready: true, tagline: 'Everything your family would need if something happened to you, in one place.' },
-    { id: 'juno', suite: 'house', name: 'Juno', emoji: '🏡', color: 'sun', ready: false, tagline: 'Your AI expert for household paperwork: reads the letters, writes the replies, keeps you ahead.' },
+    { id: 'juno', suite: 'house', name: 'Juno', emoji: '🏡', color: 'tomato', ready: false, tagline: 'Your AI expert for household paperwork: reads the letters, writes the replies, keeps you ahead.' },
   ]);
 
   // A suite is a set of tools with its own home page and its own folder. Business folders and growth

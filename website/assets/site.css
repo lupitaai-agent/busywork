@@ -424,6 +424,7 @@ html, body.site { overflow-x: clip; }
 .expert-chip img { width: 20px; height: 20px; margin-left: -4px; }
 .expert-chip.olaf { background: #9B6BFF; color: #fff; }
 .expert-chip.ivy { background: #2FD18C; }
+.expert-chip.juno { background: #FF8A5B; }
 .promise { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin-top: 24px; }
 .promise .card { padding: 20px; }
 .promise .e { font-size: 2rem; }
@@ -432,6 +433,7 @@ html, body.site { overflow-x: clip; }
 .expert:hover { transform: translate(-2px, -2px); }
 .expert.olaf { background: #26213A; }
 .expert.ivy { background: #12261E; }
+.expert.juno { background: #2A1611; }
 .expert img { flex: none; }
 .expert > span { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
 .expert b { font-size: 1.2rem; }
@@ -439,4 +441,6 @@ html, body.site { overflow-x: clip; }
 .ivy-card { display: flex; gap: 22px; align-items: flex-start; padding: 26px; background: #12261E; color: #F2FFF7; }
 .ivy-card img { flex: none; }
 .ivy-card .kicker { color: #8EE3B5; }
+.ivy-card.juno-card { background: #2A1611; color: #FFF3EC; }
+.juno-card .kicker { color: #FFB899; }
 @media (max-width: 600px) { .expert, .ivy-card { flex-direction: column; } }

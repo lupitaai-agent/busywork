@@ -296,6 +296,15 @@ class HomeLaunch(unittest.TestCase):
         self.assertIn('href="../downloads/busy-home.zip"', page)
         self.assertIn('href="../app/home.html"', page)
         self.assertEqual(len(build.HOME_TOOLS), len(build.HOUSE_APPS), "one line on the page for every tool")
+        self.assertIn("Juno by Busy · €30 once · coming soon", page)
+        self.assertNotIn("Get Juno", page, "no buy button without a checkout")
+        saved, build.JUNO_CHECKOUT_URL = build.JUNO_CHECKOUT_URL, "https://example.com/juno"
+        try:
+            sell = build.home_page(tools)
+        finally:
+            build.JUNO_CHECKOUT_URL = saved
+        self.assertIn('href="https://example.com/juno">Get Juno · €30</a>', sell)
+        self.assertNotIn("coming soon", sell.split('id="juno"')[1].split("</section>")[0])
         build.HOME_LIVE = False
         soon = build.home_page(tools)
         self.assertNotIn("busy-home.zip", soon)
