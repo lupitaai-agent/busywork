@@ -43,6 +43,10 @@ Key facts:
 
 - [Busy Growth](https://busywork.example/growth/index.html): a library of what you read and learn, skills, wins, a learning plan, a job tracker and a CV builder, plus Ivy, an AI coach for professional growth (€30 once). Not released yet.
 
+## Busy Home: free tools for household paperwork (coming soon)
+
+- [Busy Home](https://busywork.example/home/index.html): documents, contracts with the last day to cancel, upkeep, a home inventory, letters, moving and a Just in Case binder. Not released yet.
+
 ## About
 
 - [About Busy](https://busywork.example/about.html): what it is, who it is for, and how it works.

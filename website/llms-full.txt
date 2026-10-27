@@ -372,6 +372,20 @@ Page: https://busywork.example/growth/index.html. Not released yet. Planned tool
 
 Ivy by Busy, the AI coach for professional growth, will be the paid part: €30 once, on the owner's own Claude usage. Ivy never invents experience: every CV line comes with its proof.
 
+# Busy Home: free tools for household paperwork (coming soon)
+
+Page: https://busywork.example/home/index.html. Not released yet. Planned tools:
+
+- Paper Trail: Passports, policies, contracts and warranties in one place, searchable down to the words inside a PDF, with a nudge before anything expires.
+- Contracts & Renewals: Insurance, energy, phone, the gym: what each costs a month and the last day to cancel before it renews by itself.
+- Home Upkeep: The boiler service, smoke alarms and gutters: when each is due, when it was done, by whom and for how much.
+- Home Inventory: What you own, room by room, with photos, receipts and warranties. After a break-in, the claim pack is one click away.
+- Letters: Cancel, complain, claim, object or ask for your data: letters with your details, the company and the dates filled in.
+- Moving Planner: A checklist worked back from moving day, and everyone to tell, with your contracts already on the list.
+- Just in Case: Everything your family would need if something happened to you: people to call, where things are, wishes. One PDF.
+
+Juno by Busy, an AI expert for household paperwork, will be the paid part: it explains letters, reads contracts and policies and writes replies. It never gives legal advice.
+
 # Privacy in short
 
 The tools never send us anything. Business data stays in the owner's folder; the games keep progress in the browser. The waitlists keep an email address in MailerLite, only to say when Olaf or Busy Growth can be had. Olaf's requests go from the owner's browser to Anthropic with the owner's own key.

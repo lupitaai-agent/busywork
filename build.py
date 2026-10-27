@@ -157,6 +157,39 @@ def growth_zip_files() -> list:
     return suite_zip_files("growth")
 
 
+HOME_START_HERE = """Busy Home - free tools for your household paperwork.
+
+1. Move this Busy Home folder somewhere you will find it again, like Documents.
+2. Double-click home.html. It opens in your browser. Use Chrome or Edge: they can
+   save your home folder as files (Safari and Firefox cannot).
+3. Pick a folder for your files: your documents, contracts, scans and photos. Put it
+   inside Google Drive, Dropbox, OneDrive or iCloud Drive if you want backups and syncing.
+
+Your data stays on your computer and is never sent to us. No account. Updating
+later? Replace this Busy Home folder with the new one. Your home folder is
+separate, so nothing is lost.
+"""
+
+
+def make_home_zip() -> None:
+    out = SITE / "downloads" / "busy-home.zip"
+    if not HOME_LIVE:
+        if out.exists():
+            out.unlink()
+        return
+    out.parent.mkdir(exist_ok=True)
+    files = suite_zip_files("house")
+    with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
+        z.writestr("Busy Home/START HERE.txt", HOME_START_HERE)
+        for p in files:
+            name = (Path("Busy Home") / p.relative_to(APP)).as_posix()
+            if p == APP / "shared" / "core.js":
+                z.writestr(name, site_core(p.read_text()))
+            else:
+                z.write(p, name)
+    print(f"website/downloads/{out.name}: {len(files) + 1} files, {out.stat().st_size // 1024} KB")
+
+
 def make_growth_zip() -> None:
     out = SITE / "downloads" / "busy-growth.zip"
     if not GROWTH_LIVE:
@@ -472,7 +505,7 @@ def forward_page(new_rel: str, depth: int) -> str:
 def site_pages(forwards: bool = False) -> list:
     """Every published page: the root, the suites, the games. Forwarding pages only when asked."""
     pages = list(SITE.glob("*.html"))
-    for d in ("business", "games", "growth"):
+    for d in ("business", "games", "growth", "home"):
         pages += list((SITE / d).glob("*.html"))
     return [p for p in pages if forwards or FORWARD not in p.read_text()]
 
@@ -486,6 +519,24 @@ HOMEPAGE_GROWTH = [
     ('<li>Job tracker, CV builder, interview stories</li>', '<li>Job tracker, CVs, stories and contacts</li>'),
     ('<span class="chip chip-grey">Coming soon</span><span class="expert-chip ivy">', f'<span class="chip chip-mint">Live · {len(GROWTH_APPS)} tools</span><span class="expert-chip ivy">'),
 ]
+
+
+# The same for Busy Home.
+HOMEPAGE_HOME = [
+    ('<span class="chip chip-grey">Soon</span><span class="expert-chip plain">🏡 Juno · soon</span>', f'<span class="chip chip-tomato">Live · {len(HOUSE_APPS)} tools</span><span class="expert-chip plain">🏡 Juno · soon</span>'),
+    ("Drowning in household paperwork? Busy Home is on its way.", "Drowning in household paperwork? Busy Home."),
+]
+
+
+def sync_home_launch() -> None:
+    page = SITE / "index.html"
+    text = page.read_text()
+    for soon, live in HOMEPAGE_HOME:
+        old, new = (soon, live) if HOME_LIVE else (live, soon)
+        text = text.replace(old, new)
+        if new not in text:
+            raise SystemExit(f"website/index.html lost the Busy Home words: {new!r}")
+    page.write_text(text)
 
 
 def sync_growth_launch() -> None:
@@ -537,7 +588,7 @@ def nav_header(prefix: str, cta: tuple = None) -> str:
     label, href = cta or ("⬇️ Download free", f"{prefix}business/download.html")
     return f"""<header class="nav"><div class="wrap">
   <a class="brandmark" href="{prefix}index.html"><span class="blob">✦</span><span class="word">Busy</span></a>
-  <nav class="links" aria-label="Main"><a href="{prefix}business/index.html">💼 Business</a><a href="{prefix}growth/index.html">🌱 Growth</a><a href="{prefix}games/index.html">🧩 Games</a><a href="{prefix}about.html">About</a><a href="{prefix}privacy.html">Privacy</a></nav>
+  <nav class="links" aria-label="Main"><a href="{prefix}business/index.html">💼 Business</a><a href="{prefix}growth/index.html">🌱 Growth</a><a href="{prefix}home/index.html">🏡 Home</a><a href="{prefix}games/index.html">🧩 Games</a><a href="{prefix}about.html">About</a><a href="{prefix}privacy.html">Privacy</a></nav>
   <a class="btn btn-primary" href="{href}">{label}</a>
 </div></header>"""
 
@@ -556,7 +607,8 @@ def footer(prefix: str, tools: list) -> str:
     <ul><li><a href="{prefix}about.html">About Busy</a></li><li><a href="{prefix}privacy.html">Privacy</a></li><li><a href="{prefix}terms.html">Terms</a></li></ul></div>
   <div><b>💼 Busy Business</b><ul>{links}<li><a href="{prefix}business/tools.html">All tools</a></li><li><a href="{prefix}business/download.html">Download free</a></li><li><a href="{prefix}app/index.html">See the demo</a></li><li><a href="{prefix}business/olaf.html">🧭 Olaf by Busy</a></li></ul></div>
   <div><b>🧩 Busy Games</b><ul>{games}<li><a href="{prefix}games/index.html">All games</a></li></ul>
-    <p style="margin-top:22px"><b>🌱 Busy Growth</b></p><ul><li><a href="{prefix}growth/index.html">{"Free tools" if GROWTH_LIVE else "Coming soon"}</a></li><li><a href="{prefix}growth/index.html#ivy">🌿 Ivy by Busy</a></li></ul></div>
+    <p style="margin-top:22px"><b>🌱 Busy Growth</b></p><ul><li><a href="{prefix}growth/index.html">{"Free tools" if GROWTH_LIVE else "Coming soon"}</a></li><li><a href="{prefix}growth/index.html#ivy">🌿 Ivy by Busy</a></li></ul>
+    <p style="margin-top:22px"><b>🏡 Busy Home</b></p><ul><li><a href="{prefix}home/index.html">{"Free tools" if HOME_LIVE else "Coming soon"}</a></li>{f'<li><a href="{prefix}app/home.html">See the demo</a></li>' if HOME_LIVE else ''}</ul></div>
 </div></footer>"""
 
 
@@ -1087,6 +1139,72 @@ def growth_page(tools: list) -> str:
 """
 
 
+HOME_TOOLS = [("🗂️", "Paper Trail", "Passports, policies, contracts and warranties in one place, searchable down to the words inside a PDF, with a nudge before anything expires."),
+              ("🔁", "Contracts & Renewals", "Insurance, energy, phone, the gym: what each costs a month and the last day to cancel before it renews by itself."),
+              ("🛠️", "Home Upkeep", "The boiler service, smoke alarms and gutters: when each is due, when it was done, by whom and for how much."),
+              ("🛋️", "Home Inventory", "What you own, room by room, with photos, receipts and warranties. After a break-in, the claim pack is one click away."),
+              ("✉️", "Letters", "Cancel, complain, claim, object or ask for your data: letters with your details, the company and the dates filled in."),
+              ("🚚", "Moving Planner", "A checklist worked back from moving day, and everyone to tell, with your contracts already on the list."),
+              ("📕", "Just in Case", "Everything your family would need if something happened to you: people to call, where things are, wishes. One PDF.")]
+
+
+def home_page(tools: list) -> str:
+    feats = "".join(f'<div class="card feat reveal pop"><span class="fe">{em}</span><h3>{e(n)}</h3><p>{e(d)}</p></div>' for em, n, d in HOME_TOOLS)
+    juno = """<section class="section" id="juno"><div class="wrap">
+    <div class="card ivy-card reveal"><span style="font-size:4rem" aria-hidden="true">🏡</span>
+      <div><p class="kicker">Juno by Busy · coming soon</p><h2>Your AI expert for household paperwork</h2>
+      <p>Juno explains the letters you get and what you must do by when, reads your contracts and policies, writes the replies and keeps you ahead of every renewal, with a short briefing each month. It works on your own folder and never gives legal advice: it tells you when to ask a professional.</p></div></div>
+  </div></section>"""
+    hero_chip, hero_btns = ('<span class="chip chip-grey">Coming soon</span>', '') if not HOME_LIVE else (
+        '<span class="chip chip-tomato">Free · no account</span>',
+        '<div class="row-flex reveal" style="justify-content:center;margin-top:22px"><a class="btn btn-primary btn-big" href="../downloads/busy-home.zip" download data-download>⬇️ Download free</a><a class="btn btn-big" href="../app/home.html">👀 See the demo</a></div>')
+    steps = [("⬇️", "Download and unzip", "One small zip file. Move the Busy Home folder somewhere you will find it again."),
+             ("🖱️", "Open home.html", "It opens in Chrome or Edge. Nothing is installed, and it works offline."),
+             ("📁", "Pick a folder", "Your documents, scans and photos are saved there as plain files. Put it in Google Drive or Dropbox to share it with your partner."),
+             ("🪪", "Start with your passports", "Add them with their expiry dates. Then your contracts: Busy shows the last day to cancel each one.")]
+    how = "".join(f'<div class="card feat reveal pop"><span class="fe">{em}</span><h3>{e(n)}</h3><p>{e(d)}</p></div>' for em, n, d in steps)
+    get = f"""<section class="section" id="get"><div class="wrap">
+    <div class="center reveal"><h2 class="big">Get Busy Home</h2><p class="lead">Free, the whole set. No account, no subscription, nothing sent to us.</p></div>
+    <div class="feats">{how}</div>
+    <div class="center" style="margin-top:22px"><a class="btn btn-primary btn-big" href="../downloads/busy-home.zip" download data-download>⬇️ Download Busy Home (zip)</a>
+      <p class="faint" style="margin-top:14px">Works offline · Chrome or Edge recommended · Mac and Windows</p></div>
+  </div></section>""" if HOME_LIVE else """<section class="section" id="get"><div class="wrap center">
+    <h2 class="big">On its way</h2><p class="lead">Busy Home is nearly ready. Meanwhile, keep your brain busy with <a href="../games/index.html">today's puzzles</a>.</p></div></section>"""
+    title = "Busy Home: free tools for your household paperwork" + ("" if HOME_LIVE else " (soon)")
+    desc = (f"Busy Home: {len(HOME_TOOLS)} free tools for household paperwork. Documents that warn before they expire, contracts with the last day to cancel, upkeep, inventory, letters and moving. No account."
+            if HOME_LIVE else "Busy Home, coming soon: free tools for household paperwork. Documents, contracts with the last day to cancel, upkeep, inventory, letters and moving.")
+    return f"""{head(title, desc, "home/index.html", "../")}
+<body class="site app-tomato">
+{nav("../", ("⬇️ Download free", "#get") if HOME_LIVE else explore("../"))}
+<main id="main">
+  <section class="tool-hero">
+    <div class="blob" style="width:460px;height:460px;background:var(--tomato);right:-140px;top:-120px"></div>
+    <div class="wrap center" style="padding:70px 16px 30px;display:block;text-align:center">
+      {hero_chip}
+      <h1 class="reveal" style="margin-top:12px">Busy Home 🏡</h1>
+      <p class="lead reveal" style="max-width:680px;margin:0 auto">Free tools for the paperwork every household has: passports, policies, contracts, upkeep, the things you own and the letters you need to send. Everything in your own folder, no account, like the rest of Busy.</p>
+      {hero_btns}
+    </div>
+  </section>
+  <section class="section"><div class="wrap">
+    <div class="center reveal"><h2 class="big">{len(HOME_TOOLS)} tools that work together</h2><p class="lead">A contract knows its cancellation letter, the move knows your contracts, and the Just in Case binder knows where every document is.</p></div>
+    <div class="feats">{feats}</div>
+  </div></section>
+  <section class="section"><div class="wrap">
+    <div class="card ivy-card reveal"><span style="font-size:3.4rem" aria-hidden="true">🔒</span>
+      <div><p class="kicker">The most private paperwork you have</p><h2>Your passports never leave your folder</h2>
+      <p>IDs, insurance policies, contracts, the family's plans: this is the most sensitive paperwork a household has. Busy Home keeps all of it as plain files in a folder you choose. There is no Busy account and no Busy server, so there is nothing to hack and nothing to sell.</p></div></div>
+  </div></section>
+  {get}
+  {juno}
+</main>
+{footer("../", tools)}
+<script src="../assets/site.js"></script>
+</body>
+</html>
+"""
+
+
 def build_games() -> list:
     out = SITE / "games"
     out.mkdir(exist_ok=True)
@@ -1110,6 +1228,8 @@ def build_pages() -> None:
     (SITE / "claude-key.html").write_text(claude_key_page(tools))
     (SITE / "growth").mkdir(exist_ok=True)
     (SITE / "growth" / "index.html").write_text(growth_page(tools))
+    (SITE / "home").mkdir(exist_ok=True)
+    (SITE / "home" / "index.html").write_text(home_page(tools))
     game_pages = build_games()
     # The addresses from before the suites (October 2026) keep working.
     old = SITE / "tools"
@@ -1121,7 +1241,7 @@ def build_pages() -> None:
     (SITE / "download.html").write_text(forward_page("business/download.html", 0))
     sync_chrome(tools)
     pages = (["", "about.html", "claude-key.html", "privacy.html", "terms.html", "business/index.html", "business/tools.html", "business/download.html", "business/olaf.html"]
-             + [f'business/{t["id"]}.html' for t in tools] + game_pages + ["growth/index.html"])
+             + [f'business/{t["id"]}.html' for t in tools] + game_pages + ["growth/index.html", "home/index.html"])
     today = date.today().isoformat()
     (SITE / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
                                       + "".join(f"  <url><loc>{SITE_URL}/{p}</loc><lastmod>{page_date(p)}</lastmod></url>\n" for p in pages) + "</urlset>\n")
@@ -1143,7 +1263,7 @@ ENTITY = ("Busy makes free, private tools for work and life, in suites: Busy Bus
           "run in the browser and keep everything in the owner's own folder, with no account and no subscription. Each suite can have a "
           "paid AI expert: Olaf for business, Ivy for professional growth.")
 ORG_ID, WEBSITE_ID = "#organization", "#website"
-SECTIONS = {"business/": ("Busy Business", "business/index.html"), "games/": ("Busy Games", "games/index.html"), "growth/": ("Busy Growth", "growth/index.html")}
+SECTIONS = {"business/": ("Busy Business", "business/index.html"), "games/": ("Busy Games", "games/index.html"), "growth/": ("Busy Growth", "growth/index.html"), "home/": ("Busy Home", "home/index.html")}
 # The name is a common word, and another company sells accounting software as BUSY. These tell search
 # engines and AI assistants which Busy this is; the old name stays as an alternate for a while.
 DESCRIPTOR = "free, private tools for work and life"
@@ -1297,6 +1417,11 @@ def write_llms(tools: list) -> None:
     else:
         lines += ["", "## Busy Growth: free tools to grow your career (coming soon)", "",
                   f"- [Busy Growth]({b}/growth/index.html): a library of what you read and learn, skills, wins, a learning plan, a job tracker and a CV builder, plus Ivy, an AI coach for professional growth (€30 once). Not released yet."]
+    lines += (["", "## Busy Home: free tools for household paperwork", "",
+               f"- [Busy Home]({b}/home/index.html): {len(HOME_TOOLS)} free tools: documents that warn before they expire, contracts with the last day to cancel, home upkeep, a home inventory with an insurance claim pack, letters, a moving planner and a Just in Case binder. Juno, an AI expert for household paperwork, is coming soon.",
+               f"- [Download Busy Home]({b}/downloads/busy-home.zip): one zip file; unzip, open home.html, choose a folder."]
+              if HOME_LIVE else ["", "## Busy Home: free tools for household paperwork (coming soon)", "",
+               f"- [Busy Home]({b}/home/index.html): documents, contracts with the last day to cancel, upkeep, a home inventory, letters, moving and a Just in Case binder. Not released yet."])
     lines += [
               "", "## About", "",
               f"- [About Busy]({b}/about.html): what it is, who it is for, and how it works.",
@@ -1332,7 +1457,11 @@ def write_llms(tools: list) -> None:
     full += (["", "# Busy Growth: free tools to grow your career", "", f"Page: {b}/growth/index.html. Free, in its own download ({b}/downloads/busy-growth.zip), with a demo at {b}/app/growth.html. The tools:", ""]
              if GROWTH_LIVE else ["", "# Busy Growth: free tools to grow your career (coming soon)", "", f"Page: {b}/growth/index.html. Not released yet. Planned tools:", ""])
     full += [f"- {n}: {d}" for _, n, d in GROWTH_TOOLS]
-    full += ["", "Ivy by Busy, the AI coach for professional growth, will be the paid part: €30 once, on the owner's own Claude usage. Ivy never invents experience: every CV line comes with its proof.",
+    full += ["", "Ivy by Busy, the AI coach for professional growth, will be the paid part: €30 once, on the owner's own Claude usage. Ivy never invents experience: every CV line comes with its proof."]
+    full += (["", "# Busy Home: free tools for household paperwork", "", f"Page: {b}/home/index.html. Free, in its own download ({b}/downloads/busy-home.zip), with a demo at {b}/app/home.html. The tools:", ""]
+             if HOME_LIVE else ["", "# Busy Home: free tools for household paperwork (coming soon)", "", f"Page: {b}/home/index.html. Not released yet. Planned tools:", ""])
+    full += [f"- {n}: {d}" for _, n, d in HOME_TOOLS]
+    full += ["", "Juno by Busy, an AI expert for household paperwork, will be the paid part: it explains letters, reads contracts and policies and writes replies. It never gives legal advice.",
              "", "# Privacy in short", "",
              "The tools never send us anything. Business data stays in the owner's folder; the games keep progress in the browser. The waitlists keep an email address in MailerLite, only to say when Olaf or Busy Growth can be had. Olaf's requests go from the owner's browser to Anthropic with the owner's own key.",
              f"Full text: {b}/privacy.html", ""]
@@ -1466,8 +1595,10 @@ def main() -> None:
     make_demo()
     make_zip()
     make_growth_zip()
+    make_home_zip()
     build_pages()
     sync_growth_launch()
+    sync_home_launch()
     sync_homepage_paths()
     apply_site_url()
     image_metadata()

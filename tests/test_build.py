@@ -222,7 +222,7 @@ class GrowthLaunch(unittest.TestCase):
         self.assertIn('href="../downloads/busy-growth.zip"', page)
         self.assertIn('href="../app/growth.html"', page)
         self.assertNotIn("(soon)", page)
-        self.assertEqual(page.split("<body")[1].lower().count("coming soon"), 1, "only Ivy is still coming")
+        self.assertEqual(page.split("<main")[1].split("</main>")[0].lower().count("coming soon"), 1, "only Ivy is still coming")
         self.assertEqual(len(build.GROWTH_TOOLS), len(build.GROWTH_APPS), "one line on the page for every tool")
 
     def test_every_website_tool_page_is_the_demo(self):
@@ -240,6 +240,75 @@ class GrowthLaunch(unittest.TestCase):
                 self.assertNotIn(b, t, f"{p.name}: {b}")
         self.assertIn("See the demo", (ROOT / "website" / "business" / "index.html").read_text())
 
+
+
+class HomeLaunch(unittest.TestCase):
+    """HOME_LIVE=1: Busy Home's own download, its page and the homepage words. Built into a temp folder."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.saved = (build.SITE, build.HOME_LIVE)
+        build.SITE, build.HOME_LIVE = self.tmp, True
+
+    def tearDown(self):
+        build.SITE, build.HOME_LIVE = self.saved
+        shutil.rmtree(self.tmp)
+
+    def test_the_home_download_has_its_tools_and_nothing_of_another_suite_or_ai(self):
+        import zipfile
+        build.make_home_zip()
+        z = zipfile.ZipFile(self.tmp / "downloads" / "busy-home.zip")
+        names = z.namelist()
+        self.assertIn("Busy Home/START HERE.txt", names)
+        self.assertIn("Busy Home/home.html", names)
+        for a in build.HOUSE_APPS:
+            self.assertIn(f"Busy Home/apps/{a}/index.html", names)
+        for n in ("index.html", "growth.html", "apps/invoices/index.html", "apps/library/index.html", "shared/growth.js", "shared/ai.js", "shared/house-examples.js"):
+            self.assertNotIn(f"Busy Home/{n}", names)
+        self.assertIn("Busy Home/shared/filetext.js", names, "the PDF reader is shared with Growth")
+        self.assertFalse([n for n in names if n.startswith("Busy Home/apps/") and n.split("/")[2] not in build.HOUSE_APPS], "only household tools")
+        for n in names:
+            if n.endswith((".js", ".html")):
+                text = z.read(n).decode("utf-8", "ignore")
+                for word in ("x-api-key", "Claude API key", "examples.load(", "demo.js"):
+                    self.assertNotIn(word, text, f"{n} mentions {word!r}")
+            if n.endswith(".html"):
+                for src in re.findall(r'<script src="([^"]+)"', z.read(n).decode()):
+                    self.assertIn(os.path.normpath(os.path.join(os.path.dirname(n), src)), names, f"{n} loads {src}")
+        build.HOME_LIVE = False
+        build.make_home_zip()
+        self.assertFalse((self.tmp / "downloads" / "busy-home.zip").exists(), "switched off, the download goes")
+
+    def test_the_homepage_words_switch_both_ways(self):
+        home = (ROOT / "website" / "index.html").read_text()
+        (self.tmp / "index.html").write_text(home)
+        build.sync_home_launch()
+        live = (self.tmp / "index.html").read_text()
+        self.assertIn(f"Live · {len(build.HOUSE_APPS)} tools", live)
+        self.assertNotIn("Busy Home is on its way", live)
+        build.HOME_LIVE = False
+        build.sync_home_launch()
+        self.assertEqual((self.tmp / "index.html").read_text(), home, "and back again, word for word")
+
+    def test_the_home_page_offers_the_download_and_the_demo_only_when_live(self):
+        tools = json.loads((ROOT / "website" / "content" / "tools.json").read_text())
+        page = build.home_page(tools)
+        self.assertIn('href="../downloads/busy-home.zip"', page)
+        self.assertIn('href="../app/home.html"', page)
+        self.assertEqual(len(build.HOME_TOOLS), len(build.HOUSE_APPS), "one line on the page for every tool")
+        build.HOME_LIVE = False
+        soon = build.home_page(tools)
+        self.assertNotIn("busy-home.zip", soon)
+        self.assertIn("(soon)", soon)
+
+    def test_home_stays_out_of_the_website_demo_until_it_launches(self):
+        build.HOME_LIVE = False
+        self.assertFalse(build.on_site("apps/papers/index.html"))
+        self.assertFalse(build.on_site("home.html"))
+        self.assertEqual(build.on_site("shared/filetext.js"), build.GROWTH_LIVE, "shared with Growth: there when either is live")
+        build.HOME_LIVE = True
+        self.assertTrue(build.on_site("apps/papers/index.html"))
+        self.assertTrue(build.on_site("shared/filetext.js"))
 
 
 class Waitlist(unittest.TestCase):
