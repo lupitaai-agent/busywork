@@ -72,11 +72,34 @@ def growth_part(rel: str) -> bool:
     return rel in GROWTH_FILES or any(rel == f"apps/{a}" or rel.startswith(f"apps/{a}/") for a in GROWTH_APPS)
 
 
+# Busy Home (household paperwork) works the same way, with its own switch HOME_LIVE=1 and its own
+# download (busy-home.zip). Its code id is "house", because "home" already means the dashboard.
+HOME_LIVE = os.environ.get("HOME_LIVE", "").strip().lower() in ("1", "true", "yes")
+HOUSE_APPS = ("papers", "contracts", "upkeep", "inventory", "letters", "moving", "binder")
+HOUSE_FILES = {"home.html", "home-suite.js", "shared/house.js", "shared/house.css", "shared/house-examples.js", "shared/filetext.js"}
+
+
+def house_part(rel: str) -> bool:
+    return rel in HOUSE_FILES or any(rel == f"apps/{a}" or rel.startswith(f"apps/{a}/") for a in HOUSE_APPS)
+
+
+def suites_of(rel: str) -> set:
+    """The suites a file belongs to; none for the business tools and the shared core."""
+    return {s for s, part in (("growth", growth_part), ("house", house_part)) if part(rel)}
+
+
+def on_site(rel: str) -> bool:
+    """A suite's files reach the website demo only once that suite is live (a file shared by two
+    suites, like the PDF reader, once either is)."""
+    s = suites_of(rel)
+    return not s or ("growth" in s and GROWTH_LIVE) or ("house" in s and HOME_LIVE)
+
+
 def copy_app() -> None:
     target = SITE / "app"
     if target.exists():
         shutil.rmtree(target)
-    shutil.copytree(APP, target, ignore=lambda d, names: [n for n in names if n.startswith(".") or (not GROWTH_LIVE and growth_part((Path(d) / n).relative_to(APP).as_posix()))])
+    shutil.copytree(APP, target, ignore=lambda d, names: [n for n in names if n.startswith(".") or not on_site((Path(d) / n).relative_to(APP).as_posix())])
     core = target / "shared" / "core.js"
     core.write_text(site_core(core.read_text()))
     print(f"website/app: {sum(1 for _ in target.rglob('*') if _.is_file())} files")
@@ -84,7 +107,7 @@ def copy_app() -> None:
 
 # The free download has no AI and no pretend business: the AI client is Olaf's (paid), and the example
 # studio lives only in the website demo.
-NOT_IN_DOWNLOAD = {"shared/ai.js", "shared/examples.js", "shared/growth-examples.js"}
+NOT_IN_DOWNLOAD = {"shared/ai.js", "shared/examples.js", "shared/growth-examples.js", "shared/house-examples.js"}
 
 
 def make_zip() -> None:
@@ -92,7 +115,7 @@ def make_zip() -> None:
     downloads.mkdir(exist_ok=True)
     out = downloads / "busy.zip"
     files = sorted(p for p in APP.rglob("*") if p.is_file() and not any(skip(part) for part in p.relative_to(APP).parents if part.name) and not skip(p)
-                   and p.relative_to(APP).as_posix() not in NOT_IN_DOWNLOAD and not growth_part(p.relative_to(APP).as_posix()))
+                   and p.relative_to(APP).as_posix() not in NOT_IN_DOWNLOAD and not suites_of(p.relative_to(APP).as_posix()))
     with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
         z.writestr("Busy/START HERE.txt", START_HERE)
         for p in files:
@@ -117,16 +140,21 @@ separate, so nothing is lost.
 """
 
 
-def growth_zip_files() -> list:
-    """What Busy Growth needs: the shared files and its own tools, none of the business tools."""
+def suite_zip_files(name: str) -> list:
+    """What a suite needs: the shared core and its own tools, none of another suite's."""
     out = []
     for p in sorted(APP.rglob("*")):
         rel = p.relative_to(APP).as_posix()
         if not p.is_file() or any(skip(part) for part in p.relative_to(APP).parents if part.name) or skip(p) or rel in NOT_IN_DOWNLOAD:
             continue
-        if growth_part(rel) or rel.startswith("shared/"):
+        s = suites_of(rel)
+        if name in s or (rel.startswith("shared/") and not s):
             out.append(p)
     return out
+
+
+def growth_zip_files() -> list:
+    return suite_zip_files("growth")
 
 
 def make_growth_zip() -> None:

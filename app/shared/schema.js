@@ -26,7 +26,7 @@
         vatNumber: 'text', regNumber: 'text', iban: 'text', bic: 'text', currency: 'text', vatRates: 'text', paymentDays: 'num', quoteDays: 'num', docLang: 'text',
         brandColor: 'text', logo: 'text', logoW: 'num', logoH: 'num', hourlyRate: 'num', timeRound: 'num', taxReserve: 'num', kmRate: 'num',
         sigTitle: 'text', sigStyle: 'text', sigLogoUrl: 'text', instagram: 'text', linkedin: 'text',
-        suite: 'text', headline: 'text', targetRole: 'text', goal: 'text', learnHoursWeek: 'num', about: 'text', languages: 'text', linkedinImportedAt: 'date' } },
+        suite: 'text', household: 'text', headline: 'text', targetRole: 'text', goal: 'text', learnHoursWeek: 'num', about: 'text', languages: 'text', linkedinImportedAt: 'date' } },
     clients: { app: 'clients', shape: R, about: 'The Client Book: who you work for and how they found you.',
       fields: Object.assign({}, party, { phone: 'text', lang: 'text', paymentDays: 'num', rate: 'num', notes: 'text', source: 'text' }) },
     invoices: { app: 'invoices', shape: R, about: 'Invoices, quotes (kind quote) and credit notes (kind credit).',
@@ -112,6 +112,24 @@
     reviews: { app: 'review', shape: R, about: 'Weekly reviews: one per week, with that week’s numbers and the plan for the next.',
       fields: { week: 'date', went: 'text', hard: 'text', energy: 'num', next: 'text', nextDone: 'list', focusSkillId: 'ref:skills',
         minutes: 'num', finished: 'num', wins: 'num', applied: 'num', read: 'num' } },
+    // Busy Home (a home folder): the household's paperwork.
+    papers: { app: 'papers', shape: R, about: 'Paper Trail: important documents, with their scans in Papers/ and the date they expire.',
+      fields: { title: 'text', kind: 'text', person: 'text', reference: 'text', issued: 'date', expires: 'date', reviewAt: 'date', files: 'list', text: 'text',
+        where: 'text', tags: 'text', notes: 'text', replaced: 'bool' } },
+    contracts: { app: 'contracts', shape: R, about: 'Contracts & Renewals: what the household pays for, when it renews and the notice to cancel.',
+      fields: { name: 'text', kind: 'text', provider: 'text', reference: 'text', cost: 'num', per: 'text', start: 'date', end: 'date', renews: 'text', renewMonths: 'num',
+        notice: 'num', noticeUnit: 'text', cancelledAt: 'date', paperId: 'ref:papers', address: 'text', website: 'text', phone: 'text', notes: 'text' } },
+    upkeep: { app: 'upkeep', shape: R, about: 'Home Upkeep: recurring jobs, when they were last done and the log.',
+      fields: { task: 'text', area: 'text', every: 'num', last: 'date', next: 'date', who: 'text', notes: 'text', log: 'list' } },
+    inventory: { app: 'inventory', shape: R, about: 'Home Inventory: what the household owns, room by room, with photos and receipts in Inventory/.',
+      fields: { name: 'text', room: 'text', kind: 'text', brand: 'text', model: 'text', serial: 'text', bought: 'date', price: 'num', value: 'num', warrantyUntil: 'date',
+        photos: 'list', receipt: 'text', notes: 'text' } },
+    letters: { app: 'letters', shape: R, about: 'Letters the household wrote, from a template, with the addressee and the contract they are about.',
+      fields: { template: 'text', title: 'text', to: 'text', toAddress: 'text', contractId: 'ref:contracts', body: 'text', sentAt: 'date' } },
+    moves: { app: 'moving', shape: R, about: 'Moving Planner: one record per move, with its checklist and who to tell.',
+      fields: { date: 'date', from: 'text', to: 'text', tasks: 'list', tell: 'list', finished: 'bool', notes: 'text' } },
+    binder: { app: 'binder', shape: R, about: 'Just in Case: what the family would need to know, one entry per record by section.',
+      fields: { section: 'text', title: 'text', text: 'text' } },
   };
   // Fields the store itself manages, and the example flag the example business carries.
   const COMMON = { id: 'id', createdAt: 'time', updatedAt: 'time', example: 'bool' };

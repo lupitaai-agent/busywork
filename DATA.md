@@ -172,6 +172,33 @@ sit in `library/` inside the folder; files dropped there outside Busy are picked
   carry `source: "linkedin"`; a career entry's `start` and `end` may be a year alone (`2019`) when that
   is all LinkedIn gives.
 
+### Busy Home (a home folder)
+A home folder holds one household's paperwork. Its `settings` add `suite: "house"` and `household`
+(who lives there, as text), and use `ownerName`, `address`, `postcode`, `city`, `country`, `email`
+and `phone` for letters. Scans and photos are files in the folder: `Papers/` and `Inventory/`; PDFs
+Busy makes go to `Letters/` and `Home/`.
+- `papers`: Paper Trail. `title`, `kind` (`id`, `insurance`, `contract`, `house`, `car`, `money`,
+  `health`, `school`, `warranty`, `pet`, `other`), `person`, `reference`, `issued`, `expires`,
+  `reviewAt` (a date to look at it again), `files` (paths in `Papers/`), `text` (the words of a PDF,
+  for search), `where` (where the original is), `tags`, `notes`, `replaced` (an older copy, never warned about).
+- `contracts`: Contracts & Renewals. `name`, `kind`, `provider`, `reference`, `cost` per `per`
+  (`month`, `quarter`, `year`), `start`, `end` (the current term's end), `renews` (`yes`: renews by
+  `renewMonths`, default 12; `no`: just ends; `rolling`: after the first term, cancel any time),
+  `notice` and `noticeUnit` (`day`, `week`, `month`), `cancelledAt`, `paperId` (the policy or contract
+  in Paper Trail), `address` (where letters go), `website`, `phone`, `notes`. The last day to cancel
+  is worked out, never stored: the next end minus the notice.
+- `upkeep`: Home Upkeep. `task`, `area`, `every` (months), `last` (done), `next` (a date set by
+  hand, which wins over `last` + `every`), `who`, `notes`, and `log`: `{ date, note, cost }`, newest first.
+- `inventory`: Home Inventory. `name`, `room`, `kind`, `brand`, `model`, `serial`, `bought`, `price`
+  (paid), `value` (what it is worth now, if different), `warrantyUntil`, `photos` and `receipt` (paths
+  in `Inventory/`), `notes`.
+- `letters`: `template`, `title`, `to` and `toAddress`, `contractId`, `body` (the letter as text,
+  `# ` for headings), `sentAt`.
+- `moves`: the Moving Planner. `date`, `from`, `to`, `tasks`: `{ id, task, due, done }`, `tell`:
+  `{ who, done }`, `finished`, `notes`.
+- `binder`: Just in Case. `section` (`people`, `where`, `money`, `home`, `digital`, `pets`, `wishes`,
+  `notes`), `title`, `text`. Never passwords or PINs: where they are, not what they are.
+
 ### Olaf (paid edition)
 - `olaf-files`: Olaf's workspace, one markdown file per record by `path`.
 - `olaf-sessions`: conversations, kept exactly as sent so they can continue (the newest 15

@@ -43,6 +43,14 @@
     { id: 'contacts', suite: 'growth', name: 'Contacts', emoji: '🤝', color: 'grape', ready: true, tagline: 'The people in your corner, and when to catch up again.' },
     { id: 'review', suite: 'growth', name: 'Weekly Review', emoji: '🪞', color: 'sun', ready: true, tagline: 'Ten minutes on Friday: what moved, what was hard, what’s next.' },
     { id: 'ivy', suite: 'growth', name: 'Ivy', emoji: '🌿', color: 'mint', ready: false, tagline: 'Your AI coach for professional growth. Learn it, prove it, land it.' },
+    { id: 'papers', suite: 'house', name: 'Paper Trail', emoji: '🗂️', color: 'sky', ready: true, tagline: 'Every important document, found in seconds, with a nudge before it expires.' },
+    { id: 'contracts', suite: 'house', name: 'Contracts & Renewals', emoji: '🔁', color: 'tomato', ready: true, tagline: 'What you pay for, and the last day to cancel before it renews.' },
+    { id: 'upkeep', suite: 'house', name: 'Home Upkeep', emoji: '🛠️', color: 'sun', ready: true, tagline: 'The boiler, the smoke alarms, the gutters: what’s due and when it was done.' },
+    { id: 'inventory', suite: 'house', name: 'Home Inventory', emoji: '🛋️', color: 'grape', ready: true, tagline: 'What you own, room by room, with receipts and warranties. Ready for any claim.' },
+    { id: 'letters', suite: 'house', name: 'Letters', emoji: '✉️', color: 'pink', ready: true, tagline: 'Cancel, complain, claim or object, with your details already filled in.' },
+    { id: 'moving', suite: 'house', name: 'Moving Planner', emoji: '🚚', color: 'teal', ready: true, tagline: 'Everything to do before and after the move, and everyone to tell.' },
+    { id: 'binder', suite: 'house', name: 'Just in Case', emoji: '📕', color: 'mint', ready: true, tagline: 'Everything your family would need if something happened to you, in one place.' },
+    { id: 'juno', suite: 'house', name: 'Juno', emoji: '🏡', color: 'sun', ready: false, tagline: 'Your AI expert for household paperwork: reads the letters, writes the replies, keeps you ahead.' },
   ]);
 
   // A suite is a set of tools with its own home page and its own folder. Business folders and growth
@@ -50,6 +58,7 @@
   BW.SUITES = {
     business: { name: 'Busy Business', home: 'index.html', noun: 'business', folder: 'My Business', details: 'Business details', key: '' },
     growth: { name: 'Busy Growth', home: 'growth.html', noun: 'growth folder', folder: 'My Growth', details: 'Your details', key: ':growth' },
+    house: { name: 'Busy Home', home: 'home.html', noun: 'home folder', folder: 'My Home', details: 'Your household', key: ':house' },
   };
   BW.suite = 'business';
   const suite = () => BW.SUITES[BW.suite] || BW.SUITES.business;
@@ -787,6 +796,21 @@
     { k: 'linkedin', label: 'LinkedIn', ph: 'linkedin.com/in/you' },
     { k: 'city', label: 'Where you live', ph: 'e.g. Utrecht' },
   ]);
+  // Busy Home asks about the household: who lives there and the address letters go out from.
+  const HOUSE_STEPS = [
+    { emoji: '🏡', title: 'Hi! Whose home is this?', sub: 'Busy Home keeps your household paperwork in one place: documents, contracts, upkeep and letters.', fields: [
+      { k: 'ownerName', label: 'Your name', ph: 'e.g. Sam Jansen', required: true, hint: 'Letters are signed with it.' },
+      { k: 'household', label: 'Who else lives there?', ph: 'e.g. Noor, Mila (8), Biscuit the dog', hint: 'Optional. Handy for sorting documents by person.' },
+    ] },
+    { emoji: '📬', title: 'Where do letters go out from?', sub: 'Your address goes on every letter you make. Skip anything you like.', fields: [
+      { k: 'address', label: 'Street and number', ph: 'Keizersgracht 1', span: 2 },
+      { k: 'postcode', label: 'Postcode', ph: '1015 AA' },
+      { k: 'city', label: 'City', ph: 'Amsterdam' },
+      { k: 'country', label: 'Country', ph: 'Netherlands' },
+      { k: 'email', label: 'Email', type: 'email', ph: 'you@example.com' },
+    ] },
+  ];
+  const HOUSE_DETAILS = HOUSE_STEPS[0].fields.concat(HOUSE_STEPS[1].fields, [{ k: 'phone', label: 'Phone', ph: '+31 6 1234 5678' }]);
   const COLORS = ['#FF6B4A', '#F5A623', '#2FD18C', '#22C3C3', '#4DA3FF', '#9B6BFF', '#FF7AC6', '#1E1B2E'];
 
   function fieldsHtml(fields, data) {
@@ -898,7 +922,7 @@
     return ob;
   }
 
-  function runWizard(steps = BW.suite === 'growth' ? GROWTH_STEPS : STEPS) {
+  function runWizard(steps = BW.suite === 'growth' ? GROWTH_STEPS : BW.suite === 'house' ? HOUSE_STEPS : STEPS) {
     return new Promise((resolve) => {
       const data = Object.assign({}, BW.settings, BW.suite === 'business' ? {} : { suite: BW.suite });
       let i = 0;
@@ -909,7 +933,7 @@
         const st = steps[i] || {};
         card.innerHTML = done
           ? `<div style="text-align:center"><div class="ob-emoji">🎉</div><h1>You're all set, ${BW.esc((data.ownerName || '').split(' ')[0] || data.businessName)}!</h1>
-             <p class="sub">Your ${BW.suite === 'growth' ? 'details are' : 'business details are'} saved. Change them any time with the ⚙️ button at the top.</p>
+             <p class="sub">Your ${BW.suite === 'business' ? 'business details are' : 'details are'} saved. Change them any time with the ⚙️ button at the top.</p>
              <button class="btn btn-primary btn-big" data-go>Let's go →</button></div>`
           : `<div class="dots">${steps.map((_, n) => `<i class="${n === i ? 'on' : n < i ? 'done' : ''}"></i>`).join('')}</div>
              <div class="ob-emoji">${st.emoji}</div><h1>${st.title}</h1><p class="sub">${st.sub}</p>
@@ -945,7 +969,8 @@
   }
 
   BW.openSettings = () => {
-    if (BW.suite === 'growth') return growthSettings();
+    if (BW.suite === 'growth') return personSettings(GROWTH_DETAILS, 'What should we call you? 🙂');
+    if (BW.suite === 'house') return personSettings(HOUSE_DETAILS, 'Letters need your name 🙂');
     const data = Object.assign({}, BW.settings);
     const box = document.createElement('div');
     const render = () => {
@@ -969,18 +994,19 @@
     });
   };
 
-  function growthSettings() {
+  // Growth and Home: details about a person or a household, not a business.
+  function personSettings(fields, needName) {
     const data = Object.assign({}, BW.settings);
-    const box = BW.html(`<div>${fieldsHtml(GROWTH_DETAILS, data)}</div>`);
+    const box = BW.html(`<div>${fieldsHtml(fields, data)}</div>`);
     bindChips(box);
     BW.modal({
-      title: '⚙️ Your details', body: box, wide: true,
+      title: '⚙️ ' + suite().details, body: box, wide: true,
       actions: [
         { label: 'Cancel', kind: 'ghost' },
         { label: 'Save', kind: 'primary', onClick: async () => {
           readFields(box, data);
-          if (!data.ownerName) { BW.toast('What should we call you? 🙂', '✏️'); return false; }
-          try { await BW.store.saveSettings(Object.assign(data, { suite: 'growth' })); BW.toast('Saved.', '✨'); listeners.forEach((fn) => fn('settings')); }
+          if (!data.ownerName) { BW.toast(needName, '✏️'); return false; }
+          try { await BW.store.saveSettings(Object.assign(data, { suite: BW.suite })); BW.toast('Saved.', '✨'); listeners.forEach((fn) => fn('settings')); }
           catch (e) { BW.error(e); return false; }
         } },
       ],
@@ -1211,6 +1237,8 @@
     ['🎓', 'Plan something to learn', 'learning', '#new'], ['🧠', 'Add a skill', 'skills', '#new'], ['🏆', 'Log a win', 'wins', '#new'],
     ['🎯', 'Add a job', 'jobs', '#new'], ['📄', 'New CV version', 'cv', '#new'], ['🎤', 'Write an interview story', 'stories', '#new'], ['🎲', 'Practise an interview question', 'stories', '#practice'],
     ['🤝', 'Add a contact', 'contacts', '#new'], ['🪞', 'Review this week', 'review', '#new'],
+    ['🗂️', 'Add a document', 'papers', '#new'], ['🔁', 'Add a contract', 'contracts', '#new'], ['🛠️', 'Add an upkeep job', 'upkeep', '#new'], ['🛋️', 'Add something you own', 'inventory', '#new'],
+    ['✉️', 'Write a letter', 'letters', ''], ['🚚', 'Plan a move', 'moving', '#new'], ['📕', 'Open the Just in Case binder', 'binder', ''],
     ['📣', 'Ask the marketing team', 'marketing', '#tab/skills'], ['🗺️', 'Make a marketing plan', 'marketing', '#skill/marketing-plan'], ['🧐', 'Check an ad or post', 'marketing', '#skill/creative-check'], ['🧭', 'Weekly check-in with Olaf', 'olaf', '#tab/coach'],
   ];
   const go = (href) => {
@@ -1252,6 +1280,12 @@
       stories.forEach((x) => found.push({ group: 'Stories', emoji: '🎤', label: x.title || 'Story', href: app('stories') + '#open/' + x.id }));
       const [people] = await Promise.all(['contacts'].map((n) => BW.store.all(n).catch(() => [])));
       people.forEach((x) => found.push({ group: 'Contacts', emoji: '🤝', label: x.name || 'Someone', sub: [x.role, x.org].filter(Boolean).join(' · '), href: app('contacts') + '#open/' + x.id }));
+      const [papers, contracts, upkeep, things, letters] = await Promise.all(['papers', 'contracts', 'upkeep', 'inventory', 'letters'].map((n) => BW.store.all(n).catch(() => [])));
+      papers.forEach((x) => found.push({ group: 'Documents', emoji: '🗂️', label: x.title || 'Document', sub: [x.person, x.expires && 'until ' + BW.fmtDate(x.expires)].filter(Boolean).join(' · '), href: app('papers') + '#open/' + x.id }));
+      contracts.forEach((x) => found.push({ group: 'Contracts', emoji: '🔁', label: x.name || x.provider || 'Contract', sub: x.provider || '', href: app('contracts') + '#open/' + x.id }));
+      upkeep.forEach((x) => found.push({ group: 'Upkeep', emoji: '🛠️', label: x.task || 'Job', sub: x.area || '', href: app('upkeep') + '#open/' + x.id }));
+      things.forEach((x) => found.push({ group: 'Inventory', emoji: '🛋️', label: x.name || 'Thing', sub: x.room || '', href: app('inventory') + '#open/' + x.id }));
+      letters.forEach((x) => found.push({ group: 'Letters', emoji: '✉️', label: x.title || 'Letter', href: app('letters') + '#edit/' + x.id }));
     })();
     const wrap = BW.html(`<div class="palette-wrap"><div class="palette card" role="dialog" aria-modal="true" aria-label="Search and commands">
       <div class="pal-in"><span aria-hidden="true">${mode === 'new' ? '＋' : '🔍'}</span><input type="text" placeholder="${mode === 'new' ? 'What do you want to make?' : 'Search clients, invoices, tasks… or type an action'}" aria-label="Search" autocomplete="off"><kbd>esc</kbd></div>
@@ -1334,7 +1368,7 @@
   BW.entitlements = Object.assign({
     async edition(feature) {
       // Olaf (Busy Business) and Ivy (Busy Growth): their paid files say they are here.
-      const ed = feature === 'olaf' ? await BW.olafInstalled() : feature === 'ivy' ? (BW.ivyEdition || null) : null;
+      const ed = feature === 'olaf' ? await BW.olafInstalled() : feature === 'ivy' ? (BW.ivyEdition || null) : feature === 'juno' ? (BW.junoEdition || null) : null;
       if (ed !== 'full' || !BW.licence.required(feature)) return ed;
       return (await BW.licence.current(feature)) ? 'full' : 'locked';
     },
@@ -1473,7 +1507,7 @@
         bar.append(BW.html(`<div class="readonly-bar" role="status">🔒 ${readOnly}</div>`));
       }
       BW.settings = await BW.store.settings();
-      if (!readOnly && (BW.suite === 'growth' ? !BW.settings.ownerName : !BW.settings.businessName)) await runWizard();
+      if (!readOnly && (BW.suite === 'business' ? !BW.settings.businessName : !BW.settings.ownerName)) await runWizard();
     } catch (e) { BW.error(e); return; }
     const chip = BW.$('[data-store]', bar);
     chip.hidden = false;
