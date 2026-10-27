@@ -12,14 +12,14 @@ Page: https://busywork.example/business/index.html
 
 ## How it works
 
-1. Download Busy Business (one zip file) and unzip it somewhere you will find it again.
-2. Double-click index.html. It opens in Chrome or Edge. Nothing is installed.
-3. Choose a folder for your business. Every tool saves plain files there; put the folder in Google Drive, Dropbox, OneDrive or iCloud Drive for backups and syncing.
+1. Download the free Busy app for Mac or Windows (beta) from https://busywork.example/business/download.html and install it. Without installing, a zip that runs in Chrome or Edge is there too.
+2. Open Busy and pick Busy Business on the start screen.
+3. Every tool saves plain files in its own folder (Documents/Busy/Business, or one you choose); put the folder in Google Drive, Dropbox, OneDrive or iCloud Drive for backups and syncing.
 4. Busy also keeps a daily backup in that folder. There is no account and no server: nothing is sent to us.
 
 ## Editions
 
-- Free download: all 13 tools, the Marketing Studio included. No AI, no account, no subscription.
+- Free app (Mac and Windows, beta) and free download: all 13 tools, the Marketing Studio included. No AI, no account, no subscription.
 - Paid edition: the same tools plus Olaf, the AI expert for marketing and projects. €149 once · checkout opens soon.
 - Website demo: every tool filled with a pretend design studio, at https://busywork.example/app/index.html. Nothing is kept after the tab closes.
 

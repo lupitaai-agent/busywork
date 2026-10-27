@@ -135,6 +135,15 @@ class WebsitePolicy(unittest.TestCase):
 class Editions(unittest.TestCase):
     """The free download has no AI and no pretend business; the website's tools are the demo."""
 
+    def test_the_download_page_offers_the_free_apps(self):
+        """The free Mac and Windows apps come from the public repository's latest release, under
+        names every release keeps (see the private repo's desktop/README.md)."""
+        page = (ROOT / "website" / "business" / "download.html").read_text()
+        for name in ("Busy-Beta-Mac.dmg", "Busy-Beta-Windows.exe"):
+            self.assertIn(f'href="https://github.com/lupitaai-agent/busywork/releases/latest/download/{name}"', page)
+        self.assertIn("Open Anyway", page)
+        self.assertIn('href="../downloads/busy.zip"', page, "the browser version stays available")
+
     def test_free_download_has_no_ai_and_no_example_business(self):
         import zipfile
         z = zipfile.ZipFile(ROOT / "website" / "downloads" / "busy.zip")

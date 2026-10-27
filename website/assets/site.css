@@ -187,6 +187,7 @@ html, body.site { overflow-x: clip; }
 .page h2 { margin: 34px 0 10px; }
 .page p, .page li { color: var(--ink-2); font-size: 1.05rem; margin-bottom: 10px; }
 .dl-card { padding: 30px; text-align: center; margin: 30px 0; }
+.beta-pill { display: inline-block; vertical-align: middle; font-size: .9rem; font-weight: 800; padding: 3px 12px; border: 2px solid var(--border); border-radius: 999px; background: var(--surface); transform: rotate(3deg); }
 .dl-card .btn { font-size: 1.15rem; padding: 15px 28px; min-height: 58px; }
 .how { counter-reset: s; list-style: none; padding: 0; }
 .how li { counter-increment: s; position: relative; padding-left: 54px; margin-bottom: 20px; }

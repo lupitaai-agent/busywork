@@ -7,7 +7,7 @@ Busy, free, private tools for work and life, lives at https://busywork.example. 
 Key facts:
 - Price: every suite's tools are free, with no account and no subscription. Olaf (Busy Business) is €149 once for one business; Ivy (Busy Growth, coming soon) is €30 once. Both run on the owner's own Claude usage.
 - Data: saved as files in a folder the owner chooses on their own computer (it can sit in Google Drive, Dropbox, OneDrive or iCloud Drive). Nothing is sent to Busy. The games keep progress in the browser.
-- Works in: the business tools run in Chrome and Edge on Windows, macOS and ChromeOS, from a downloaded folder. The games run in any modern browser.
+- Works in: a free app for Mac and Windows (beta) with every suite; or, without installing, Chrome and Edge from a downloaded folder (also on ChromeOS and Linux). The games run in any modern browser.
 - AI: none in the free tools. Olaf, Ivy and Juno run on Claude with the owner's own API key; requests go from the browser to Anthropic only.
 - Language: English. Invoices, quotes and documents can be made in English or Dutch.
 
@@ -28,7 +28,7 @@ Key facts:
 - [Stock Keeper](https://busywork.example/business/stock.html): Tap plus and minus as stock comes and goes, get low-stock warnings, scan barcodes, see stock value, margins and a full history per item. Free and private.
 - [Marketing Studio](https://busywork.example/business/marketing.html): Do your own marketing on proven science: a brand profile, a year plan, a content calendar and insights from your invoices. Free and private.
 - [Olaf, the AI expert for marketing and projects](https://busywork.example/business/olaf.html): a 90-day marketing plan, project plans, a weekly check-in and the work done with the owner, on proven marketing science. €149 once.
-- [Download Busy Business](https://busywork.example/business/download.html): one zip file with every tool; unzip, open index.html, choose a folder.
+- [Download Busy](https://busywork.example/business/download.html): the free app for Mac and Windows (beta), with Busy Business, Busy Growth and Busy Home; no AI, nothing sent anywhere. A zip for the browser is there too.
 - [All business tools](https://busywork.example/business/tools.html): what each tool does.
 
 ## Busy Games: free daily brain games
