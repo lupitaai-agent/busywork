@@ -1333,10 +1333,10 @@
   // 'locked': the paid files are here but licences are switched on and none is valid.
   BW.entitlements = Object.assign({
     async edition(feature) {
-      if (feature !== 'olaf') return null;
-      const ed = await BW.olafInstalled();
-      if (ed !== 'full' || !BW.licence.required('olaf')) return ed;
-      return (await BW.licence.current('olaf')) ? 'full' : 'locked';
+      // Olaf (Busy Business) and Ivy (Busy Growth): their paid files say they are here.
+      const ed = feature === 'olaf' ? await BW.olafInstalled() : feature === 'ivy' ? (BW.ivyEdition || null) : null;
+      if (ed !== 'full' || !BW.licence.required(feature)) return ed;
+      return (await BW.licence.current(feature)) ? 'full' : 'locked';
     },
     async has(feature) { return (await this.edition(feature)) === 'full'; },
   }, host.entitlements);

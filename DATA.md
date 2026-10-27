@@ -74,7 +74,7 @@ update steps run on the next start.
   `"21, 9, 0"`, payment terms in days, document language `en`/`nl`, brand colour, hourly rate,
   mileage rate, tax reserve, email signature fields).
 
-- `licences`: licences for paid parts, one per record: `product` (`olaf`), `licenceId`, the
+- `licences`: licences for paid parts, one per record: `product` (`olaf` or `ivy`), `licenceId`, the
   signed `key` (`BWL1.…`) and the `licensee` it names. Checked offline against the public keys in
   the paid download; a record that no longer checks out is ignored, never deleted.
 
@@ -174,6 +174,12 @@ sit in `library/` inside the folder; files dropped there outside Busy are picked
 - `olaf-sessions`: conversations, kept exactly as sent so they can continue (the newest 15
   finished ones are kept).
 - `olaf-setup`: which setup steps the owner skipped.
+
+### Ivy (paid, in a growth folder)
+- `ivy-files`: Ivy's own files, one markdown file per record by `path`: `profile.md`, `notes.md` and
+  `output/…`. Output is also written as plain files under `Ivy/` in the growth folder.
+- `ivy-sessions`: conversations with Ivy, kept exactly as sent so they can continue (the newest 20
+  finished ones are kept), with `cost` and `changes` (what Ivy saved in the tools).
 
 ## Kept outside the business folder
 

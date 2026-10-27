@@ -305,7 +305,8 @@ OLAF_CHECKOUT_URL = os.environ.get("OLAF_CHECKOUT_URL", "")
 WAITLIST_ENDPOINT = os.environ.get("WAITLIST_ENDPOINT", "")
 WAITLIST_PROVIDER = os.environ.get("WAITLIST_PROVIDER") or "MailerLite"
 # Busy Growth has its own list (a second MailerLite form), so Olaf's list stays Olaf's.
-GROWTH_WAITLIST_ENDPOINT = os.environ.get("GROWTH_WAITLIST_ENDPOINT", "")  # an empty GitHub variable means the default
+GROWTH_WAITLIST_ENDPOINT = os.environ.get("GROWTH_WAITLIST_ENDPOINT", "")
+IVY_CHECKOUT_URL = os.environ.get("IVY_CHECKOUT_URL", "")  # Ivy's checkout page, once it exists; empty means "coming soon"  # an empty GitHub variable means the default
 
 
 def waitlist_form(where: str, endpoint: str = None, consent: str = None, button: str = "🧭 Put me on the list", who: str = None) -> str:
@@ -978,8 +979,9 @@ def growth_page(tools: list) -> str:
         signup = '<p class="lead">The list opens soon. Meanwhile, keep your brain busy with <a href="../games/index.html">today\'s puzzles</a>.</p>'
     ivy = """<section class="section" id="ivy"><div class="wrap">
     <div class="card ivy-card reveal"><img src="../assets/ivy-mark.svg" alt="" width="96" height="96">
-      <div><p class="kicker">Ivy by Busy · €30 once · coming soon</p><h2>Your AI coach for professional growth</h2>
-      <p>Ivy turns what you learn into skills and wins, those into a stronger CV, and helps with every application and interview. Learn it, prove it, land it. Ivy never invents experience: every line comes with its proof.</p></div></div>
+      <div><p class="kicker">Ivy by Busy · €30 once{"" if IVY_CHECKOUT_URL else " · coming soon"}</p><h2>Your AI coach for professional growth</h2>
+      <p>Ivy turns what you learn into skills and wins, those into a stronger CV, and helps with every application and interview. Learn it, prove it, land it. Ivy never invents experience: every line comes with its proof.</p>
+      {f'<p style="margin-top:12px"><a class="btn btn-primary" href="{e(IVY_CHECKOUT_URL)}">Get Ivy · €30</a> <a class="btn" href="../claude-key.html">How Ivy connects to Claude</a></p>' if IVY_CHECKOUT_URL else '<p style="margin-top:12px"><a href="../claude-key.html">How Ivy will connect to Claude →</a></p>'}</div></div>
   </div></section>"""
     if not GROWTH_LIVE:
         desc = "Busy Growth, coming soon: free tools to grow your career. A library of what you learn, skills, wins, job tracker and CV builder, plus Ivy, an AI coach."

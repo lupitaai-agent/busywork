@@ -69,7 +69,7 @@
         <div class="start-steps">${steps.map(([ok, e, t, sub, go], i) => `<${go && !ok ? `a href="${go}"` : 'button type="button"'} class="step ${ok ? 'ok' : ''}" data-step="${i}"><span class="tick">${ok ? '✓' : e}</span><span><b>${t}</b><small>${sub}</small></span></${go && !ok ? 'a' : 'button'}>`).join('')}</div>
       </section>` : ''}
       ${GROUPS.map(([title, ids]) => `<div class="section-h"><h2>${title}</h2></div><div class="tiles rise">${ids.map((id) => tile(byId[id])).join('')}</div>`).join('')}
-      <div class="section-h"><h2>🌿 Coming to Busy Growth</h2><small class="faint">Free tools stay free; the AI comes with Ivy</small></div>
+      <div class="section-h"><h2>🌿 ${byId.ivy.ready ? 'Your coach' : 'Coming to Busy Growth'}</h2><small class="faint">${byId.ivy.ready ? 'On your own Claude key' : 'Free tools stay free; the AI comes with Ivy'}</small></div>
       <div class="tiles rise">${tile(byId.ivy)}
         <a class="tile" style="--c:var(--sky)" href="${BW.siteUrl}/games/index.html" target="_blank" rel="noopener"><span class="icon">🧩</span><b>Today’s brain break</b><p>Four free logic puzzles on busy.com.ai, a new one every day.</p><span class="go">Play <span>→</span></span></a></div>
       <p class="tip">💡 Press <kbd>${/Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl'} K</kbd> anywhere to find something you saved, a skill or a win.</p>

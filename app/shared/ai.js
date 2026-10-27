@@ -249,6 +249,7 @@
     let dlg;
     draw();
     dlg = BW.modal({ title: '🤖 AI settings', body: box, wide: true, actions: [
+      { label: 'Remove key', kind: 'ghost', onClick: async () => { if (!(await BW.confirm('Remove your Claude key from this browser? To switch it off completely, also delete it at console.anthropic.com → Settings → API keys.', { ok: 'Remove it', danger: true }))) return false; BW.ai.key = ''; BW.toast('Key removed from this browser', '🔌'); if (onSave) onSave(); } },
       { label: 'Test the key', onClick: async () => { BW.ai.key = $('[data-key]', box).value; try { const r = await BW.ai.test(); BW.toast(`Connected! Claude says: ${esc(r)}`, '✅'); } catch (e) { BW.error(e); } return false; } },
       { label: 'Save', kind: 'primary', onClick: () => { BW.ai.key = $('[data-key]', box).value; BW.ai.cap = BW.num($('[data-cap]', box).value); BW.toast('AI settings saved', '🤖'); if (onSave) onSave(); } },
     ] });
