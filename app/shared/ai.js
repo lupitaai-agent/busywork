@@ -228,14 +228,14 @@
   ai.addUsage = addUsage;
   BW.ai = ai;
 
-  // The shared AI settings window (key, model, monthly limit), used by the Studio and Olaf.
+  // The shared AI settings window (key, model, monthly limit), used by the Studio, Olaf and Ivy.
   ai.settings = function ({ onSave } = {}) {
     const { $, $$, esc } = BW;
     const box = document.createElement('div');
     const draw = () => {
       const log = Object.entries(BW.ai.spendLog()).sort().reverse().slice(0, 6);
       box.innerHTML = `
-        <div class="idea"><span class="e">🔒</span><div>Your key is stored <b>only in this browser on this computer</b>, never in your business folder, and is sent only to Anthropic. Get one at <b>console.anthropic.com</b> → API keys. You pay Anthropic directly for what you use.</div></div>
+        <div class="idea"><span class="e">🔒</span><div>Your key is stored <b>only in this browser on this computer</b>, never in your folder, and is sent only to Anthropic. You pay Anthropic directly for what you use. New to this? <button type="button" class="link" data-guide>Follow the step-by-step guide</button>.</div></div>
         <label class="field" style="margin-bottom:14px"><span>Claude API key</span><input class="in" type="password" data-key value="${esc(BW.ai.key)}" placeholder="sk-ant-…" autocomplete="off"></label>
         <div class="field"><span>Model</span></div>
         <div class="model-cards">${BW.ai.MODELS.map((m) => `<button type="button" data-model="${m.id}" aria-pressed="${BW.ai.model.id === m.id}"><b>${m.name}</b><small>${m.model}</small><small>$${m.input} in · $${m.output} out per million tokens</small></button>`).join('')}</div>
@@ -244,14 +244,97 @@
         <p style="margin-top:14px"><b>This month:</b> $${BW.ai.spentThisMonth().toFixed(2)}${log.length > 1 ? ` · ${log.slice(1).map(([m, v]) => `${m}: $${v.toFixed(2)}`).join(' · ')}` : ''}</p>
         <p class="faint" style="font-size:.82rem;margin-top:6px">Costs are estimates from the token counts Claude reports. Check console.anthropic.com for exact billing.</p>`;
       $$('[data-model]', box).forEach((b) => b.onclick = () => { BW.ai.model = b.dataset.model; draw(); });
+      $('[data-guide]', box).onclick = () => { dlg.close(); BW.ai.setup({ onDone: onSave }); };
     };
+    let dlg;
     draw();
-    BW.modal({ title: '🤖 AI settings', body: box, wide: true, actions: [
+    dlg = BW.modal({ title: '🤖 AI settings', body: box, wide: true, actions: [
       { label: 'Test the key', onClick: async () => { BW.ai.key = $('[data-key]', box).value; try { const r = await BW.ai.test(); BW.toast(`Connected! Claude says: ${esc(r)}`, '✅'); } catch (e) { BW.error(e); } return false; } },
       { label: 'Save', kind: 'primary', onClick: () => { BW.ai.key = $('[data-key]', box).value; BW.ai.cap = BW.num($('[data-cap]', box).value); BW.toast('AI settings saved', '🤖'); if (onSave) onSave(); } },
     ] });
   };
 
 
+  // What a typical conversation costs on a model: about 30,000 tokens read (your files and the chat so
+  // far) and 2,000 written. An estimate to set expectations, from the list prices above.
+  ai.perChat = (m) => (30000 * m.input + 2000 * m.output) / 1e6;
+  const usd = (v) => (v < 0.01 ? '<$0.01' : '$' + v.toFixed(2));
 
+  // The setup guide: from "what is an API key?" to a tested connection, one step at a time. Used by
+  // Olaf and Ivy the first time, and from AI settings. The same steps are on the website
+  // (busy.com.ai/help/claude-key.html) for people who want to read them first.
+  //   who: the expert's name; onDone(): called once the key works.
+  ai.setup = function ({ who = 'Your AI expert', onDone } = {}) {
+    const { $, esc } = BW;
+    const open = (url) => BW.openUrl(url);
+    const box = document.createElement('div');
+    const best = MODELS[0], mid = MODELS[1];
+    const steps = [
+      { t: `Connect ${esc(who)} to Claude`, b: `
+        <p>${esc(who)} thinks with <b>Claude</b>, the AI made by Anthropic. You connect it with your own <b>API key</b>: a long password that lets this browser talk to Claude for you. It takes about five minutes, once.</p>
+        <div class="idea" style="margin-top:14px"><span class="e">💡</span><div><b>Good to know</b><br>
+          • A Claude chat subscription (Pro or Max) does <b>not</b> include API use. The API is a separate, pay-as-you-go account.<br>
+          • You pay Anthropic directly, only for what you use. A typical conversation costs about <b>${usd(ai.perChat(mid))}</b> on Balanced or <b>${usd(ai.perChat(best))}</b> on Best quality (an estimate).<br>
+          • Your key stays <b>in this browser on this computer</b> and is only ever sent to Anthropic. Busy never sees it.</div></div>
+        <p style="margin-top:14px">You need: an email address and a payment card. Prefer to read it all first? <button type="button" class="link" data-web>The same guide on busy.com.ai</button>.</p>` },
+      { t: '1 · Make a Claude Console account', b: `
+        <ol class="steps-list"><li>Open <b>console.anthropic.com</b> (the button below opens it in a new tab).</li>
+          <li>Sign up with your email or Google account, and confirm your email.</li>
+          <li>If it asks what you’ll build, anything is fine: “personal use” is a good answer.</li></ol>
+        <p style="margin-top:14px"><button type="button" class="btn" data-console>↗ Open console.anthropic.com</button></p>
+        <p class="faint" style="margin-top:10px">Already have an account? Sign in and go to the next step.</p>` },
+      { t: '2 · Add a little credit', b: `
+        <ol class="steps-list"><li>In the console, open <b>Settings → Billing</b> (it may be called <b>Plans &amp; Billing</b>).</li>
+          <li>Add a card and buy credit. The smallest amount is enough to start, about $5.</li>
+          <li>Leave <b>auto-reload off</b> if you want to never pay more than you put in.</li></ol>
+        <div class="idea" style="margin-top:14px"><span class="e">🛡️</span><div>Want a hard ceiling? Under <b>Settings → Limits</b> you can set a monthly spend limit at Anthropic. Busy also has its own monthly limit, which you set in the last step.</div></div>` },
+      { t: '3 · Create your API key', b: `
+        <ol class="steps-list"><li>Open <b>Settings → API keys</b> and click <b>Create key</b>.</li>
+          <li>Name it something you’ll recognise, like <b>Busy ${esc(who)}</b>.</li>
+          <li><b>Copy the key now.</b> It starts with <code>sk-ant-</code> and is shown only once. Lost it? No problem: delete it and create a new one.</li></ol>
+        <div class="idea" style="margin-top:14px"><span class="e">🔒</span><div>Treat it like a password: don’t email it or put it in a shared document. Busy keeps it in this browser only, not in your folder.</div></div>` },
+      { t: '4 · Paste it here', b: `
+        <label class="field"><span>Your Claude API key</span><input class="in" type="password" data-key value="${esc(ai.key)}" placeholder="sk-ant-…" autocomplete="off"></label>
+        <label class="field" style="margin-top:12px"><span>Monthly limit in Busy, in US dollars</span><input class="in" inputmode="decimal" data-cap value="${ai.cap || 10}"><em>Busy stops sending requests when you reach it. You can change it any time in AI settings.</em></label>
+        <div data-result style="margin-top:14px"></div>`, test: true },
+      { t: 'You’re connected 🎉', b: `
+        <p>Claude answered, so ${esc(who)} is ready. Your key is saved in this browser on this computer.</p>
+        <ul class="steps-list" style="margin-top:12px"><li>On another computer, paste the same key again (or make a second key).</li>
+          <li>Change the model or your monthly limit any time in <b>⚙️ AI settings</b>.</li>
+          <li>See exactly what you spent at console.anthropic.com → Usage.</li></ul>` },
+    ];
+    const PASTE = steps.findIndex((s) => s.test), DONE = steps.length - 1;
+    let i = ai.ready() ? PASTE : 0, m; // a key already there: straight to testing it
+    const draw = () => {
+      const s = steps[i];
+      box.innerHTML = `<div class="setup-dots" aria-hidden="true">${steps.map((_, n) => `<i class="${n <= i ? 'on' : ''}"></i>`).join('')}</div><h3 style="margin:10px 0 12px">${s.t}</h3>${s.b}`;
+      const c = $('[data-console]', box); if (c) c.onclick = () => open('https://console.anthropic.com');
+      const w = $('[data-web]', box); if (w) w.onclick = () => open(BW.siteUrl + '/claude-key.html');
+      const k = $('[data-key]', box); if (k) setTimeout(() => k.focus(), 30);
+      foot();
+    };
+    const test = async () => {
+      const k = $('[data-key]', box).value.trim(), out = $('[data-result]', box);
+      if (!/^sk-ant-/.test(k)) { out.innerHTML = '<p class="faint">⚠️ That doesn’t look like a Claude key: it should start with <code>sk-ant-</code>. Copy it again from the console.</p>'; return; }
+      ai.key = k; ai.cap = BW.num($('[data-cap]', box).value);
+      out.innerHTML = '<p class="faint">⏳ Saying hello to Claude…</p>';
+      try { await ai.test(); i = DONE; draw(); if (onDone) onDone(); } catch (e) {
+        const msg = String((e && e.message) || e);
+        const tip = /credit/i.test(msg) ? 'Add credit in step 2, wait a minute, then try again.'
+          : /accept/i.test(msg) ? 'Copy the whole key again: it’s long, and one missing letter is enough.'
+          : /Failed to fetch|NetworkError|network/i.test(msg) ? 'Check your internet connection, then try again.' : 'Try again in a minute.';
+        out.innerHTML = `<div class="idea"><span class="e">🤔</span><div><b>${esc(msg)}</b><br>${tip}</div></div>`;
+      }
+    };
+    const foot = () => {
+      const f = $('.modal-foot', m.el); f.innerHTML = '';
+      const btn = (label, kind, fn) => { const b = document.createElement('button'); b.className = 'btn' + (kind ? ' btn-' + kind : ''); b.textContent = label; b.onclick = fn; f.append(b); };
+      if (i > 0 && i < DONE) btn('Back', 'ghost', () => { i--; draw(); });
+      if (i < PASTE) btn(i === 0 ? 'Let’s start' : 'Done, next', 'primary', () => { i++; draw(); });
+      if (i === PASTE) btn('Test and save', 'primary', test);
+      if (i === DONE) btn('Done', 'primary', () => m.close());
+    };
+    m = BW.modal({ title: '🔌 Connect to Claude', body: box, wide: true });
+    draw();
+  };
 })();

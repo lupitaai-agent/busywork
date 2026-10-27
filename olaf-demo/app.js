@@ -53,7 +53,7 @@
       <div class="studio-tabs" role="tablist">${TABS.map(([k, l]) => `<button role="tab" data-tab="${k}" aria-selected="${tab === k}">${l}</button>`).join('')}</div>
       <div data-view></div>`;
     $$('[data-tab]', main).forEach((b) => b.onclick = () => { tab = b.dataset.tab; render(); });
-    $('[data-ai]', main).onclick = settings;
+    $('[data-ai]', main).onclick = connect;
     const views = { home: viewHome, insights: viewInsights, content: viewContent, projects: viewProjects, skills: viewSkills, files: viewFiles, history: viewHistory };
     (views[tab] || viewHome)($('[data-view]', main));
   }
@@ -93,6 +93,12 @@
   }
 
 
+  // The first time: the step-by-step guide to a Claude key. After that: the settings window.
+  function connect() {
+    if (DEMO) return demoNotice('marketing-journey');
+    if (!BW.ai.ready()) return BW.ai.setup({ who: 'Olaf', onDone: render });
+    return settings();
+  }
   function settings() {
     if (DEMO) return demoNotice('marketing-journey');
     BW.ai.settings({ onSave: render });
@@ -246,7 +252,7 @@
     const st = await setupState(), j = st.j, key = BW.ai.ready();
     const due = j && (!j['Next check-in'] || j['Next check-in'] <= BW.today());
     v.innerHTML = `
-      ${key ? '' : `<div class="next rise" style="margin-bottom:16px"><button data-key><span class="e">🔌</span><span><b>Connect your Claude key</b><small>Olaf runs on your own key. It stays in this browser and is only sent to Anthropic.</small></span></button></div>`}
+      ${key ? '' : `<div class="next rise" style="margin-bottom:16px"><button data-key><span class="e">🔌</span><span><b>Connect Olaf to Claude</b><small>Five minutes, once, with a step-by-step guide. Your key stays in this browser and is only sent to Anthropic.</small></span></button></div>`}
       ${st.complete ? doneHtml(st) : setupHtml(st)}
       ${j ? `<div class="card coach-hero rise">
           <div><h2>Stage ${Math.min(j.stages.filter((s) => s.done).length + 1, 6)} of 6: ${esc((j.stages.find((s) => !s.done) || { title: 'Keep it going' }).title)}</h2>
@@ -257,7 +263,7 @@
         <div class="card pcard rise" style="margin-bottom:16px"><h3>📋 This week <small class="faint" style="font-weight:600">tick off what you did</small></h3>${j.week.length ? `<ul class="week">${j.week.map((w, i) => `<li class="${w.done ? 'done' : ''}" data-week="${i}" role="checkbox" aria-checked="${w.done}" tabindex="0">${esc(w.text)}</li>`).join('')}</ul>` : '<p>Nothing planned yet. Run a weekly check-in.</p>'}</div>` : ''}
       <div class="dash rise">${BW.mktDash.planHtml(st.d, { planLink: '../marketing/index.html#tab/plan' })}${BW.mktDash.numbersHtml(st.d)}${BW.mktDash.workHtml(st.d)}</div>
       <div style="height:40px"></div>`;
-    const k = $('[data-key]', v); if (k) k.onclick = settings;
+    const k = $('[data-key]', v); if (k) k.onclick = connect;
     BW.mktDash.bind(v, st.d, () => viewHome(v));
     $$('[data-open]', v).forEach((a) => a.onclick = (e) => { e.preventDefault(); openFile = a.dataset.open; tab = 'files'; render(); });
     $$('[data-topic]', v).forEach((b) => b.onclick = () => { const tp = SETUP.find((x) => x.id === b.dataset.topic); start('onboarding', topicPrompt(tp)); });
@@ -362,7 +368,7 @@
   async function start(id, instruction) {
     if (DEMO) return demoNotice(id);
     if (locked) return licenceScreen();
-    if (!BW.ai.ready()) return settings();
+    if (!BW.ai.ready()) return connect();
     if (running) return BW.toast('Olaf is already working on something', '⏳');
     try { session = A.create(id, instruction); } catch (e) { return BW.error(e); }
     render(); window.scrollTo(0, 0);

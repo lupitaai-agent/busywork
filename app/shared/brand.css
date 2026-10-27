@@ -412,3 +412,9 @@ select.in { appearance: none; background-image: linear-gradient(45deg, transpare
 /* A plain list without bullets (plans, checklists) */
 .plain-list { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
 .plain-list li { line-height: 1.4; }
+
+/* The step-by-step Claude key guide (shared/ai.js) */
+.setup-dots { display: flex; gap: 6px; }
+.setup-dots i { width: 28px; height: 6px; border-radius: 99px; background: var(--hair); }
+.setup-dots i.on { background: var(--grape); }
+.steps-list { margin: 0; padding-left: 1.3em; display: grid; gap: 8px; line-height: 1.45; }

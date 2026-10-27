@@ -1071,6 +1071,7 @@ def build_pages() -> None:
     (business / "tools.html").write_text(tools_index(tools))
     (business / "olaf.html").write_text(to_business(olaf_page(tools)))
     (SITE / "about.html").write_text(about_page(tools))
+    (SITE / "claude-key.html").write_text(claude_key_page(tools))
     (SITE / "growth").mkdir(exist_ok=True)
     (SITE / "growth" / "index.html").write_text(growth_page(tools))
     game_pages = build_games()
@@ -1083,7 +1084,7 @@ def build_pages() -> None:
     (SITE / "olaf.html").write_text(forward_page("business/olaf.html", 0))
     (SITE / "download.html").write_text(forward_page("business/download.html", 0))
     sync_chrome(tools)
-    pages = (["", "about.html", "privacy.html", "terms.html", "business/index.html", "business/tools.html", "business/download.html", "business/olaf.html"]
+    pages = (["", "about.html", "claude-key.html", "privacy.html", "terms.html", "business/index.html", "business/tools.html", "business/download.html", "business/olaf.html"]
              + [f'business/{t["id"]}.html' for t in tools] + game_pages + ["growth/index.html"])
     today = date.today().isoformat()
     (SITE / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
@@ -1120,6 +1121,7 @@ def page_date(rel: str) -> str:
     Honest freshness: the date moves when the content does, not on every build."""
     sources = {"": ["website/index.html"], "business/index.html": ["website/business/index.html"], "business/download.html": ["website/business/download.html"],
                "privacy.html": ["website/privacy.html"], "terms.html": ["website/terms.html"], "about.html": ["build.py", "website/content/tools.json"],
+               "claude-key.html": ["build.py", "app/shared/ai.js"],
                "business/olaf.html": ["build.py", "olaf-demo/library.js"], "growth/index.html": ["build.py"]}.get(rel, ["build.py", "website/content/tools.json"])
     if rel.startswith("games/"):
         sources = ["build.py", "website/assets/games/engine.js", "website/assets/games/play.js"]
@@ -1299,6 +1301,58 @@ def write_llms(tools: list) -> None:
              "The tools never send us anything. Business data stays in the owner's folder; the games keep progress in the browser. The waitlists keep an email address in MailerLite, only to say when Olaf or Busy Growth can be had. Olaf's requests go from the owner's browser to Anthropic with the owner's own key.",
              f"Full text: {b}/privacy.html", ""]
     (SITE / "llms-full.txt").write_text("\n".join(full))
+
+
+def ai_models() -> list:
+    """The models and list prices Olaf and Ivy offer, read from shared/ai.js so there is one source."""
+    src = (APP / "shared" / "ai.js").read_text()
+    rows = re.findall(r"\{ id: '([^']+)', name: '([^']+)', model: '([^']+)', input: ([\d.]+), output: ([\d.]+)", src)
+    if not rows:
+        raise SystemExit("shared/ai.js: could not read the model list")
+    return [{"id": i, "name": n, "model": m, "input": float(a), "output": float(b)} for i, n, m, a, b in rows]
+
+
+def claude_key_page(tools: list) -> str:
+    """How to get a Claude API key for Olaf or Ivy: the same steps as the guide inside them (ai.setup)."""
+    def per_chat(m):  # about 30,000 tokens read and 2,000 written, as in ai.perChat
+        v = (30000 * m["input"] + 2000 * m["output"]) / 1e6
+        return "under $0.01" if v < 0.01 else f"about ${v:.2f}"
+    costs = "".join(f"<tr><td><b>{e(m['name'])}</b><br><small>{e(m['model'])}</small></td><td>${m['input']:g} / ${m['output']:g}</td><td>{per_chat(m)}</td></tr>" for m in ai_models())
+    steps = [
+        ("Make a Claude Console account", "Go to <b>console.anthropic.com</b> and sign up with your email or Google account. Confirm your email. If it asks what you will build, “personal use” is fine."),
+        ("Add a little credit", "Open <b>Settings → Billing</b> (it may be called Plans &amp; Billing), add a card and buy credit. The smallest amount, about $5, is enough to start. Leave auto-reload off if you never want to pay more than you put in. Under <b>Settings → Limits</b> you can also set a monthly spend limit."),
+        ("Create your API key", "Open <b>Settings → API keys</b> and click <b>Create key</b>. Name it something like “Busy Olaf” or “Busy Ivy”. Copy it straight away: it starts with <code>sk-ant-</code> and is shown only once. Lost it? Delete it and make a new one."),
+        ("Paste it into Olaf or Ivy", "The first time you start one, a guide asks for the key, tests it with a tiny request and saves it in that browser. You also set a monthly limit in Busy, and Busy stops sending requests when you reach it."),
+    ]
+    faq = [("Does my Claude Pro or Max subscription cover this?", "No. Chat subscriptions and the API are billed separately by Anthropic. Olaf and Ivy use the API, which is pay-as-you-go."),
+           ("Where is my key kept?", "In the browser on your computer only: never in your business or growth folder, never on a Busy server (there is none). It is sent only to Anthropic, with each request."),
+           ("What if someone gets my key?", "Delete it in the console under Settings → API keys, make a new one and paste that in. The old one stops working at once."),
+           ("Can I use it on two computers?", "Yes. Paste the same key on each, or make one key per computer so you can switch one off on its own."),
+           ("How do I see what I spent?", "Busy shows an estimate for this month in AI settings. The exact amount is in the console under Usage and Billing.")]
+    desc = "Five minutes, once: a Claude Console account, a little credit, an API key pasted into Olaf or Ivy. What it costs, and how your key stays safe."
+    return f"""{head("How to get a Claude API key for Olaf and Ivy", desc, "claude-key.html", "")}
+<body class="site app-grape">
+{nav("", explore(""))}
+<main class="page">
+  <h1 class="reveal">Connect Olaf or Ivy to Claude</h1>
+  <p class="lead reveal">Olaf and Ivy think with Claude, the AI made by Anthropic, on your own account. You pay Anthropic directly for what you use, and your key never leaves your browser except to go to Anthropic. Setting it up takes about five minutes, once.</p>
+  <h2>You need</h2>
+  <ul><li>An email address</li><li>A payment card</li><li>Five minutes</li></ul>
+  <h2>The steps</h2>
+  <ol>{"".join(f"<li><b>{e(n)}</b><br>{d}</li>" for n, d in steps)}</ol>
+  <p><a class="btn" href="https://console.anthropic.com" rel="noopener" target="_blank">↗ Open console.anthropic.com</a></p>
+  <h2>What it costs</h2>
+  <p>Anthropic's list prices, in US dollars per million tokens (about 750,000 words) read / written, and what a typical conversation costs. A conversation here means Olaf or Ivy reading about 30,000 tokens of your files and the chat, and writing about 2,000. Estimates: long documents and web searches cost more.</p>
+  <div class="cmp" role="region" aria-label="What each model costs" tabindex="0"><table><thead><tr><th>Model</th><th>Read / write</th><th>A typical conversation</th></tr></thead><tbody>{costs}</tbody></table></div>
+  <h2>Questions</h2>
+  {"".join(f"<h3>{e(q)}</h3><p>{e(a)}</p>" for q, a in faq)}
+  <p style="margin-top:22px"><a class="btn btn-primary" href="business/olaf.html">🧭 Meet Olaf</a> <a class="btn" href="growth/index.html#ivy">🌿 Meet Ivy</a></p>
+</main>
+{footer("", tools)}
+<script src="assets/site.js"></script>
+</body>
+</html>
+"""
 
 
 def about_page(tools: list) -> str:
