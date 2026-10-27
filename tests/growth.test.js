@@ -103,7 +103,7 @@ test('the brag document lists one year of wins by month, with results, proof and
 test('Growth is its own suite: its tools, its home page, its own pages', async () => {
   const { BW } = await busywork();
   const growthApps = BW.apps.filter((a) => a.suite === 'growth');
-  assert.deepEqual(plain(growthApps.filter((a) => a.ready).map((a) => a.id)), ['library', 'learning', 'skills', 'wins', 'jobs', 'cv', 'stories']);
+  assert.deepEqual(plain(growthApps.filter((a) => a.ready).map((a) => a.id)), ['library', 'learning', 'skills', 'wins', 'jobs', 'cv', 'stories', 'contacts', 'review']);
   assert.ok(BW.apps.filter((a) => a.suite === 'business').some((a) => a.id === 'invoices'));
   assert.ok(BW.apps.every((a) => BW.SUITES[a.suite]), 'every tool belongs to a known suite');
   assert.equal(BW.SUITES.growth.home, 'growth.html');
@@ -200,4 +200,50 @@ test('interview stories: which questions they answer, and a win becomes a story 
   assert.equal(BW.growth.storiesFor(q('Tell me about a mistake'), learned, skills).length, 0, 'learning something is not a story about a mistake');
   const s = plain(BW.growth.storyFromWin({ id: 'w1', title: 'Faster report', what: 'Rebuilt it in SQL', result: '3 h to 20 min', skillIds: ['d'] }));
   assert.deepEqual([s.title, s.situation, s.result, s.winId, s.skillIds], ['Faster report', 'Rebuilt it in SQL', '3 h to 20 min', 'w1', ['d']]);
+});
+
+test('contacts: when to catch up, logging a chat, and message starters', async () => {
+  const BW = await growth();
+  const G = BW.growth;
+  assert.equal(G.nextContact({ lastContact: '2026-01-31', every: '1' }), '2026-03-03', 'a month after the last chat');
+  assert.equal(G.nextContact({ lastContact: '2026-01-10', every: '3', nextDate: '2026-02-01' }), '2026-02-01', 'a set date wins');
+  assert.equal(G.nextContact({ every: '3' }), '', 'no chat yet, no reminder');
+  assert.equal(G.nextContact({ lastContact: '2026-01-10' }), '', 'no "keep in touch", no reminder');
+  const people = [
+    { id: 'a', name: 'Anna', lastContact: '2026-01-01', every: '3' },
+    { id: 'b', name: 'Bram', nextDate: '2026-03-01' },
+    { id: 'c', name: 'Cas', lastContact: '2026-03-20', every: '6' },
+  ];
+  assert.deepEqual(plain(G.catchUpDue(people, '2026-04-02').map((c) => c.id)), ['b', 'a'], 'oldest first, not yet due left out');
+  const chatted = plain(G.logChat(people[1], '2026-03-05', '  Coffee, talked about Acme  '));
+  assert.deepEqual([chatted.lastContact, chatted.nextDate, chatted.log], ['2026-03-05', '', [{ date: '2026-03-05', note: 'Coffee, talked about Acme' }]], 'the set date is done');
+  const older = plain(G.logChat(Object.assign({ log: chatted.log }, chatted), '2026-02-01', 'earlier'));
+  assert.equal(older.lastContact, '2026-03-05', 'logging an older chat keeps the newest date');
+  assert.equal(older.log.length, 2);
+  const m = G.message('referral', { name: 'Anna de Vries', org: 'Acme' }, { ownerName: 'Sam Jansen' });
+  assert.ok(m.startsWith('Hi Anna,') && m.endsWith('Sam') && m.includes('[role]'), m);
+  assert.ok(G.message('advice', { name: 'Bram' }, { targetRole: 'data analyst' }).includes('a role as data analyst'));
+  for (const [k] of G.MESSAGES) assert.ok(G.message(k, { name: 'X' }).length > 20, k);
+});
+
+test('weekly review: the numbers of a week, the streak and when it is due', async () => {
+  const BW = await growth();
+  const G = BW.growth;
+  const week = '2026-03-02'; // a Monday
+  const s = plain(G.weekSummary({
+    learning: [{ status: 'done', doneAt: '2026-03-04', sessions: [{ date: '2026-03-03', minutes: 40 }, { date: '2026-02-27', minutes: 99 }] }],
+    wins: [{ date: '2026-03-08' }, { date: '2026-03-09' }],
+    applications: [{ history: [{ status: 'saved', date: '2026-03-01' }, { status: 'applied', date: '2026-03-05' }] }, { history: [{ status: 'applied', date: '2026-02-20' }] }],
+    library: [{ addedAt: '2026-03-02', readAt: '2026-03-06' }, { addedAt: '2026-01-01' }],
+  }, week));
+  assert.deepEqual(s, { minutes: 40, finished: 1, wins: 1, applied: 1, read: 1, saved: 1 });
+  const reviews = [{ week: '2026-03-02' }, { week: '2026-02-23' }, { week: '2026-02-09' }];
+  assert.equal(G.reviewStreak(reviews, '2026-03-06'), 2, 'this week and last');
+  assert.equal(G.reviewStreak(reviews, '2026-03-10'), 2, 'not yet done this week still counts last week');
+  assert.equal(G.reviewStreak(reviews, '2026-03-17'), 0);
+  assert.equal(G.reviewDue([], '2026-03-05'), false, 'Thursday: not yet');
+  assert.equal(G.reviewDue([], '2026-03-06'), true, 'Friday');
+  assert.equal(G.reviewDue([], '2026-03-08'), true, 'Sunday');
+  assert.equal(G.reviewDue(reviews, '2026-03-07'), false, 'done');
+  assert.deepEqual(plain(G.lines('- Finish chapter 4\n\n2. Ask Anna\n• Rest')), ['Finish chapter 4', 'Ask Anna', 'Rest']);
 });

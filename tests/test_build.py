@@ -4,6 +4,7 @@ import hashlib
 import html
 import importlib.util
 import json
+import os
 import re
 import shutil
 import tempfile
@@ -155,11 +156,74 @@ class Editions(unittest.TestCase):
         import zipfile
         names = zipfile.ZipFile(ROOT / "website" / "downloads" / "busy.zip").namelist()
         self.assertFalse([n for n in names if build.growth_part(n[len("Busy/"):])], "no Busy Growth in the Busy Business download")
+        if build.GROWTH_LIVE:
+            self.skipTest("Busy Growth is live in this build")
         site = ROOT / "website" / "app"
         self.assertFalse((site / "growth.html").exists())
+        self.assertFalse((ROOT / "website" / "downloads" / "busy-growth.zip").exists())
         for a in build.GROWTH_APPS:
             self.assertFalse((site / "apps" / a).exists(), f"{a} is not in the website demo yet")
             self.assertTrue((ROOT / "app" / "apps" / a / "index.html").is_file(), f"{a} is built in app/")
+
+
+class GrowthLaunch(unittest.TestCase):
+    """GROWTH_LIVE=1: Busy Growth's own download, its demo and the site's words. Built into a temp folder."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.saved = (build.SITE, build.GROWTH_LIVE)
+        build.SITE, build.GROWTH_LIVE = self.tmp, True
+
+    def tearDown(self):
+        build.SITE, build.GROWTH_LIVE = self.saved
+        shutil.rmtree(self.tmp)
+
+    def test_the_growth_download_has_its_tools_and_nothing_of_business_or_ai(self):
+        import zipfile
+        build.make_growth_zip()
+        z = zipfile.ZipFile(self.tmp / "downloads" / "busy-growth.zip")
+        names = z.namelist()
+        self.assertIn("Busy Growth/START HERE.txt", names)
+        self.assertIn("Busy Growth/growth.html", names)
+        for a in build.GROWTH_APPS:
+            self.assertIn(f"Busy Growth/apps/{a}/index.html", names)
+        for n in ("index.html", "home.js", "apps/invoices/index.html", "apps/olaf/index.html", "shared/ai.js", "shared/examples.js", "shared/growth-examples.js"):
+            self.assertNotIn(f"Busy Growth/{n}", names)
+        self.assertFalse([n for n in names if n.startswith("Busy Growth/apps/") and n.split("/")[2] not in build.GROWTH_APPS], "only growth tools")
+        for n in names:
+            if n.endswith((".js", ".html")):
+                text = z.read(n).decode("utf-8", "ignore")
+                for word in ("x-api-key", "Claude API key", "examples.load(", "demo.js"):
+                    self.assertNotIn(word, text, f"{n} mentions {word!r}")
+        # every script a page loads is in the zip
+        for n in names:
+            if n.endswith(".html"):
+                for src in re.findall(r'<script src="([^"]+)"', z.read(n).decode()):
+                    self.assertIn(os.path.normpath(os.path.join(os.path.dirname(n), src)), names, f"{n} loads {src}")
+        build.GROWTH_LIVE = False
+        build.make_growth_zip()
+        self.assertFalse((self.tmp / "downloads" / "busy-growth.zip").exists(), "switched off, the download goes")
+
+    def test_the_homepage_words_switch_both_ways(self):
+        home = (ROOT / "website" / "index.html").read_text()
+        (self.tmp / "index.html").write_text(home)
+        build.sync_growth_launch()
+        live = (self.tmp / "index.html").read_text()
+        self.assertNotIn("soon career growth", live)
+        self.assertNotIn("Busy Growth is coming soon", live)
+        self.assertIn("Live · 9 tools", live)
+        build.GROWTH_LIVE = False
+        build.sync_growth_launch()
+        self.assertEqual((self.tmp / "index.html").read_text(), home, "and back again, word for word")
+
+    def test_the_growth_page_offers_the_download_and_the_demo(self):
+        tools = json.loads((ROOT / "website" / "content" / "tools.json").read_text())
+        page = build.growth_page(tools)
+        self.assertIn('href="../downloads/busy-growth.zip"', page)
+        self.assertIn('href="../app/growth.html"', page)
+        self.assertNotIn("(soon)", page)
+        self.assertEqual(page.split("<body")[1].lower().count("coming soon"), 1, "only Ivy is still coming")
+        self.assertEqual(len(build.GROWTH_TOOLS), len(build.GROWTH_APPS), "one line on the page for every tool")
 
     def test_every_website_tool_page_is_the_demo(self):
         pages = sorted((ROOT / "website" / "app").rglob("index.html"))

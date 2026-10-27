@@ -10,12 +10,13 @@
   const GROUPS = [
     ['📚 Learn', ['library', 'learning']],
     ['🧠 Prove it', ['skills', 'wins']],
-    ['🎯 Land it', ['jobs', 'cv', 'stories']],
+    ['🎯 Land it', ['jobs', 'cv', 'stories', 'contacts']],
+    ['🪞 Every week', ['review']],
   ];
 
   async function render() {
     const s = BW.settings;
-    const [library, learning, skills, wins, apps] = await Promise.all(['library', 'learning', 'skills', 'wins', 'applications'].map((n) => BW.store.all(n)));
+    const [library, learning, skills, wins, apps, contacts, reviews] = await Promise.all(['library', 'learning', 'skills', 'wins', 'applications', 'contacts', 'reviews'].map((n) => BW.store.all(n)));
     const today = BW.today();
     const h = new Date().getHours();
     const hello = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
@@ -26,9 +27,14 @@
     const doing = learning.filter((x) => x.status === 'doing');
     const month = today.slice(0, 7);
     const winsMonth = wins.filter((w) => String(w.date || '').startsWith(month));
-    const gap = G.gaps(skills)[0], followUps = G.followUpsDue(apps, today);
+    const gap = G.gaps(skills)[0], followUps = G.followUpsDue(apps, today), catchUp = G.catchUpDue(contacts, today);
+    // This week's plan: the "next week, I will…" lines from last week's review.
+    const week = G.weekStart(today), last = reviews.find((r) => r.week === BW.addDays(week, -7));
+    const plan = last ? G.lines(last.next).map((t, i) => [t, (last.nextDone || []).includes(i)]) : [];
     const glance = [
+      G.reviewDue(reviews, today) && ['sun', '🪞', 'Weekly review', 'Due', 'Ten minutes to look back and plan next week', 'review'],
       followUps.length && ['tomato', '⏰', 'Follow-ups due', String(followUps.length), followUps.map((a) => a.company || a.role).slice(0, 3).join(', '), 'jobs'],
+      catchUp.length && ['grape', '☕', 'Time to catch up', String(catchUp.length), catchUp.map((c) => c.name).slice(0, 3).join(', '), 'contacts'],
       ['grape', '🎓', 'Learning this week', `${G.hours(weekMin)}${target ? ` of ${G.hours(target)}` : ''}`, streak > 1 ? `🔥 ${streak} weeks in a row` : doing.length ? `${doing.length} thing${doing.length === 1 ? '' : 's'} on the go` : 'Plan something to learn', 'learning'],
       ['sky', '📚', 'To read', String(toRead.length), toRead[0] ? toRead[0].title || toRead[0].url : 'Save what you want to read', 'library'],
       ['sun', '🏆', 'Wins this month', String(winsMonth.length), winsMonth[0] ? winsMonth[0].title : 'Write one down while you remember', 'wins'],
@@ -56,6 +62,8 @@
       </section>
       <section class="stats glance rise">${glance.map(([c, e, k, v, sub, app]) => `
         <a class="card stat" style="--tint:var(--${c})" href="apps/${app}/index.html"><div class="k">${e} ${k}</div><div class="v">${v}</div><div class="s">${esc(sub)}</div></a>`).join('')}</section>
+      ${plan.length ? `<section class="card week-plan rise"><div class="row-flex" style="justify-content:space-between"><h2>➡️ Your plan for this week</h2><a class="link" href="apps/review/index.html">From your weekly review</a></div>
+        <ul class="plain-list">${plan.map(([t, done]) => `<li>${done ? '✅' : '⬜'} ${esc(t)}</li>`).join('')}</ul></section>` : ''}
       ${!hidden && doneN < steps.length ? `<section class="card start rise">
         <div class="start-head"><div><h2>🚀 Getting started</h2><small>${doneN} of ${steps.length} done</small></div><div class="bar"><i style="width:${doneN / steps.length * 100}%"></i></div><button class="link" data-hide>Hide</button></div>
         <div class="start-steps">${steps.map(([ok, e, t, sub, go], i) => `<${go && !ok ? `a href="${go}"` : 'button type="button"'} class="step ${ok ? 'ok' : ''}" data-step="${i}"><span class="tick">${ok ? '✓' : e}</span><span><b>${t}</b><small>${sub}</small></span></${go && !ok ? 'a' : 'button'}>`).join('')}</div>

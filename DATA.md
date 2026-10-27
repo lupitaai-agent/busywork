@@ -152,7 +152,7 @@ sit in `library/` inside the folder; files dropped there outside Busy are picked
   `status` is `saved`, `applied`, `interview`, `offer`, or closed as `accepted`, `rejected`, `withdrawn`,
   `no-answer`; `savedAt`, `appliedAt`, `closedAt`; `nextDate` and `nextStep` (the follow-up, set a week
   after applying); `reachedInterview` and `heardBack` for the stats; `adText` (the pasted job ad),
-  `notes`, `letter` (the cover letter); `cvId` (the CV version sent), `storyIds`; `history`:
+  `notes`, `letter` (the cover letter); `cvId` (the CV version sent), `contactId` (who you know there), `storyIds`; `history`:
   `{ date, status }` per move.
 - `career`: the career history every CV version picks from: `type` (`job`, `education`, `project`,
   `volunteer`), `title`, `org`, `place`, `start` and `end` (months), `current`, `bullets` (one per line).
@@ -160,6 +160,13 @@ sit in `library/` inside the folder; files dropped there outside Busy are picked
   `skillIds` and `winIds` (in the order shown), `extras` (one per line). PDFs are saved in `CVs/`.
 - `stories`: interview stories: `title`, `situation`, `task`, `action`, `result`, `skillIds`, `winId`
   (the win it grew from), `tags`, `practised` (times) and `lastPractised`.
+- `contacts`: the network: `name`, `how` (`colleague`, `manager`, `mentor`, `recruiter`, `friend`,
+  `event`, `other`), `role`, `org`, `email`, `phone`, `linkedin`, `tags`, `notes`; `every` (keep in touch
+  every N months, empty for no reminder), `nextDate` (a set catch-up date, which wins over `every`),
+  `lastContact`, and `log`: `{ date, note }` per chat, newest first.
+- `reviews`: weekly reviews, one per week: `week` (its Monday), `went`, `hard`, `energy` (1 to 5),
+  `next` (next week's plan, one per line), `nextDone` (the line numbers ticked off a week later),
+  `focusSkillId`, and that week's numbers as they were: `minutes` learned, `finished`, `wins`, `applied`, `read`.
   Growth settings also hold `phone` and `city`, for the CV.
 
 ### Olaf (paid edition)

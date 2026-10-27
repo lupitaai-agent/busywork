@@ -59,10 +59,13 @@ def site_core(text: str) -> str:
     return text.replace("BW.siteUrl = 'https://busywork.example';", f"BW.siteUrl = '{SITE_URL}';")
 
 
-# Busy Growth is built in app/ next to the business tools, but stays out of the website demo and the
-# Busy Business download until it launches (its page on the site says "coming soon").
-GROWTH_APPS = ("library", "learning", "skills", "wins", "jobs", "cv", "stories")
-GROWTH_FILES = {"growth.html", "growth-home.js", "shared/growth.js", "shared/growth.css", "shared/filetext.js"}
+# Busy Growth is built in app/ next to the business tools. Until it launches it stays out of the website
+# demo and every download, and the site says "coming soon". The launch switch is GROWTH_LIVE=1 (a GitHub
+# variable): then Growth gets its own download (busy-growth.zip), a place in the website demo, and the
+# site's words change. The Busy Business download never includes it: each suite is its own download.
+GROWTH_LIVE = os.environ.get("GROWTH_LIVE", "").strip().lower() in ("1", "true", "yes")
+GROWTH_APPS = ("library", "learning", "skills", "wins", "jobs", "cv", "stories", "contacts", "review")
+GROWTH_FILES = {"growth.html", "growth-home.js", "shared/growth.js", "shared/growth.css", "shared/filetext.js", "shared/growth-examples.js"}
 
 
 def growth_part(rel: str) -> bool:
@@ -73,7 +76,7 @@ def copy_app() -> None:
     target = SITE / "app"
     if target.exists():
         shutil.rmtree(target)
-    shutil.copytree(APP, target, ignore=lambda d, names: [n for n in names if n.startswith(".") or growth_part((Path(d) / n).relative_to(APP).as_posix())])
+    shutil.copytree(APP, target, ignore=lambda d, names: [n for n in names if n.startswith(".") or (not GROWTH_LIVE and growth_part((Path(d) / n).relative_to(APP).as_posix()))])
     core = target / "shared" / "core.js"
     core.write_text(site_core(core.read_text()))
     print(f"website/app: {sum(1 for _ in target.rglob('*') if _.is_file())} files")
@@ -81,7 +84,7 @@ def copy_app() -> None:
 
 # The free download has no AI and no pretend business: the AI client is Olaf's (paid), and the example
 # studio lives only in the website demo.
-NOT_IN_DOWNLOAD = {"shared/ai.js", "shared/examples.js"}
+NOT_IN_DOWNLOAD = {"shared/ai.js", "shared/examples.js", "shared/growth-examples.js"}
 
 
 def make_zip() -> None:
@@ -98,6 +101,51 @@ def make_zip() -> None:
             else:
                 z.write(p, Path("Busy") / p.relative_to(APP))
     print(f"{out.relative_to(ROOT)}: {len(files) + 1} files, {out.stat().st_size // 1024} KB")
+
+
+GROWTH_START_HERE = """Busy Growth - free tools to grow your career.
+
+1. Move this Busy Growth folder somewhere you will find it again, like Documents.
+2. Double-click growth.html. It opens in your browser. Use Chrome or Edge: they can
+   save your growth folder as files (Safari and Firefox cannot).
+3. Pick a folder for your files: your library, skills, wins and CVs. Put it inside
+   Google Drive, Dropbox, OneDrive or iCloud Drive if you want backups and syncing.
+
+Your data stays on your computer and is never sent to us. No account. Updating
+later? Replace this Busy Growth folder with the new one. Your growth folder is
+separate, so nothing is lost.
+"""
+
+
+def growth_zip_files() -> list:
+    """What Busy Growth needs: the shared files and its own tools, none of the business tools."""
+    out = []
+    for p in sorted(APP.rglob("*")):
+        rel = p.relative_to(APP).as_posix()
+        if not p.is_file() or any(skip(part) for part in p.relative_to(APP).parents if part.name) or skip(p) or rel in NOT_IN_DOWNLOAD:
+            continue
+        if growth_part(rel) or rel.startswith("shared/"):
+            out.append(p)
+    return out
+
+
+def make_growth_zip() -> None:
+    out = SITE / "downloads" / "busy-growth.zip"
+    if not GROWTH_LIVE:
+        if out.exists():
+            out.unlink()
+        return
+    out.parent.mkdir(exist_ok=True)
+    files = growth_zip_files()
+    with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
+        z.writestr("Busy Growth/START HERE.txt", GROWTH_START_HERE)
+        for p in files:
+            name = (Path("Busy Growth") / p.relative_to(APP)).as_posix()
+            if p == APP / "shared" / "core.js":
+                z.writestr(name, site_core(p.read_text()))
+            else:
+                z.write(p, name)
+    print(f"website/downloads/{out.name}: {len(files) + 1} files, {out.stat().st_size // 1024} KB")
 
 
 # ---------- marketing studio library ----------
@@ -173,7 +221,7 @@ def copy_olaf_demo() -> None:
 def make_demo() -> None:
     """The website's copy of the tools is a demo: every page loads assets/demo.js before core.js, which
     fills the tools with the pretend studio for as long as the tab is open (see that file)."""
-    pages = sorted((SITE / "app").rglob("index.html"))
+    pages = sorted((SITE / "app").rglob("index.html")) + [p for p in [SITE / "app" / "growth.html"] if p.exists()]
     for page in pages:
         html = page.read_text()
         rel = os.path.relpath(SITE / "assets" / "demo.js", page.parent).replace(os.sep, "/")
@@ -400,6 +448,28 @@ def site_pages(forwards: bool = False) -> list:
     return [p for p in pages if forwards or FORWARD not in p.read_text()]
 
 
+# The hand-written homepage says "soon" about Busy Growth until it launches. Each pair is (soon, live);
+# the build writes whichever matches the switch, so turning it off again puts the old words back.
+HOMEPAGE_GROWTH = [
+    ("daily brain games and soon career growth", "career growth and daily brain games"),
+    ("and soon Busy Growth for your career", "and Busy Growth for your career"),
+    ("Busy Growth is coming soon.", "Start with Busy Growth."),
+    ('<li>Job tracker, CV builder, interview stories</li>', '<li>Job tracker, CVs, stories and contacts</li>'),
+    ('<span class="chip chip-grey">Coming soon</span><span class="expert-chip ivy">', f'<span class="chip chip-mint">Live · {len(GROWTH_APPS)} tools</span><span class="expert-chip ivy">'),
+]
+
+
+def sync_growth_launch() -> None:
+    page = SITE / "index.html"
+    text = page.read_text()
+    for soon, live in HOMEPAGE_GROWTH:
+        old, new = (soon, live) if GROWTH_LIVE else (live, soon)
+        text = text.replace(old, new)
+        if new not in text:
+            raise SystemExit(f"website/index.html lost the Busy Growth words: {new!r}")
+    page.write_text(text)
+
+
 def sync_homepage_paths() -> None:
     page = SITE / "business" / "index.html"
     html = page.read_text()
@@ -457,7 +527,7 @@ def footer(prefix: str, tools: list) -> str:
     <ul><li><a href="{prefix}about.html">About Busy</a></li><li><a href="{prefix}privacy.html">Privacy</a></li><li><a href="{prefix}terms.html">Terms</a></li></ul></div>
   <div><b>💼 Busy Business</b><ul>{links}<li><a href="{prefix}business/tools.html">All tools</a></li><li><a href="{prefix}business/download.html">Download free</a></li><li><a href="{prefix}app/index.html">See the demo</a></li><li><a href="{prefix}business/olaf.html">🧭 Olaf by Busy</a></li></ul></div>
   <div><b>🧩 Busy Games</b><ul>{games}<li><a href="{prefix}games/index.html">All games</a></li></ul>
-    <p style="margin-top:22px"><b>🌱 Busy Growth</b></p><ul><li><a href="{prefix}growth/index.html">Coming soon</a></li><li><a href="{prefix}growth/index.html#ivy">🌿 Ivy by Busy</a></li></ul></div>
+    <p style="margin-top:22px"><b>🌱 Busy Growth</b></p><ul><li><a href="{prefix}growth/index.html">{"Free tools" if GROWTH_LIVE else "Coming soon"}</a></li><li><a href="{prefix}growth/index.html#ivy">🌿 Ivy by Busy</a></li></ul></div>
 </div></footer>"""
 
 
@@ -893,17 +963,27 @@ GROWTH_TOOLS = [("📚", "Library", "Files, links and notes from everything you 
                 ("🏆", "Wins log", "Achievements as they happen, ready for your CV and your next review."),
                 ("🗂️", "Job tracker", "Every application on a board, with follow-ups that don't slip."),
                 ("📄", "CV and letter builder", "CVs and cover letters built from your real skills and wins."),
-                ("🎤", "Interview story bank", "Your best stories, linked to the skills they prove.")]
+                ("🎤", "Interview story bank", "Your best stories, linked to the skills they prove."),
+                ("🤝", "Contacts", "The people in your corner, with a reminder when it's time to catch up."),
+                ("🪞", "Weekly review", "Ten minutes on Friday: what moved, what was hard, what's next.")]
 
 
 def growth_page(tools: list) -> str:
     feats = "".join(f'<div class="card feat reveal pop"><span class="fe">{em}</span><h3>{e(n)}</h3><p>{e(d)}</p></div>' for em, n, d in GROWTH_TOOLS)
     if GROWTH_WAITLIST_ENDPOINT:
-        signup = waitlist_form("growth", GROWTH_WAITLIST_ENDPOINT, "Email me when Busy Growth and Ivy are ready. Nothing else, and I can unsubscribe any time.", "🌱 Tell me when it's ready", who="")
+        signup = waitlist_form("growth", GROWTH_WAITLIST_ENDPOINT, "Email me when Ivy is ready. Nothing else, and I can unsubscribe any time." if GROWTH_LIVE
+                               else "Email me when Busy Growth and Ivy are ready. Nothing else, and I can unsubscribe any time.",
+                               "🌿 Tell me when Ivy is ready" if GROWTH_LIVE else "🌱 Tell me when it's ready", who="")
     else:
         signup = '<p class="lead">The list opens soon. Meanwhile, keep your brain busy with <a href="../games/index.html">today\'s puzzles</a>.</p>'
-    desc = "Busy Growth, coming soon: free tools to grow your career. A library of what you learn, skills, wins, job tracker and CV builder, plus Ivy, an AI coach."
-    return f"""{head("Busy Growth: free tools to grow your career (soon)", desc, "growth/index.html", "../", image="og-ivy.png")}
+    ivy = """<section class="section" id="ivy"><div class="wrap">
+    <div class="card ivy-card reveal"><img src="../assets/ivy-mark.svg" alt="" width="96" height="96">
+      <div><p class="kicker">Ivy by Busy · €30 once · coming soon</p><h2>Your AI coach for professional growth</h2>
+      <p>Ivy turns what you learn into skills and wins, those into a stronger CV, and helps with every application and interview. Learn it, prove it, land it. Ivy never invents experience: every line comes with its proof.</p></div></div>
+  </div></section>"""
+    if not GROWTH_LIVE:
+        desc = "Busy Growth, coming soon: free tools to grow your career. A library of what you learn, skills, wins, job tracker and CV builder, plus Ivy, an AI coach."
+        return f"""{head("Busy Growth: free tools to grow your career (soon)", desc, "growth/index.html", "../", image="og-ivy.png")}
 <body class="site app-mint">
 {nav("../", explore("../"))}
 <main id="main">
@@ -919,13 +999,48 @@ def growth_page(tools: list) -> str:
     <div class="center reveal"><h2 class="big">What's coming</h2><p class="lead">Free, the whole set.</p></div>
     <div class="feats">{feats}</div>
   </div></section>
-  <section class="section" id="ivy"><div class="wrap">
-    <div class="card ivy-card reveal"><img src="../assets/ivy-mark.svg" alt="" width="96" height="96">
-      <div><p class="kicker">Ivy by Busy · €30 once · coming soon</p><h2>Your AI coach for professional growth</h2>
-      <p>Ivy turns what you learn into skills and wins, those into a stronger CV, and helps with every application and interview. Learn it, prove it, land it. Ivy never invents experience: every line comes with its proof.</p></div></div>
-  </div></section>
+  {ivy}
   <section class="section" id="get"><div class="wrap center">
     <h2 class="big">Want to know when it's ready?</h2>
+    {signup}
+  </div></section>
+</main>
+{footer("../", tools)}
+<script src="../assets/site.js"></script>
+</body>
+</html>
+"""
+    desc = f"Busy Growth: {len(GROWTH_TOOLS)} free tools to grow your career. A library of what you learn, skills, wins, a job tracker, CVs, interview stories and contacts. No account."
+    steps = [("⬇️", "Download and unzip", "One small zip file. Move the Busy Growth folder somewhere you will find it again."),
+             ("🖱️", "Open growth.html", "It opens in Chrome or Edge. Nothing is installed, and it works offline."),
+             ("📁", "Pick a folder", "Your library, skills, wins and CVs are saved there as plain files. Put it in Google Drive or Dropbox to sync it.")]
+    how = "".join(f'<div class="card feat reveal pop"><span class="fe">{em}</span><h3>{e(n)}</h3><p>{e(d)}</p></div>' for em, n, d in steps)
+    return f"""{head("Busy Growth: free tools to grow your career", desc, "growth/index.html", "../", image="og-ivy.png")}
+<body class="site app-mint">
+{nav("../", ("⬇️ Download free", "#get"))}
+<main id="main">
+  <section class="tool-hero">
+    <div class="blob" style="width:460px;height:460px;background:var(--mint);right:-140px;top:-120px"></div>
+    <div class="wrap center" style="padding:70px 16px 30px;display:block;text-align:center">
+      <span class="chip chip-mint">Free · no account</span>
+      <h1 class="reveal" style="margin-top:12px">Busy Growth 🌱</h1>
+      <p class="lead reveal" style="max-width:680px;margin:0 auto">Free tools to grow your career: learn something, prove it, show it and land the next role. Everything in your own folder, no account, like the rest of Busy.</p>
+      <div class="row-flex reveal" style="justify-content:center;margin-top:22px"><a class="btn btn-primary btn-big" href="../downloads/busy-growth.zip" download data-download>⬇️ Download free</a><a class="btn btn-big" href="../app/growth.html">👀 See the demo</a></div>
+    </div>
+  </section>
+  <section class="section"><div class="wrap">
+    <div class="center reveal"><h2 class="big">{len(GROWTH_TOOLS)} tools that work together</h2><p class="lead">A gap in your skills becomes a plan, the plan becomes a win, the win becomes a CV line and an interview story.</p></div>
+    <div class="feats">{feats}</div>
+  </div></section>
+  <section class="section" id="get"><div class="wrap">
+    <div class="center reveal"><h2 class="big">Get Busy Growth</h2><p class="lead">Free, the whole set. No account, no subscription, nothing sent to us.</p></div>
+    <div class="feats">{how}</div>
+    <div class="center" style="margin-top:22px"><a class="btn btn-primary btn-big" href="../downloads/busy-growth.zip" download data-download>⬇️ Download Busy Growth (zip)</a>
+      <p class="faint" style="margin-top:14px">Works offline · Chrome or Edge recommended · Mac and Windows</p></div>
+  </div></section>
+  {ivy}
+  <section class="section"><div class="wrap center">
+    <h2 class="big">Want to know when Ivy is ready?</h2>
     {signup}
   </div></section>
 </main>
@@ -987,7 +1102,7 @@ def build_pages() -> None:
 # manifest, so every place describes the same thing in the same words.
 ENTITY = ("Busy makes free, private tools for work and life, in suites: Busy Business (thirteen tools for small businesses and "
           "freelancers: invoices and quotes, time, receipts, money, clients, projects, documents, a brand kit, subscriptions, trips, stock "
-          "and a marketing studio), Busy Games (free daily brain games) and Busy Growth (tools to grow your career, coming soon). The tools "
+          "and a marketing studio), Busy Games (free daily brain games) and Busy Growth (" + ("free tools to grow your career: a library, skills, wins, a job tracker, CVs and more" if GROWTH_LIVE else "tools to grow your career, coming soon") + "). The tools "
           "run in the browser and keep everything in the owner's own folder, with no account and no subscription. Each suite can have a "
           "paid AI expert: Olaf for business, Ivy for professional growth.")
 ORG_ID, WEBSITE_ID = "#organization", "#website"
@@ -1137,8 +1252,14 @@ def write_llms(tools: list) -> None:
               "", "## Busy Games: free daily brain games", "",
               f"- [Busy Games]({b}/games/index.html): four free logic puzzles in the browser, a new one every day and {GAME_LEVELS:,} levels each. No account."]
     lines += [f"- [{g['name']}]({b}/games/{g['id']}.html): {g['desc']}" for g in GAMES]
-    lines += ["", "## Busy Growth: free tools to grow your career (coming soon)", "",
-              f"- [Busy Growth]({b}/growth/index.html): a library of what you read and learn, skills, wins, a learning plan, a job tracker and a CV builder, plus Ivy, an AI coach for professional growth (€30 once). Not released yet.",
+    if GROWTH_LIVE:
+        lines += ["", "## Busy Growth: free tools to grow your career", "",
+                  f"- [Busy Growth]({b}/growth/index.html): {len(GROWTH_TOOLS)} free tools: a library of what you read and learn, skills, wins, a learning plan, a job tracker, a CV builder, interview stories, contacts and a weekly review. Ivy, an AI coach for professional growth (€30 once), is coming soon.",
+                  f"- [Download Busy Growth]({b}/downloads/busy-growth.zip): one zip file; unzip, open growth.html, choose a folder."]
+    else:
+        lines += ["", "## Busy Growth: free tools to grow your career (coming soon)", "",
+                  f"- [Busy Growth]({b}/growth/index.html): a library of what you read and learn, skills, wins, a learning plan, a job tracker and a CV builder, plus Ivy, an AI coach for professional growth (€30 once). Not released yet."]
+    lines += [
               "", "## About", "",
               f"- [About Busy]({b}/about.html): what it is, who it is for, and how it works.",
               f"- [Privacy]({b}/privacy.html): what happens to data (nothing is sent to us).",
@@ -1170,7 +1291,8 @@ def write_llms(tools: list) -> None:
     for g in GAMES:
         full += [f"## {g['name']} ({g['classic']})", "", g["about"], f"Page: {b}/games/{g['id']}.html", "", "Rules:"] + [f"- {r}" for r in g["rules"]] + [""]
     full += ["Questions:"] + [f"- {q} {a}" for q, a in GAMES_FAQ]
-    full += ["", "# Busy Growth: free tools to grow your career (coming soon)", "", f"Page: {b}/growth/index.html. Not released yet. Planned tools:", ""]
+    full += (["", "# Busy Growth: free tools to grow your career", "", f"Page: {b}/growth/index.html. Free, in its own download ({b}/downloads/busy-growth.zip), with a demo at {b}/app/growth.html. The tools:", ""]
+             if GROWTH_LIVE else ["", "# Busy Growth: free tools to grow your career (coming soon)", "", f"Page: {b}/growth/index.html. Not released yet. Planned tools:", ""])
     full += [f"- {n}: {d}" for _, n, d in GROWTH_TOOLS]
     full += ["", "Ivy by Busy, the AI coach for professional growth, will be the paid part: €30 once, on the owner's own Claude usage. Ivy never invents experience: every CV line comes with its proof.",
              "", "# Privacy in short", "",
@@ -1183,15 +1305,15 @@ def about_page(tools: list) -> str:
     """What Busy is, in plain facts: the page search engines and AI assistants read to describe us."""
     olaf_price = OLAF_PRICE.split(' ·')[0]
     facts = [("What it is", ENTITY),
-             ("The suites", f"Busy Business: {len(tools)} free tools for small businesses and freelancers. Busy Games: four free daily logic puzzles with {GAME_LEVELS:,} levels each. Busy Growth: free tools to grow your career, coming soon."),
-             ("Who it is for", "People who would rather spend their time on what matters: small business owners and freelancers, anyone who likes a daily puzzle, and soon anyone growing their career."),
+             ("The suites", f"Busy Business: {len(tools)} free tools for small businesses and freelancers. Busy Games: four free daily logic puzzles with {GAME_LEVELS:,} levels each. Busy Growth: " + (f"{len(GROWTH_TOOLS)} free tools to grow your career." if GROWTH_LIVE else "free tools to grow your career, coming soon.")),
+             ("Who it is for", "People who would rather spend their time on what matters: small business owners and freelancers, anyone who likes a daily puzzle, and " + ("" if GROWTH_LIVE else "soon ") + "anyone growing their career."),
              ("What it costs", f"Every suite's tools are free. The AI experts are paid once: Olaf for Busy Business is {olaf_price}, Ivy for Busy Growth will be €30. Both run on the owner's own Claude usage."),
              ("Where the data lives", "In a folder the owner chooses on their own computer, as plain files. There is no account and no server, so nothing is sent to us. The games keep your streak in your browser."),
              ("What it runs on", "The business tools run in Chrome and Edge on Windows, macOS and ChromeOS, from a downloaded folder; nothing is installed. The games run in any modern browser."),
              ("How the marketing tools work", "Busy Business's Marketing Studio and Olaf are built on proven marketing science: reach more buyers, be the business people think of in the moments they need you, and be easy to find and buy from."),
              ("Languages", "English. Invoices, quotes and documents can be made in English or Dutch."),
              ("The name", f"Busy, {DESCRIPTOR}, at busy.com.ai. Called Busywork until October 2026. Not related to BUSY accounting software.")]
-    desc = "What Busy is: free, private tools for work and life, in suites for business, brain games and soon career growth. Your files stay yours."
+    desc = "What Busy is: free, private tools for work and life, in suites for business, " + ("career growth and brain games" if GROWTH_LIVE else "brain games and soon career growth") + ". Your files stay yours."
     return f"""{head("About Busy: free, private tools for work and life", desc, "about.html", "")}
 <body class="site app-sun">
 {nav("", explore(""))}
@@ -1205,7 +1327,7 @@ def about_page(tools: list) -> str:
   <h2>🧩 Busy Games</h2>
   <ul>{"".join(f'<li><a href="games/{g["id"]}.html">{g["emoji"]} {e(g["name"])}</a>: {e(g["lead"])}</li>' for g in GAMES)}</ul>
   <h2>🌱 Busy Growth</h2>
-  <p>Coming soon: <a href="growth/index.html">free tools to grow your career, and Ivy, an AI coach</a>.</p>
+  {'<p><a href="growth/index.html">Free tools to grow your career</a>: ' + ", ".join(e(n).lower() if i else e(n) for i, (_, n, _) in enumerate(GROWTH_TOOLS)) + '. <a class="btn" href="growth/index.html#get">⬇️ Download Busy Growth</a></p>' if GROWTH_LIVE else '<p>Coming soon: <a href="growth/index.html">free tools to grow your career, and Ivy, an AI coach</a>.</p>'}
 </main>
 {footer("", tools)}
 <script src="assets/site.js"></script>
@@ -1253,7 +1375,9 @@ def main() -> None:
     copy_olaf_demo()
     make_demo()
     make_zip()
+    make_growth_zip()
     build_pages()
+    sync_growth_launch()
     sync_homepage_paths()
     apply_site_url()
     image_metadata()

@@ -244,6 +244,59 @@
   // A win becomes a story to fill in: what happened goes in the situation, the result stays the result.
   G.storyFromWin = (w) => ({ title: w.title || '', situation: w.what || '', task: '', action: '', result: w.result || '', skillIds: G.skillIds(w).slice(), winId: w.id, tags: w.tags || '' });
 
+  // ---------- Contacts ----------
+  G.HOW = [['colleague', '👩‍💼 Colleague'], ['manager', '🧑‍🏫 Manager'], ['mentor', '🧭 Mentor'], ['recruiter', '🎯 Recruiter'], ['friend', '🙂 Friend'], ['event', '🎪 Met at an event'], ['other', '✨ Other']];
+  const addMonths = (iso, n) => { const d = new Date(iso + 'T12:00:00'); d.setMonth(d.getMonth() + Number(n)); return d.toISOString().slice(0, 10); };
+  // When to get back in touch: the date you set, or "every N months" after the last chat.
+  G.nextContact = (c) => c.nextDate || (BW.num(c.every) > 0 && c.lastContact ? addMonths(c.lastContact, BW.num(c.every)) : '');
+  G.catchUpDue = (contacts, today) => contacts.filter((c) => { const n = G.nextContact(c); return n && n <= today; })
+    .sort((a, b) => G.nextContact(a).localeCompare(G.nextContact(b)));
+  // A chat logged: the newest first, and the date of the last one.
+  G.logChat = (c, date, note) => {
+    const r = Object.assign({}, c);
+    r.log = [{ date, note: String(note || '').trim() }].concat(Array.isArray(c.log) ? c.log : []);
+    if (!r.lastContact || date > r.lastContact) r.lastContact = date;
+    if (r.nextDate && r.nextDate <= date) r.nextDate = ''; // done; "every N months" takes over again
+    return r;
+  };
+  // Starting points for a message. Copied, never sent: you write the last word.
+  G.MESSAGES = [['catchup', '☕ Catch up'], ['referral', '🙏 Ask for a referral'], ['advice', '💡 Ask for advice'], ['thanks', '💐 Say thank you']];
+  G.message = (kind, c, s = {}) => {
+    const first = String(c.name || '').split(' ')[0] || 'there', me = String(s.ownerName || '').split(' ')[0];
+    const body = {
+      catchup: `Hi ${first},\n\nIt’s been a while! I’d love to hear how things are going${c.org ? ` at ${c.org}` : ''}. Coffee or a quick call in the next few weeks?\n\n[One line on what you’re up to.]`,
+      referral: `Hi ${first},\n\nI’m applying for [role] at [company]. Would you be open to referring me, or telling me who to talk to?\n\nHere’s why I think I’m a fit: [one line, with a win].`,
+      advice: `Hi ${first},\n\nI’m working towards ${s.targetRole ? `a role as ${s.targetRole}` : '[the role you want]'} and I’d value your view on [one specific question]. Could I take 20 minutes of your time?`,
+      thanks: `Hi ${first},\n\nThank you for [what they did]. It really helped with [what changed].`,
+    }[kind] || '';
+    return `${body}\n\n${me || ''}`.trim();
+  };
+
+  // ---------- Weekly review ----------
+  // What happened this week, counted from the other tools, so the review starts filled in.
+  G.weekSummary = ({ learning = [], wins = [], applications = [], library = [] }, weekStart) => {
+    const end = BW.addDays(weekStart, 6), inWeek = (d) => d && d >= weekStart && d <= end;
+    return {
+      minutes: G.minutesBetween(learning, weekStart, end),
+      finished: learning.filter((x) => x.status === 'done' && inWeek(x.doneAt)).length,
+      wins: wins.filter((w) => inWeek(w.date)).length,
+      applied: applications.filter((a) => (a.history || []).some((h) => h.status === 'applied' && inWeek(h.date))).length,
+      read: library.filter((x) => inWeek(x.readAt)).length,
+      saved: library.filter((x) => inWeek(x.addedAt)).length,
+    };
+  };
+  // Weeks in a row with a review, counting this week or last week.
+  G.reviewStreak = (reviews, today) => {
+    const weeks = new Set(reviews.map((r) => r.week));
+    let w = mondayOf(today), n = 0;
+    if (!weeks.has(w)) w = BW.addDays(w, -7);
+    while (weeks.has(w)) { n++; w = BW.addDays(w, -7); }
+    return n;
+  };
+  // A review is due from Friday until it's done.
+  G.reviewDue = (reviews, today) => { const day = (new Date(today + 'T12:00:00').getDay() + 6) % 7; return day >= 4 && !reviews.some((r) => r.week === mondayOf(today)); };
+  G.lines = (s) => String(s || '').split('\n').map((x) => x.replace(/^\s*[-•*\d.)]+\s*/, '').trim()).filter(Boolean);
+
   // ---------- on screen: link anything to skills ----------
   // Chips for every skill (on = linked), plus a box to add a new skill on the spot.
   G.skillPickerHtml = (skills, selected) => `<div class="field span-2 skill-pick" data-skill-pick><span>Skills this shows or builds</span>

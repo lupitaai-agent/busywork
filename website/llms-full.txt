@@ -367,6 +367,8 @@ Page: https://busywork.example/growth/index.html. Not released yet. Planned tool
 - Job tracker: Every application on a board, with follow-ups that don't slip.
 - CV and letter builder: CVs and cover letters built from your real skills and wins.
 - Interview story bank: Your best stories, linked to the skills they prove.
+- Contacts: The people in your corner, with a reminder when it's time to catch up.
+- Weekly review: Ten minutes on Friday: what moved, what was hard, what's next.
 
 Ivy by Busy, the AI coach for professional growth, will be the paid part: €30 once, on the owner's own Claude usage. Ivy never invents experience: every CV line comes with its proof.
 

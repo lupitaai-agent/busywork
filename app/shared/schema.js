@@ -96,13 +96,19 @@
     applications: { app: 'jobs', shape: R, about: 'The Job Tracker: one application per record, from saved to offer.',
       fields: { company: 'text', role: 'text', url: 'text', location: 'text', salary: 'text', source: 'text', contact: 'text', status: 'text', savedAt: 'date', appliedAt: 'date',
         nextDate: 'date', nextStep: 'text', closedAt: 'date', reachedInterview: 'bool', heardBack: 'bool', adText: 'text', notes: 'text', letter: 'text',
-        cvId: 'ref:cvs', storyIds: 'list', history: 'list' } },
+        cvId: 'ref:cvs', contactId: 'ref:contacts', storyIds: 'list', history: 'list' } },
     career: { app: 'cv', shape: R, about: 'Career history, shared by every CV version: jobs, education, projects, volunteering.',
       fields: { type: 'text', title: 'text', org: 'text', place: 'text', start: 'month', end: 'month', current: 'bool', bullets: 'text' } },
     cvs: { app: 'cv', shape: R, about: 'CV versions: which career entries, skills and wins each one shows.',
       fields: { name: 'text', headline: 'text', summary: 'text', include: 'list', skillIds: 'list', winIds: 'list', extras: 'text' } },
     stories: { app: 'stories', shape: R, about: 'Interview stories in the STAR shape, often grown from a win.',
       fields: { title: 'text', situation: 'text', task: 'text', action: 'text', result: 'text', skillIds: 'list', winId: 'ref:wins', tags: 'text', practised: 'num', lastPractised: 'date' } },
+    contacts: { app: 'contacts', shape: R, about: 'Contacts: the people in your network, when you last talked and when to catch up.',
+      fields: { name: 'text', how: 'text', role: 'text', org: 'text', email: 'text', phone: 'text', linkedin: 'text', every: 'num', nextDate: 'date',
+        lastContact: 'date', tags: 'text', notes: 'text', log: 'list' } },
+    reviews: { app: 'review', shape: R, about: 'Weekly reviews: one per week, with that week’s numbers and the plan for the next.',
+      fields: { week: 'date', went: 'text', hard: 'text', energy: 'num', next: 'text', nextDone: 'list', focusSkillId: 'ref:skills',
+        minutes: 'num', finished: 'num', wins: 'num', applied: 'num', read: 'num' } },
   };
   // Fields the store itself manages, and the example flag the example business carries.
   const COMMON = { id: 'id', createdAt: 'time', updatedAt: 'time', example: 'bool' };

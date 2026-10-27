@@ -44,6 +44,8 @@ jobs:
           WAITLIST_PROVIDER: ${{ vars.WAITLIST_PROVIDER }}
           GROWTH_WAITLIST_ENDPOINT: ${{ vars.GROWTH_WAITLIST_ENDPOINT }}
           OLAF_CHECKOUT_URL: ${{ vars.OLAF_CHECKOUT_URL }}
+          # Busy Growth's launch switch: 1 publishes its download and its demo, and the site stops saying "soon".
+          GROWTH_LIVE: ${{ vars.GROWTH_LIVE }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: website

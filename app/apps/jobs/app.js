@@ -6,7 +6,7 @@
   const { $, $$, esc } = BW;
   const G = BW.growth;
   const main = $('#main');
-  let apps = [], skills = [], wins = [], cvs = [], stories = [];
+  let apps = [], skills = [], wins = [], cvs = [], stories = [], contacts = [];
 
   BW.boot({
     app: 'jobs',
@@ -20,7 +20,7 @@
     onChange: async () => { await load(); if (!$('.drawer-wrap')) render(); },
   });
   BW.shortcut('n', 'Add a job', () => edit({ status: 'saved', savedAt: BW.today() }));
-  async function load() { [apps, skills, wins, cvs, stories] = await Promise.all(['applications', 'skills', 'wins', 'cvs', 'stories'].map((n) => BW.store.all(n))); }
+  async function load() { [apps, skills, wins, cvs, stories, contacts] = await Promise.all(['applications', 'skills', 'wins', 'cvs', 'stories', 'contacts'].map((n) => BW.store.all(n))); }
 
   const CLOSED = Object.fromEntries(G.CLOSED);
   const daysSince = (d) => Math.round((Date.parse(BW.today()) - Date.parse(d)) / 864e5);
@@ -118,6 +118,7 @@
         const ad = $('[name="adText"]', box);
         if (ad) ad.addEventListener('input', BW.debounce(() => { const m = $('[data-match]', box); if (m) m.innerHTML = matchHtml(ad.value); }, 300));
         const cv = $('[data-cv]', box); if (cv) cv.onchange = () => { r.cvId = cv.value; save(); };
+        const who = $('[data-who]', box); if (who) who.onchange = () => { r.contactId = who.value; save(); };
         $$('[data-story]', box).forEach((b) => b.onclick = () => { const id = b.dataset.story, on = (r.storyIds || []).includes(id); r.storyIds = on ? r.storyIds.filter((s) => s !== id) : (r.storyIds || []).concat(id); b.setAttribute('aria-pressed', String(!on)); save(); });
         const draft = $('[data-draft]', box);
         if (draft) draft.onclick = () => { const l = $('[data-letter]', box); r.adText = ad ? ad.value : r.adText; l.value = G.coverLetter(r, { settings: BW.settings, wins, skills }); r.letter = l.value; save(); l.focus(); };
@@ -146,6 +147,10 @@
       ${cvs.length ? `<select class="in" data-cv><option value="">Not chosen</option>${cvs.map((c) => `<option value="${c.id}" ${c.id === r.cvId ? 'selected' : ''}>${esc(c.name || 'CV')}</option>`).join('')}</select>
         ${r.cvId ? `<p style="margin-top:8px"><a class="btn" href="../cv/index.html#open/${r.cvId}">📄 Open this CV</a></p>` : ''}`
       : '<p class="faint">Make a CV in the <a href="../cv/index.html">CV Builder</a> and pick it here.</p>'}
+      <h3 class="section-title" style="margin-top:18px"><span>🤝</span>Who you know there</h3>
+      ${contacts.length ? `<select class="in" data-who><option value="">Nobody yet</option>${contacts.slice().sort((a, b) => String(a.name).localeCompare(String(b.name))).map((c) => `<option value="${c.id}" ${c.id === r.contactId ? 'selected' : ''}>${esc(c.name || 'Someone')}${c.org ? ` (${esc(c.org)})` : ''}</option>`).join('')}</select>
+        ${r.contactId ? `<p style="margin-top:8px"><a class="btn" href="../contacts/index.html#open/${r.contactId}">🤝 Open contact</a></p>` : ''}`
+      : '<p class="faint">A referral beats a cold application. Add people to <a href="../contacts/index.html">Contacts</a> and link them here.</p>'}
       <h3 class="section-title" style="margin-top:18px"><span>🎤</span>Stories to prepare</h3>
       ${list.length ? `<div class="choice-chips multi">${list.map((s) => `<button type="button" data-story="${s.id}" aria-pressed="${(r.storyIds || []).includes(s.id)}">${suggested.includes(s) ? '⭐ ' : ''}${esc(s.title || 'Story')}</button>`).join('')}</div>
         ${suggested.length ? '<p class="faint" style="margin-top:6px">⭐ = proves a skill the ad asks for</p>' : ''}`

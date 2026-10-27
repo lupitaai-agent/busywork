@@ -59,3 +59,7 @@
 .recent small { color: var(--ink-3); }
 .tip { font-size: .9rem; color: var(--ink-2); margin: 16px 0 0; }
 .tip kbd { font: 700 .8rem var(--mono); padding: 1px 6px; border: 1.5px solid var(--hair); border-radius: 6px; background: var(--surface); }
+
+/* Your plan for this week, from the weekly review */
+.week-plan { padding: 18px 20px; margin-bottom: 22px; }
+.week-plan h2 { font-size: 1.05rem; margin: 0; }

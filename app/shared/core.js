@@ -40,6 +40,8 @@
     { id: 'jobs', suite: 'growth', name: 'Job Tracker', emoji: '🎯', color: 'tomato', ready: true, tagline: 'Every application on a board, with follow-ups that never slip.' },
     { id: 'cv', suite: 'growth', name: 'CV Builder', emoji: '📄', color: 'teal', ready: true, tagline: 'CVs and cover letters from your real skills and wins.' },
     { id: 'stories', suite: 'growth', name: 'Interview Stories', emoji: '🎤', color: 'mint', ready: true, tagline: 'Your best stories, linked to the skills they prove.' },
+    { id: 'contacts', suite: 'growth', name: 'Contacts', emoji: '🤝', color: 'grape', ready: true, tagline: 'The people in your corner, and when to catch up again.' },
+    { id: 'review', suite: 'growth', name: 'Weekly Review', emoji: '🪞', color: 'sun', ready: true, tagline: 'Ten minutes on Friday: what moved, what was hard, what’s next.' },
     { id: 'ivy', suite: 'growth', name: 'Ivy', emoji: '🌿', color: 'mint', ready: false, tagline: 'Your AI coach for professional growth. Learn it, prove it, land it.' },
   ]);
 
@@ -1208,6 +1210,7 @@
     ['🔗', 'Save a link', 'library', '#new/link'], ['📝', 'Write a note', 'library', '#new/note'], ['📎', 'Add files to the Library', 'library', '#new/file'],
     ['🎓', 'Plan something to learn', 'learning', '#new'], ['🧠', 'Add a skill', 'skills', '#new'], ['🏆', 'Log a win', 'wins', '#new'],
     ['🎯', 'Add a job', 'jobs', '#new'], ['📄', 'New CV version', 'cv', '#new'], ['🎤', 'Write an interview story', 'stories', '#new'], ['🎲', 'Practise an interview question', 'stories', '#practice'],
+    ['🤝', 'Add a contact', 'contacts', '#new'], ['🪞', 'Review this week', 'review', '#new'],
     ['📣', 'Ask the marketing team', 'marketing', '#tab/skills'], ['🗺️', 'Make a marketing plan', 'marketing', '#skill/marketing-plan'], ['🧐', 'Check an ad or post', 'marketing', '#skill/creative-check'], ['🧭', 'Weekly check-in with Olaf', 'olaf', '#tab/coach'],
   ];
   const go = (href) => {
@@ -1247,6 +1250,8 @@
       jobs.forEach((x) => found.push({ group: 'Jobs', emoji: '🎯', label: [x.company, x.role].filter(Boolean).join(' · '), sub: x.status || '', href: app('jobs') + '#open/' + x.id }));
       cvs.forEach((x) => found.push({ group: 'CVs', emoji: '📄', label: x.name || 'CV', href: app('cv') + '#open/' + x.id }));
       stories.forEach((x) => found.push({ group: 'Stories', emoji: '🎤', label: x.title || 'Story', href: app('stories') + '#open/' + x.id }));
+      const [people] = await Promise.all(['contacts'].map((n) => BW.store.all(n).catch(() => [])));
+      people.forEach((x) => found.push({ group: 'Contacts', emoji: '🤝', label: x.name || 'Someone', sub: [x.role, x.org].filter(Boolean).join(' · '), href: app('contacts') + '#open/' + x.id }));
     })();
     const wrap = BW.html(`<div class="palette-wrap"><div class="palette card" role="dialog" aria-modal="true" aria-label="Search and commands">
       <div class="pal-in"><span aria-hidden="true">${mode === 'new' ? '＋' : '🔍'}</span><input type="text" placeholder="${mode === 'new' ? 'What do you want to make?' : 'Search clients, invoices, tasks… or type an action'}" aria-label="Search" autocomplete="off"><kbd>esc</kbd></div>

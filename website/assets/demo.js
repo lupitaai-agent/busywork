@@ -1,5 +1,5 @@
-/* The website demo: every Busy tool, already filled with a pretend design studio, so visitors
-   see what they get before they download or buy. Not part of any download: build.py adds this
+/* The website demo: every Busy tool, already filled with a pretend design studio (Busy Business) or a
+   pretend career switcher (Busy Growth), so visitors see what they get before they download or buy. Not part of any download: build.py adds this
    script to the website's copy of the tools only, before core.js.
 
    It uses the shell hook in core.js (window.BW_HOST): the business is kept in sessionStorage, so it
@@ -7,7 +7,9 @@
    Nothing is saved to a folder, nothing is sent anywhere, and there is no AI. */
 (function () {
   'use strict';
-  const PREFIX = 'bw.demo.';
+  // Each suite has its own pretend data, as each has its own folder.
+  const GROWTH = document.body && document.body.dataset.suite === 'growth';
+  const PREFIX = GROWTH ? 'bw.demo.growth.' : 'bw.demo.';
   const ss = {
     get(k) { try { return sessionStorage.getItem(PREFIX + k); } catch (e) { return null; } },
     set(k, v) { try { sessionStorage.setItem(PREFIX + k, v); } catch (e) { /* private window: it simply resets */ } },
@@ -40,6 +42,14 @@
     installable: false, // the demo is not an app to install
     async driver() {
       const BW = window.BW, d = SessionDriver();
+      if (!ss.get('seeded') && GROWTH) {
+        BW.useDriver(d);
+        await BW.loadScript(BW.root + 'shared/growth-examples.js');
+        await d.writeJSON('settings', BW.growthExamples.settings);
+        BW.settings = await BW.store.settings();
+        await BW.growthExamples.load();
+        ss.set('seeded', '1');
+      }
       if (!ss.get('seeded')) {
         BW.useDriver(d);
         await d.writeJSON('settings', {
@@ -63,9 +73,12 @@
     bar.setAttribute('role', 'note');
     bar.style.cssText = 'display:flex;gap:10px 16px;flex-wrap:wrap;align-items:center;justify-content:center;padding:9px 16px;font-weight:700;font-size:.92rem;'
       + 'background:color-mix(in srgb, var(--grape) 30%, var(--surface));color:var(--ink);border-top:2px solid var(--border)';
-    bar.innerHTML = '<span>🎭 A demo with a pretend design studio. Nothing you change is kept.</span>'
-      + `<a class="btn" style="padding:6px 14px" href="${site}business/download.html">⬇️ Download free</a>`
-      + `<a class="btn btn-primary" style="padding:6px 14px" href="${site}business/olaf.html#get">🧭 Get Olaf</a>`;
+    bar.innerHTML = GROWTH
+      ? '<span>🎭 A demo with a pretend career switcher. Nothing you change is kept.</span>'
+        + `<a class="btn btn-primary" style="padding:6px 14px" href="${site}growth/index.html#get">⬇️ Download free</a>`
+      : '<span>🎭 A demo with a pretend design studio. Nothing you change is kept.</span>'
+        + `<a class="btn" style="padding:6px 14px" href="${site}business/download.html">⬇️ Download free</a>`
+        + `<a class="btn btn-primary" style="padding:6px 14px" href="${site}business/olaf.html#get">🧭 Get Olaf</a>`;
     const top = document.querySelector('.topbar');
     if (top) top.append(bar); else document.body.prepend(bar);
   });

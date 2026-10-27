@@ -408,3 +408,7 @@ select.in { appearance: none; background-image: linear-gradient(45deg, transpare
 .keys { display: flex; flex-direction: column; gap: 10px; }
 .keys div { display: flex; gap: 14px; align-items: center; }
 .keys kbd { min-width: 92px; text-align: center; font-size: .82rem; padding: 4px 8px; }
+
+/* A plain list without bullets (plans, checklists) */
+.plain-list { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
+.plain-list li { line-height: 1.4; }
