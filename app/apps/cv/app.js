@@ -5,7 +5,7 @@
   const { $, $$, esc } = BW;
   const G = BW.growth;
   const main = $('#main');
-  let cvs = [], career = [], skills = [], wins = [], cur = null, dirty = false;
+  let cvs = [], career = [], skills = [], wins = [], cur = null, dirty = false, view = 'cv';
 
   BW.boot({
     app: 'cv',
@@ -15,7 +15,9 @@
       render();
       BW.route({
         'new': () => newVersion(),
-        open: (id) => { const c = cvs.find((x) => x.id === id); if (c) { cur = c; render(); } },
+        open: (id) => { const c = cvs.find((x) => x.id === id); if (c) { cur = c; view = 'cv'; render(); } },
+        linkedin: () => { view = 'linkedin'; render(); },
+        'import': () => BW.linkedin.importFlow({ onDone: async () => { await load(); render(); } }),
       });
     },
     onChange: async (what) => { if (what === 'cvs' && dirty) return; await load(); if (cur) cur = cvs.find((x) => x.id === cur.id) || cur; if (!$('.drawer-wrap')) render(); },
@@ -32,7 +34,7 @@
   async function newVersion(from) {
     const base = from ? Object.assign({}, from, { id: undefined, createdAt: undefined, updatedAt: undefined, name: `${from.name || 'CV'} (copy)` })
       : { name: cvs.length ? `CV ${cvs.length + 1}` : 'My CV', headline: BW.settings.headline || '', summary: '', include: career.map((e) => e.id),
-        skillIds: skills.filter((s) => BW.num(s.level) >= 3).map((s) => s.id), winIds: wins.filter((w) => w.result).slice(0, 4).map((w) => w.id), extras: '' };
+        skillIds: skills.filter((s) => BW.num(s.level) >= 3).map((s) => s.id), winIds: wins.filter((w) => w.result).slice(0, 4).map((w) => w.id), extras: BW.settings.languages || '' };
     delete base.id;
     try { await BW.store.put('cvs', base); } catch (e) { return BW.error(e); }
     await load(); cur = cvs.find((c) => c.id === base.id); render();
@@ -45,21 +47,24 @@
         <div class="page-head"><div><h1><span class="title-emo">📄</span> CV Builder</h1><p class="lead">Your career once, then a CV for every role: pick what fits, see it, save a real PDF.</p></div></div>
         <div class="card empty rise" style="margin-bottom:50px"><div class="big">📄</div><h2>Make your first CV</h2>
           <p>Add your jobs and education once. Each CV version picks the ones that fit a role, adds your best skills and wins, and saves as a clean PDF in your folder. Your name and contact details come from ⚙️ Your details.</p>
-          <button class="btn btn-primary btn-big" data-new>＋ Start my CV</button></div>`;
+          <div class="row-flex" style="justify-content:center"><button class="btn btn-primary btn-big" data-new>＋ Start my CV</button><button class="btn btn-big" data-import>💼 Start from LinkedIn</button></div>
+          <p class="faint" style="margin-top:10px">Starting from LinkedIn brings in your jobs, education, skills and certificates from LinkedIn’s own data download. Nothing is sent anywhere.</p></div>`;
       $('[data-new]', main).onclick = () => newVersion();
+      $('[data-import]', main).onclick = () => BW.linkedin.importFlow({ onDone: async () => { await load(); if (career.length && !cvs.length) await newVersion(); else render(); } });
       return;
     }
     const included = new Set(Array.isArray(cur.include) ? cur.include : career.map((e) => e.id));
     main.innerHTML = `
       <div class="page-head">
-        <div><h1><span class="title-emo">📄</span> CV Builder</h1><p class="lead">Your career once, then a CV for every role.</p></div>
+        <div><h1><span class="title-emo">📄</span> CV Builder</h1><p class="lead">Your career once, then a CV for every role, and your LinkedIn profile from the same facts.</p></div>
         <div class="spacer"></div>
-        <div class="row-flex">
+        <div class="filters" data-view role="tablist"><button type="button" data-v="cv" aria-pressed="${view === 'cv'}">📄 CV</button><button type="button" data-v="linkedin" aria-pressed="${view === 'linkedin'}">💼 LinkedIn</button></div>
+      </div>
+      ${view === 'linkedin' ? '<div data-li></div>' : `<div class="row-flex" style="margin:-8px 0 16px">
           <select class="in" data-version aria-label="CV version" style="width:auto">${cvs.map((c) => `<option value="${c.id}" ${c.id === cur.id ? 'selected' : ''}>${esc(c.name || 'CV')}</option>`).join('')}</select>
           <button class="btn" data-copy title="A copy to tailor for one job">📑 Copy</button>
           <button class="btn" data-new-v>＋ New</button>
           <button class="btn btn-primary btn-big" data-pdf><span class="emo">⬇️</span> Save PDF</button>
-        </div>
       </div>
       <div class="cv-layout">
         <div class="cv-edit">
@@ -87,8 +92,10 @@
           <label class="field"><span>Languages, certificates, tools… one per line</span><textarea class="in" data-k="extras" rows="3" placeholder="Dutch (native), English (fluent)&#10;Google Analytics certificate">${esc(cur.extras || '')}</textarea></label>
           <p style="margin:22px 0 40px"><button class="btn btn-ghost btn-danger" data-del>🗑️ Delete this version</button></p>
         </div>
-        <div class="cv-preview card" data-preview aria-label="Preview"></div>
-      </div>`;
+        <div><div class="cv-preview card" data-preview aria-label="Preview"></div><div class="card cv-check" data-check></div></div>
+      </div>`}`;
+    $('[data-view]', main).onclick = (e) => { const b = e.target.closest('[data-v]'); if (b && b.dataset.v !== view) { view = b.dataset.v; render(); } };
+    if (view === 'linkedin') return linkedinView($('[data-li]', main));
     preview();
     $('[data-version]', main).onchange = (e) => { cur = cvs.find((c) => c.id === e.target.value); render(); };
     $('[data-copy]', main).onclick = () => newVersion(cur);
@@ -129,6 +136,55 @@
       ${m.skills.length ? `<h4>Skills</h4><p>${m.skills.map(esc).join(' · ')}</p>` : ''}
       ${m.extras.length ? `<h4>More</h4><ul>${m.extras.map((h) => `<li>${esc(h)}</li>`).join('')}</ul>` : ''}
     </div>`;
+    const ck = $('[data-check]', main);
+    if (ck) {
+      const items = G.cvCheck(m), ok = items.filter((i) => i.ok).length;
+      ck.innerHTML = `<details ${ok < items.length ? 'open' : ''}><summary><b>✅ CV check: ${ok} of ${items.length}</b> <small class="faint">what recruiters and their software look for</small></summary>
+        <ul class="checklist">${items.map((i) => `<li class="${i.ok ? 'ok' : ''}"><span>${i.ok ? '✓' : '○'}</span><div>${esc(i.text)}${i.tip ? `<small>${esc(i.tip)}</small>` : ''}</div></li>`).join('')}</ul></details>`;
+    }
+  }
+
+  // LinkedIn: the same facts as your CV, as text to paste into your profile, within LinkedIn's limits.
+  function linkedinView(el) {
+    const L = BW.linkedin, s = BW.settings;
+    const sec = L.sections({ settings: s, career, skills, wins });
+    const count = (n, max) => `<small class="counter ${n > max ? 'over' : ''}">${n} / ${max}</small>`;
+    const checks = L.checklist(sec, s), ok = checks.filter((i) => i.ok).length;
+    el.innerHTML = `
+      <div class="card li-import"><span class="emo">💼</span><div><b>${s.linkedinImportedAt ? `Imported from LinkedIn on ${BW.fmtDate(s.linkedinImportedAt)}` : 'Bring your LinkedIn in'}</b>
+        <small>${s.linkedinImportedAt ? 'Import again any time: only what is new is added.' : 'Your jobs, education, skills, certificates and profile, from LinkedIn’s own data download. Nothing is sent anywhere.'}</small></div>
+        <button class="btn ${s.linkedinImportedAt ? '' : 'btn-primary'}" data-import>📦 Import from LinkedIn</button></div>
+      <div class="li-layout">
+        <div>
+          <div class="card li-sec"><div class="li-head"><h3>✍️ Headline</h3>${count(sec.headline.length, L.LIMITS.headline)}<button class="btn" data-copy-k="headline">📋 Copy</button></div>
+            <textarea class="in" rows="2" data-li-k="headline" placeholder="e.g. Customer service lead learning data analysis · SQL, Excel, dashboards · Turning tickets into insight">${esc(sec.headline)}</textarea>
+            <small class="faint">The line under your name. Say what you do, what you’re good at and where you’re heading.</small></div>
+          <div class="card li-sec"><div class="li-head"><h3>📝 About</h3>${count(sec.about.length, L.LIMITS.about)}<button class="btn" data-copy-k="about">📋 Copy</button></div>
+            <textarea class="in" rows="9" data-li-k="about" placeholder="Three short paragraphs: what you do and for whom; two results with numbers; what you’re looking for next.">${esc(sec.about)}</textarea>
+            ${wins.filter((w) => w.result).length ? `<small class="faint">Results to use, from your Wins Log: ${wins.filter((w) => w.result).slice(0, 3).map((w) => `<i>${esc(w.result)}</i>`).join(' · ')}</small>` : ''}</div>
+          <div class="section-h"><h2>💼 Experience</h2><small class="faint">Paste each into the description of the job on LinkedIn</small></div>
+          ${sec.positions.length ? sec.positions.map((x) => `<div class="card li-sec"><div class="li-head"><h3>${esc(x.title)}${x.org ? ` · ${esc(x.org)}` : ''}</h3>${count(x.text.length, L.LIMITS.position)}${x.text ? `<button class="btn" data-copy-pos="${x.id}">📋 Copy</button>` : ''}</div>
+            <small class="faint">${esc(x.period)}</small>${x.text ? `<pre class="li-text">${esc(x.text)}</pre>` : `<p class="faint">No lines yet. <button class="link" data-edit-job="${x.id}">Add what you did and achieved</button>.</p>`}</div>`).join('')
+            : '<p class="faint">Add your jobs under 📄 CV, or import them from LinkedIn.</p>'}
+          <div class="section-h"><h2>🧠 Skills</h2>${sec.skills.length ? '<button class="btn" data-copy-skills>📋 Copy all</button>' : ''}</div>
+          ${sec.skills.length ? `<p>${sec.skills.map(esc).join(' · ')}</p><small class="faint">Strongest first. On LinkedIn, pin your top three to your profile.</small>` : '<p class="faint">Add skills in the <a href="../skills/index.html">Skills Map</a>.</p>'}
+        </div>
+        <aside class="card cv-check"><b>✅ Profile check: ${ok} of ${checks.length}</b>
+          <ul class="checklist">${checks.map((i) => `<li class="${i.ok ? 'ok' : ''}"><span>${i.ok ? '✓' : '○'}</span><div>${esc(i.text)}${!i.ok && i.tip ? `<small>${esc(i.tip)}</small>` : ''}</div></li>`).join('')}</ul></aside>
+      </div><div style="height:40px"></div>`;
+    $('[data-import]', el).onclick = () => BW.linkedin.importFlow({ onDone: async () => { await load(); render(); } });
+    const save = BW.debounce(async () => { try { await BW.store.saveSettings(Object.assign({}, BW.settings)); } catch (e) { BW.error(e); } }, 600);
+    $$('[data-li-k]', el).forEach((t) => t.oninput = () => {
+      BW.settings[t.dataset.liK] = t.value;
+      t.parentElement.querySelector('.counter').outerHTML = count(t.value.length, L.LIMITS[t.dataset.liK]);
+      save();
+    });
+    $$('[data-li-k]', el).forEach((t) => t.onchange = () => linkedinView(el)); // the checklist follows when you leave the field
+    const copy = (text) => BW.copy(text).then(() => BW.toast('Copied. Paste it into LinkedIn.', '📋'));
+    $$('[data-copy-k]', el).forEach((b) => b.onclick = () => copy(BW.settings[b.dataset.copyK] || ''));
+    $$('[data-copy-pos]', el).forEach((b) => b.onclick = () => copy((sec.positions.find((x) => x.id === b.dataset.copyPos) || {}).text || ''));
+    const cs = $('[data-copy-skills]', el); if (cs) cs.onclick = () => copy(sec.skills.join(', '));
+    $$('[data-edit-job]', el).forEach((b) => b.onclick = () => editCareer(career.find((e) => e.id === b.dataset.editJob)));
   }
 
   function editCareer(e) {

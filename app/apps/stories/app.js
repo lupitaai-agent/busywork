@@ -21,6 +21,8 @@
     onChange: async () => { await load(); if (!$('.drawer-wrap') && !$('.modal-wrap')) render(); },
   });
   BW.shortcut('n', 'Write a story', () => edit({}));
+  // What a strong answer has, checked by the person after saying it out loud.
+  const CHECK = ['The situation in a sentence or two', 'What I did, with “I”', 'A result', 'A number', 'Under two minutes', 'Linked to the job'];
   async function load() { [stories, skills, wins] = await Promise.all(['stories', 'skills', 'wins'].map((n) => BW.store.all(n))); }
 
   function render() {
@@ -94,11 +96,15 @@
     const draw = () => {
       const fit = G.storiesFor(q, stories, skills);
       box.innerHTML = `<p class="practice-q">“${esc(q)}”</p>
-        <p class="faint">Answer out loud in about two minutes: situation, task, action, result.</p>
+        <div class="timer-row"><button type="button" class="btn btn-primary" data-timer>🎙️ Start answering</button><span class="timer" data-time aria-live="polite">2:00</span>
+          <small class="faint">Out loud, about two minutes: situation, task, action, result.</small></div>
+        <div class="self-check" data-self hidden><b>How did that go?</b> Tick what you did:
+          <div class="choice-chips multi">${CHECK.map((c, i) => `<button type="button" data-chk="${i}" aria-pressed="false">${c}</button>`).join('')}</div><small class="faint" data-chk-out></small></div>
         ${fit.length ? `<div class="list" style="margin-top:12px">${fit.map((s) => `<details class="card" style="padding:12px 14px"><summary><b>${esc(s.title)}</b></summary>
           ${['situation', 'task', 'action', 'result'].map((k) => (s[k] ? `<p style="margin-top:8px"><b>${k[0].toUpperCase() + k.slice(1)}:</b> ${esc(s[k])}</p>` : '')).join('')}
           <button type="button" class="btn" data-said="${s.id}" style="margin-top:10px">✅ I practised this one</button></details>`).join('')}</div>`
         : '<p style="margin-top:12px">No story for this one yet. Which win would answer it? <a href="#new">Write one</a>.</p>'}`;
+      bindTimer();
       $$('[data-said]', box).forEach((b) => b.onclick = async () => {
         const s = stories.find((x) => x.id === b.dataset.said);
         s.practised = BW.num(s.practised) + 1; s.lastPractised = BW.today();
@@ -106,7 +112,27 @@
         b.textContent = '🎉 Nice. Another one?'; b.disabled = true;
       });
     };
+    // Two minutes, counting down, then over time in red. Stop it to check your answer.
+    let tick = null;
+    const stop = () => { clearInterval(tick); tick = null; };
+    function bindTimer() {
+      const btn = $('[data-timer]', box), out = $('[data-time]', box);
+      btn.onclick = () => {
+        if (tick) { stop(); btn.textContent = '🎙️ Again'; $('[data-self]', box).hidden = false; return; }
+        const t0 = Date.now(); btn.textContent = '⏹ Done'; $('[data-self]', box).hidden = true;
+        tick = setInterval(() => {
+          const left = 120 - Math.round((Date.now() - t0) / 1000), a = Math.abs(left);
+          out.textContent = `${left < 0 ? '+' : ''}${Math.floor(a / 60)}:${String(a % 60).padStart(2, '0')}`;
+          out.classList.toggle('over', left < 0);
+        }, 250);
+      };
+      $$('[data-chk]', box).forEach((b) => b.onclick = () => {
+        b.setAttribute('aria-pressed', String(b.getAttribute('aria-pressed') !== 'true'));
+        const n = $$('[data-chk][aria-pressed="true"]', box).length;
+        $('[data-chk-out]', box).textContent = n === CHECK.length ? '🎉 A complete answer.' : `Next time, add: ${CHECK.filter((_, i) => $(`[data-chk="${i}"]`, box).getAttribute('aria-pressed') !== 'true').join(', ').toLowerCase()}.`;
+      });
+    }
     draw();
-    BW.modal({ title: '🎲 Practise', body: box, wide: true, actions: [{ label: 'Done', kind: 'ghost' }, { label: '🎲 Another question', kind: 'primary', onClick: () => { q = pickQ(); draw(); return false; } }], onClose: async () => { await load(); render(); } });
+    BW.modal({ title: '🎲 Practise', body: box, wide: true, actions: [{ label: 'Done', kind: 'ghost' }, { label: '🎲 Another question', kind: 'primary', onClick: () => { stop(); q = pickQ(); draw(); return false; } }], onClose: async () => { stop(); await load(); render(); } });
   }
 })();

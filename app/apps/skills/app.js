@@ -98,6 +98,7 @@
         { k: 'target', label: 'Where you want to be', type: 'chips', options: levels },
         { k: 'notes', label: 'Notes', type: 'textarea', ph: 'What “good” looks like, who to learn from…', span: 2 },
       ],
+      top: () => `<details class="level-help"><summary>What do the levels mean?</summary><dl>${G.LEVELS.map((l, i) => `<dt>${i + 1} · ${l}</dt><dd>${G.LEVEL_HELP[i]}</dd>`).join('')}</dl></details>`,
       bottom: (r) => {
         if (!r.id) return '';
         const ev = proof(r);

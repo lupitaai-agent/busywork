@@ -247,3 +247,90 @@ test('weekly review: the numbers of a week, the streak and when it is due', asyn
   assert.equal(G.reviewDue(reviews, '2026-03-07'), false, 'done');
   assert.deepEqual(plain(G.lines('- Finish chapter 4\n\n2. Ask Anna\n• Rest')), ['Finish chapter 4', 'Ask Anna', 'Rest']);
 });
+
+test('LinkedIn: the data export becomes career, skills, certificates, profile and contacts, and twice adds nothing twice', async () => {
+  const { BW } = await busywork(['shared/growth.js', 'shared/linkedin.js']);
+  const L = BW.linkedin;
+  const files = {
+    'Basic_LinkedInDataExport_10-27-2026/Profile.csv': '﻿First Name,Last Name,Maiden Name,Address,Birth Date,Headline,Summary,Industry,Zip Code,Geo Location,Twitter Handles,Websites,Instant Messengers\nLena,Bakker,,,,"Team lead customer service, learning data analysis","I lead a team of 8.\nI love numbers, ""really"".",Retail,,"Utrecht, Netherlands",,,\n',
+    'Positions.csv': 'Company Name,Title,Description,Location,Started On,Finished On\nFietsplan,Team lead customer service,"Lead a team of 8\n• Built the weekly report in SQL",Utrecht,Mar 2022,\nFietsplan,Customer service agent,,Utrecht,Sep 2019,Feb 2022\n',
+    'Education.csv': 'School Name,Start Date,End Date,Notes,Degree Name,Activities\nHogeschool Utrecht,2015,2019,,BA Communication,Student council\n',
+    'Skills.csv': 'Name\nSQL\nExcel\nSQL\n',
+    'Certifications.csv': 'Name,Url,Authority,Started On,Finished On,License Number\nGoogle Data Analytics,https://example.com/c,Coursera,Jun 2026,,\n',
+    'Languages.csv': 'Name,Proficiency\nDutch,Native or bilingual proficiency\nEnglish,Full professional proficiency\n',
+    'Connections.csv': 'Notes:\n"When exporting your connection data, you may notice that some of the email addresses are missing."\n\nFirst Name,Last Name,URL,Email Address,Company,Position,Connected On\nAnna,de Vries,https://www.linkedin.com/in/anna,,Greenline,Head of data,12 Oct 2023\n',
+  };
+  const p = plain(L.parse(files));
+  assert.equal(p.found, true);
+  assert.equal(p.profile.name, 'Lena Bakker');
+  assert.equal(p.profile.about, 'I lead a team of 8.\nI love numbers, "really".', 'quotes and new lines inside a cell');
+  assert.deepEqual(p.jobs.map((j) => [j.title, j.start, j.end, j.current]), [['Team lead customer service', '2022-03', '', true], ['Customer service agent', '2019-09', '2022-02', false]]);
+  assert.equal(p.jobs[0].bullets, 'Lead a team of 8\nBuilt the weekly report in SQL');
+  assert.deepEqual([p.education[0].title, p.education[0].org, p.education[0].start, p.education[0].end], ['BA Communication', 'Hogeschool Utrecht', '2015', '2019']);
+  assert.deepEqual(p.skills, ['SQL', 'Excel'], 'duplicates dropped');
+  assert.deepEqual([p.certificates[0].title, p.certificates[0].provider, p.certificates[0].doneAt], ['Google Data Analytics', 'Coursera', '2026-06-01']);
+  assert.deepEqual(p.languages, ['Dutch (Native or bilingual proficiency)', 'English (Full professional proficiency)']);
+  assert.deepEqual(p.connections.map((c) => [c.name, c.org, c.role, c.connectedOn]), [['Anna de Vries', 'Greenline', 'Head of data', '2023-10-12']], 'the notes above the header are skipped');
+  const again = plain(L.plan(p, { career: p.jobs.slice(0, 1), skills: [{ name: 'sql' }], learning: [], contacts: [{ name: 'Anna de Vries', org: 'Greenline' }] }));
+  assert.deepEqual([again.career.length, again.skills, again.certificates.length, again.connections.length], [2, ['Excel'], 1, 0]);
+  assert.equal(L.plan(p, { contacts: [{ name: 'anna de vries', org: 'Fietsplan' }] }).connections.length, 0, 'a person you have is not added again, whatever their company');
+  assert.equal(L.parse({ 'notes.txt': 'hello' }).found, false);
+  assert.equal(BW.growth.period({ start: '2015', end: '2019' }), '2015 – 2019', 'a year alone is shown as a year');
+});
+
+test('LinkedIn: copy-ready sections and a checklist from the person\'s own data', async () => {
+  const { BW } = await busywork(['shared/growth.js', 'shared/linkedin.js']);
+  const L = BW.linkedin;
+  const career = [{ id: 'j1', type: 'job', title: 'Team lead', org: 'Fietsplan', start: '2022-03', current: true, bullets: 'Lead a team of 8\nCut the report from 3 hours to 20 minutes' }, { id: 'e1', type: 'education', title: 'BA', org: 'HU', start: '2015' }];
+  const skills = [{ name: 'Excel', level: 4 }, { name: 'SQL', level: 2 }];
+  const sec = plain(L.sections({ settings: { headline: 'Team lead' }, career, skills, wins: [] }));
+  assert.deepEqual(sec.positions.map((x) => x.text), ['• Lead a team of 8\n• Cut the report from 3 hours to 20 minutes'], 'jobs only, as bullets');
+  assert.deepEqual(sec.skills, ['Excel', 'SQL'], 'strongest first');
+  const list = plain(L.checklist(sec, { targetRole: 'data analyst' }));
+  const ok = (start) => list.find((i) => i.text.startsWith(start)).ok;
+  assert.equal(ok('A headline that says'), false, 'a bare job title is not enough');
+  assert.equal(ok('At least one result with a number'), true);
+  assert.equal(ok('At least five skills'), false);
+  assert.equal(ok('Your profile mentions the role'), false);
+});
+
+test('job ads: a pasted ad fills in the job, and the words the CV misses are listed', async () => {
+  const BW = await growth();
+  const G = BW.growth;
+  const ad = 'Data Analyst - Greenline\nLocation: Utrecht, hybrid\nSalary: €3,800 - €4,600 per month\n\nJoin Greenline as a data analyst. You build dashboards in Power BI, write SQL, and explain data to stakeholders. Power BI experience is a must. Stakeholder management and Power BI dashboards.\nhttps://jobs.example.com/123.';
+  const p = plain(G.parseAd(ad));
+  assert.deepEqual([p.role, p.company, p.location, p.salary, p.url], ['Data Analyst', 'Greenline', 'Utrecht, hybrid', '€3,800 - €4,600 per month', 'https://jobs.example.com/123']);
+  const kw = plain(G.adKeywords(ad));
+  assert.ok(kw.includes('power bi'), kw.join(', '));
+  assert.ok(!kw.includes('the') && !kw.includes('you'), 'no filler words');
+  const missing = plain(G.missingKeywords(ad, 'Built dashboards in Excel and SQL for stakeholders'));
+  assert.ok(missing.includes('power bi') && !missing.includes('sql'), missing.join(', '));
+});
+
+test('CV check, people you know at a company, and one Library item a day', async () => {
+  const BW = await growth();
+  const G = BW.growth;
+  const m = { contact: ['lena@example.com'], headline: '', summary: '', highlights: ['We improved the process'], skills: ['SQL'], extras: [],
+    work: [{ title: 'Team lead', period: 'Mar 2022 – now', bullets: ['I led a team', 'Cut report time from 3 hours to 20 minutes'] }], education: [] };
+  const c = plain(G.cvCheck(m));
+  const st = (start) => c.find((i) => i.text.startsWith(start)).ok;
+  assert.equal(st('Your email'), true); assert.equal(st('A second way'), false); assert.equal(st('A headline'), false);
+  assert.equal(st('Lines about what you did, not'), false); assert.equal(st('Lines start with'), false); assert.equal(st('At least a third'), true);
+  const people = [{ name: 'Anna', org: 'Greenline B.V.' }, { name: 'Bram', org: 'Green' }, { name: 'Cas', org: '' }];
+  assert.deepEqual(plain(G.peopleAt('Greenline', people).map((x) => x.name)), ['Anna']);
+  assert.deepEqual(plain(G.peopleAt('', people)), []);
+  const lib = [{ id: 'a', notes: 'Start with the range, not a number, when you negotiate.' }, { id: 'b', notes: 'short' }, { id: 'c', highlights: 'Bar charts compare; lines show time.' }];
+  const one = G.dailyPick(lib, '2026-10-27');
+  assert.ok(one && ['a', 'c'].includes(one.item.id));
+  assert.equal(G.dailyPick(lib, '2026-10-27').item.id, one.item.id, 'the same all day');
+  assert.equal(G.dailyPick([], '2026-10-27'), null);
+});
+
+test('missing words: plurals and verb forms count as used; company, place and filler are left out', async () => {
+  const BW = await growth();
+  const ad = 'Junior Data Analyst at Acme. Location: Amsterdam, hybrid. You will build Power BI dashboards, write SQL, and work with stakeholders. Data modelling is a plus.';
+  const cv = 'Built the dashboard the team uses. Stakeholder management. SQL. Data analysis.';
+  const m = plain(BW.growth.missingKeywords(ad, cv, 12, ['Acme', 'Amsterdam, hybrid']));
+  assert.ok(m.includes('power bi') && m.some((k) => k.includes('modelling')), m.join(', '));
+  for (const gone of ['acme', 'amsterdam', 'dashboards', 'stakeholders', 'write', 'build', 'hybrid', 'sql']) assert.ok(!m.some((k) => k.split(' ').includes(gone)), `${gone} in ${m.join(', ')}`);
+});

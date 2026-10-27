@@ -9,7 +9,9 @@
   BW.growthExamples = {
     settings: {
       suite: 'growth', ownerName: 'Lena Bakker', headline: 'Customer service team lead', targetRole: 'data analyst',
-      goal: 'Land a data analyst role by the summer', learnHoursWeek: 3, email: 'lena@example.com', city: 'Utrecht',
+      goal: 'Land a data analyst role by the summer', learnHoursWeek: 3, email: 'lena@example.com', city: 'Utrecht', linkedin: 'linkedin.com/in/lena-example',
+      languages: 'Dutch (native)\nEnglish (fluent)',
+      about: 'I lead a customer service team of 8 at a bike leasing company, and I have found that the part of the job I love most is the numbers behind the tickets.\n\nThis year I rebuilt our weekly ticket report in SQL, cutting it from 3 hours to 20 minutes, and built the dashboard the team now opens every morning. Waiting times went down 18% in a month.\n\nI am now moving into data analysis: learning SQL properly, then Python. If your team turns customer data into decisions, I would love to talk.',
     },
     async load() {
       const id = () => BW.uid();
@@ -68,9 +70,9 @@
       const a = (o, hist) => ex(Object.assign({ history: hist.map(([d, status]) => ({ date: day(d), status })) }, o));
       const applications = [
         a({ company: 'Acme', role: 'Data analyst', status: 'applied', savedAt: day(-14), appliedAt: day(-9), nextDate: day(-2), nextStep: 'Email Sara to ask about timing',
-          location: 'Utrecht, hybrid', cvId: cv.id, contactId: contacts[2].id, adText: 'We are looking for a data analyst with SQL, Excel and data visualisation skills, who can explain numbers to colleagues.' }, [[-14, 'saved'], [-9, 'applied']]),
+          location: 'Utrecht, hybrid', interest: 4, cvId: cv.id, contactId: contacts[2].id, adText: 'We are looking for a data analyst with SQL, Excel and data visualisation skills, who can explain numbers to colleagues.' }, [[-14, 'saved'], [-9, 'applied']]),
         a({ company: 'Greenline', role: 'Junior BI analyst', status: 'interview', savedAt: day(-20), appliedAt: day(-18), reachedInterview: true, heardBack: true, nextDate: day(3), nextStep: 'Second interview: prepare the dashboard story',
-          contactId: contacts[0].id, storyIds: [story.id], adText: 'Junior BI analyst. SQL and dashboards, stakeholder management.' }, [[-20, 'saved'], [-18, 'applied'], [-6, 'interview']]),
+          contactId: contacts[0].id, storyIds: [story.id], interest: 5, adText: 'Junior BI analyst. SQL and dashboards, stakeholder management.' }, [[-20, 'saved'], [-18, 'applied'], [-6, 'interview']]),
         a({ company: 'Northwind', role: 'Data analyst', status: 'saved', savedAt: day(-2), location: 'Amsterdam' }, [[-2, 'saved']]),
       ];
       const lastWeek = BW.addDays(BW.growth.weekStart(BW.today()), -7);

@@ -31,6 +31,7 @@
     // This week's plan: the "next week, I will…" lines from last week's review.
     const week = G.weekStart(today), last = reviews.find((r) => r.week === BW.addDays(week, -7));
     const plan = last ? G.lines(last.next).map((t, i) => [t, (last.nextDone || []).includes(i)]) : [];
+    const pick = G.dailyPick(library, today);
     const glance = [
       G.reviewDue(reviews, today) && ['sun', '🪞', 'Weekly review', 'Due', 'Ten minutes to look back and plan next week', 'review'],
       followUps.length && ['tomato', '⏰', 'Follow-ups due', String(followUps.length), followUps.map((a) => a.company || a.role).slice(0, 3).join(', '), 'jobs'],
@@ -42,6 +43,7 @@
     ].filter(Boolean);
     const byId = Object.fromEntries(BW.apps.map((a) => [a.id, a]));
     const steps = [
+      [!!s.linkedinImportedAt || library.length + learning.length + wins.length > 5, '💼', 'Start from LinkedIn', 'Your jobs, skills and certificates in ten minutes', 'apps/cv/index.html#import'],
       [skills.some((x) => BW.num(x.target) > BW.num(x.level)), '🧠', 'Pick a skill to grow', 'Where you are, and where you want to be', 'apps/skills/index.html#new'],
       [library.length > 0, '🔗', 'Save something you read', 'A link, a note or a file', 'apps/library/index.html#new/link'],
       [learning.length > 0, '🎓', 'Plan something to learn', 'A course, a book or a project', 'apps/learning/index.html#new'],
@@ -61,7 +63,9 @@
           <p class="lead">${s.targetRole ? `Heading for <b>${esc(s.targetRole)}</b>. ` : ''}${s.goal ? `Your goal: ${esc(s.goal.replace(/[.\s]+$/, ''))}.` : 'Learn it, prove it, land it.'}</p></div>
       </section>
       <section class="stats glance rise">${glance.map(([c, e, k, v, sub, app]) => `
-        <a class="card stat" style="--tint:var(--${c})" href="apps/${app}/index.html"><div class="k">${e} ${k}</div><div class="v">${v}</div><div class="s">${esc(sub)}</div></a>`).join('')}</section>
+        <a class="card stat" style="--tint:var(--${c})" href="apps/${app}/index.html"><div class="k">${e} ${k}</div><div class="v ${/^[\d.,\s]|^Due$/.test(v) ? '' : 'word'}">${v}</div><div class="s">${esc(sub)}</div></a>`).join('')}</section>
+      ${pick ? `<section class="card daily-pick rise"><span class="emo">💡</span><div><small class="faint">From your Library, for today</small>
+        <p>“${esc(pick.text)}”</p><a class="link" href="apps/library/index.html#open/${pick.item.id}">${esc(pick.item.title || 'Open it')}</a></div></section>` : ''}
       ${plan.length ? `<section class="card week-plan rise"><div class="row-flex" style="justify-content:space-between"><h2>➡️ Your plan for this week</h2><a class="link" href="apps/review/index.html">From your weekly review</a></div>
         <ul class="plain-list">${plan.map(([t, done]) => `<li>${done ? '✅' : '⬜'} ${esc(t)}</li>`).join('')}</ul></section>` : ''}
       ${!hidden && doneN < steps.length ? `<section class="card start rise">

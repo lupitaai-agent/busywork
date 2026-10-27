@@ -63,3 +63,11 @@
 /* Your plan for this week, from the weekly review */
 .week-plan { padding: 18px 20px; margin-bottom: 22px; }
 .week-plan h2 { font-size: 1.05rem; margin: 0; }
+
+/* One thing from the Library, each day */
+.daily-pick { display: flex; gap: 14px; align-items: flex-start; padding: 16px 20px; margin-bottom: 22px; }
+.daily-pick .emo { font-size: 1.6rem; }
+.daily-pick p { font-size: 1.05rem; margin: 4px 0 6px; font-style: italic; }
+
+/* A word (a skill's name) instead of a number in a glance card */
+.glance .stat .v.word { font-size: 1.3rem; line-height: 1.2; overflow-wrap: anywhere; }

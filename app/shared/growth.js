@@ -7,6 +7,14 @@
   const G = (BW.growth = {});
 
   G.LEVELS = ['Aware', 'Learning', 'Can do it', 'Strong', 'Expert']; // level 1 to 5
+  // What each level looks like in practice, so a self-rating is honest.
+  G.LEVEL_HELP = [
+    'You know what it is and why it matters, but haven’t done it yet.',
+    'You’ve done it with help or by following steps, and you’re practising.',
+    'You do it on your own in normal situations, and the result is good.',
+    'You handle the hard cases, others ask you for help, and you have results to show.',
+    'You teach it, set the standard, and people know you for it.',
+  ];
   G.KINDS = { link: ['🔗', 'Link'], note: ['📝', 'Note'], file: ['📎', 'File'] };
   G.LEARN_KINDS = [['course', '🎓 Course'], ['book', '📖 Book'], ['video', '🎬 Video'], ['project', '🛠️ Project'], ['certificate', '📜 Certificate'], ['other', '✨ Other']];
   G.LEARN_STATUS = [['planned', 'Planned'], ['doing', 'Doing'], ['done', 'Done'], ['dropped', 'Dropped']];
@@ -180,7 +188,8 @@
   // Newest first; what you're still doing on top.
   G.careerSort = (list) => list.slice().sort((a, b) => (b.current ? 1 : 0) - (a.current ? 1 : 0) || ym(b.end || b.start).localeCompare(ym(a.end || a.start)) || ym(b.start).localeCompare(ym(a.start)));
   G.period = (e) => {
-    const f = (v) => (v ? new Date(v + '-15T12:00:00').toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : '');
+    // A month (2020-01), or only a year (2019) when that is all that is known.
+    const f = (v) => (!v ? '' : /^\d{4}$/.test(v) ? v : new Date(v + '-15T12:00:00').toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }));
     return [f(e.start), e.current ? 'now' : f(e.end)].filter(Boolean).join(' – ');
   };
   const lines = (s) => String(s || '').split('\n').map((x) => x.replace(/^\s*[-•*]\s*/, '').trim()).filter(Boolean);
@@ -245,7 +254,7 @@
   G.storyFromWin = (w) => ({ title: w.title || '', situation: w.what || '', task: '', action: '', result: w.result || '', skillIds: G.skillIds(w).slice(), winId: w.id, tags: w.tags || '' });
 
   // ---------- Contacts ----------
-  G.HOW = [['colleague', '👩‍💼 Colleague'], ['manager', '🧑‍🏫 Manager'], ['mentor', '🧭 Mentor'], ['recruiter', '🎯 Recruiter'], ['friend', '🙂 Friend'], ['event', '🎪 Met at an event'], ['other', '✨ Other']];
+  G.HOW = [['colleague', '👩‍💼 Colleague'], ['manager', '🧑‍🏫 Manager'], ['mentor', '🧭 Mentor'], ['recruiter', '🎯 Recruiter'], ['friend', '🙂 Friend'], ['event', '🎪 Met at an event'], ['linkedin', '💼 LinkedIn connection'], ['other', '✨ Other']];
   const addMonths = (iso, n) => { const d = new Date(iso + 'T12:00:00'); d.setMonth(d.getMonth() + Number(n)); return d.toISOString().slice(0, 10); };
   // When to get back in touch: the date you set, or "every N months" after the last chat.
   G.nextContact = (c) => c.nextDate || (BW.num(c.every) > 0 && c.lastContact ? addMonths(c.lastContact, BW.num(c.every)) : '');
@@ -296,6 +305,105 @@
   // A review is due from Friday until it's done.
   G.reviewDue = (reviews, today) => { const day = (new Date(today + 'T12:00:00').getDay() + 6) % 7; return day >= 4 && !reviews.some((r) => r.week === mondayOf(today)); };
   G.lines = (s) => String(s || '').split('\n').map((x) => x.replace(/^\s*[-•*\d.)]+\s*/, '').trim()).filter(Boolean);
+
+  // ---------- a pasted job ad ----------
+  // Company, role, place and salary from the text people copy from a job page. A first guess, shown
+  // in the form to check: job pages have no standard layout.
+  G.parseAd = (text) => {
+    const s = String(text || '').replace(/\r/g, ''), lines = s.split('\n').map((l) => l.trim()).filter(Boolean);
+    const find = (re) => { for (const l of lines) { const m = re.exec(l); if (m) return m[1].trim().replace(/[.,;]+$/, ''); } return ''; };
+    const out = { adText: s.trim() };
+    // A first line like "Data Analyst - Greenline" is a title and a company.
+    const first = lines[0] && lines[0].length <= 90 && !/[.!?]$/.test(lines[0]) ? lines[0] : '';
+    const split = /^(.{2,60}?)\s+[-–|·@]\s+(.{2,50})$/.exec(first) || /^(.{2,60}?)\s+at\s+([A-Z].{1,50})$/.exec(first);
+    out.company = find(/^(?:company|employer|organi[sz]ation|bedrijf|werkgever)\s*[:\-–]\s*(.{2,60})$/i) || (split ? split[2].trim() : '')
+      || find(/\b(?:[Aa]t|[Jj]oin|[Bb]ij)\s+([A-Z][\w&.'-]*(?:\s+[A-Z][\w&.'-]*){0,3})\b/);
+    out.role = find(/^(?:job title|role|position|title|functie|vacature)\s*[:\-–]\s*(.{2,80})$/i) || (split ? split[1].trim() : first);
+    out.location = find(/^(?:location|place|where|locatie|standplaats)\s*[:\-–]\s*(.{2,60})$/i) || find(/\b((?:remote|hybrid|on-?site)(?:\s*[-–,(]\s*[A-Z][\w\s,]{1,40})?)/i);
+    const sal = /((?:€|£|\$|EUR|USD|GBP)\s?\d[\d.,]*\s?[kK]?(?:\s?(?:-|–|to|tot)\s?(?:€|£|\$)?\s?\d[\d.,]*\s?[kK]?)?(?:\s?(?:per|a|\/)\s?(?:year|month|hour|jaar|maand|uur|yr|mo|hr))?)/i.exec(s);
+    out.salary = sal ? sal[1].trim() : '';
+    const url = /https?:\/\/\S+/.exec(s);
+    if (url) out.url = url[0].replace(/[).,]+$/, '');
+    return out;
+  };
+
+  // ---------- words the ad uses that the CV doesn't ----------
+  // Recruiters and their software look for the ad's own words. No score: just the words, so a person
+  // can decide which are true for them and say so.
+  const STOP = new Set(('a an and are as at be been but by can do for from has have help how if in into is it its job more must need not of on or our out over role so such team than that the their them then there these they this to up us we what when where which who will with within work working you your yours years year also able across all any based both each etc experience new other per strong well very join apply including like make making use using within ideal plus within key day days skills skill knowledge ability great good people looking candidate candidates company opportunity responsibilities requirements required preferred offer offers benefits salary bonus full time part hours week build write create support ensure develop manage lead junior senior medior hybrid remote onsite office location month months per hour fte contract permanent temporary must nice plus etc.').split(' '));
+  G.adKeywords = (ad, limit = 25) => {
+    const text = String(ad || '').toLowerCase().replace(/[^\p{L}\p{N}+#.\s-]+/gu, ' ');
+    const words = text.split(/\s+/).map((w) => w.replace(/^[.-]+|[.-]+$/g, '')).filter((w) => w.length > 1 && !STOP.has(w) && !/^\d+$/.test(w));
+    const count = new Map();
+    words.forEach((w, i) => {
+      count.set(w, (count.get(w) || 0) + 1);
+      const n = words[i + 1];
+      if (n) { const two = w + ' ' + n; count.set(two, (count.get(two) || 0) + 1.5); }
+    });
+    // Names written with capitals ("Power BI", "Google Analytics") are one term, even when used once.
+    for (const m of String(ad || '').matchAll(/\b[A-Z][\w+#.]*(?:\s+[A-Z][\w+#.]*){1,2}\b/g)) {
+      const ws = m[0].toLowerCase().split(/\s+/);
+      while (ws.length && STOP.has(ws[0])) ws.shift();
+      while (ws.length && STOP.has(ws[ws.length - 1])) ws.pop();
+      if (ws.length >= 2) { const k = ws.join(' '); count.set(k, (count.get(k) || 0) + 3); }
+    }
+    // Two-word terms that appear more than once win over their parts.
+    const terms = [...count.entries()].filter(([w, c]) => (w.includes(' ') ? c >= 3 : c >= 1)).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+    const out = [];
+    for (const [w] of terms) { if (out.some((o) => o.includes(w) || w.includes(o))) continue; out.push(w); if (out.length >= limit) break; }
+    return out;
+  };
+  // A word counts as used when the CV has it in any simple form: dashboard and dashboards, analyse and
+  // analysing. Words of the company's name and the place are left out (skip).
+  const stem = (w) => w.replace(/(ies|es|s|ing|ed|er|ers)$/, '').slice(0, Math.max(4, w.length - 3)) || w;
+  G.missingKeywords = (ad, cvText, limit = 12, skip = []) => {
+    const have = String(cvText || '').toLowerCase().replace(/[^\p{L}\p{N}+#]+/gu, ' ').split(' ').filter(Boolean);
+    const used = (w) => { const s = stem(w); return have.some((h) => h === w || h.startsWith(s)); };
+    const out = new Set(skip.join(' ').toLowerCase().split(/[^\p{L}\p{N}]+/u).filter((w) => w.length > 1));
+    return G.adKeywords(ad, 40).filter((k) => { const ws = k.split(' '); return !ws.some((w) => out.has(w)) && !ws.every(used); }).slice(0, limit);
+  };
+  G.cvText = (m) => [m.headline, m.summary].concat(m.highlights, m.skills, m.extras, ...m.work.concat(m.education).map((x) => [x.title, x.org, ...x.bullets])).filter(Boolean).join(' ');
+
+  // ---------- the CV check ----------
+  // The hygiene the ATS checkers look at, as a plain checklist.
+  G.cvCheck = (m) => {
+    const items = [], add = (ok, text, tip) => items.push({ ok: !!ok, text, tip: ok ? '' : tip });
+    const bullets = m.work.flatMap((x) => x.bullets).concat(m.highlights);
+    add(m.contact.some((c) => /@/.test(c)), 'Your email is on it', 'Add it under ⚙️ Your details.');
+    add(m.contact.length >= 2, 'A second way to reach you (phone or LinkedIn)', 'Add your phone or LinkedIn under ⚙️ Your details.');
+    add(m.headline, 'A headline under your name', 'One line: the role you’re going for and what you’re good at.');
+    add(m.work.length, 'Your experience is on it', 'Tick at least one job, or add one under Your career.');
+    add(m.work.slice(0, 2).every((x) => x.bullets.length), 'Your recent jobs say what you did', 'Add two or three lines to each recent job.');
+    const withNumbers = bullets.filter((b) => /\d/.test(b)).length;
+    add(bullets.length && withNumbers / bullets.length >= 0.3, 'At least a third of your lines have a number', `${withNumbers} of ${bullets.length} have one. Hours saved, customers, money, ratings: numbers get read.`);
+    const long = bullets.filter((b) => b.length > 180);
+    add(!long.length, 'Lines short enough to scan (under about 180 characters)', `${long.length} line${long.length === 1 ? ' is' : 's are'} longer. Split or trim.`);
+    const we = bullets.filter((b) => /\b(we|our|us)\b/i.test(b));
+    add(!we.length, 'Lines about what you did, not “we”', `${we.length} line${we.length === 1 ? ' says' : 's say'} “we” or “our”. Say what you did.`);
+    const pron = bullets.filter((b) => /^\s*(i|my)\b/i.test(b));
+    add(!pron.length, 'Lines start with what you did, not “I”', 'Start with the action: “Built…”, “Cut…”, “Led…”.');
+    add(m.skills.length >= 4, 'Four or more skills', 'Pick your strongest from the Skills Map.');
+    add(m.work.every((x) => x.period), 'Every job has dates', 'Add the month and year you started (and ended).');
+    const words = G.cvText(m).split(/\s+/).length;
+    add(words <= 900, 'Short enough for one or two pages', `About ${words} words: aim for under 900.`);
+    return items;
+  };
+
+  // ---------- people you know at a company ----------
+  const orgKey = (s) => String(s || '').toLowerCase().replace(/\b(b\.?v\.?|n\.?v\.?|ltd|limited|inc|gmbh|llc|plc|group|the)\b/g, '').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+  G.peopleAt = (company, contacts) => { const k = orgKey(company); return k ? contacts.filter((c) => { const o = orgKey(c.org); return o && (o === k || o.startsWith(k + ' ') || k.startsWith(o + ' ')); }) : []; };
+
+  // ---------- one thing from the Library, each day ----------
+  // Readers forget most of what they read unless they see it again. The same pick all day, a new one
+  // tomorrow, from items with notes or highlights.
+  G.dailyPick = (library, today) => {
+    const pool = library.filter((x) => String(x.highlights || x.notes || '').trim().length > 20).sort((a, b) => String(a.id).localeCompare(String(b.id)));
+    if (!pool.length) return null;
+    let h = 0; for (const c of String(today)) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+    const x = pool[h % pool.length], text = String(x.highlights || x.notes).trim();
+    const parts = text.split(/\n+/).filter((p) => p.trim().length > 20);
+    return { item: x, text: (parts.length ? parts[h % parts.length] : text).slice(0, 280) };
+  };
 
   // ---------- on screen: link anything to skills ----------
   // Chips for every skill (on = linked), plus a box to add a new skill on the spot.

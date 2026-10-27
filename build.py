@@ -65,7 +65,7 @@ def site_core(text: str) -> str:
 # site's words change. The Busy Business download never includes it: each suite is its own download.
 GROWTH_LIVE = os.environ.get("GROWTH_LIVE", "").strip().lower() in ("1", "true", "yes")
 GROWTH_APPS = ("library", "learning", "skills", "wins", "jobs", "cv", "stories", "contacts", "review")
-GROWTH_FILES = {"growth.html", "growth-home.js", "shared/growth.js", "shared/growth.css", "shared/filetext.js", "shared/growth-examples.js"}
+GROWTH_FILES = {"growth.html", "growth-home.js", "shared/growth.js", "shared/growth.css", "shared/filetext.js", "shared/growth-examples.js", "shared/linkedin.js"}
 
 
 def growth_part(rel: str) -> bool:
@@ -962,10 +962,10 @@ GROWTH_TOOLS = [("📚", "Library", "Files, links and notes from everything you 
                 ("🗓️", "Learning planner", "Courses, books and projects with goals, dates and hours a week."),
                 ("🧠", "Skills map", "What you can do, how well, and the proof behind it."),
                 ("🏆", "Wins log", "Achievements as they happen, ready for your CV and your next review."),
-                ("🗂️", "Job tracker", "Every application on a board, with follow-ups that don't slip."),
-                ("📄", "CV and letter builder", "CVs and cover letters built from your real skills and wins."),
+                ("🗂️", "Job tracker", "Paste an ad and it's on your board: the skills it asks for, the words your CV misses, who you know there, and follow-ups that don't slip."),
+                ("📄", "CV and LinkedIn builder", "CVs and cover letters from your real skills and wins, a CV check, and your LinkedIn profile from the same facts."),
                 ("🎤", "Interview story bank", "Your best stories, linked to the skills they prove."),
-                ("🤝", "Contacts", "The people in your corner, with a reminder when it's time to catch up."),
+                ("🤝", "Contacts", "The people in your corner, your LinkedIn connections included, with a reminder when it's time to catch up."),
                 ("🪞", "Weekly review", "Ten minutes on Friday: what moved, what was hard, what's next.")]
 
 
@@ -1015,7 +1015,8 @@ def growth_page(tools: list) -> str:
     desc = f"Busy Growth: {len(GROWTH_TOOLS)} free tools to grow your career. A library of what you learn, skills, wins, a job tracker, CVs, interview stories and contacts. No account."
     steps = [("⬇️", "Download and unzip", "One small zip file. Move the Busy Growth folder somewhere you will find it again."),
              ("🖱️", "Open growth.html", "It opens in Chrome or Edge. Nothing is installed, and it works offline."),
-             ("📁", "Pick a folder", "Your library, skills, wins and CVs are saved there as plain files. Put it in Google Drive or Dropbox to sync it.")]
+             ("📁", "Pick a folder", "Your library, skills, wins and CVs are saved there as plain files. Put it in Google Drive or Dropbox to sync it."),
+             ("💼", "Start from LinkedIn", "Download your own data from LinkedIn and Busy fills in your jobs, education, skills and certificates in minutes.")]
     how = "".join(f'<div class="card feat reveal pop"><span class="fe">{em}</span><h3>{e(n)}</h3><p>{e(d)}</p></div>' for em, n, d in steps)
     return f"""{head("Busy Growth: free tools to grow your career", desc, "growth/index.html", "../", image="og-ivy.png")}
 <body class="site app-mint">
@@ -1033,6 +1034,11 @@ def growth_page(tools: list) -> str:
   <section class="section"><div class="wrap">
     <div class="center reveal"><h2 class="big">{len(GROWTH_TOOLS)} tools that work together</h2><p class="lead">A gap in your skills becomes a plan, the plan becomes a win, the win becomes a CV line and an interview story.</p></div>
     <div class="feats">{feats}</div>
+  </div></section>
+  <section class="section"><div class="wrap">
+    <div class="card ivy-card reveal"><span style="font-size:3.4rem" aria-hidden="true">💼</span>
+      <div><p class="kicker">Works with LinkedIn, the honest way</p><h2>Your LinkedIn in, and back out</h2>
+      <p>LinkedIn lets every member download their own data. Busy reads that file on your computer and fills in your career, skills, certificates and, if you like, your connections. Then the CV Builder gives your profile back: headline, About and every job as text to paste, within LinkedIn's limits, with a checklist of what recruiters look for. No password, no extension, nothing sent anywhere.</p></div></div>
   </div></section>
   <section class="section" id="get"><div class="wrap">
     <div class="center reveal"><h2 class="big">Get Busy Growth</h2><p class="lead">Free, the whole set. No account, no subscription, nothing sent to us.</p></div>

@@ -5,7 +5,8 @@
   const { $, $$, esc } = BW;
   const G = BW.growth;
   const main = $('#main');
-  let contacts = [], apps = [], query = '', how = '';
+  let contacts = [], apps = [], query = '', how = '', showAll = false;
+  const SHOW = 100; // rows at first, so a few hundred LinkedIn connections stay quick
 
   BW.boot({
     app: 'contacts',
@@ -42,7 +43,7 @@
       <div class="page-head">
         <div><h1><span class="title-emo">🤝</span> Contacts</h1><p class="lead">Most jobs come through people. Keep in touch with yours, a little and often.</p></div>
         <div class="spacer"></div>
-        <button class="btn btn-primary btn-big" data-new><span class="emo">＋</span> Add a contact</button>
+        <div class="row-flex"><button class="btn" data-li title="From LinkedIn’s own data download">💼 Import from LinkedIn</button><button class="btn btn-primary btn-big" data-new><span class="emo">＋</span> Add a contact</button></div>
       </div>
       ${contacts.length ? `
       <div class="stats rise">
@@ -56,12 +57,14 @@
         <input class="in search" type="search" data-q placeholder="Search names, companies, notes…" value="${esc(query)}" aria-label="Search contacts">
         ${hows.length > 1 ? `<div class="filters" data-how><button type="button" data-v="" aria-pressed="${!how}">Everyone</button>${hows.map(([v, l]) => `<button type="button" data-v="${v}" aria-pressed="${how === v}">${l}</button>`).join('')}</div>` : ''}
       </div>
-      ${list.length ? `<div class="list">${list.map(row).join('')}</div>` : '<div class="card empty"><div class="big">🔍</div><h2>Nobody found</h2><p>Try another word, or clear the filter.</p></div>'}
+      ${list.length ? `<div class="list">${(showAll || query ? list : list.slice(0, SHOW)).map(row).join('')}</div>${!showAll && !query && list.length > SHOW ? `<p style="margin-top:10px"><button class="btn" data-more>Show all ${list.length}</button> <small class="faint">or search</small></p>` : ''}` : '<div class="card empty"><div class="big">🔍</div><h2>Nobody found</h2><p>Try another word, or clear the filter.</p></div>'}
       <div style="height:40px"></div>`
       : `<div class="card empty rise" style="margin-bottom:50px"><div class="big">🤝</div><h2>The people in your corner</h2>
           <p>Old colleagues, a mentor, the recruiter who was nice, someone you met at an event. Add them here with how you know them, and Busy reminds you when it’s time to catch up again.</p>
-          <button class="btn btn-primary btn-big" data-new>＋ Add my first contact</button></div>`}`;
+          <div class="row-flex" style="justify-content:center"><button class="btn btn-primary btn-big" data-new>＋ Add my first contact</button><button class="btn btn-big" data-li>💼 Import from LinkedIn</button></div></div>`}`;
     $$('[data-new]', main).forEach((b) => b.onclick = () => edit({ every: '3' }));
+    $$('[data-li]', main).forEach((b) => b.onclick = () => BW.linkedin.importFlow({ onDone: async () => { await load(); render(); } }));
+    const more = $('[data-more]', main); if (more) more.onclick = () => { showAll = true; render(); };
     const q = $('[data-q]', main);
     if (q) q.oninput = BW.debounce(() => { query = q.value; const at = q.selectionStart; render(); const n = $('[data-q]', main); n.focus(); try { n.setSelectionRange(at, at); } catch (e) { /* ignore */ } }, 150);
     const h = $('[data-how]', main); if (h) h.onclick = (e) => { const b = e.target.closest('[data-v]'); if (b) { how = b.dataset.v; render(); } };

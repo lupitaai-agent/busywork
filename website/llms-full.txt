@@ -364,10 +364,10 @@ Page: https://busywork.example/growth/index.html. Not released yet. Planned tool
 - Learning planner: Courses, books and projects with goals, dates and hours a week.
 - Skills map: What you can do, how well, and the proof behind it.
 - Wins log: Achievements as they happen, ready for your CV and your next review.
-- Job tracker: Every application on a board, with follow-ups that don't slip.
-- CV and letter builder: CVs and cover letters built from your real skills and wins.
+- Job tracker: Paste an ad and it's on your board: the skills it asks for, the words your CV misses, who you know there, and follow-ups that don't slip.
+- CV and LinkedIn builder: CVs and cover letters from your real skills and wins, a CV check, and your LinkedIn profile from the same facts.
 - Interview story bank: Your best stories, linked to the skills they prove.
-- Contacts: The people in your corner, with a reminder when it's time to catch up.
+- Contacts: The people in your corner, your LinkedIn connections included, with a reminder when it's time to catch up.
 - Weekly review: Ten minutes on Friday: what moved, what was hard, what's next.
 
 Ivy by Busy, the AI coach for professional growth, will be the paid part: €30 once, on the owner's own Claude usage. Ivy never invents experience: every CV line comes with its proof.

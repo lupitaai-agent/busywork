@@ -26,7 +26,7 @@
         vatNumber: 'text', regNumber: 'text', iban: 'text', bic: 'text', currency: 'text', vatRates: 'text', paymentDays: 'num', quoteDays: 'num', docLang: 'text',
         brandColor: 'text', logo: 'text', logoW: 'num', logoH: 'num', hourlyRate: 'num', timeRound: 'num', taxReserve: 'num', kmRate: 'num',
         sigTitle: 'text', sigStyle: 'text', sigLogoUrl: 'text', instagram: 'text', linkedin: 'text',
-        suite: 'text', headline: 'text', targetRole: 'text', goal: 'text', learnHoursWeek: 'num' } },
+        suite: 'text', headline: 'text', targetRole: 'text', goal: 'text', learnHoursWeek: 'num', about: 'text', languages: 'text', linkedinImportedAt: 'date' } },
     clients: { app: 'clients', shape: R, about: 'The Client Book: who you work for and how they found you.',
       fields: Object.assign({}, party, { phone: 'text', lang: 'text', paymentDays: 'num', rate: 'num', notes: 'text', source: 'text' }) },
     invoices: { app: 'invoices', shape: R, about: 'Invoices, quotes (kind quote) and credit notes (kind credit).',
@@ -99,7 +99,7 @@
     applications: { app: 'jobs', shape: R, about: 'The Job Tracker: one application per record, from saved to offer.',
       fields: { company: 'text', role: 'text', url: 'text', location: 'text', salary: 'text', source: 'text', contact: 'text', status: 'text', savedAt: 'date', appliedAt: 'date',
         nextDate: 'date', nextStep: 'text', closedAt: 'date', reachedInterview: 'bool', heardBack: 'bool', adText: 'text', notes: 'text', letter: 'text',
-        cvId: 'ref:cvs', contactId: 'ref:contacts', storyIds: 'list', history: 'list' } },
+        cvId: 'ref:cvs', contactId: 'ref:contacts', interest: 'num', storyIds: 'list', history: 'list' } },
     career: { app: 'cv', shape: R, about: 'Career history, shared by every CV version: jobs, education, projects, volunteering.',
       fields: { type: 'text', title: 'text', org: 'text', place: 'text', start: 'month', end: 'month', current: 'bool', bullets: 'text' } },
     cvs: { app: 'cv', shape: R, about: 'CV versions: which career entries, skills and wins each one shows.',
@@ -119,7 +119,7 @@
   const isNum = (v) => typeof v === 'number' ? isFinite(v) : typeof v === 'string' && (v.trim() === '' || !isNaN(Number(v.replace(',', '.'))));
   const TYPES = {
     id: (v) => typeof v === 'string' && v.length > 0, text: (v) => typeof v === 'string', num: isNum, bool: (v) => typeof v === 'boolean',
-    date: (v) => v === '' || /^\d{4}-\d\d-\d\d/.test(v), month: (v) => v === '' || /^\d{4}-\d\d/.test(v), time: (v) => typeof v === 'string' && !isNaN(Date.parse(v)),
+    date: (v) => v === '' || /^\d{4}-\d\d-\d\d/.test(v), month: (v) => v === '' || /^\d{4}(-\d\d)?$/.test(v), time: (v) => typeof v === 'string' && !isNaN(Date.parse(v)),
     list: Array.isArray, object: (v) => v !== null && typeof v === 'object' && !Array.isArray(v),
   };
 
