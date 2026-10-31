@@ -108,7 +108,14 @@
         box.addEventListener('input', redraw); box.addEventListener('click', (e) => { if (e.target.closest('.choice-chips')) redraw(); });
         const bindVerdict = () => {
           const cancel = $('[data-cancel]', box), undo = $('[data-undo]', box);
-          if (cancel) cancel.onclick = () => { r.cancelledAt = today; save(); redraw(); BW.toast('Marked as cancelled. Keep the confirmation in Paper Trail.', '✂️'); };
+          if (cancel) cancel.onclick = () => {
+            // In time: it would have renewed by itself, and the last day to cancel hasn't passed.
+            const inTime = r.renews === 'yes' && H.contractState(r, today) !== 'missed' && !!H.cancelBy(r, today);
+            const end = H.nextEnd(r, today);
+            r.cancelledAt = today; save(); redraw();
+            if (inTime) H.cheer('Cancelled in time!', `${r.name || r.provider || 'It'} stops${end ? ` on ${long(end)}` : ''} instead of renewing. Keep the confirmation in Paper Trail.`);
+            else BW.toast('Marked as cancelled. Keep the confirmation in Paper Trail.', '✂️');
+          };
           if (undo) undo.onclick = () => { r.cancelledAt = ''; save(); redraw(); };
         };
         bindVerdict();

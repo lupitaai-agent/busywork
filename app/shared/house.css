@@ -88,3 +88,15 @@
   .list .row > .icon-big + .main ~ :not(.main) { margin-left: 46px; }
   .list .row > .icon-big + .main ~ :not(.main) ~ :not(.main) { margin-left: 0; }
 }
+
+/* Tuck's celebration (H.cheer): a card that rises from the bottom with the clip and the good news. */
+.tuck-cheer { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 250; width: min(460px, calc(100vw - 32px)); animation: tuck-in .45s cubic-bezier(.3, 1.4, .5, 1); }
+.tuck-cheer.out { opacity: 0; transform: translate(-50%, 20px); transition: opacity .3s, transform .3s; }
+.tuck-cheer .card { display: flex; align-items: center; gap: 14px; padding: 12px 14px; position: relative; }
+.tuck-cheer video, .tuck-cheer img { width: 120px; height: 120px; border-radius: 16px; border: 2px solid var(--border); background: #16141F; flex: none; object-fit: cover; }
+.tuck-cheer .words { flex: 1; padding-right: 18px; }
+.tuck-cheer .words b { font-size: 1.1rem; }
+.tuck-cheer .words p { margin: 4px 0 0; color: var(--ink-2); }
+.tuck-cheer .close { position: absolute; top: 6px; right: 8px; background: none; border: 0; color: var(--ink-2); font-size: 1rem; cursor: pointer; padding: 6px; }
+@keyframes tuck-in { from { opacity: 0; transform: translate(-50%, 40px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@media (prefers-reduced-motion: reduce) { .tuck-cheer { animation: none; } }

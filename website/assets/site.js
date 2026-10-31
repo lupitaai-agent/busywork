@@ -145,6 +145,9 @@
     calc.addEventListener('change', update); update();
   }
 
+  // ---------- moving pictures stand still for people who turned motion off ----------
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) $$('video[autoplay]').forEach((v) => { v.removeAttribute('autoplay'); v.pause(); });
+
   // ---------- a little party on download ----------
   $$('[data-download]').forEach((a) => a.addEventListener('click', (e) => {
     if (window.BW && BW.confetti) BW.confetti({ x: e.clientX, y: e.clientY });

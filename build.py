@@ -76,7 +76,8 @@ def growth_part(rel: str) -> bool:
 # download (busy-home.zip). Its code id is "house", because "home" already means the dashboard.
 HOME_LIVE = os.environ.get("HOME_LIVE", "").strip().lower() in ("1", "true", "yes")
 HOUSE_APPS = ("papers", "contracts", "upkeep", "inventory", "letters", "moving", "binder")
-HOUSE_FILES = {"home.html", "home-suite.js", "shared/house.js", "shared/house.css", "shared/house-examples.js", "shared/filetext.js"}
+HOUSE_FILES = {"home.html", "home-suite.js", "shared/house.js", "shared/house.css", "shared/house-examples.js", "shared/filetext.js",
+               "shared/media/tuck-cheer.mp4", "shared/media/tuck-cheer.jpg"}
 
 
 def house_part(rel: str) -> bool:
@@ -1186,7 +1187,12 @@ def home_page(tools: list) -> str:
   </div></section>"""
     hero_chip, hero_btns = ('<span class="chip chip-grey">Coming soon</span>', '') if not HOME_LIVE else (
         '<span class="chip chip-tomato">Free · no account</span>',
-        '<div class="row-flex reveal" style="justify-content:center;margin-top:22px"><a class="btn btn-primary btn-big" href="#get">⬇️ Download free</a><a class="btn btn-big" href="../app/home.html">👀 See the demo</a></div>')
+        '<div class="row-flex reveal" style="justify-content:center;margin-top:22px"><a class="btn btn-primary btn-big" href="#get">⬇️ Download free</a><a class="btn btn-big" href="../app/home.html">👀 See the demo</a></div>'
+        # Tuck, the Busy Home helper, rendered in the Busy Studio: a short silent loop with a still for reduced motion.
+        '<figure class="tuck-stage reveal"><video autoplay muted loop playsinline preload="metadata" poster="../assets/media/tuck-idle.jpg" '
+        'aria-label="Tuck, the Busy Home helper, waiting with a rubber stamp and a satchel full of letters">'
+        '<source src="../assets/media/tuck-idle.mp4" type="video/mp4"></video>'
+        '<figcaption>Meet Tuck. It keeps your household paperwork in order, and never misses the last day to cancel.</figcaption></figure>')
     steps = [("⬇️", "Install Busy Home", "The free app for Mac and Windows, in beta. No account, no AI."),
              ("🏡", "Open it", "It works offline, and nothing is sent anywhere."),
              ("📁", "Your own folder", "Your documents, scans and photos are saved as plain files in Documents/Busy/Home. Move it into Google Drive or Dropbox to share it with your partner."),

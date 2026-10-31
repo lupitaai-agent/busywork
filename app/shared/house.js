@@ -243,4 +243,21 @@
     BW.toast(r.saved ? `Saved to ${BW.esc(r.where)}` : `${BW.esc(name)} is in your Downloads`, '📄');
   };
   H.days = days;
+
+  // ---------- Tuck, the Busy Home helper: a short celebration ----------
+  // A small rendered clip (shared/media/tuck-cheer.mp4, made in the Busy Studio) with the good news.
+  // Without motion (the system setting), a still of the same moment. Closes by itself.
+  H.cheer = (title, text) => {
+    const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const src = BW.root + 'shared/media/tuck-cheer';
+    const el = BW.html(`<div class="tuck-cheer" role="status" aria-live="polite"><div class="card">
+      ${calm ? `<img src="${src}.jpg" alt="">` : `<video src="${src}.mp4" poster="${src}.jpg" autoplay muted playsinline aria-hidden="true"></video>`}
+      <div class="words"><b>${BW.esc(title)}</b><p>${BW.esc(text)}</p></div>
+      <button type="button" class="close" data-close aria-label="Close">✕</button></div></div>`);
+    document.body.append(el);
+    const close = () => { el.classList.add('out'); setTimeout(() => el.remove(), 300); };
+    el.querySelector('[data-close]').onclick = close;
+    setTimeout(close, 6500);
+    if (!calm) BW.confetti({ y: innerHeight - 160 });
+  };
 })();
