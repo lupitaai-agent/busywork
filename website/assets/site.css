@@ -453,7 +453,8 @@ html, body.site { overflow-x: clip; }
 /* Busy's places (assets/place.js): Tuck's house, the Workshop. Each room as the Busy Studio rendered it, the live guide on top.
    --place is the suite's colour for the spots and dots. */
 .house { --place: #FF8A5B; position: relative; background: #16141F; }
-.house-workshop { --place: #FFC93C; }
+.house-workshop, .house-parlour { --place: #FFC93C; }
+.house-glasshouse { --place: #2FD18C; }
 .house-view { position: relative; overflow: hidden; height: min(calc(100svh - 70px), 60vw); min-height: 380px; background: #16141F; touch-action: pan-y; }
 .house-plate { position: absolute; max-width: none; user-select: none; -webkit-user-drag: none; transition: opacity .2s; }
 .house.cut .house-plate, .house.cut .house-tuck { opacity: 0; }
@@ -471,6 +472,7 @@ html, body.site { overflow-x: clip; }
   font-weight: 700; font-size: .98rem; line-height: 1.35; pointer-events: none; }
 .house-bubble::after { content: ""; position: absolute; left: var(--tail, 50%); bottom: -10px; width: 16px; height: 16px; background: var(--surface);
   border-right: 2px solid var(--border); border-bottom: 2px solid var(--border); transform: translateX(-50%) rotate(45deg); }
+.house-bubble.free::after { display: none; }
 .house-bubble.pop { animation: tuck-pop .35s cubic-bezier(.3, 1.6, .5, 1); }
 @keyframes tuck-pop { from { transform: scale(.85); opacity: .3; } to { transform: none; opacity: 1; } }
 .house-hud { position: absolute; left: 16px; top: 16px; z-index: 3; display: flex; gap: 10px; align-items: center; padding: 6px 14px; border-radius: 999px;
@@ -506,6 +508,20 @@ html, body.site { overflow-x: clip; }
 .house-decal[data-decal="poster"] { flex-direction: column; gap: 4%; padding: 6%; white-space: normal; background: #FBF7EE; color: #1E1B2E;
   border-top: calc(var(--h) * .08) solid var(--brand); font-size: calc(var(--h) * .075); font-weight: 800; line-height: 1.15; }
 .house-decal[data-decal="poster"] b { font-size: 1.6em; color: var(--brand); font-family: var(--brand-font, inherit); }
+.house-decal[data-decal="label"], .house-decal[data-decal="skill"] { color: #1E1B2E; font-size: calc(var(--h) * .5); }
+.house-decal[data-decal="skill"] { background: #FBF7EE; border: 2px solid #2FD18C; border-radius: 4px; }
+.house-decal[data-decal="today"] { flex-direction: column; gap: 6%; color: #FBF7EE; font-size: calc(var(--h) * .12); font-weight: 700; }
+.house-decal[data-decal="today"] b { color: #FFC93C; font-size: 1.45em; }
+.mini { display: grid; grid-template-columns: repeat(var(--n), 1fr); gap: 3%; width: 90%; height: 90%; }
+.mini i { display: flex; align-items: center; justify-content: center; border-radius: 8%; font-style: normal; font-size: calc(var(--h) * .09); }
+.mini-stars i { background: rgba(255, 255, 255, .1); }
+.mini-stars i.star::after { content: "★"; color: #FFC93C; }
+.mini-duo i { background: rgba(30, 27, 46, .08); }
+.mini-duo i.sun::after { content: ""; width: 62%; height: 62%; border-radius: 50%; background: #FFC93C; }
+.mini-duo i.grape::after { content: ""; width: 56%; height: 56%; border-radius: 12%; background: #9B6BFF; }
+.mini-trail i { background: color-mix(in srgb, #FF6B4A 28%, transparent); color: #1E1B2E; }
+.mini-trail i.num { background: #FF6B4A; color: #FBF7EE; border-radius: 50%; }
+.mini-six i { color: #F3E9D2; font-family: "Comic Sans MS", "Chalkboard SE", cursive; border: 1px solid rgba(243, 233, 210, .25); }
 @keyframes decal-in { from { opacity: 0; filter: blur(4px); } to { opacity: 1; filter: none; } }
 .house-swatches { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
 .house-swatches .btn { padding: 6px 12px; }

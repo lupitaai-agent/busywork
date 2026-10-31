@@ -81,8 +81,14 @@ async function start(house) {
       Object.assign(el.style, { left: Math.min(...xs) + 'px', top: Math.min(...ys) + 'px', width: w + 'px', height: h + 'px' });
       el.style.setProperty('--h', h + 'px');
     });
-    if (tuck) {
-      const head = tuck.head();
+    // The bubble sits above the guide's head; while a place has no guide yet, a little right of where it will stand,
+    // clear of the things to tap.
+    const s0 = r.walk.stand, noGuide = !house.dataset.tuckModel && onScreen([s0[0] + 1, s0[1] + 1.25 * r.tuckHeight, s0[2]], r);
+    // On a phone, without a guide, the bubble sits at the bottom of the picture instead.
+    bubble.classList.toggle('free', !tuck && frame.W < 760);
+    if (!tuck && frame.W < 760) Object.assign(bubble.style, { left: '10px', top: 'auto', bottom: '52px' });
+    else if (tuck || noGuide) {
+      const head = tuck ? tuck.head() : noGuide;
       const bw = bubble.offsetWidth || 280;
       const x = Math.min(Math.max(head.x - bw / 2, 12), frame.W - bw - 12);
       Object.assign(bubble.style, { left: x + 'px', top: 'auto', bottom: (frame.H - head.y + 18) + 'px' });
@@ -240,6 +246,7 @@ async function start(house) {
     tuck.onFrame(place);
     if (steps[at].move) tuck.play(steps[at].move);
   }, (e) => console.info('The guide stays away:', e && e.message));
+  if (!house.dataset.tuckModel) return;  // no guide yet: the rooms, words and bubble work without one
   if (document.readyState === 'complete') idle(load); else addEventListener('load', () => idle(load), { once: true });
 }
 

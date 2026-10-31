@@ -1009,25 +1009,25 @@ def games_hub() -> str:
     ld = jsonld({"@context": "https://schema.org", "@type": "FAQPage",
                  "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in GAMES_FAQ]})
     desc = f"Free daily brain games from Busy: Stars, Duo, Trail and Six. A new logic puzzle every day and {GAME_LEVELS:,} levels each. In your browser or as an app. No account."
-    return f"""{head("Free brain games: a new puzzle every day · Busy", desc, "games/index.html", "../", ld + '<link rel="stylesheet" href="../assets/games/games.css">')}
+    extra = ld + '<link rel="stylesheet" href="../assets/games/games.css">' + PLACE_HEAD.format(first="../assets/parlour/room-kiosk-1920.jpg")
+    return f"""{head("Free brain games: a new puzzle every day · Busy", desc, "games/index.html", "../", extra)}
 <body class="site app-sun" data-hub>
 {nav("../", explore("../"))}
-<main id="main" class="wrap">
-  <section class="games-hero">
-    <h1 class="reveal">Brain breaks 🧩</h1>
-    <p class="lead reveal">Four free logic puzzles. A new one every day, and {GAME_LEVELS:,} levels each when you want more. Make your coffee break fun again.</p>
-    <span class="streak" data-streak></span>
-  </section>
-  <div class="game-cards">{cards}</div>
+<main id="main">
+  {place_html("parlour", PARLOUR_STEPS, parlour_card, "The Puzzle Parlour: a tour of Busy Games", decals=PARLOUR_DECALS)}
+  <div class="wrap">
+  <div class="game-cards" id="games">{cards}</div>
   <section class="section" id="get-app"><div class="center reveal"><h2 class="big">Play without a browser</h2>
     <p class="lead">Busy Games as a free app on your computer: the same puzzles, your streak kept, and it works offline.</p>
     {app_download("Games", "Busy Games")}</div></section>
   <section class="section" id="faq"><div class="center reveal"><h2 class="big">Questions</h2></div><div class="faq reveal">{faq}</div></section>
+  </div>
 </main>
 {footer("../", json.loads(TOOLS_JSON.read_text()))}
 <script src="../assets/games/engine.js"></script>
 <script src="../assets/games/play.js"></script>
 <script src="../assets/site.js"></script>
+<script type="module" src="../assets/place.js"></script>
 </body>
 </html>
 """
@@ -1124,19 +1124,12 @@ def growth_page(tools: list) -> str:
              ("📁", "Your own folder", "Your library, skills, wins and CVs are saved as plain files in Documents/Busy/Growth. Move it into Google Drive or Dropbox to sync it."),
              ("💼", "Start from LinkedIn", "Download your own data from LinkedIn and Busy fills in your jobs, education, skills and certificates in minutes.")]
     how = "".join(f'<div class="card feat reveal pop"><span class="fe">{em}</span><h3>{e(n)}</h3><p>{e(d)}</p></div>' for em, n, d in steps)
-    return f"""{head("Busy Growth: free tools to grow your career", desc, "growth/index.html", "../", image="og-ivy.png")}
+    extra = PLACE_HEAD.format(first="../assets/glasshouse/room-foot-1920.jpg")
+    return f"""{head("Busy Growth: free tools to grow your career", desc, "growth/index.html", "../", extra=extra, image="og-ivy.png")}
 <body class="site app-mint">
 {nav("../", ("⬇️ Download free", "#get"))}
 <main id="main">
-  <section class="tool-hero">
-    <div class="blob" style="width:460px;height:460px;background:var(--mint);right:-140px;top:-120px"></div>
-    <div class="wrap center" style="padding:70px 16px 30px;display:block;text-align:center">
-      <span class="chip chip-mint">Free · no account</span>
-      <h1 class="reveal" style="margin-top:12px">Busy Growth 🌱</h1>
-      <p class="lead reveal" style="max-width:680px;margin:0 auto">Free tools to grow your career: learn something, prove it, show it and land the next role. Everything in your own folder, no account, like the rest of Busy.</p>
-      <div class="row-flex reveal" style="justify-content:center;margin-top:22px"><a class="btn btn-primary btn-big" href="#get">⬇️ Download free</a><a class="btn btn-big" href="../app/growth.html">👀 See the demo</a></div>
-    </div>
-  </section>
+  {place_html("glasshouse", GLASSHOUSE_STEPS, glasshouse_card, "The Glasshouse: a tour of Busy Growth", next_label="Up a floor ↑", decals=GLASSHOUSE_DECALS)}
   <section class="section"><div class="wrap">
     <div class="center reveal"><h2 class="big">{len(GROWTH_TOOLS)} tools that work together</h2><p class="lead">A gap in your skills becomes a plan, the plan becomes a win, the win becomes a CV line and an interview story.</p></div>
     <div class="feats">{feats}</div>
@@ -1160,6 +1153,7 @@ def growth_page(tools: list) -> str:
 </main>
 {footer("../", tools)}
 <script src="../assets/site.js"></script>
+<script type="module" src="../assets/place.js"></script>
 </body>
 </html>
 """
@@ -1249,10 +1243,16 @@ def house_card(s: dict) -> str:
             f'<p class="house-try"><a href="../app/apps/{s["tool"]}/index.html">Try {e(s["kicker"])} for real →</a></p>')
 
 
-def place_html(place: str, steps: list, card, label: str, model: str = "../assets/tuck/tuck.glb", next_label: str = "Next room →",
+# What a page with a place needs in its head: three.js for the live guide (once it has one) and the first room early.
+PLACE_HEAD = ('<script type="importmap">{{"imports":{{"three":"../assets/vendor/three/build/three.module.min.js"}}}}</script>'
+              '<link rel="preload" href="{first}" as="image">')
+
+
+def place_html(place: str, steps: list, card, label: str, model: str = "", next_label: str = "Next room →",
                decals: dict = None, brand: str = "") -> str:
     """A place (assets/place.js) and every room's words as plain HTML (search engines and screen readers read these).
-    decals: {id: (html, shown from the start)}, the words the page draws on the rooms."""
+    decals: {id: (html, shown from the start)}, the words the page draws on the rooms. Without a model the place has no
+    live guide (yet): the guide's lines float where it will stand."""
     rooms = "".join(
         f'<article data-room="{s["id"]}" data-plate="{s.get("plate", s["id"])}" data-title="{e(s["title"])}" data-say="{e(s["say"])}"'
         f'{(" data-move=" + chr(34) + s["move"] + chr(34)) if s.get("move") else ""} hidden>'
@@ -1262,7 +1262,7 @@ def place_html(place: str, steps: list, card, label: str, model: str = "../asset
         + "</article>" for s in steps)
     words = "".join(f'<template data-decal="{d}"{" data-shown" if shown else ""}>{html}</template>' for d, (html, shown) in (decals or {}).items())
     first = steps[0]
-    return f"""<section class="house house-{place}" data-house data-house-rooms="../assets/{place}/rooms.json" data-house-plates="../assets/{place}/" data-tuck-model="{model}" data-next-label="{e(next_label)}"{f' data-brand-color="{brand}"' if brand else ''} aria-label="{e(label)}">
+    return f"""<section class="house house-{place}" data-house data-house-rooms="../assets/{place}/rooms.json" data-house-plates="../assets/{place}/"{f' data-tuck-model="{model}"' if model else ''} data-next-label="{e(next_label)}"{f' data-brand-color="{brand}"' if brand else ''} aria-label="{e(label)}">
     <div class="house-view" data-house-view>
       <img class="house-plate" data-house-plate src="../assets/{place}/room-{first.get("plate", first["id"])}-1920.jpg" alt="{e(first["title"])}, rendered in the Busy Studio" fetchpriority="high">
       <div class="house-decals" data-house-decals></div>
@@ -1278,7 +1278,7 @@ def place_html(place: str, steps: list, card, label: str, model: str = "../asset
 
 
 def house_html() -> str:
-    return place_html("house", HOUSE_STEPS, house_card, "Tuck's house: a tour of Busy Home")
+    return place_html("house", HOUSE_STEPS, house_card, "Tuck's house: a tour of Busy Home", model="../assets/tuck/tuck.glb")
 
 
 def home_page(tools: list) -> str:
@@ -1344,16 +1344,14 @@ def home_page(tools: list) -> str:
 
 # The Workshop: the Busy Business page as a place (assets/place.js, rooms from the Busy Studio's
 # places/workshop.py). The tour follows one job of the demo's pretend studio (Studio Noor's sign for Café
-# Morgenrood) through the shop: the hours, the invoice, paid, the receipts, where you stand. The guide is
-# Rivet; until Rivet's model is made, Tuck stands in. Not an AI: these are its lines. Same step format as
-# HOUSE_STEPS.
-WORKSHOP_GUIDE = "Rivet"
+# Morgenrood) through the shop: the hours, the invoice, paid, the receipts, where you stand. The guide
+# (Rivet) comes later; until then the lines float where Rivet will stand. Same step format as HOUSE_STEPS.
 WORKSHOP_SWATCHES = (("#FF6B4A", "", "Tomato"), ("#2FD18C", "Georgia, serif", "Mint, classic letters"),
                      ("#9B6BFF", "'Courier New', monospace", "Grape, typewriter"), ("#1E1B2E", "Georgia, serif", "Ink, classic letters"))
 WORKSHOP_STEPS = [
     {"id": "front", "title": "The shop front · Brand Kit", "tool": "brand", "kicker": "Brand Kit",
-     "say": f"Hi, I'm {WORKSHOP_GUIDE}! This is Studio Noor's workshop. The sign above the door is still blank: shall we paint it?", "move": "Waving",
-     "acts": [("sign", "PointingGesture", "Your brand, your colours. Pick one and I'll paint.",
+     "say": "Welcome to Studio Noor's workshop. The sign above the door is still blank: shall we paint it?",
+     "acts": [("sign", "PointingGesture", "Your brand, your colours. Pick one and watch the sign.",
                "<b>🎨 Brand Kit</b><span>Pick the colour and letters for the sign:</span><div class=\"house-swatches\">"
                + "".join(f'<button type="button" class="btn" data-house-do="painted" data-paint="{c}" data-font="{e(f)}"><i style="background:{c}"></i>{e(n)}</button>'
                          for c, f, n in WORKSHOP_SWATCHES) + "</div>", ""),
@@ -1362,7 +1360,7 @@ WORKSHOP_STEPS = [
                "<button type=\"button\" class=\"btn btn-primary\" data-house-next>🔑 Open up →</button>", "")]},
     {"id": "bench", "title": "Workbench · Time Tracker", "tool": "time", "kicker": "Time Tracker, Project Board & Planner", "h": "Every hour counted, every job on track",
      "p": "One big button for the hours, a board for every job and a planner for the dates. The hours go straight onto the invoice.",
-     "task": "Tap the big clock, then the board.", "say": "The workbench. Today: the new sign for Café Morgenrood. Start the clock and I'll get to work.",
+     "task": "Tap the big clock, then the board.", "say": "The workbench. Today: the new sign for Café Morgenrood. Start the clock.",
      "acts": [("clock", "Happy", "The clock's running. Two and a half hours on the Café Morgenrood sign.",
                "<b>⏱️ Signage for Café Morgenrood</b><span>2 h 30 m today · billable</span><span>This week: 11 of 40 planned hours</span>", ""),
               ("board", "Victory", "Into Done it goes, confetti and all. Next: the invoice.",
@@ -1374,7 +1372,7 @@ WORKSHOP_STEPS = [
      "acts": [("till", "PointingGesture", "Ding! The hours became an invoice: numbered, VAT added, with a QR code to pay.",
                "<b>🧾 Invoice 2026-014 · Café Morgenrood</b><span>Signage: 2.5 hours × €75 = €187.50</span><span>VAT 21%: €39.38 · <b>total €226.88</b></span>"
                "<span>📱 QR code to pay · reminder set for day 30</span><button type=\"button\" class=\"btn btn-primary\" data-house-do=\"paid\">📱 Sam scans and pays</button>", ""),
-              ("paid", "Victory", "Paid! Sam scanned the code. My favourite sound.",
+              ("paid", "Victory", "Paid! Sam scanned the code. The nicest sound in the shop.",
                "<b>✅ Paid</b><span>€226.88 from Café Morgenrood, two days after sending</span><span>The Money Dashboard knows already</span>", "confetti"),
               ("cards", "Happy", "The client book: what Café Morgenrood paid, what's open, and the little things worth remembering.",
                "<b>📇 Café Morgenrood · Sam Okafor</b><span>Rotterdam · pays within 30 days</span><span>Paid this year: €2,840 · open: €0</span><span>📝 Opening night on the 14th: send flowers</span>", "")]},
@@ -1411,7 +1409,7 @@ WORKSHOP_STEPS = [
                "<li data-tick>Next week: behind the scenes of the lettering</li><li data-tick>In two weeks: a customer story</li><li data-tick>In three weeks: open studio day</li></ul>", "show:poster"),
               ("chalkboard", "Happy", "Your own invoices say it: your best clients come through recommendations. So ask for them!",
                "<b>💡 From your invoices</b><span>4 of your 5 best clients came through a recommendation</span><span>Idea: a small thank-you for every referral</span>", "")]},
-    {"id": "end", "plate": "front", "title": f"Take {WORKSHOP_GUIDE} home", "say": "That's the workshop! Take me home: I'm free, for Mac and Windows.", "move": "Waving", "acts": []},
+    {"id": "end", "plate": "front", "title": "Take the workshop home", "say": "That's the workshop! Take it home: free, for Mac and Windows.", "acts": []},
 ]
 WORKSHOP_DECALS = {"sign": ("Studio Noor", False), "van": ("Studio Noor", True),
                    "poster": ("<b>Now open</b><span>Café Morgenrood</span><span>A new sign by Studio Noor</span>", False)}
@@ -1421,9 +1419,9 @@ def workshop_card(s: dict) -> str:
     """The words of one room of the Workshop, shown in the card next to it."""
     if s["id"] == "front":
         return ('<span class="chip chip-sun">Free · no account · Mac and Windows</span><h1>Busy Business 🛠️</h1>'
-                f'<p>Free tools for freelancers, makers and small studios: invoices, hours, receipts, projects, stock and marketing. Everything in your own folder. {WORKSHOP_GUIDE} shows you round the workshop.</p>'
+                f'<p>Free tools for freelancers, makers and small studios: invoices, hours, receipts, projects, stock and marketing. Everything in your own folder. Walk round the workshop to see how.</p>'
                 '<p class="house-task">👉 Tap the blank sign above the door.</p><div class="house-result" data-result hidden></div>'
-                '<div class="row-flex"><button type="button" class="btn btn-primary" data-house-next>Skip to the workshop →</button><a class="btn" href="download.html">⬇️ Download free</a></div>')
+                '<div class="row-flex"><button type="button" class="btn btn-primary" data-house-next>Skip to the workshop →</button><a class="btn" href="download.html">⬇️ Download free</a><a class="btn" href="../app/index.html">👀 See the demo</a></div>')
     if s["id"] == "end":
         return (f'<p class="kicker">The end of the tour</p><h2>Take the workshop home</h2><p>All 13 tools, free. No account, no subscription, nothing sent to us.</p>'
                 f'{app_download("Business", "Busy Business")}<p class="faint"><a href="olaf.html">Want an expert alongside you? Meet Olaf, your AI expert for marketing and projects →</a></p>')
@@ -1432,27 +1430,126 @@ def workshop_card(s: dict) -> str:
             f'<p class="house-try"><a href="../app/apps/{s["tool"]}/index.html">Try it for real →</a></p>')
 
 
-def workshop_page(tools: list) -> str:
-    """busy.com.ai/business/workshop.html: the Workshop on its own page while it's being tried out (not in the sitemap)."""
-    extra = ('<meta name="robots" content="noindex">'
-             '<script type="importmap">{"imports":{"three":"../assets/vendor/three/build/three.module.min.js"}}</script>'
-             '<link rel="preload" href="../assets/workshop/room-front-1920.jpg" as="image">')
-    return f"""{head("The Workshop: a tour of Busy Business", "Walk through Studio Noor's workshop and try the free Busy Business tools: invoices, hours, receipts, projects, stock and marketing.", "business/workshop.html", "../", extra=extra)}
-<body class="site app-sun">
-{nav("../")}
-<main id="main">
-  {place_html("workshop", WORKSHOP_STEPS, workshop_card, "The Workshop: a tour of Busy Business", decals=WORKSHOP_DECALS, brand="#FF6B4A")}
-  <section class="section"><div class="wrap center">
-    <h2 class="big">Thirteen tools. Zero yawns.</h2><p class="lead">Every tool on its own page, with what it does and how it works.</p>
-    <p style="margin-top:18px"><a class="btn btn-primary" href="tools.html">See all the tools</a> <a class="btn" href="index.html">Busy Business</a></p>
-  </div></section>
-</main>
-{footer("../", tools)}
-<script src="../assets/site.js"></script>
-<script type="module" src="../assets/place.js"></script>
-</body>
-</html>
-"""
+def workshop_html() -> str:
+    return place_html("workshop", WORKSHOP_STEPS, workshop_card, "The Workshop: a tour of Busy Business", decals=WORKSHOP_DECALS, brand="#FF6B4A")
+
+
+def put_place(page: Path, html: str) -> None:
+    """Writes a place into a hand-made page, between its <!-- place --> and <!-- /place --> markers."""
+    src = page.read_text()
+    a, b = src.index("<!-- place -->") + len("<!-- place -->"), src.index("<!-- /place -->")
+    page.write_text(src[:a] + "\n  " + html + "\n  " + src[b:])
+
+
+# The Glasshouse: the Busy Growth page as a place (assets/place.js, rooms from the Busy Studio's
+# places/glasshouse.py). You climb from the roots (the Library) to the roof garden (the weekly review),
+# following the demo's pretend person, Lena, a customer service lead moving into data analysis. The guide
+# (Pim) comes later; until then the lines float where Pim will stand. Same step format as HOUSE_STEPS.
+GLASSHOUSE_STEPS = [
+    {"id": "foot", "title": "The Glasshouse", "say": "Welcome to the Glasshouse. Ring the bell: we climb from the roots to the roof.",
+     "acts": [("bell", "", "Ding! Up we go, one floor at a time.", "", "next")]},
+    {"id": "roots", "title": "The roots · Library", "tool": "library", "kicker": "Library", "h": "Everything you learn, findable",
+     "p": "Files, links and notes from everything you read and learn, tagged and searchable down to the words inside a PDF.",
+     "task": "Tap the shelf.", "say": "The roots: everything Lena reads ends up here.",
+     "acts": [("shelf", "", "Tagged and findable. Search 'SQL' and three things light up.",
+               "<b>📚 A friendly guide to SQL window functions</b><span>Tags: SQL · data analysis</span><span>🔎 'SQL' finds 3 things: a course, an article and her notes</span>", "")]},
+    {"id": "potting", "title": "Potting bench · Learning planner", "tool": "learning", "kicker": "Learning planner", "h": "Plant a course, watch it grow",
+     "p": "Courses, books and projects with goals, dates and the hours a week you can give them.",
+     "task": "Tap the seed tray.", "say": "The potting bench: every course starts as a seed.",
+     "acts": [("tray", "", "Planted: three hours a week, done before the summer.",
+               "<b>🗓️ SQL for data analysis</b><span>3 hours a week · 40% done</span><span><b>Done by 12 December</b> at this pace</span>", "show:label")]},
+    {"id": "trellis", "title": "The trellis · Skills map & Wins", "tool": "skills", "kicker": "Skills map & Wins log", "h": "Every skill with its proof",
+     "p": "What you can do and how well, with the proof behind it. Wins go in as they happen, ready for your CV and your next review.",
+     "task": "Tap the jar of wins, then the trellis.", "say": "The trellis: skills grow here, and every one needs proof.",
+     "acts": [("jar", "", "A win from the jar: three hours of work cut to twenty minutes.",
+               "<b>🏆 Cut the weekly ticket report from 3 hours to 20 minutes</b><span>March · at Fietsplan</span>"
+               "<button type=\"button\" class=\"btn btn-primary\" data-house-do=\"trellis\">🌿 Tie it to a skill</button>", ""),
+              ("trellis", "", "Tied to Excel as proof. The skill grows a leaf.",
+               "<b>🧠 Excel</b><span>Level 3 → 4 · proof: the three-hour report</span><span>SQL, Data visualisation and Python are growing too</span>", "show:skill")]},
+    {"id": "lookout", "title": "The lookout · Job tracker", "tool": "jobs", "kicker": "Job tracker", "h": "Paste an ad, see where you stand",
+     "p": "Paste an ad and it's on your board: the skills it asks for, the words your CV misses, who you know there, and follow-ups that don't slip.",
+     "task": "Tap an ad on the line.", "say": "The lookout: from up here you see every job on the line.",
+     "acts": [("ad", "", "Northwind wants a data analyst. And Lena knows someone there.",
+               "<b>🗂️ Data analyst · Northwind</b><span>Matches 7 of 9 skills · your CV misses 'Power BI'</span><span>🤝 You know Bram Peters there</span><span>⏰ Follow up on Tuesday</span>", "")]},
+    {"id": "print", "title": "The print room · CV & stories", "tool": "cv", "kicker": "CV and LinkedIn builder, Interview story bank", "h": "A CV from what you can prove",
+     "p": "CVs and cover letters from your real skills and wins, a CV check, and your LinkedIn profile from the same facts. Your best stories wait for the interview.",
+     "task": "Tap the press, or the tapes.", "say": "The print room: everything from the floors below comes together here.",
+     "acts": [("press", "", "Printed: the skills and wins from downstairs, nothing made up.",
+               "<b>📄 Data analyst CV</b><span>Customer service lead moving into data analysis</span><span>✓ 6 skills with proof · ✓ 3 wins · ✓ fits on one page</span><span>💼 The same facts as LinkedIn text, ready to paste</span>", ""),
+              ("tape", "", "The interview story for 'tell me about a time you improved something'.",
+               "<b>🎤 The three-hour report</b><span>Situation, task, action, result: 3 hours became 20 minutes</span><span>Proves: Excel, SQL, process</span>", "")]},
+    {"id": "bridge", "title": "The rope bridge · Contacts", "tool": "contacts", "kicker": "Contacts", "h": "The people in your corner",
+     "p": "The people who help you along, your LinkedIn connections included, with a reminder when it's time to catch up.",
+     "task": "Tap the lantern.", "say": "The rope bridge to the next tower: people.",
+     "acts": [("lantern", "", "The lantern glows: it's been three months since Bram.",
+               "<b>🤝 Bram Peters · Senior data analyst, Northwind</b><span>Last spoke: 3 months ago</span><span><b>Catch up this week</b> · and he works where you applied</span>", "")]},
+    {"id": "roof", "title": "The roof garden · Weekly review", "tool": "review", "kicker": "Weekly review", "h": "Ten minutes on Friday",
+     "p": "What moved, what was hard, what's next. Ten minutes at the end of the week keep the whole tower growing.",
+     "task": "Tap the bench.", "say": "The roof garden. Friday, sunset, ten minutes.",
+     "acts": [("bench", "", "That was a good week.",
+               "<b>🪞 This week</b><ul class=\"house-ticks\"><li data-tick>Moved: SQL course to 40%</li><li data-tick>Hard: finding time on Wednesdays</li><li data-tick>Next: apply to Northwind, catch up with Bram</li></ul>", "confetti")]},
+    {"id": "end", "plate": "foot", "title": "Take the Glasshouse home", "say": "That's the climb! Take it home: free, for Mac and Windows.", "acts": []},
+]
+GLASSHOUSE_DECALS = {"label": ("SQL · 12 Dec", False), "skill": ("Excel ★4", False)}
+
+
+def glasshouse_card(s: dict) -> str:
+    if s["id"] == "foot":
+        return ('<span class="chip chip-mint">Free · no account · Mac and Windows</span><h1>Busy Growth 🌱</h1>'
+                '<p>Free tools to grow your career: learn something, prove it, show it and land the next role. Everything in your own folder. Climb the Glasshouse to see how.</p>'
+                '<div class="row-flex"><button type="button" class="btn btn-primary" data-house-do="bell">🔔 Ring the bell</button><a class="btn" href="#get">⬇️ Download free</a></div>'
+                '<div class="house-result" data-result hidden></div>')
+    if s["id"] == "end":
+        return (f'<p class="kicker">The top of the climb</p><h2>Take the Glasshouse home</h2><p>All {len(GROWTH_TOOLS)} tools, free. No account, no subscription, nothing sent to us.</p>'
+                f'{app_download("Growth", "Busy Growth")}<p class="faint"><a href="#ivy">Want a coach alongside you? Meet Ivy →</a></p>')
+    return (f'<p class="kicker">{e(s["kicker"])}</p><h2>{e(s["h"])}</h2><p>{e(s["p"])}</p><p class="house-task">👉 {e(s["task"])}</p>'
+            f'<div class="house-result" data-result hidden></div>'
+            f'<p class="house-try"><a href="../app/apps/{s["tool"]}/index.html">Try it for real →</a></p>')
+
+
+# The Puzzle Parlour: the Busy Games page as a place (rooms from the Busy Studio's places/parlour.py). A
+# kiosk with today's puzzles, then one room per game, with a board on the wall where the page draws a small
+# solved puzzle when you tap it.
+def _grid(cells, cls):
+    """A small square puzzle board: * a star, S a sun, G a grape, a digit a number, . an empty cell."""
+    n = int(len(cells) ** 0.5)
+    kinds = {"*": "star", "S": "sun", "G": "grape"}
+    return (f'<div class="mini {cls}" style="--n:{n}">'
+            + "".join(f'<i class="{kinds.get(c, "num" if c.isdigit() else "")}">{c if c.isdigit() else ""}</i>' for c in cells) + "</div>")
+
+
+PARLOUR_BOARDS = {
+    "stars": _grid("*....." "..*..." "....*." ".*...." "...*.." ".....*", "mini-stars"),
+    "duo": _grid("SGSGGS" "GSGSSG" "SSGGSG" "GGSSGS" "SGGSGS" "GSSGSG", "mini-duo"),
+    "trail": _grid("1..2.." "......" "..3..." "....4." "......" "5....6", "mini-trail"),
+    "six": _grid("123456" "456123" "231564" "564231" "312645" "645312", "mini-six"),
+}
+PARLOUR_DECALS = {"today": ("<b>Today's puzzles</b><span>Stars · Duo · Trail · Six</span>", True), **{k: (v, False) for k, v in PARLOUR_BOARDS.items()}}
+PARLOUR_STEPS = [
+    {"id": "kiosk", "title": "The puzzle kiosk", "say": "Four new puzzles every day. Pick a door, or tap the board for today's.",
+     "acts": [("today", "", "Today's four, the same for everyone. Gentle on Monday, hardest at the weekend.", "", "next")]},
+    *[{"id": g["id"], "title": f'{dict(stars="The star room", duo="The café corner", trail="The map room", six="The study")[g["id"]]} · {g["name"]}',
+       "game": g, "say": dict(stars="The star room. One star in every row, column and colour patch.", duo="The café corner. Suns and grapes, half and half.",
+                              trail="The map room. One line through every cell.", six="The study. Sudoku, on a smaller board.")[g["id"]],
+       "acts": [("board", "", "Solved! Every puzzle has exactly one answer.", f'<b>{g["emoji"]} {e(g["name"])} · solved</b><span>{e(g["rules"][0])}</span>'
+                 f'<a class="btn btn-primary" href="{g["id"]}.html">Play today\'s {e(g["name"])} →</a>', f'show:{g["id"]}')]} for g in GAMES],
+    {"id": "end", "plate": "kiosk", "title": "Take the Parlour home", "say": "That's the Parlour! Take it home: free, for Mac and Windows.", "acts": []},
+]
+
+
+def parlour_card(s: dict) -> str:
+    if s["id"] == "kiosk":
+        return ('<span class="chip chip-sun">Free · a new puzzle every day</span><h1>Brain breaks 🧩</h1>'
+                f'<p>Four free logic puzzles. A new one every day, and {GAME_LEVELS:,} levels each when you want more. Make your coffee break fun again.</p>'
+                '<div class="row-flex"><button type="button" class="btn btn-primary" data-house-do="today">🗓️ Today\'s puzzles</button><a class="btn" href="#games">Play now</a></div>'
+                '<span class="streak" data-streak></span><div class="house-result" data-result hidden></div>')
+    if s["id"] == "end":
+        return (f'<p class="kicker">The end of the tour</p><h2>Take the Parlour home</h2><p>All four games and {GAME_LEVELS:,} levels each, free, offline, your streak kept.</p>'
+                f'{app_download("Games", "Busy Games")}')
+    g = s["game"]
+    return (f'<p class="kicker">{e(g["classic"])}</p><h2>{e(g["name"])}</h2><p>{e(g["lead"])}</p><p class="house-task">👉 Tap the board on the wall.</p>'
+            f'<div class="house-result" data-result hidden></div>'
+            f'<p class="house-try"><a href="{g["id"]}.html">Play {e(g["name"])} →</a></p>')
 
 
 def build_games() -> list:
@@ -1474,7 +1571,7 @@ def build_pages() -> None:
         (business / f'{t["id"]}.html').write_text(tool_page(t, tools, sc.get(t["id"], "")))
     (business / "tools.html").write_text(tools_index(tools))
     (business / "olaf.html").write_text(to_business(olaf_page(tools)))
-    (business / "workshop.html").write_text(workshop_page(tools))
+    put_place(business / "index.html", workshop_html())
     (SITE / "about.html").write_text(about_page(tools))
     (SITE / "claude-key.html").write_text(claude_key_page(tools))
     (SITE / "growth").mkdir(exist_ok=True)
