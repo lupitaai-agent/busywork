@@ -1177,48 +1177,116 @@ HOME_TOOLS = [("🗂️", "Paper Trail", "Passports, policies, contracts and war
 # Tuck, the Busy Home helper, lives on the Busy Home page (assets/tuck/tuck.js, the model from the Busy Studio).
 # Not an AI: these are its lines. One per tool (said when you point at it), one per part of the page, and a few
 # for when you poke it. Moves: Idle, Waving, Happy, Victory.
-TUCK_TOOL_LINES = ["Passports, policies, warranties. I nudge you months before a passport runs out.",
-                   "My favourite! I work out the last day to cancel, so nothing renews behind your back.",
-                   "Boiler, smoke alarms, gutters. I keep the dates, so you don't have to remember them.",
-                   "Everything you own, room by room. After a break-in, the claim pack is one click.",
-                   "Cancel, complain, claim. The letter comes with your details already filled in.",
-                   "Moving house? I count back from moving day and list everyone to tell.",
-                   "The binder your family would need if something happened to you. One PDF. Important stuff."]
-TUCK_POKES = [["Hey! That tickles.", "Happy"], ["I've got fourteen keys. I know what three of them are for.", "Waving"],
-              ["Did you know most people miss the last day to cancel by just a few days? Not on my watch.", "Happy"],
-              ["*stamp* Done. That felt good.", "Victory"], ["I'm not an AI, by the way. Just very organised.", "Waving"]]
+# Tuck's house: the Busy Home page as a place (assets/house/house.js). Each step is a room rendered in the
+# Busy Studio (Unreal Engine), with the live Tuck on top. Per step: the room it shows (plate), its title,
+# what Tuck says and does when you arrive, the card's words, and what happens when you click something in
+# the room ("acts": the spot's id from the studio's rooms.json, Tuck's move, his line, the result card).
+# Tuck is not an AI: these are its lines. Moves: Idle, Waving, Happy, Victory, PointingGesture, Stomping,
+# Typing, JoggingWithBox, Walk.
+HOUSE_STEPS = [
+    {"id": "door", "title": "Tuck's front door", "say": "Hi, I'm Tuck! I keep a household's paperwork in order. Knock, and I'll show you around.", "move": "Waving",
+     "acts": [("door", "Happy", "Come in, come in! Mind the keys.", "", "next")]},
+    {"id": "papers", "title": "Hallway · Paper Trail", "tool": "papers", "kicker": "Paper Trail", "h": "Never miss an expiry date again",
+     "p": "Passports, policies, contracts and warranties in one place, searchable down to the words inside a PDF, with a nudge before anything expires.",
+     "task": "Tap the passport on the drawers.", "say": "The hallway. Passports, policies, warranties: I keep them all, and I can find any of them.",
+     "acts": [("passport", "PointingGesture", "This passport expires in four months. I'll nudge you now, so there's time to renew.",
+               "<b>🗂️ Passport</b><span>Expires in 4 months</span><span>⏰ Reminder set: today, with time to renew</span>", "")]},
+    {"id": "contracts", "title": "Kitchen · Contracts & Renewals", "tool": "contracts", "kicker": "Contracts & Renewals", "h": "The last day to cancel, before it renews",
+     "p": "Insurance, energy, phone, the gym: what each costs a month and the last day to cancel before it renews by itself.",
+     "task": "Tap the contract on the fridge.", "say": "The kitchen. That gym contract on the fridge renews by itself next month…",
+     "acts": [("contract", "PointingGesture", "Gym: €34.95 a month. The last day to cancel is in 12 days. Shall we?",
+               "<b>🔁 Fit Utrecht</b><span>€34.95 a month · renews by itself in 1 month</span><span><b>Last day to cancel: in 12 days</b></span>"
+               "<button type=\"button\" class=\"btn btn-primary\" data-house-do=\"stamp\">✂️ Stamp it: cancel in time</button>", ""),
+              ("stamp", "Victory", "Cancelled in time! It stops instead of renewing for another year. That's what I live for.",
+               "<b>✅ Cancelled in time</b><span>Saves €419 a year</span><span>✉️ The cancellation letter is ready in Letters</span>", "")]},
+    {"id": "upkeep", "title": "Boiler cupboard · Home Upkeep", "tool": "upkeep", "kicker": "Home Upkeep", "h": "Every job around the house, on time",
+     "p": "The boiler service, smoke alarms and gutters: when each is due, when it was done, by whom and for how much.",
+     "task": "Tap the smoke alarm, or the boiler.", "say": "The boiler cupboard. Smoke alarms, the boiler, the gutters: I keep the dates.",
+     "acts": [("smoke_alarm", "Happy", "Beep! It works. The next test is in six months; it's on the list.",
+               "<b>🛠️ Smoke alarm</b><span>Tested today</span><span>Next test: in 6 months</span>", ""),
+              ("boiler", "PointingGesture", "The boiler service is due in three weeks. I'll remind you before the cold comes.",
+               "<b>🔥 Boiler service</b><span>Due in 3 weeks</span><span>Last time: Warm &amp; Co, €95</span>", "")]},
+    {"id": "inventory", "title": "Living room · Home Inventory", "tool": "inventory", "kicker": "Home Inventory", "h": "What you own, ready for a claim",
+     "p": "What you own, room by room, with photos, receipts and warranties. After a break-in, the claim pack is one click away.",
+     "task": "Tap the TV, then the sofa.", "say": "The living room. If something ever happens, you'll want to know what was here.",
+     "acts": [("tv", "PointingGesture", "TV: bought in 2024 for €449. Photo and receipt saved.",
+               "<b>📺 Television</b><span>€449 · bought 2024 · receipt ✓</span>", ""),
+              ("sofa", "Happy", "Sofa: €899. After a break-in, the claim pack is one click.",
+               "<b>🛋️ Sofa</b><span>€899 · bought 2023 · receipt ✓</span><span><b>Claim pack: 2 items, €1,348</b> · one PDF</span>", "")]},
+    {"id": "letters", "title": "Study · Letters", "tool": "letters", "kicker": "Letters", "h": "The letter writes itself",
+     "p": "Cancel, complain, claim, object or ask for your data: letters with your details, the company and the dates filled in.",
+     "task": "Tap the laptop.", "say": "My study. Cancel, complain, claim: the letter writes itself.",
+     "acts": [("laptop", "Typing", "Your details, the company, the dates: all filled in. You just sign.",
+               "<b>✉️ Cancellation</b><span data-type>Dear Fit Utrecht, I hereby cancel my membership (no. 2187) as of the end of the current term, 30 November. Please confirm in writing. Kind regards, Sam de Boer</span>", "")]},
+    {"id": "moving", "title": "Attic · Moving Planner", "tool": "moving", "kicker": "Moving Planner", "h": "Moving day, worked back",
+     "p": "A checklist worked back from moving day, and everyone to tell, with your contracts already on the list.",
+     "task": "Tap the boxes.", "say": "The attic. Moving house? I count back from moving day.",
+     "acts": [("boxes", "JoggingWithBox", "Eight weeks to go. Everyone to tell is on the list already, your contracts too.",
+               "<b>🚚 Moving day: in 8 weeks</b><ul class=\"house-ticks\"><li data-tick>Give notice on the rent</li><li data-tick>Tell the energy company, internet and gym</li><li data-tick>Book the van</li><li data-tick>Forward the post</li></ul>", "")]},
+    {"id": "binder", "title": "Safe corner · Just in Case", "tool": "binder", "kicker": "Just in Case", "h": "What your family would need",
+     "p": "Everything your family would need if something happened to you: people to call, where things are, wishes. One PDF.",
+     "task": "Tap the safe.", "say": "The safe corner. The binder your family would need if something happened to you.",
+     "acts": [("safe", "Victory", "People to call, where everything is, your wishes: one PDF. Important stuff.",
+               "<b>📕 Just in Case</b><span>6 people · 14 documents · wishes</span><span>One PDF for the family</span>", "")]},
+    {"id": "home", "plate": "door", "title": "Take Tuck home", "say": "That's the tour! Take me home: I'm free, for Mac and Windows.", "move": "Waving", "acts": []},
+]
 
 
-def tuck_attrs(say: str, move: str = "") -> str:
-    """What Tuck says (and does) when this part of the Busy Home page comes into view or is pointed at."""
-    return (f' data-tuck-say="{e(say)}"' if say else "") + (f' data-tuck-move="{move}"' if say and move else "")
+def house_card(s: dict) -> str:
+    """The words of one room, shown in the card next to it."""
+    if s["id"] == "door":
+        return ('<span class="chip chip-tomato">Free · no account · Mac and Windows</span><h1>Busy Home 🏡</h1>'
+                '<p>Free tools for the paperwork every household has: passports, policies, contracts, upkeep, the things you own and the letters you need to send. '
+                'Everything in your own folder. Tuck shows you around.</p>'
+                '<div class="row-flex"><button type="button" class="btn btn-primary" data-house-do="door">🚪 Knock to come in</button><a class="btn" href="#get">⬇️ Download free</a></div>'
+                '<div class="house-result" data-result hidden></div>')
+    if s["id"] == "home":
+        return (f'<p class="kicker">The end of the tour</p><h2>Take Tuck home</h2><p>All {len(HOME_TOOLS)} tools, free. No account, no subscription, nothing sent to us.</p>'
+                f'{app_download("Home", "Busy Home")}<p class="faint"><a href="#juno">Want help with the scary letters? Meet Juno →</a></p>')
+    return (f'<p class="kicker">{e(s["kicker"])}</p><h2>{e(s["h"])}</h2><p>{e(s["p"])}</p><p class="house-task">👉 {e(s["task"])}</p>'
+            f'<div class="house-result" data-result hidden></div>'
+            f'<p class="house-try"><a href="../app/apps/{s["tool"]}/index.html">Try {e(s["kicker"])} for real →</a></p>')
+
+
+def house_html() -> str:
+    """The house itself, and every room's words as plain HTML (search engines and screen readers read these)."""
+    rooms = "".join(
+        f'<article data-room="{s["id"]}" data-plate="{s.get("plate", s["id"])}" data-title="{e(s["title"])}" data-say="{e(s["say"])}"'
+        f'{(" data-move=" + chr(34) + s["move"] + chr(34)) if s.get("move") else ""} hidden>'
+        f'<template data-card>{house_card(s)}</template>'
+        + "".join(f'<template data-act="{a}" data-move="{m}" data-say="{e(say)}"{(" data-then=" + chr(34) + then + chr(34)) if then else ""}>{html}</template>'
+                  for a, m, say, html, then in s["acts"])
+        + "</article>" for s in HOUSE_STEPS)
+    return f"""<section class="house" data-house data-house-rooms="../assets/house/rooms.json" data-house-plates="../assets/house/" data-tuck-model="../assets/tuck/tuck.glb" aria-label="Tuck's house: a tour of Busy Home">
+    <div class="house-view" data-house-view>
+      <img class="house-plate" data-house-plate src="../assets/house/room-door-1920.jpg" alt="Tuck's front door, rendered in the Busy Studio" fetchpriority="high">
+      <div class="house-spots" data-house-spots></div>
+      <p class="tuck-bubble house-bubble" data-tuck-bubble aria-live="polite" hidden></p>
+      <div class="house-hud"><span data-house-count>1 / {len(HOUSE_STEPS)}</span><b data-house-title>Tuck's front door</b></div>
+    </div>
+    <div class="house-card card" data-house-card>{house_card(HOUSE_STEPS[0])}</div>
+    <nav class="house-nav" aria-label="Rooms"><button type="button" class="btn" data-house-prev>← Back</button><div class="house-dots" data-house-dots></div><button type="button" class="btn btn-primary" data-house-next>Next room →</button></nav>
+  </section>
+  <div class="house-rooms">{rooms}</div>"""
 
 
 def home_page(tools: list) -> str:
-    feats = "".join(f'<div class="card feat reveal pop"{tuck_attrs(say)} tabindex="0"><span class="fe">{em}</span><h3>{e(n)}</h3><p>{e(d)}</p></div>'
-                    for (em, n, d), say in zip(HOME_TOOLS, TUCK_TOOL_LINES if HOME_LIVE else [""] * len(HOME_TOOLS)))
+    feats = "".join(f'<div class="card feat reveal pop"><span class="fe">{em}</span><h3>{e(n)}</h3><p>{e(d)}</p></div>' for em, n, d in HOME_TOOLS)
     buy = (f'<p style="margin-top:14px"><a class="btn btn-primary" href="{e(JUNO_CHECKOUT_URL)}">Get Juno · {JUNO_PRICE}</a> <a class="btn" href="../claude-key.html">How Juno connects to Claude</a></p>'
            if JUNO_CHECKOUT_URL else '<p style="margin-top:12px"><a href="../claude-key.html">How Juno will connect to Claude →</a></p>')
-    juno = f"""<section class="section" id="juno"{tuck_attrs("Scary letters? That's Juno, the AI expert in the paid version. I stick to the stamping." if HOME_LIVE else "")}><div class="wrap">
+    juno = f"""<section class="section" id="juno"><div class="wrap">
     <div class="card ivy-card juno-card reveal"><img src="../assets/juno-mark.svg" alt="" width="96" height="96">
       <div><p class="kicker">Juno by Busy · {JUNO_PRICE} once{"" if JUNO_CHECKOUT_URL else " · coming soon"}</p><h2>Your AI expert for household paperwork</h2>
       <p>Attach the letter you've been avoiding and Juno tells you what it means and what to do by when, with the reply already drafted. It reads your contracts and policies, says when to keep, switch or cancel, sorts a pile of scans, helps with a claim or a move, and sends you a short briefing each month. It works on your own folder and never gives legal advice: it tells you when to ask a professional.</p>
       <ul class="get-list" style="margin-top:12px"><li>Explains letters, bills and decisions, and spots scams</li><li>Writes cancellations, complaints, claims and objections in the recipient's language</li><li>Keeps every renewal, expiry and upkeep date in view</li><li>Paid once, on your own Claude key: a typical conversation costs a few cents</li></ul>
       {buy}</div></div>
   </div></section>"""
-    hero_chip = '<span class="chip chip-tomato">Free · no account</span>' if HOME_LIVE else '<span class="chip chip-grey">Coming soon</span>'
-    hero_btns = ('<div class="row-flex reveal" style="margin-top:22px"><a class="btn btn-primary btn-big" href="#get">⬇️ Download free</a><a class="btn btn-big" href="../app/home.html">👀 See the demo</a></div>'
-                 '<p class="reveal" style="margin-top:16px"><button type="button" class="btn btn-ghost tuck-try" data-tuck-try data-tuck-say="Cancelled in time! The gym stops on 1 December instead of renewing for another year. That’s what I live for.">✂️ Watch Tuck cancel the gym in time</button></p>') if HOME_LIVE else ''
-    tuck = f"""<div class="tuck-spot"><div class="tuck-stage" data-tuck-stage data-tuck-model="../assets/tuck/tuck.glb" data-tuck-turn="0" data-tuck-pokes="{e(json.dumps(TUCK_POKES))}">
-        <button type="button" class="tuck-poke" data-tuck-poke aria-label="Say hi to Tuck"><img class="tuck-still" src="../assets/media/tuck-idle.jpg" alt="Tuck, the Busy Home helper: a small coral creature in a mustard cardigan, holding a rubber stamp" width="960" height="540"></button>
-        <p class="tuck-bubble" data-tuck-bubble aria-live="polite">Hi, I'm Tuck! I keep a household's paperwork in order. Point at anything and I'll tell you about it.</p>
-      </div></div>""" if HOME_LIVE else ""
     steps = [("⬇️", "Install Busy Home", "The free app for Mac and Windows, in beta. No account, no AI."),
              ("🏡", "Open it", "It works offline, and nothing is sent anywhere."),
              ("📁", "Your own folder", "Your documents, scans and photos are saved as plain files in Documents/Busy/Home. Move it into Google Drive or Dropbox to share it with your partner."),
              ("🪪", "Start with your passports", "Add them with their expiry dates. Then your contracts: Busy shows the last day to cancel each one.")]
     how = "".join(f'<div class="card feat reveal pop"><span class="fe">{em}</span><h3>{e(n)}</h3><p>{e(d)}</p></div>' for em, n, d in steps)
-    get = f"""<section class="section" id="get"{tuck_attrs("Ready? It's free for Mac and Windows. I'll be waiting for you in Contracts.", "Waving")}><div class="wrap">
+    get = f"""<section class="section" id="get"><div class="wrap">
     <div class="center reveal"><h2 class="big">Get Busy Home</h2><p class="lead">Free, the whole set. No account, no subscription, nothing sent to us.</p></div>
     <div class="feats">{how}</div>
     <div class="center" style="margin-top:22px">{app_download("Home", "Busy Home")}
@@ -1229,28 +1297,25 @@ def home_page(tools: list) -> str:
     desc = (f"Busy Home: {len(HOME_TOOLS)} free tools for household paperwork. Documents that warn before they expire, contracts with the last day to cancel, upkeep, inventory, letters and moving. No account."
             if HOME_LIVE else "Busy Home, coming soon: free tools for household paperwork. Documents, contracts with the last day to cancel, upkeep, inventory, letters and moving.")
     three = ('<script type="importmap">{"imports":{"three":"../assets/vendor/three/build/three.module.min.js"}}</script>'
-             '<link rel="preload" href="../assets/media/tuck-idle.jpg" as="image">') if HOME_LIVE else ""
+             '<link rel="preload" href="../assets/house/room-door-1920.jpg" as="image">') if HOME_LIVE else ""
+    top = house_html() if HOME_LIVE else f"""<section class="tool-hero">
+    <div class="blob" style="width:460px;height:460px;background:var(--tomato);right:-140px;top:-120px"></div>
+    <div class="wrap center" style="padding:70px 16px 30px;display:block;text-align:center">
+      <span class="chip chip-grey">Coming soon</span>
+      <h1 class="reveal" style="margin-top:12px">Busy Home 🏡</h1>
+      <p class="lead reveal" style="max-width:680px;margin:0 auto">Free tools for the paperwork every household has: passports, policies, contracts, upkeep, the things you own and the letters you need to send. Everything in your own folder, no account, like the rest of Busy.</p>
+    </div>
+  </section>"""
     return f"""{head(title, desc, "home/index.html", "../", extra=three, image="og-juno.png")}
 <body class="site app-tomato">
 {nav("../", ("⬇️ Download free", "#get") if HOME_LIVE else explore("../"))}
 <main id="main">
-  <section class="tool-hero{' tuck-hero' if HOME_LIVE else ''}"{' data-tuck-hero' + tuck_attrs("Hi, I'm Tuck! I keep a household's paperwork in order. Point at anything and I'll tell you about it.") if HOME_LIVE else ''}>
-    <div class="blob" style="width:460px;height:460px;background:var(--tomato);right:-140px;top:-120px"></div>
-    <div class="wrap{' tool-hero-grid' if HOME_LIVE else ' center'}" style="padding:{'50px 16px 30px' if HOME_LIVE else '70px 16px 30px;display:block;text-align:center'}">
-      <div>
-      {hero_chip}
-      <h1 class="reveal" style="margin-top:12px">Busy Home 🏡</h1>
-      <p class="lead reveal" style="max-width:680px{'' if HOME_LIVE else ';margin:0 auto'}">Free tools for the paperwork every household has: passports, policies, contracts, upkeep, the things you own and the letters you need to send. Everything in your own folder, no account, like the rest of Busy.</p>
-      {hero_btns}
-      </div>
-      {tuck}
-    </div>
-  </section>
-  <section class="section"{tuck_attrs("Seven tools, and they know about each other. A contract knows its cancellation letter. I love that." if HOME_LIVE else "")}><div class="wrap">
+  {top}
+  <section class="section"><div class="wrap">
     <div class="center reveal"><h2 class="big">{len(HOME_TOOLS)} tools that work together</h2><p class="lead">A contract knows its cancellation letter, the move knows your contracts, and the Just in Case binder knows where every document is.</p></div>
     <div class="feats">{feats}</div>
   </div></section>
-  <section class="section"{tuck_attrs("Your passports stay in your own folder. No account, no server. Nothing for anyone to steal." if HOME_LIVE else "")}><div class="wrap">
+  <section class="section"><div class="wrap">
     <div class="card ivy-card reveal"><span style="font-size:3.4rem" aria-hidden="true">🔒</span>
       <div><p class="kicker">The most private paperwork you have</p><h2>Your passports never leave your folder</h2>
       <p>IDs, insurance policies, contracts, the family's plans: this is the most sensitive paperwork a household has. Busy Home keeps all of it as plain files in a folder you choose. There is no Busy account and no Busy server, so there is nothing to hack and nothing to sell.</p></div></div>
@@ -1260,7 +1325,7 @@ def home_page(tools: list) -> str:
 </main>
 {footer("../", tools)}
 <script src="../assets/site.js"></script>
-{'<script type="module" src="../assets/tuck/tuck.js"></script>' if HOME_LIVE else ''}
+{'<script type="module" src="../assets/house/house.js"></script>' if HOME_LIVE else ''}
 </body>
 </html>
 """

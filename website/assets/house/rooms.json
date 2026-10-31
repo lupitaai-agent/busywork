@@ -1,0 +1,406 @@
+{
+ "rooms": [
+  {
+   "id": "door",
+   "name": "Tuck's front door",
+   "tool": "",
+   "camera": {
+    "position": [
+     0.0,
+     1.65,
+     7.6
+    ],
+    "target": [
+     0.0,
+     1.25,
+     0.0
+    ],
+    "hfov": 39.5978,
+    "aspect": 1.7777777777777777
+   },
+   "walk": {
+    "from": [
+     -2.6,
+     0.0,
+     1.1
+    ],
+    "to": [
+     2.6,
+     0.0,
+     1.1
+    ],
+    "stand": [
+     1.2,
+     0.0,
+     1.1
+    ]
+   },
+   "tuckHeight": 1.0,
+   "hotspots": [
+    {
+     "id": "door",
+     "label": "The front door",
+     "at": [
+      -0.2,
+      1.1,
+      -1.85
+     ]
+    }
+   ]
+  },
+  {
+   "id": "papers",
+   "name": "Hallway",
+   "tool": "Paper Trail",
+   "camera": {
+    "position": [
+     24.0,
+     1.65,
+     7.6
+    ],
+    "target": [
+     24.0,
+     1.25,
+     0.0
+    ],
+    "hfov": 39.5978,
+    "aspect": 1.7777777777777777
+   },
+   "walk": {
+    "from": [
+     21.4,
+     0.0,
+     1.1
+    ],
+    "to": [
+     26.6,
+     0.0,
+     1.1
+    ],
+    "stand": [
+     25.2,
+     0.0,
+     1.1
+    ]
+   },
+   "tuckHeight": 1.0,
+   "hotspots": [
+    {
+     "id": "passport",
+     "label": "A passport that expires in 4 months",
+     "at": [
+      25.5,
+      1.04,
+      -1.5
+     ]
+    }
+   ]
+  },
+  {
+   "id": "contracts",
+   "name": "Kitchen",
+   "tool": "Contracts & Renewals",
+   "camera": {
+    "position": [
+     48.0,
+     1.65,
+     7.6
+    ],
+    "target": [
+     48.0,
+     1.25,
+     0.0
+    ],
+    "hfov": 39.5978,
+    "aspect": 1.7777777777777777
+   },
+   "walk": {
+    "from": [
+     45.4,
+     0.0,
+     1.1
+    ],
+    "to": [
+     50.6,
+     0.0,
+     1.1
+    ],
+    "stand": [
+     49.2,
+     0.0,
+     1.1
+    ]
+   },
+   "tuckHeight": 1.0,
+   "hotspots": [
+    {
+     "id": "contract",
+     "label": "The gym contract on the fridge",
+     "at": [
+      47.3,
+      1.2,
+      -1.26
+     ]
+    }
+   ]
+  },
+  {
+   "id": "upkeep",
+   "name": "Boiler cupboard",
+   "tool": "Home Upkeep",
+   "camera": {
+    "position": [
+     72.0,
+     1.65,
+     7.6
+    ],
+    "target": [
+     72.0,
+     1.25,
+     0.0
+    ],
+    "hfov": 39.5978,
+    "aspect": 1.7777777777777777
+   },
+   "walk": {
+    "from": [
+     69.4,
+     0.0,
+     1.1
+    ],
+    "to": [
+     74.6,
+     0.0,
+     1.1
+    ],
+    "stand": [
+     73.2,
+     0.0,
+     1.1
+    ]
+   },
+   "tuckHeight": 1.0,
+   "hotspots": [
+    {
+     "id": "smoke_alarm",
+     "label": "The smoke alarm",
+     "at": [
+      72.6,
+      2.85,
+      -1.95
+     ]
+    },
+    {
+     "id": "boiler",
+     "label": "The boiler",
+     "at": [
+      71.4,
+      1.6,
+      -1.7
+     ]
+    }
+   ]
+  },
+  {
+   "id": "inventory",
+   "name": "Living room",
+   "tool": "Home Inventory",
+   "camera": {
+    "position": [
+     96.0,
+     1.65,
+     7.6
+    ],
+    "target": [
+     96.0,
+     1.25,
+     0.0
+    ],
+    "hfov": 39.5978,
+    "aspect": 1.7777777777777777
+   },
+   "walk": {
+    "from": [
+     93.4,
+     0.0,
+     1.1
+    ],
+    "to": [
+     98.6,
+     0.0,
+     1.1
+    ],
+    "stand": [
+     97.2,
+     0.0,
+     1.1
+    ]
+   },
+   "tuckHeight": 1.0,
+   "hotspots": [
+    {
+     "id": "tv",
+     "label": "The television",
+     "at": [
+      97.9,
+      0.75,
+      -1.7
+     ]
+    },
+    {
+     "id": "sofa",
+     "label": "The sofa",
+     "at": [
+      95.6,
+      0.5,
+      -1.5
+     ]
+    }
+   ]
+  },
+  {
+   "id": "letters",
+   "name": "Study",
+   "tool": "Letters",
+   "camera": {
+    "position": [
+     120.0,
+     1.65,
+     7.6
+    ],
+    "target": [
+     120.0,
+     1.25,
+     0.0
+    ],
+    "hfov": 39.5978,
+    "aspect": 1.7777777777777777
+   },
+   "walk": {
+    "from": [
+     117.4,
+     0.0,
+     1.1
+    ],
+    "to": [
+     122.6,
+     0.0,
+     1.1
+    ],
+    "stand": [
+     121.2,
+     0.0,
+     1.1
+    ]
+   },
+   "tuckHeight": 1.0,
+   "hotspots": [
+    {
+     "id": "laptop",
+     "label": "The letter on the laptop",
+     "at": [
+      120.3,
+      0.95,
+      -1.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "moving",
+   "name": "Attic",
+   "tool": "Moving Planner",
+   "camera": {
+    "position": [
+     144.0,
+     1.65,
+     7.6
+    ],
+    "target": [
+     144.0,
+     1.25,
+     0.0
+    ],
+    "hfov": 39.5978,
+    "aspect": 1.7777777777777777
+   },
+   "walk": {
+    "from": [
+     141.4,
+     0.0,
+     1.1
+    ],
+    "to": [
+     146.6,
+     0.0,
+     1.1
+    ],
+    "stand": [
+     145.2,
+     0.0,
+     1.1
+    ]
+   },
+   "tuckHeight": 1.0,
+   "hotspots": [
+    {
+     "id": "boxes",
+     "label": "The moving boxes",
+     "at": [
+      143.75,
+      0.6,
+      -1.1
+     ]
+    }
+   ]
+  },
+  {
+   "id": "binder",
+   "name": "Safe corner",
+   "tool": "Just in Case",
+   "camera": {
+    "position": [
+     168.0,
+     1.65,
+     7.6
+    ],
+    "target": [
+     168.0,
+     1.25,
+     0.0
+    ],
+    "hfov": 39.5978,
+    "aspect": 1.7777777777777777
+   },
+   "walk": {
+    "from": [
+     165.4,
+     0.0,
+     1.1
+    ],
+    "to": [
+     170.6,
+     0.0,
+     1.1
+    ],
+    "stand": [
+     169.2,
+     0.0,
+     1.1
+    ]
+   },
+   "tuckHeight": 1.0,
+   "hotspots": [
+    {
+     "id": "safe",
+     "label": "The family safe",
+     "at": [
+      167.7,
+      0.45,
+      -1.2
+     ]
+    }
+   ]
+  }
+ ]
+}
