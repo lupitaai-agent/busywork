@@ -5,17 +5,13 @@
    watch it cancel the gym in time.
 
    What it says lives in the page (data-tuck-say, data-tuck-move), written by build.py.
-   Without 3D (no WebGL) or with motion turned off, the still picture and the speech bubble stay. */
+   Tuck moves for everyone; without 3D (no WebGL) the still picture and the speech bubble stay. */
 const stage = document.querySelector('[data-tuck-stage]');
 if (stage) start();
 
 function start() {
   const hero = document.querySelector('[data-tuck-hero]');
   const bubble = stage.querySelector('[data-tuck-bubble]');
-  const back = document.querySelector('[data-tuck-back]');
-  // Motion turned off: Tuck stays a picture (add ?tuck=move to the address to see it move anyway).
-  const calm = matchMedia('(prefers-reduced-motion: reduce)').matches && !/[?&]tuck=move\b/.test(location.search);
-  const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* private window */ } } };
   let tuck = null; // the 3D side, once it's loaded
   let lastSaid = 0;
 
@@ -34,7 +30,7 @@ function start() {
 
   // The part of the page you're reading.
   const seen = new IntersectionObserver((es) => es.forEach((e) => {
-    if (e.isIntersecting && !stage.classList.contains('away')) say(e.target.dataset.tuckSay, e.target.dataset.tuckMove);
+    if (e.isIntersecting) say(e.target.dataset.tuckSay, e.target.dataset.tuckMove);
   }), { threshold: 0.45 });
   document.querySelectorAll('section[data-tuck-say]').forEach((s) => seen.observe(s));
 
@@ -57,21 +53,9 @@ function start() {
   const tryIt = document.querySelector('[data-tuck-try]');
   if (tryIt) tryIt.addEventListener('click', () => {
     say(tryIt.dataset.tuckSay, 'Victory', true);
-    if (!calm) confetti(stage);
-    if (stage.classList.contains('docked') === false) stage.scrollIntoView({ block: 'nearest', behavior: calm ? 'auto' : 'smooth' });
+    confetti(stage);
+    if (!stage.classList.contains('docked')) stage.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   });
-
-  // Sending Tuck away, and back.
-  const away = (yes) => {
-    stage.classList.toggle('away', yes);
-    if (back) back.hidden = !yes;
-    store.set('busy.tuck.away', yes ? '1' : '');
-  };
-  stage.querySelector('[data-tuck-away]').addEventListener('click', (e) => { e.stopPropagation(); away(true); });
-  if (back) back.addEventListener('click', () => { away(false); say(back.dataset.tuckSay, 'Waving', true); });
-  if (store.get('busy.tuck.away')) away(true);
-
-  if (calm) return; // the still and the words stay; nothing moves
 
   // Past the hero, Tuck follows you in a little window in the corner.
   new IntersectionObserver(([e]) => stage.classList.toggle('docked', !e.isIntersecting), { threshold: 0.12 }).observe(hero);
@@ -198,7 +182,7 @@ async function load3D(stage) {
   const clock = new THREE.Clock();
   renderer.setAnimationLoop(() => {
     const dt = Math.min(clock.getDelta(), 0.1);
-    if (!onScreen || document.hidden || stage.classList.contains('away')) return;
+    if (!onScreen || document.hidden) return;
     mixer.update(dt);
     if (performance.now() - lastMove > 6000) { // nobody moving: look around a little
       const t = performance.now() / 1000;

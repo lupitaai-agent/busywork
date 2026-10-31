@@ -467,14 +467,10 @@ html, body.site { overflow-x: clip; }
   border-right: 2px solid var(--border); border-bottom: 2px solid var(--border); transform: translateX(-50%) rotate(45deg); }
 .tuck-bubble.pop { animation: tuck-pop .35s cubic-bezier(.3, 1.6, .5, 1); }
 @keyframes tuck-pop { from { transform: scale(.85); opacity: .3; } to { transform: none; opacity: 1; } }
-.tuck-away { position: absolute; right: -12px; bottom: -12px; z-index: 3; width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--border);
-  background: var(--surface); color: var(--ink-2); font-size: .9rem; cursor: pointer; box-shadow: 2px 2px 0 var(--border); }
 .tuck-stage.docked { position: fixed; inset: auto 18px 18px auto; width: 210px; height: 262px; z-index: 60; animation: tuck-dock .45s cubic-bezier(.3, 1.4, .5, 1); }
 .tuck-stage.docked .tuck-bubble { left: auto; right: 0; top: auto; bottom: calc(100% + 14px); width: min(300px, calc(100vw - 36px)); }
 .tuck-stage.docked .tuck-bubble::after { left: auto; right: 60px; }
 @keyframes tuck-dock { from { transform: translateY(40px) scale(.8); opacity: 0; } to { transform: none; opacity: 1; } }
-.tuck-stage.away { visibility: hidden; }
-.tuck-back { position: fixed; right: 18px; bottom: 18px; z-index: 60; }
 .tuck-confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 300; }
 @media (max-width: 900px) { .tuck-spot { order: -1; max-width: 340px; aspect-ratio: 1 / 1; margin: 0 auto 6px; } .tuck-hero .tool-hero-grid { gap: 22px; padding-top: 24px !important; } }
 @media (max-width: 600px) {

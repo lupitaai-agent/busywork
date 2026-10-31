@@ -1212,7 +1212,6 @@ def home_page(tools: list) -> str:
     tuck = f"""<div class="tuck-spot"><div class="tuck-stage" data-tuck-stage data-tuck-model="../assets/tuck/tuck.glb" data-tuck-turn="0" data-tuck-pokes="{e(json.dumps(TUCK_POKES))}">
         <button type="button" class="tuck-poke" data-tuck-poke aria-label="Say hi to Tuck"><img class="tuck-still" src="../assets/media/tuck-idle.jpg" alt="Tuck, the Busy Home helper: a small coral creature in a mustard cardigan, holding a rubber stamp" width="960" height="540"></button>
         <p class="tuck-bubble" data-tuck-bubble aria-live="polite">Hi, I'm Tuck! I keep a household's paperwork in order. Point at anything and I'll tell you about it.</p>
-        <button type="button" class="tuck-away" data-tuck-away aria-label="Send Tuck away">✕</button>
       </div></div>""" if HOME_LIVE else ""
     steps = [("⬇️", "Install Busy Home", "The free app for Mac and Windows, in beta. No account, no AI."),
              ("🏡", "Open it", "It works offline, and nothing is sent anywhere."),
@@ -1247,7 +1246,6 @@ def home_page(tools: list) -> str:
       {tuck}
     </div>
   </section>
-  {'<button type="button" class="btn tuck-back" data-tuck-back hidden data-tuck-say="I’m back! Point at anything and I’ll tell you about it.">🏡 Bring Tuck back</button>' if HOME_LIVE else ''}
   <section class="section"{tuck_attrs("Seven tools, and they know about each other. A contract knows its cancellation letter. I love that." if HOME_LIVE else "")}><div class="wrap">
     <div class="center reveal"><h2 class="big">{len(HOME_TOOLS)} tools that work together</h2><p class="lead">A contract knows its cancellation letter, the move knows your contracts, and the Just in Case binder knows where every document is.</p></div>
     <div class="feats">{feats}</div>
