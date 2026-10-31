@@ -1174,31 +1174,52 @@ HOME_TOOLS = [("🗂️", "Paper Trail", "Passports, policies, contracts and war
               ("📕", "Just in Case", "Everything your family would need if something happened to you: people to call, where things are, wishes. One PDF.")]
 
 
+# Tuck, the Busy Home helper, lives on the Busy Home page (assets/tuck/tuck.js, the model from the Busy Studio).
+# Not an AI: these are its lines. One per tool (said when you point at it), one per part of the page, and a few
+# for when you poke it. Moves: Idle, Waving, Happy, Victory.
+TUCK_TOOL_LINES = ["Passports, policies, warranties. I nudge you months before a passport runs out.",
+                   "My favourite! I work out the last day to cancel, so nothing renews behind your back.",
+                   "Boiler, smoke alarms, gutters. I keep the dates, so you don't have to remember them.",
+                   "Everything you own, room by room. After a break-in, the claim pack is one click.",
+                   "Cancel, complain, claim. The letter comes with your details already filled in.",
+                   "Moving house? I count back from moving day and list everyone to tell.",
+                   "The binder your family would need if something happened to you. One PDF. Important stuff."]
+TUCK_POKES = [["Hey! That tickles.", "Happy"], ["I've got fourteen keys. I know what three of them are for.", "Waving"],
+              ["Did you know most people miss the last day to cancel by just a few days? Not on my watch.", "Happy"],
+              ["*stamp* Done. That felt good.", "Victory"], ["I'm not an AI, by the way. Just very organised.", "Waving"]]
+
+
+def tuck_attrs(say: str, move: str = "") -> str:
+    """What Tuck says (and does) when this part of the Busy Home page comes into view or is pointed at."""
+    return (f' data-tuck-say="{e(say)}"' if say else "") + (f' data-tuck-move="{move}"' if say and move else "")
+
+
 def home_page(tools: list) -> str:
-    feats = "".join(f'<div class="card feat reveal pop"><span class="fe">{em}</span><h3>{e(n)}</h3><p>{e(d)}</p></div>' for em, n, d in HOME_TOOLS)
+    feats = "".join(f'<div class="card feat reveal pop"{tuck_attrs(say)} tabindex="0"><span class="fe">{em}</span><h3>{e(n)}</h3><p>{e(d)}</p></div>'
+                    for (em, n, d), say in zip(HOME_TOOLS, TUCK_TOOL_LINES if HOME_LIVE else [""] * len(HOME_TOOLS)))
     buy = (f'<p style="margin-top:14px"><a class="btn btn-primary" href="{e(JUNO_CHECKOUT_URL)}">Get Juno · {JUNO_PRICE}</a> <a class="btn" href="../claude-key.html">How Juno connects to Claude</a></p>'
            if JUNO_CHECKOUT_URL else '<p style="margin-top:12px"><a href="../claude-key.html">How Juno will connect to Claude →</a></p>')
-    juno = f"""<section class="section" id="juno"><div class="wrap">
+    juno = f"""<section class="section" id="juno"{tuck_attrs("Scary letters? That's Juno, the AI expert in the paid version. I stick to the stamping." if HOME_LIVE else "")}><div class="wrap">
     <div class="card ivy-card juno-card reveal"><img src="../assets/juno-mark.svg" alt="" width="96" height="96">
       <div><p class="kicker">Juno by Busy · {JUNO_PRICE} once{"" if JUNO_CHECKOUT_URL else " · coming soon"}</p><h2>Your AI expert for household paperwork</h2>
       <p>Attach the letter you've been avoiding and Juno tells you what it means and what to do by when, with the reply already drafted. It reads your contracts and policies, says when to keep, switch or cancel, sorts a pile of scans, helps with a claim or a move, and sends you a short briefing each month. It works on your own folder and never gives legal advice: it tells you when to ask a professional.</p>
       <ul class="get-list" style="margin-top:12px"><li>Explains letters, bills and decisions, and spots scams</li><li>Writes cancellations, complaints, claims and objections in the recipient's language</li><li>Keeps every renewal, expiry and upkeep date in view</li><li>Paid once, on your own Claude key: a typical conversation costs a few cents</li></ul>
       {buy}</div></div>
   </div></section>"""
-    hero_chip, hero_btns = ('<span class="chip chip-grey">Coming soon</span>', '') if not HOME_LIVE else (
-        '<span class="chip chip-tomato">Free · no account</span>',
-        '<div class="row-flex reveal" style="justify-content:center;margin-top:22px"><a class="btn btn-primary btn-big" href="#get">⬇️ Download free</a><a class="btn btn-big" href="../app/home.html">👀 See the demo</a></div>'
-        # Tuck, the Busy Home helper, rendered in the Busy Studio: a short silent loop with a still for reduced motion.
-        '<figure class="tuck-stage reveal"><video autoplay muted loop playsinline preload="metadata" poster="../assets/media/tuck-idle.jpg" '
-        'aria-label="Tuck, the Busy Home helper, waiting with a rubber stamp and a satchel full of letters">'
-        '<source src="../assets/media/tuck-idle.mp4" type="video/mp4"></video>'
-        '<figcaption>Meet Tuck. It keeps your household paperwork in order, and never misses the last day to cancel.</figcaption></figure>')
+    hero_chip = '<span class="chip chip-tomato">Free · no account</span>' if HOME_LIVE else '<span class="chip chip-grey">Coming soon</span>'
+    hero_btns = ('<div class="row-flex reveal" style="margin-top:22px"><a class="btn btn-primary btn-big" href="#get">⬇️ Download free</a><a class="btn btn-big" href="../app/home.html">👀 See the demo</a></div>'
+                 '<p class="reveal" style="margin-top:16px"><button type="button" class="btn btn-ghost tuck-try" data-tuck-try data-tuck-say="Cancelled in time! The gym stops on 1 December instead of renewing for another year. That’s what I live for.">✂️ Watch Tuck cancel the gym in time</button></p>') if HOME_LIVE else ''
+    tuck = f"""<div class="tuck-spot"><div class="tuck-stage" data-tuck-stage data-tuck-model="../assets/tuck/tuck.glb" data-tuck-turn="0" data-tuck-pokes="{e(json.dumps(TUCK_POKES))}">
+        <button type="button" class="tuck-poke" data-tuck-poke aria-label="Say hi to Tuck"><img class="tuck-still" src="../assets/media/tuck-idle.jpg" alt="Tuck, the Busy Home helper: a small coral creature in a mustard cardigan, holding a rubber stamp" width="960" height="540"></button>
+        <p class="tuck-bubble" data-tuck-bubble aria-live="polite">Hi, I'm Tuck! I keep a household's paperwork in order. Point at anything and I'll tell you about it.</p>
+        <button type="button" class="tuck-away" data-tuck-away aria-label="Send Tuck away">✕</button>
+      </div></div>""" if HOME_LIVE else ""
     steps = [("⬇️", "Install Busy Home", "The free app for Mac and Windows, in beta. No account, no AI."),
              ("🏡", "Open it", "It works offline, and nothing is sent anywhere."),
              ("📁", "Your own folder", "Your documents, scans and photos are saved as plain files in Documents/Busy/Home. Move it into Google Drive or Dropbox to share it with your partner."),
              ("🪪", "Start with your passports", "Add them with their expiry dates. Then your contracts: Busy shows the last day to cancel each one.")]
     how = "".join(f'<div class="card feat reveal pop"><span class="fe">{em}</span><h3>{e(n)}</h3><p>{e(d)}</p></div>' for em, n, d in steps)
-    get = f"""<section class="section" id="get"><div class="wrap">
+    get = f"""<section class="section" id="get"{tuck_attrs("Ready? It's free for Mac and Windows. I'll be waiting for you in Contracts.", "Waving")}><div class="wrap">
     <div class="center reveal"><h2 class="big">Get Busy Home</h2><p class="lead">Free, the whole set. No account, no subscription, nothing sent to us.</p></div>
     <div class="feats">{how}</div>
     <div class="center" style="margin-top:22px">{app_download("Home", "Busy Home")}
@@ -1208,24 +1229,30 @@ def home_page(tools: list) -> str:
     title = "Busy Home: free tools for your household paperwork" + ("" if HOME_LIVE else " (soon)")
     desc = (f"Busy Home: {len(HOME_TOOLS)} free tools for household paperwork. Documents that warn before they expire, contracts with the last day to cancel, upkeep, inventory, letters and moving. No account."
             if HOME_LIVE else "Busy Home, coming soon: free tools for household paperwork. Documents, contracts with the last day to cancel, upkeep, inventory, letters and moving.")
-    return f"""{head(title, desc, "home/index.html", "../", image="og-juno.png")}
+    three = ('<script type="importmap">{"imports":{"three":"../assets/vendor/three/build/three.module.min.js"}}</script>'
+             '<link rel="preload" href="../assets/media/tuck-idle.jpg" as="image">') if HOME_LIVE else ""
+    return f"""{head(title, desc, "home/index.html", "../", extra=three, image="og-juno.png")}
 <body class="site app-tomato">
 {nav("../", ("⬇️ Download free", "#get") if HOME_LIVE else explore("../"))}
 <main id="main">
-  <section class="tool-hero">
+  <section class="tool-hero{' tuck-hero' if HOME_LIVE else ''}"{' data-tuck-hero' + tuck_attrs("Hi, I'm Tuck! I keep a household's paperwork in order. Point at anything and I'll tell you about it.") if HOME_LIVE else ''}>
     <div class="blob" style="width:460px;height:460px;background:var(--tomato);right:-140px;top:-120px"></div>
-    <div class="wrap center" style="padding:70px 16px 30px;display:block;text-align:center">
+    <div class="wrap{' tool-hero-grid' if HOME_LIVE else ' center'}" style="padding:{'50px 16px 30px' if HOME_LIVE else '70px 16px 30px;display:block;text-align:center'}">
+      <div>
       {hero_chip}
       <h1 class="reveal" style="margin-top:12px">Busy Home 🏡</h1>
-      <p class="lead reveal" style="max-width:680px;margin:0 auto">Free tools for the paperwork every household has: passports, policies, contracts, upkeep, the things you own and the letters you need to send. Everything in your own folder, no account, like the rest of Busy.</p>
+      <p class="lead reveal" style="max-width:680px{'' if HOME_LIVE else ';margin:0 auto'}">Free tools for the paperwork every household has: passports, policies, contracts, upkeep, the things you own and the letters you need to send. Everything in your own folder, no account, like the rest of Busy.</p>
       {hero_btns}
+      </div>
+      {tuck}
     </div>
   </section>
-  <section class="section"><div class="wrap">
+  {'<button type="button" class="btn tuck-back" data-tuck-back hidden data-tuck-say="I’m back! Point at anything and I’ll tell you about it.">🏡 Bring Tuck back</button>' if HOME_LIVE else ''}
+  <section class="section"{tuck_attrs("Seven tools, and they know about each other. A contract knows its cancellation letter. I love that." if HOME_LIVE else "")}><div class="wrap">
     <div class="center reveal"><h2 class="big">{len(HOME_TOOLS)} tools that work together</h2><p class="lead">A contract knows its cancellation letter, the move knows your contracts, and the Just in Case binder knows where every document is.</p></div>
     <div class="feats">{feats}</div>
   </div></section>
-  <section class="section"><div class="wrap">
+  <section class="section"{tuck_attrs("Your passports stay in your own folder. No account, no server. Nothing for anyone to steal." if HOME_LIVE else "")}><div class="wrap">
     <div class="card ivy-card reveal"><span style="font-size:3.4rem" aria-hidden="true">🔒</span>
       <div><p class="kicker">The most private paperwork you have</p><h2>Your passports never leave your folder</h2>
       <p>IDs, insurance policies, contracts, the family's plans: this is the most sensitive paperwork a household has. Busy Home keeps all of it as plain files in a folder you choose. There is no Busy account and no Busy server, so there is nothing to hack and nothing to sell.</p></div></div>
@@ -1235,6 +1262,7 @@ def home_page(tools: list) -> str:
 </main>
 {footer("../", tools)}
 <script src="../assets/site.js"></script>
+{'<script type="module" src="../assets/tuck/tuck.js"></script>' if HOME_LIVE else ''}
 </body>
 </html>
 """
