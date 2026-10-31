@@ -450,20 +450,22 @@ html, body.site { overflow-x: clip; }
 .first-open summary { cursor: pointer; font-weight: 800; text-align: center; }
 .first-open p { color: var(--ink-2); margin-top: 8px; }
 
-/* Tuck's house (assets/house/house.js): each room as the Busy Studio rendered it, the live Tuck on top. */
-.house { position: relative; background: #16141F; }
+/* Busy's places (assets/place.js): Tuck's house, the Workshop. Each room as the Busy Studio rendered it, the live guide on top.
+   --place is the suite's colour for the spots and dots. */
+.house { --place: #FF8A5B; position: relative; background: #16141F; }
+.house-workshop { --place: #FFC93C; }
 .house-view { position: relative; overflow: hidden; height: min(calc(100svh - 70px), 60vw); min-height: 380px; background: #16141F; touch-action: pan-y; }
 .house-plate { position: absolute; max-width: none; user-select: none; -webkit-user-drag: none; transition: opacity .2s; }
 .house.cut .house-plate, .house.cut .house-tuck { opacity: 0; }
 .house-tuck { position: absolute; left: 0; top: 0; pointer-events: none; transition: opacity .2s; }
 .house-spots { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
 .house-spot { position: absolute; transform: translate(-50%, -50%); width: 46px; height: 46px; border-radius: 50%; border: 3px solid #fff; padding: 0;
-  background: rgba(255, 138, 91, .3); pointer-events: auto; cursor: pointer; animation: house-pulse 1.6s infinite; }
-.house-spot span { position: absolute; inset: 11px; border-radius: 50%; background: #FF8A5B; }
+  background: color-mix(in srgb, var(--place) 30%, transparent); pointer-events: auto; cursor: pointer; animation: house-pulse 1.6s infinite; }
+.house-spot span { position: absolute; inset: 11px; border-radius: 50%; background: var(--place); }
 .house-spot.done { animation: none; background: rgba(47, 209, 140, .35); }
 .house-spot.done span { background: #2FD18C; }
 .house-spot:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
-@keyframes house-pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 138, 91, .75); } 70% { box-shadow: 0 0 0 18px rgba(255, 138, 91, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 138, 91, 0); } }
+@keyframes house-pulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--place) 75%, transparent); } 70% { box-shadow: 0 0 0 18px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
 .house-bubble { position: absolute; left: 24px; bottom: 120px; z-index: 3; margin: 0; max-width: min(330px, calc(100% - 24px)); padding: 10px 14px;
   background: var(--surface); color: var(--ink); border: 2px solid var(--border); border-radius: 18px; box-shadow: 3px 3px 0 var(--border);
   font-weight: 700; font-size: .98rem; line-height: 1.35; pointer-events: none; }
@@ -494,13 +496,26 @@ html, body.site { overflow-x: clip; }
 .house-nav .btn[disabled] { opacity: .45; cursor: default; }
 .house-dots { display: flex; gap: 8px; padding: 8px 12px; border-radius: 999px; background: rgba(22, 20, 31, .72); }
 .house-dots button { width: 12px; height: 12px; padding: 0; border-radius: 50%; border: 2px solid #fff; background: transparent; cursor: pointer; }
-.house-dots button[aria-current="step"] { background: #FF8A5B; border-color: #FF8A5B; }
+.house-dots button[aria-current="step"] { background: var(--place); border-color: var(--place); }
+/* Decals: what the page draws on the room (a shop sign in your colour, the van's lettering, the poster in the window). */
+.house-decals { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+.house-decal { position: absolute; display: flex; align-items: center; justify-content: center; overflow: hidden; text-align: center; white-space: nowrap;
+  color: var(--brand); font-family: var(--brand-font, inherit); font-weight: 900; font-size: calc(var(--h) * .58); line-height: 1; letter-spacing: -.01em;
+  animation: decal-in .7s ease-out; }
+.house-decal[data-decal="van"] { background: var(--brand); color: #FBF7EE; border-radius: 6px; font-size: calc(var(--h) * .5); }
+.house-decal[data-decal="poster"] { flex-direction: column; gap: 4%; padding: 6%; white-space: normal; background: #FBF7EE; color: #1E1B2E;
+  border-top: calc(var(--h) * .08) solid var(--brand); font-size: calc(var(--h) * .075); font-weight: 800; line-height: 1.15; }
+.house-decal[data-decal="poster"] b { font-size: 1.6em; color: var(--brand); font-family: var(--brand-font, inherit); }
+@keyframes decal-in { from { opacity: 0; filter: blur(4px); } to { opacity: 1; filter: none; } }
+.house-swatches { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.house-swatches .btn { padding: 6px 12px; }
+.house-swatches i { display: inline-block; width: 14px; height: 14px; border-radius: 50%; margin-right: 6px; vertical-align: -2px; border: 2px solid var(--border); }
 .tuck-confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 300; }
 @media (max-width: 760px) {
   .house-view { height: 58svh; min-height: 300px; }
   .house-card { position: relative; left: auto; bottom: auto; width: auto; max-height: none; margin: 12px; }
   .house-nav { position: static; padding: 0 12px 18px; }
   .house-nav .btn { padding: 8px 14px; }
-  .house-hud { font-size: .82rem; left: 10px; top: 10px; }
+  .house-hud { font-size: .82rem; left: 10px; top: auto; bottom: 10px; }
   .house-bubble { font-size: .84rem; padding: 8px 11px; max-width: min(250px, calc(100% - 24px)); }
 }

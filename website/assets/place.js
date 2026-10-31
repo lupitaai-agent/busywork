@@ -1,13 +1,16 @@
-/* Tuck's house: the Busy Home page as a place. Every room is a still rendered in the Busy Studio (Unreal
-   Engine) with its own camera; the live Tuck (three.js, the same camera) walks through it, like the
-   pre-rendered screens of a late-1990s adventure game. One room per tool: you do the thing, Tuck reacts,
-   and "Try it for real" opens the tool in the demo.
+/* Busy's places: a page as a place you walk through (Tuck's house on Busy Home, the Workshop on Busy
+   Business). Every room is a still rendered in the Busy Studio (Unreal Engine) with its own camera; the
+   live guide (three.js, the same camera) walks through it, like the pre-rendered screens of a late-1990s
+   adventure game. One room per tool: you do the thing, the guide reacts, and "Try it for real" opens the
+   tool in the demo.
 
    The rooms' words and what happens in them live in the page (the <article data-room> list, written by
-   build.py); the cameras and spots come from assets/house/rooms.json (made by the Busy Studio).
-   Without WebGL the rooms, words and buttons all still work, just without Tuck. */
+   build.py); the cameras, spots and decals come from assets/<place>/rooms.json (made by the Busy Studio).
+   An act's data-then lists what else happens: "next" (on to the next room), "confetti", "beep",
+   "show:<decal>". Decals are flat things in the room the page draws on, like a shop sign in your colour.
+   Without WebGL the rooms, words and buttons all still work, just without the guide. */
 const house = document.querySelector('[data-house]');
-if (house) start(house).catch((e) => console.info('House stays simple:', e && e.message));
+if (house) start(house).catch((e) => console.info('The place stays simple:', e && e.message));
 
 async function start(house) {
   const view = house.querySelector('[data-house-view]');
@@ -18,8 +21,14 @@ async function start(house) {
   const title = house.querySelector('[data-house-title]');
   const count = house.querySelector('[data-house-count]');
   const dots = house.querySelector('[data-house-dots]');
-  const prev = house.querySelector('[data-house-prev]');
-  const next = house.querySelector('[data-house-next]');
+  const prev = house.querySelector('.house-nav [data-house-prev]');
+  const next = house.querySelector('.house-nav [data-house-next]');
+  const decals = view.querySelector('[data-house-decals]');
+  const nextLabel = house.dataset.nextLabel || 'Next room →';
+  // What the page draws on the room: the decals' words (templates in the page), which are showing, and the brand they wear.
+  const decalHtml = Object.fromEntries([...house.querySelectorAll('template[data-decal]')].map((t) => [t.dataset.decal, t.innerHTML]));
+  const shown = new Set([...house.querySelectorAll('template[data-decal][data-shown]')].map((t) => t.dataset.decal));
+  const brand = { color: house.dataset.brandColor || '#FFC93C', font: '' };
   const steps = [...document.querySelectorAll('[data-room]')].map((a) => ({
     id: a.dataset.room, plate: a.dataset.plate || a.dataset.room, html: a.querySelector('[data-card]').innerHTML, el: a,
     say: a.dataset.say, move: a.dataset.move, acts: [...a.querySelectorAll('[data-act]')].map((t) => ({ id: t.dataset.act, move: t.dataset.move, say: t.dataset.say, then: t.dataset.then, html: t.innerHTML })),
@@ -46,7 +55,7 @@ async function start(house) {
     place();
   }
   // Where a point of the room is on screen: the room's own camera (as in Unreal), worked out by hand, so
-  // the spots are right before Tuck arrives and without WebGL too.
+  // the spots are right before the guide arrives and without WebGL too.
   function onScreen(p, r = roomData[steps[at].plate]) {
     const C = r.camera.position, T = r.camera.target;
     const f = norm(sub(T, C)), rt = norm(cross(f, [0, 1, 0])), up = cross(rt, f);
@@ -62,6 +71,15 @@ async function start(house) {
       const h = r.hotspots.find((x) => x.id === b.dataset.spot);
       const pt = h && onScreen(h.at, r);
       if (pt) { b.style.left = pt.x + 'px'; b.style.top = pt.y + 'px'; }
+    });
+    decals?.querySelectorAll('[data-decal]').forEach((el) => {
+      const d = (r.decals || []).find((x) => x.id === el.dataset.decal);
+      const pts = d && d.corners.map((c) => onScreen(c, r));
+      if (!pts || pts.some((p) => !p)) return;
+      const xs = pts.map((p) => p.x), ys = pts.map((p) => p.y);
+      const w = Math.max(...xs) - Math.min(...xs), h = Math.max(...ys) - Math.min(...ys);
+      Object.assign(el.style, { left: Math.min(...xs) + 'px', top: Math.min(...ys) + 'px', width: w + 'px', height: h + 'px' });
+      el.style.setProperty('--h', h + 'px');
     });
     if (tuck) {
       const head = tuck.head();
@@ -94,7 +112,7 @@ async function start(house) {
     card.scrollTop = 0;
     dots.querySelectorAll('button').forEach((d, k) => d.setAttribute('aria-current', k === at ? 'step' : 'false'));
     prev.disabled = at === 0;
-    next.textContent = at === steps.length - 1 ? 'Start again ↺' : 'Next room →';
+    next.textContent = at === steps.length - 1 ? 'Start again ↺' : nextLabel;
     history.replaceState(null, '', '#' + s.id);
     // The clickable spots of this room.
     spots.innerHTML = '';
@@ -108,6 +126,7 @@ async function start(house) {
       b.addEventListener('click', () => doAct(h.id));
       spots.append(b);
     });
+    drawDecals(r);
     if (tuck) tuck.room(r, walk);
     layout();
     focusX = framing(r);
@@ -118,18 +137,37 @@ async function start(house) {
     if (steps[at + 1]) preload(steps[at + 1].plate);
   }
 
-  // Where to look on a narrow screen: between Tuck and the first thing to tap (as a share of the room's width).
+  // Where to look on a narrow screen: between the guide and the first thing to tap (as a share of the room's width).
   function framing(r) {
     const xs = [r.walk.stand, ...r.hotspots.slice(0, 1).map((h) => h.at)].map((p) => onScreen(p, r)).filter(Boolean).map((pt) => (pt.x - frame.ox) / frame.fw);
     return xs.length ? Math.min(0.85, Math.max(0.15, xs.reduce((a, b) => a + b, 0) / xs.length)) : 0.5;
   }
 
-  function bindCard() {
-    card.querySelectorAll('[data-house-do]').forEach((b) => b.addEventListener('click', () => doAct(b.dataset.houseDo)));
-    card.querySelectorAll('[data-house-next]').forEach((b) => b.addEventListener('click', () => go(1)));
+  // The decals of this room that are showing, in the brand's colour and font.
+  function drawDecals(r = roomData[steps[at].plate]) {
+    if (!decals) return;
+    decals.innerHTML = '';
+    decals.style.setProperty('--brand', brand.color);
+    if (brand.font) decals.style.setProperty('--brand-font', brand.font);
+    (r.decals || []).filter((d) => shown.has(d.id) && decalHtml[d.id]).forEach((d) => {
+      const el = document.createElement('div');
+      el.className = 'house-decal'; el.dataset.decal = d.id; el.innerHTML = decalHtml[d.id];
+      decals.append(el);
+    });
+    if (frame) place();
   }
 
-  // Doing the room's thing: Tuck moves and talks, the result appears in the card.
+  // Buttons in the card: an act, the next room, or a brand choice (data-paint, data-font) that then does its act.
+  function bind(root) {
+    root?.querySelectorAll('[data-house-do]').forEach((b) => b.addEventListener('click', () => {
+      if (b.dataset.paint) { brand.color = b.dataset.paint; brand.font = b.dataset.font || ''; shown.add(b.dataset.decal || 'sign'); drawDecals(); }
+      doAct(b.dataset.houseDo);
+    }));
+    root?.querySelectorAll('[data-house-next]').forEach((b) => b.addEventListener('click', () => go(1)));
+  }
+  const bindCard = () => bind(card);
+
+  // Doing the room's thing: the guide moves and talks, the result appears in the card.
   async function doAct(id) {
     const s = steps[at];
     const a = s.acts.find((x) => x.id === id);
@@ -143,13 +181,16 @@ async function start(house) {
     if (a.html.trim()) {
       const out = card.querySelector('[data-result]');
       if (out) { out.innerHTML = a.html; out.hidden = false; out.classList.remove('rise'); void out.offsetWidth; out.classList.add('rise'); }
-      out?.querySelectorAll('[data-house-do]').forEach((b) => b.addEventListener('click', () => doAct(b.dataset.houseDo)));
+      bind(out);
       type(out);
       tick(out);
     }
-    if (id === 'stamp' || id === 'safe') confetti(view);
-    if (id === 'alarm') beep();
-    if (a.then === 'next') setTimeout(() => go(1), 1600);
+    const then = (a.then || '').split(' ').filter(Boolean);
+    then.filter((w) => w.startsWith('show:')).forEach((w) => shown.add(w.slice(5)));
+    if (then.some((w) => w.startsWith('show:'))) drawDecals();
+    if (then.includes('confetti')) confetti(view);
+    if (then.includes('beep')) beep();
+    if (then.includes('next')) setTimeout(() => go(1), 1600);
   }
 
   async function go(dir) {
@@ -193,12 +234,12 @@ async function start(house) {
   new ResizeObserver(layout).observe(view);
 
   show(at);
-  // The live Tuck, once the page itself is there.
+  // The live guide, once the page itself is there.
   const load = () => tuckIn(view, house.dataset.tuckModel, () => frame).then((t) => {
     tuck = t; tuck.room(roomData[steps[at].plate]); layout(); place(); view.classList.add('live');
     tuck.onFrame(place);
     if (steps[at].move) tuck.play(steps[at].move);
-  }, (e) => console.info('Tuck stays away:', e && e.message));
+  }, (e) => console.info('The guide stays away:', e && e.message));
   if (document.readyState === 'complete') idle(load); else addEventListener('load', () => idle(load), { once: true });
 }
 
@@ -243,12 +284,12 @@ function confetti(near) {
   })();
 }
 
-// ---------- the live Tuck ----------
+// ---------- the live guide ----------
 async function tuckIn(view, model, getFrame) {
   const probe = document.createElement('canvas');
   if (!(probe.getContext('webgl2') || probe.getContext('webgl'))) throw new Error('no WebGL');
   const THREE = await import('three');
-  const { GLTFLoader } = await import('../vendor/three/examples/jsm/loaders/GLTFLoader.js');
+  const { GLTFLoader } = await import('./vendor/three/examples/jsm/loaders/GLTFLoader.js');
   const gltf = await new GLTFLoader().loadAsync(model);
 
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'low-power' });
@@ -278,7 +319,7 @@ async function tuckIn(view, model, getFrame) {
   floor.receiveShadow = true;
   scene.add(floor);
 
-  // Tuck, one metre tall, feet on the floor.
+  // The guide, one metre tall, feet on the floor.
   const holder = new THREE.Group();
   const model3 = gltf.scene;
   model3.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.frustumCulled = false; } });

@@ -1177,10 +1177,11 @@ HOME_TOOLS = [("🗂️", "Paper Trail", "Passports, policies, contracts and war
 # Tuck, the Busy Home helper, lives on the Busy Home page (assets/tuck/tuck.js, the model from the Busy Studio).
 # Not an AI: these are its lines. One per tool (said when you point at it), one per part of the page, and a few
 # for when you poke it. Moves: Idle, Waving, Happy, Victory.
-# Tuck's house: the Busy Home page as a place (assets/house/house.js). Each step is a room rendered in the
+# Tuck's house: the Busy Home page as a place (assets/place.js). Each step is a room rendered in the
 # Busy Studio (Unreal Engine), with the live Tuck on top. Per step: the room it shows (plate), its title,
 # what Tuck says and does when you arrive, the card's words, and what happens when you click something in
-# the room ("acts": the spot's id from the studio's rooms.json, Tuck's move, his line, the result card).
+# the room ("acts": the spot's id from the studio's rooms.json, Tuck's move, his line, the result card, and
+# what else happens: "next", "confetti", "beep", "show:<decal>").
 # Tuck is not an AI: these are its lines. Moves: Idle, Waving, Happy, Victory, PointingGesture, Stomping,
 # Typing, JoggingWithBox, Walk.
 HOUSE_STEPS = [
@@ -1198,12 +1199,12 @@ HOUSE_STEPS = [
                "<b>🔁 Fit Utrecht</b><span>€34.95 a month · renews by itself in 1 month</span><span><b>Last day to cancel: in 12 days</b></span>"
                "<button type=\"button\" class=\"btn btn-primary\" data-house-do=\"stamp\">✂️ Stamp it: cancel in time</button>", ""),
               ("stamp", "Victory", "Cancelled in time! It stops instead of renewing for another year. That's what I live for.",
-               "<b>✅ Cancelled in time</b><span>Saves €419 a year</span><span>✉️ The cancellation letter is ready in Letters</span>", "")]},
+               "<b>✅ Cancelled in time</b><span>Saves €419 a year</span><span>✉️ The cancellation letter is ready in Letters</span>", "confetti")]},
     {"id": "upkeep", "title": "Boiler cupboard · Home Upkeep", "tool": "upkeep", "kicker": "Home Upkeep", "h": "Every job around the house, on time",
      "p": "The boiler service, smoke alarms and gutters: when each is due, when it was done, by whom and for how much.",
      "task": "Tap the smoke alarm, or the boiler.", "say": "The boiler cupboard. Smoke alarms, the boiler, the gutters: I keep the dates.",
      "acts": [("smoke_alarm", "Happy", "Beep! It works. The next test is in six months; it's on the list.",
-               "<b>🛠️ Smoke alarm</b><span>Tested today</span><span>Next test: in 6 months</span>", ""),
+               "<b>🛠️ Smoke alarm</b><span>Tested today</span><span>Next test: in 6 months</span>", "beep"),
               ("boiler", "PointingGesture", "The boiler service is due in three weeks. I'll remind you before the cold comes.",
                "<b>🔥 Boiler service</b><span>Due in 3 weeks</span><span>Last time: Warm &amp; Co, €95</span>", "")]},
     {"id": "inventory", "title": "Living room · Home Inventory", "tool": "inventory", "kicker": "Home Inventory", "h": "What you own, ready for a claim",
@@ -1227,7 +1228,7 @@ HOUSE_STEPS = [
      "p": "Everything your family would need if something happened to you: people to call, where things are, wishes. One PDF.",
      "task": "Tap the safe.", "say": "The safe corner. The binder your family would need if something happened to you.",
      "acts": [("safe", "Victory", "People to call, where everything is, your wishes: one PDF. Important stuff.",
-               "<b>📕 Just in Case</b><span>6 people · 14 documents · wishes</span><span>One PDF for the family</span>", "")]},
+               "<b>📕 Just in Case</b><span>6 people · 14 documents · wishes</span><span>One PDF for the family</span>", "confetti")]},
     {"id": "home", "plate": "door", "title": "Take Tuck home", "say": "That's the tour! Take me home: I'm free, for Mac and Windows.", "move": "Waving", "acts": []},
 ]
 
@@ -1248,26 +1249,36 @@ def house_card(s: dict) -> str:
             f'<p class="house-try"><a href="../app/apps/{s["tool"]}/index.html">Try {e(s["kicker"])} for real →</a></p>')
 
 
-def house_html() -> str:
-    """The house itself, and every room's words as plain HTML (search engines and screen readers read these)."""
+def place_html(place: str, steps: list, card, label: str, model: str = "../assets/tuck/tuck.glb", next_label: str = "Next room →",
+               decals: dict = None, brand: str = "") -> str:
+    """A place (assets/place.js) and every room's words as plain HTML (search engines and screen readers read these).
+    decals: {id: (html, shown from the start)}, the words the page draws on the rooms."""
     rooms = "".join(
         f'<article data-room="{s["id"]}" data-plate="{s.get("plate", s["id"])}" data-title="{e(s["title"])}" data-say="{e(s["say"])}"'
         f'{(" data-move=" + chr(34) + s["move"] + chr(34)) if s.get("move") else ""} hidden>'
-        f'<template data-card>{house_card(s)}</template>'
+        f'<template data-card>{card(s)}</template>'
         + "".join(f'<template data-act="{a}" data-move="{m}" data-say="{e(say)}"{(" data-then=" + chr(34) + then + chr(34)) if then else ""}>{html}</template>'
                   for a, m, say, html, then in s["acts"])
-        + "</article>" for s in HOUSE_STEPS)
-    return f"""<section class="house" data-house data-house-rooms="../assets/house/rooms.json" data-house-plates="../assets/house/" data-tuck-model="../assets/tuck/tuck.glb" aria-label="Tuck's house: a tour of Busy Home">
+        + "</article>" for s in steps)
+    words = "".join(f'<template data-decal="{d}"{" data-shown" if shown else ""}>{html}</template>' for d, (html, shown) in (decals or {}).items())
+    first = steps[0]
+    return f"""<section class="house house-{place}" data-house data-house-rooms="../assets/{place}/rooms.json" data-house-plates="../assets/{place}/" data-tuck-model="{model}" data-next-label="{e(next_label)}"{f' data-brand-color="{brand}"' if brand else ''} aria-label="{e(label)}">
     <div class="house-view" data-house-view>
-      <img class="house-plate" data-house-plate src="../assets/house/room-door-1920.jpg" alt="Tuck's front door, rendered in the Busy Studio" fetchpriority="high">
+      <img class="house-plate" data-house-plate src="../assets/{place}/room-{first.get("plate", first["id"])}-1920.jpg" alt="{e(first["title"])}, rendered in the Busy Studio" fetchpriority="high">
+      <div class="house-decals" data-house-decals></div>
       <div class="house-spots" data-house-spots></div>
       <p class="tuck-bubble house-bubble" data-tuck-bubble aria-live="polite" hidden></p>
-      <div class="house-hud"><span data-house-count>1 / {len(HOUSE_STEPS)}</span><b data-house-title>Tuck's front door</b></div>
+      <div class="house-hud"><span data-house-count>1 / {len(steps)}</span><b data-house-title>{e(first["title"])}</b></div>
     </div>
-    <div class="house-card card" data-house-card>{house_card(HOUSE_STEPS[0])}</div>
-    <nav class="house-nav" aria-label="Rooms"><button type="button" class="btn" data-house-prev>← Back</button><div class="house-dots" data-house-dots></div><button type="button" class="btn btn-primary" data-house-next>Next room →</button></nav>
+    <div class="house-card card" data-house-card>{card(first)}</div>
+    <nav class="house-nav" aria-label="Rooms"><button type="button" class="btn" data-house-prev>← Back</button><div class="house-dots" data-house-dots></div><button type="button" class="btn btn-primary" data-house-next>{e(next_label)}</button></nav>
+    {words}
   </section>
   <div class="house-rooms">{rooms}</div>"""
+
+
+def house_html() -> str:
+    return place_html("house", HOUSE_STEPS, house_card, "Tuck's house: a tour of Busy Home")
 
 
 def home_page(tools: list) -> str:
@@ -1325,7 +1336,120 @@ def home_page(tools: list) -> str:
 </main>
 {footer("../", tools)}
 <script src="../assets/site.js"></script>
-{'<script type="module" src="../assets/house/house.js"></script>' if HOME_LIVE else ''}
+{'<script type="module" src="../assets/place.js"></script>' if HOME_LIVE else ''}
+</body>
+</html>
+"""
+
+
+# The Workshop: the Busy Business page as a place (assets/place.js, rooms from the Busy Studio's
+# places/workshop.py). The tour follows one job of the demo's pretend studio (Studio Noor's sign for Café
+# Morgenrood) through the shop: the hours, the invoice, paid, the receipts, where you stand. The guide is
+# Rivet; until Rivet's model is made, Tuck stands in. Not an AI: these are its lines. Same step format as
+# HOUSE_STEPS.
+WORKSHOP_GUIDE = "Rivet"
+WORKSHOP_SWATCHES = (("#FF6B4A", "", "Tomato"), ("#2FD18C", "Georgia, serif", "Mint, classic letters"),
+                     ("#9B6BFF", "'Courier New', monospace", "Grape, typewriter"), ("#1E1B2E", "Georgia, serif", "Ink, classic letters"))
+WORKSHOP_STEPS = [
+    {"id": "front", "title": "The shop front · Brand Kit", "tool": "brand", "kicker": "Brand Kit",
+     "say": f"Hi, I'm {WORKSHOP_GUIDE}! This is Studio Noor's workshop. The sign above the door is still blank: shall we paint it?", "move": "Waving",
+     "acts": [("sign", "PointingGesture", "Your brand, your colours. Pick one and I'll paint.",
+               "<b>🎨 Brand Kit</b><span>Pick the colour and letters for the sign:</span><div class=\"house-swatches\">"
+               + "".join(f'<button type="button" class="btn" data-house-do="painted" data-paint="{c}" data-font="{e(f)}"><i style="background:{c}"></i>{e(n)}</button>'
+                         for c, f, n in WORKSHOP_SWATCHES) + "</div>", ""),
+              ("painted", "Victory", "Looking sharp! The same colours go on your invoices, your email signature and your business cards.",
+               "<b>✅ Sign painted</b><span>The same colours and logo on every invoice and quote</span><span>An email signature for every mail app, business cards with a QR code</span>"
+               "<button type=\"button\" class=\"btn btn-primary\" data-house-next>🔑 Open up →</button>", "")]},
+    {"id": "bench", "title": "Workbench · Time Tracker", "tool": "time", "kicker": "Time Tracker, Project Board & Planner", "h": "Every hour counted, every job on track",
+     "p": "One big button for the hours, a board for every job and a planner for the dates. The hours go straight onto the invoice.",
+     "task": "Tap the big clock, then the board.", "say": "The workbench. Today: the new sign for Café Morgenrood. Start the clock and I'll get to work.",
+     "acts": [("clock", "Happy", "The clock's running. Two and a half hours on the Café Morgenrood sign.",
+               "<b>⏱️ Signage for Café Morgenrood</b><span>2 h 30 m today · billable</span><span>This week: 11 of 40 planned hours</span>", ""),
+              ("board", "Victory", "Into Done it goes, confetti and all. Next: the invoice.",
+               "<b>🗂️ Signage for Café Morgenrood</b><ul class=\"house-ticks\"><li data-tick>Measure the walls</li><li data-tick>Three sketch directions</li><li data-tick>Paint the sign</li></ul>"
+               "<span>3 of 3 done · the planner moves the install date forward</span>", "confetti")]},
+    {"id": "counter", "title": "The counter · Invoices & Quotes", "tool": "invoices", "kicker": "Invoices & Quotes, Client Book", "h": "From hours to paid, in one click",
+     "p": "Pick a client and the hours are already there. The maths, the numbering, the PDF, a QR code to pay and the reminder are done for you.",
+     "task": "Tap the till, or the client cards.", "say": "The counter. The hours from the workbench are waiting to become an invoice.",
+     "acts": [("till", "PointingGesture", "Ding! The hours became an invoice: numbered, VAT added, with a QR code to pay.",
+               "<b>🧾 Invoice 2026-014 · Café Morgenrood</b><span>Signage: 2.5 hours × €75 = €187.50</span><span>VAT 21%: €39.38 · <b>total €226.88</b></span>"
+               "<span>📱 QR code to pay · reminder set for day 30</span><button type=\"button\" class=\"btn btn-primary\" data-house-do=\"paid\">📱 Sam scans and pays</button>", ""),
+              ("paid", "Victory", "Paid! Sam scanned the code. My favourite sound.",
+               "<b>✅ Paid</b><span>€226.88 from Café Morgenrood, two days after sending</span><span>The Money Dashboard knows already</span>", "confetti"),
+              ("cards", "Happy", "The client book: what Café Morgenrood paid, what's open, and the little things worth remembering.",
+               "<b>📇 Café Morgenrood · Sam Okafor</b><span>Rotterdam · pays within 30 days</span><span>Paid this year: €2,840 · open: €0</span><span>📝 Opening night on the 14th: send flowers</span>", "")]},
+    {"id": "office", "title": "Back office · Receipts & Money", "tool": "expenses", "kicker": "Receipts, Money Dashboard & Subscriptions", "h": "See where you stand",
+     "p": "Drop a photo of a receipt and it's filed, with the VAT you claim back. The dashboard shows profit, what to put aside and who still owes you, and every little monthly bill is in one place.",
+     "task": "Tap the shoebox, then the gauge on the wall.", "say": "The back office. Everyone has a shoebox like that one…",
+     "acts": [("shoebox", "Typing", "Sorted! Every receipt filed, with the VAT you can claim back.",
+               "<b>📸 Receipts sorted</b><ul class=\"house-ticks\"><li data-tick>Paint and brushes · €84.20 · materials</li><li data-tick>Oak boards · €126.00 · materials</li>"
+               "<li data-tick>Train to Rotterdam · €12.40 · travel</li></ul><span>VAT to claim back: <b>€37.84</b></span>", ""),
+              ("gauge", "PointingGesture", "Here's where you stand: profit, what to keep aside, and who still owes you.",
+               "<b>📈 This quarter</b><span>Profit so far: €6,420</span><span>Keep aside: €1,180 VAT and €1,350 income tax</span><span>Still to come in: €1,045 from 2 clients</span>"
+               "<span>🔁 Subscriptions: €47 a month · one renews in 9 days</span>", "")]},
+    {"id": "desk", "title": "Writing desk · Document Maker", "tool": "docs", "kicker": "Document Maker", "h": "Quotes and contracts, filled in",
+     "p": "Pick a template and a client. Names, addresses, dates and bank details are filled in; you add the good bits and save a PDF with your logo.",
+     "task": "Tap the laptop.", "say": "The writing desk. Café Morgenrood wants lettering on the side window too. A quote?",
+     "acts": [("laptop", "Typing", "Names, addresses, dates and bank details: all filled in. Your logo on top.",
+               "<b>📝 Quote: window lettering</b><span data-type>Dear Sam, thank you for asking us about lettering for the side window. Below is our quote for the design and two sessions of hand lettering, materials included. Valid until the end of the month. Kind regards, Noor Visser, Studio Noor</span>"
+               "<span>📄 Saved as a PDF with your logo</span>", "")]},
+    {"id": "stock", "title": "Stockroom · Stock Keeper", "tool": "stock", "kicker": "Stock Keeper", "h": "Never run out halfway through a job",
+     "p": "Tap plus and minus as things come in and go out. Busy warns you before the shelf runs empty and keeps a history of every change.",
+     "task": "Tap the stack of oak boards.", "say": "The stockroom. Those oak boards go fast.",
+     "acts": [("boards", "JoggingWithBox", "Three boards out for the sign. Only four left: time to order.",
+               "<b>📦 Oak boards</b><span>7 → 4 left (3 for Café Morgenrood)</span><span><b>⚠️ Running low: order 10 before Friday</b></span><span>Every change kept in the history</span>", "")]},
+    {"id": "yard", "title": "The yard · Trip Log", "tool": "trips", "kicker": "Trip Log", "h": "Every kilometre counts at tax time",
+     "p": "Log a trip in seconds, tap your usual routes, and see what your kilometres are worth at tax time.",
+     "task": "Tap the van.", "say": "The yard. The sign's ready: off to Rotterdam!",
+     "acts": [("van", "Waving", "Logged! Utrecht to Rotterdam and back, one tap on the usual route.",
+               "<b>🚗 Utrecht → Rotterdam · Café Morgenrood</b><span>114 km return, logged in one tap</span><span>Worth <b>€26.22</b> at tax time (€0.23 a km)</span><span>This year: 3,480 km, worth €800.40</span>", "")]},
+    {"id": "window", "title": "Shop window · Marketing Studio", "tool": "marketing", "kicker": "Marketing Studio", "h": "Marketing that keeps going",
+     "p": "A brand profile, a year plan that's always on, a content calendar, and what your own invoices say about your best clients. Plan it, make it, see what works.",
+     "task": "Tap the poster in the window.", "say": "The shop window. What does the street get to see this week?",
+     "acts": [("poster", "PointingGesture", "This week's post, in your colours. The calendar already has the next three.",
+               "<b>📣 This week: Café Morgenrood opens</b><span>Instagram · Thursday · a photo of the finished sign</span><ul class=\"house-ticks\">"
+               "<li data-tick>Next week: behind the scenes of the lettering</li><li data-tick>In two weeks: a customer story</li><li data-tick>In three weeks: open studio day</li></ul>", "show:poster"),
+              ("chalkboard", "Happy", "Your own invoices say it: your best clients come through recommendations. So ask for them!",
+               "<b>💡 From your invoices</b><span>4 of your 5 best clients came through a recommendation</span><span>Idea: a small thank-you for every referral</span>", "")]},
+    {"id": "end", "plate": "front", "title": f"Take {WORKSHOP_GUIDE} home", "say": "That's the workshop! Take me home: I'm free, for Mac and Windows.", "move": "Waving", "acts": []},
+]
+WORKSHOP_DECALS = {"sign": ("Studio Noor", False), "van": ("Studio Noor", True),
+                   "poster": ("<b>Now open</b><span>Café Morgenrood</span><span>A new sign by Studio Noor</span>", False)}
+
+
+def workshop_card(s: dict) -> str:
+    """The words of one room of the Workshop, shown in the card next to it."""
+    if s["id"] == "front":
+        return ('<span class="chip chip-sun">Free · no account · Mac and Windows</span><h1>Busy Business 🛠️</h1>'
+                f'<p>Free tools for freelancers, makers and small studios: invoices, hours, receipts, projects, stock and marketing. Everything in your own folder. {WORKSHOP_GUIDE} shows you round the workshop.</p>'
+                '<p class="house-task">👉 Tap the blank sign above the door.</p><div class="house-result" data-result hidden></div>'
+                '<div class="row-flex"><button type="button" class="btn btn-primary" data-house-next>Skip to the workshop →</button><a class="btn" href="download.html">⬇️ Download free</a></div>')
+    if s["id"] == "end":
+        return (f'<p class="kicker">The end of the tour</p><h2>Take the workshop home</h2><p>All 13 tools, free. No account, no subscription, nothing sent to us.</p>'
+                f'{app_download("Business", "Busy Business")}<p class="faint"><a href="olaf.html">Want an expert alongside you? Meet Olaf, your AI expert for marketing and projects →</a></p>')
+    return (f'<p class="kicker">{e(s["kicker"])}</p><h2>{e(s["h"])}</h2><p>{e(s["p"])}</p><p class="house-task">👉 {e(s["task"])}</p>'
+            f'<div class="house-result" data-result hidden></div>'
+            f'<p class="house-try"><a href="../app/apps/{s["tool"]}/index.html">Try it for real →</a></p>')
+
+
+def workshop_page(tools: list) -> str:
+    """busy.com.ai/business/workshop.html: the Workshop on its own page while it's being tried out (not in the sitemap)."""
+    extra = ('<meta name="robots" content="noindex">'
+             '<script type="importmap">{"imports":{"three":"../assets/vendor/three/build/three.module.min.js"}}</script>'
+             '<link rel="preload" href="../assets/workshop/room-front-1920.jpg" as="image">')
+    return f"""{head("The Workshop: a tour of Busy Business", "Walk through Studio Noor's workshop and try the free Busy Business tools: invoices, hours, receipts, projects, stock and marketing.", "business/workshop.html", "../", extra=extra)}
+<body class="site app-sun">
+{nav("../")}
+<main id="main">
+  {place_html("workshop", WORKSHOP_STEPS, workshop_card, "The Workshop: a tour of Busy Business", decals=WORKSHOP_DECALS, brand="#FF6B4A")}
+  <section class="section"><div class="wrap center">
+    <h2 class="big">Thirteen tools. Zero yawns.</h2><p class="lead">Every tool on its own page, with what it does and how it works.</p>
+    <p style="margin-top:18px"><a class="btn btn-primary" href="tools.html">See all the tools</a> <a class="btn" href="index.html">Busy Business</a></p>
+  </div></section>
+</main>
+{footer("../", tools)}
+<script src="../assets/site.js"></script>
+<script type="module" src="../assets/place.js"></script>
 </body>
 </html>
 """
@@ -1350,6 +1474,7 @@ def build_pages() -> None:
         (business / f'{t["id"]}.html').write_text(tool_page(t, tools, sc.get(t["id"], "")))
     (business / "tools.html").write_text(tools_index(tools))
     (business / "olaf.html").write_text(to_business(olaf_page(tools)))
+    (business / "workshop.html").write_text(workshop_page(tools))
     (SITE / "about.html").write_text(about_page(tools))
     (SITE / "claude-key.html").write_text(claude_key_page(tools))
     (SITE / "growth").mkdir(exist_ok=True)
