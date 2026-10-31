@@ -1083,7 +1083,7 @@ def growth_page(tools: list) -> str:
                                "🌿 Tell me when Ivy is ready" if GROWTH_LIVE else "🌱 Tell me when it's ready", who="")
     else:
         signup = '<p class="lead">The list opens soon. Meanwhile, keep your brain busy with <a href="../games/index.html">today\'s puzzles</a>.</p>'
-    ivy = """<section class="section" id="ivy"><div class="wrap">
+    ivy = f"""<section class="section" id="ivy"><div class="wrap">
     <div class="card ivy-card reveal"><img src="../assets/ivy-mark.svg" alt="" width="96" height="96">
       <div><p class="kicker">Ivy by Busy · €30 once{"" if IVY_CHECKOUT_URL else " · coming soon"}</p><h2>Your AI coach for professional growth</h2>
       <p>Ivy turns what you learn into skills and wins, those into a stronger CV, and helps with every application and interview. Learn it, prove it, land it. Ivy never invents experience: every line comes with its proof.</p>
@@ -1497,7 +1497,7 @@ def glasshouse_card(s: dict) -> str:
     if s["id"] == "foot":
         return ('<span class="chip chip-mint">Free · no account · Mac and Windows</span><h1>Busy Growth 🌱</h1>'
                 '<p>Free tools to grow your career: learn something, prove it, show it and land the next role. Everything in your own folder. Climb the Glasshouse to see how.</p>'
-                '<div class="row-flex"><button type="button" class="btn btn-primary" data-house-do="bell">🔔 Ring the bell</button><a class="btn" href="#get">⬇️ Download free</a></div>'
+                '<div class="row-flex"><button type="button" class="btn btn-primary" data-house-do="bell">🔔 Ring the bell</button><a class="btn" href="#get">⬇️ Download free</a><a class="btn" href="../app/growth.html">👀 See the demo</a></div>'
                 '<div class="house-result" data-result hidden></div>')
     if s["id"] == "end":
         return (f'<p class="kicker">The top of the climb</p><h2>Take the Glasshouse home</h2><p>All {len(GROWTH_TOOLS)} tools, free. No account, no subscription, nothing sent to us.</p>'
