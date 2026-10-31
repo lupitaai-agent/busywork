@@ -104,3 +104,9 @@
 @media (prefers-reduced-motion: reduce) {
   .board .cell, .board .tok, .win .burst { animation: none !important; }
 }
+
+/* Today's set on the win screen: the four daily puzzles, the solved ones ticked. */
+.today-set { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 6px 0 0; }
+.today-set span { padding: 3px 10px; border: 2px solid var(--border); border-radius: 999px; font-weight: 750; font-size: .85rem; opacity: .55; }
+.today-set span.done { opacity: 1; background: var(--mint); color: #1E1B2E; }
+.today-set span.done::before { content: "✓ "; }

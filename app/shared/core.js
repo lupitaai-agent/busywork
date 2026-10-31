@@ -84,7 +84,9 @@
     const name = (BW.settings && BW.settings.businessName) || '';
     const s = p.sign, h = s && (s.height * 9 / 6) + '%'; // the banner shows the top 6/9 of the 16:9 picture
     const sign = s && name ? `<span class="place-sign" style="left:${s.left}%;width:${s.width}%;top:${s.top * 9 / 6}%;height:${h};--brand:${BW.esc(BW.settings.brandColor || '#FF6B4A')};--len:${Math.max(6, name.length)}"><b>${BW.esc(name)}</b></span>` : '';
-    return `<figure class="place-banner" aria-label="${BW.esc(p.name)}, rendered in the Busy Studio"><img src="${placeImg(p.front)}" alt="">${sign}</figure>`;
+    const last = BW.lastTool();
+    const back = last ? `<a class="resume" href="${BW.root}apps/${last.id}/index.html">↩ Back to ${last.emoji} ${BW.esc(last.name)}</a>` : '';
+    return `<figure class="place-banner" aria-label="${BW.esc(p.name)}, rendered in the Busy Studio"><img src="${placeImg(p.front)}" alt="">${sign}${back}</figure>`;
   };
   BW.suiteApps = () => BW.apps.filter((a) => a.suite === BW.suite);
 
@@ -1501,7 +1503,7 @@
     const theme = THEMES.find((t) => t[0] === (ls.get('bw.theme') || '')) || THEMES[0];
     const bar = BW.html(`<header class="topbar" data-suite="${BW.suite}"><div class="wrap">
       <a class="brandmark" href="${BW.root}${suite().home}" title="All tools"><span class="blob">✦</span><span class="word">${suite().name}</span></a>
-      ${app ? `<div class="crumb"><span class="slash">/</span><span>${app.emoji}</span><span class="app-name">${app.name}</span></div>` : ''}
+      ${app ? `<div class="crumb"><span class="slash">/</span><button type="button" class="switch-btn" data-switch aria-expanded="false" title="Go to another tool"><span>${app.emoji}</span><span class="app-name">${app.name}</span><span class="caret" aria-hidden="true">▾</span></button></div>` : ''}
       <div class="spacer"></div>
       <button class="btn btn-ghost search-btn" data-palette hidden title="Search everything (⌘K)"><span>🔍</span><span class="lbl">Search</span><kbd class="lbl">⌘K</kbd></button>
       <button class="btn btn-primary new-btn" data-new hidden title="Make something new"><span>＋</span><span class="lbl">New</span></button>
@@ -1511,8 +1513,41 @@
     </div></header>`);
     document.body.prepend(bar);
     BW.$('[data-theme-btn]', bar).onclick = BW.cycleTheme;
+    if (app) switcher(bar, app);
     return bar;
   }
+
+  // The crumb opens the suite's other tools, each with its room, so moving between tools doesn't mean a trip home.
+  function switcher(bar, app) {
+    const btn = BW.$('[data-switch]', bar);
+    const list = BW.suiteApps().filter((a) => a.ready && !a.addon);
+    const menu = BW.html(`<nav class="switcher" aria-label="${suite().name} tools" hidden>
+      <a class="sw-home" href="${BW.root}${suite().home}">🏠 All of ${suite().name}</a>
+      ${list.map((a) => `<a href="${BW.root}apps/${a.id}/index.html"${a.id === app.id ? ' aria-current="page"' : ''}>${BW.roomPic(a.id)}<span class="sw-emo">${a.emoji}</span><span class="sw-txt"><b>${BW.esc(a.name)}</b><small>${BW.esc(a.tagline)}</small></span></a>`).join('')}</nav>`);
+    bar.append(menu);
+    const links = () => BW.$$('a', menu);
+    const open = (on) => {
+      menu.hidden = !on;
+      btn.setAttribute('aria-expanded', String(on));
+      if (on) (BW.$('[aria-current]', menu) || links()[0]).focus();
+    };
+    btn.onclick = (e) => { e.stopPropagation(); open(menu.hidden); };
+    document.addEventListener('click', (e) => { if (!menu.hidden && !menu.contains(e.target)) open(false); });
+    menu.addEventListener('keydown', (e) => {
+      const l = links(), i = l.indexOf(document.activeElement);
+      if (e.key === 'Escape') { open(false); btn.focus(); }
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); l[(i + (e.key === 'ArrowDown' ? 1 : -1) + l.length) % l.length].focus(); }
+    });
+  }
+
+  // The tool used last in this suite (in the past week), so the home screen can offer the way back.
+  const lastKey = () => 'bw.last' + suite().key;
+  BW.lastTool = () => {
+    try {
+      const x = JSON.parse(localStorage.getItem(lastKey()) || 'null');
+      return (x && Date.now() - x.at < 7 * 864e5 && BW.suiteApps().find((a) => a.id === x.id && a.ready && !a.addon)) || null;
+    } catch (e) { return null; }
+  };
 
   // Every page calls this once: draws the top bar, connects storage, runs first-time setup, then hands over.
   BW.boot = async ({ app: appId, onReady, onChange } = {}) => {
@@ -1524,6 +1559,7 @@
     // A tool page opens with a band of the room it lives in; the home screen is called after the suite.
     if (app && BW.roomOf(app.id)) bar.after(BW.html(`<div class="room-band" aria-hidden="true" style="background-image:url('${BW.roomOf(app.id)}')"></div>`));
     if (!app) document.title = suite().name;
+    else try { localStorage.setItem(lastKey(), JSON.stringify({ id: app.id, at: Date.now() })); } catch (e) { /* private window */ }
     try {
       await connect();
       const data = await BW.migrate();

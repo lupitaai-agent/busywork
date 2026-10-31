@@ -425,3 +425,25 @@ select.in { appearance: none; background-image: linear-gradient(45deg, transpare
 .room-band { height: 92px; margin-bottom: -40px; background: center 58% / cover no-repeat; opacity: .85;
   -webkit-mask-image: linear-gradient(#000 35%, transparent); mask-image: linear-gradient(#000 35%, transparent); pointer-events: none; }
 @media print { .room-band { display: none; } }
+
+/* The tool switcher: the crumb opens the suite's tools, each with its room. */
+.topbar { position: relative; }
+.topbar .switch-btn { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 6px 10px; margin: 0 -10px; border: 2px solid transparent; border-radius: 12px;
+  background: none; font: inherit; color: inherit; cursor: pointer; }
+.topbar .switch-btn:hover, .topbar .switch-btn[aria-expanded="true"] { border-color: var(--border); background: var(--surface); }
+.topbar .switch-btn .caret { font-size: .8em; color: var(--ink-3); }
+.switcher { position: absolute; z-index: 60; top: calc(100% + 6px); left: max(12px, calc(50% - 600px)); width: min(440px, calc(100vw - 24px)); max-height: min(70vh, 620px); overflow: auto;
+  display: flex; flex-direction: column; gap: 4px; padding: 10px; background: var(--surface); border: 2px solid var(--border); border-radius: 20px; box-shadow: var(--shadow); }
+.switcher a { display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 12px; text-decoration: none; color: var(--ink); }
+.switcher a:hover, .switcher a:focus-visible { background: var(--app-soft); outline: none; }
+.switcher a[aria-current="page"] { background: var(--app-soft); box-shadow: inset 0 0 0 2px var(--border); }
+.switcher .sw-home { font-weight: 800; }
+.switcher .room-pic { flex: none; width: 76px; height: 44px; border-radius: 9px; background: center / cover no-repeat; border: 2px solid var(--border); }
+.switcher .sw-emo { margin-left: -22px; margin-top: 26px; font-size: 1.1rem; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .4)); }
+.switcher .sw-txt { display: flex; flex-direction: column; min-width: 0; }
+.switcher small { color: var(--ink-2); font-size: .8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* The website demo's bar, compact on a phone. */
+@media (max-width: 600px) {
+  .demo-bar { padding: 5px 10px !important; gap: 4px 10px !important; font-size: .78rem !important; }
+  .demo-bar .btn { padding: 3px 10px !important; font-size: .78rem; }
+}

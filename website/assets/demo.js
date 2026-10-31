@@ -80,6 +80,7 @@
     const site = (document.body.dataset.root || '') + '../';
     const bar = document.createElement('div');
     bar.setAttribute('role', 'note');
+    bar.className = 'demo-bar';
     bar.style.cssText = 'display:flex;gap:10px 16px;flex-wrap:wrap;align-items:center;justify-content:center;padding:9px 16px;font-weight:700;font-size:.92rem;'
       + 'background:color-mix(in srgb, var(--grape) 30%, var(--surface));color:var(--ink);border-top:2px solid var(--border)';
     bar.innerHTML = HOUSE

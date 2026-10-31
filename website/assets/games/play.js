@@ -360,16 +360,24 @@
   function showWin(again) {
     const s = streak(load(), game);
     const others = ['stars', 'duo', 'trail', 'six'].filter((g) => g !== game).map((g) => `<a class="btn" href="${g}.html">${NAMES[g]}</a>`).join('');
+    // Today's set: how many of the four are done, and the next one waiting (most daily players finish the set).
+    const today = (load().daily || {})[current.day] || {};
+    const doneToday = ['stars', 'duo', 'trail', 'six'].filter((g) => today[g] != null);
+    const waiting = ['stars', 'duo', 'trail', 'six'].filter((g) => today[g] == null);
+    const daily = current.kind === 'daily';
     winEl.innerHTML = `<div class="burst" aria-hidden="true">${again ? '✅' : '🎉'}</div>
       <h2>${again ? 'Already solved' : 'Solved!'}</h2>
       <p>${current.kind === 'daily' ? `Today's ${NAMES[game]}` : `Level ${current.level.toLocaleString('en-GB')} · ${esc(puzzle.difficulty)}`} in <b>${clock(secs)}</b>${hints ? ` with ${hints} hint${hints === 1 ? '' : 's'}` : ''}.</p>
-      ${current.kind === 'daily' && s ? `<p class="streak">🔥 ${s}-day streak</p>` : ''}
+      ${daily && s ? `<p class="streak">🔥 ${s}-day streak</p>` : ''}
+      ${daily ? `<p class="today-set" aria-label="${doneToday.length} of 4 of today's puzzles done">${['stars', 'duo', 'trail', 'six'].map((g) => `<span class="${today[g] != null ? 'done' : ''}">${NAMES[g]}</span>`).join('')}</p>
+        <p><b>${waiting.length ? `${doneToday.length} of 4 today` : 'All four done today! 🏆'}</b></p>` : ''}
       <div class="row-flex">
         ${current.kind === 'level' && current.level < G.LEVELS ? '<button type="button" class="btn btn-primary" data-go-next>Next level →</button>' : ''}
-        ${current.kind === 'daily' ? '<button type="button" class="btn btn-primary" data-go-levels>🏁 Play levels</button>' : ''}
+        ${daily && waiting.length ? `<a class="btn btn-primary" href="${waiting[0]}.html">Next: today's ${NAMES[waiting[0]]} →</a>` : ''}
+        ${daily ? `<button type="button" class="btn${waiting.length ? '' : ' btn-primary'}" data-go-levels>🏁 Play levels</button>` : ''}
         ${again ? '' : '<button type="button" class="btn" data-share>📣 Share</button>'}
       </div>
-      ${current.kind === 'daily' ? `<p class="faint">A new puzzle tomorrow. Meanwhile: ${others}</p>` : ''}`;
+      ${daily && !waiting.length ? `<p class="faint">A new set tomorrow. Meanwhile: ${others}</p>` : ''}`;
     winEl.hidden = false;
     const nx = $('[data-go-next]', winEl); if (nx) nx.onclick = () => open({ kind: 'level', level: current.level + 1 });
     const lv = $('[data-go-levels]', winEl); if (lv) lv.onclick = () => open({ kind: 'level', level: nextLevel(load(), game) });

@@ -84,3 +84,15 @@
 .tile .room-pic + .icon { position: relative; margin-left: 4px; }
 .tile.soon .room-pic { filter: saturate(.3); opacity: .6; }
 @media (prefers-reduced-motion: reduce) { .place-sign { animation: none; } }
+
+/* The greeting sits on the place's picture on bigger screens, so what needs you today shows straight away. */
+.place-banner .resume { position: absolute; top: 14px; right: 14px; z-index: 2; padding: 6px 13px; border: 2px solid var(--border); border-radius: 999px;
+  background: var(--surface); color: var(--ink); font-weight: 800; text-decoration: none; box-shadow: var(--shadow-sm); }
+.place-banner .resume:hover { transform: translate(-2px, -2px); }
+@media (min-width: 761px) {
+  .place-banner::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(to top, rgba(22, 20, 31, .85), rgba(22, 20, 31, .3) 42%, transparent 66%); }
+  .place-banner + .home-hero { position: relative; z-index: 1; height: 170px; box-sizing: border-box; margin: -170px 0 24px; padding: 0 30px 26px; color: #FBF7EE; }
+  .place-banner + .home-hero h1 { color: #FBF7EE; text-shadow: 0 2px 14px rgba(0, 0, 0, .45); }
+  .place-banner + .home-hero .lead { color: rgba(251, 247, 238, .88); }
+  .place-banner + .home-hero .lead b { color: #fff; }
+}
