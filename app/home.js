@@ -57,10 +57,11 @@
     ).filter((x) => x[0]).sort((a, b) => b[0].localeCompare(a[0])).slice(0, 6);
     const soon = BW.apps.filter((a) => !a.ready);
     const tile = (a) => a.ready
-      ? `<a class="tile" style="--c:var(--${a.color})" href="apps/${a.id}/index.html" ${a.addon ? `data-addon="${a.id}"` : ''}>${a.addon ? '<span class="chip chip-sun sticker" data-addon-chip>Paid add-on</span>' : ''}<span class="icon">${a.emoji}</span><b>${a.name}</b><p>${a.tagline}</p><span class="go">Open <span>→</span></span></a>`
-      : `<div class="tile soon" style="--c:var(--${a.color})"><span class="chip chip-grape sticker">Soon</span><span class="icon">${a.emoji}</span><b>${a.name}</b><p>${a.tagline}</p></div>`;
+      ? `<a class="tile" style="--c:var(--${a.color})" href="apps/${a.id}/index.html" ${a.addon ? `data-addon="${a.id}"` : ''}>${a.addon ? '<span class="chip chip-sun sticker" data-addon-chip>Paid add-on</span>' : ''}${BW.roomPic(a.id)}<span class="icon">${a.emoji}</span><b>${a.name}</b><p>${a.tagline}</p><span class="go">Open <span>→</span></span></a>`
+      : `<div class="tile soon" style="--c:var(--${a.color})"><span class="chip chip-grape sticker">Soon</span>${BW.roomPic(a.id)}<span class="icon">${a.emoji}</span><b>${a.name}</b><p>${a.tagline}</p></div>`;
 
     main.innerHTML = `
+      ${BW.placeBanner()}
       <section class="home-hero">
         <div><h1>${hello}${name ? ', ' + esc(name) : ''} <span class="hand">👋</span></h1>
           <p class="lead">${glance.length ? 'Here’s what needs you today.' : BW.brand.tagline + ' What are we ticking off today?'}</p></div>

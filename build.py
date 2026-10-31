@@ -69,7 +69,7 @@ GROWTH_FILES = {"growth.html", "growth-home.js", "shared/growth.js", "shared/gro
 
 
 def growth_part(rel: str) -> bool:
-    return rel in GROWTH_FILES or any(rel == f"apps/{a}" or rel.startswith(f"apps/{a}/") for a in GROWTH_APPS)
+    return rel in GROWTH_FILES or rel.startswith("shared/places/glasshouse/") or any(rel == f"apps/{a}" or rel.startswith(f"apps/{a}/") for a in GROWTH_APPS)
 
 
 # Busy Home (household paperwork) works the same way, with its own switch HOME_LIVE=1 and its own
@@ -81,7 +81,7 @@ HOUSE_FILES = {"home.html", "home-suite.js", "shared/house.js", "shared/house.cs
 
 
 def house_part(rel: str) -> bool:
-    return rel in HOUSE_FILES or any(rel == f"apps/{a}" or rel.startswith(f"apps/{a}/") for a in HOUSE_APPS)
+    return rel in HOUSE_FILES or rel.startswith("shared/places/house/") or any(rel == f"apps/{a}" or rel.startswith(f"apps/{a}/") for a in HOUSE_APPS)
 
 
 def suites_of(rel: str) -> set:
@@ -149,6 +149,8 @@ def suite_zip_files(name: str) -> list:
         if not p.is_file() or any(skip(part) for part in p.relative_to(APP).parents if part.name) or skip(p) or rel in NOT_IN_DOWNLOAD:
             continue
         s = suites_of(rel)
+        if rel.startswith("shared/places/workshop/"):  # the Workshop's rooms belong to Busy Business
+            continue
         if name in s or (rel.startswith("shared/") and not s):
             out.append(p)
     return out

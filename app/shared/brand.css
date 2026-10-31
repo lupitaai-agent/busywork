@@ -418,3 +418,10 @@ select.in { appearance: none; background-image: linear-gradient(45deg, transpare
 .setup-dots i { width: 28px; height: 6px; border-radius: 99px; background: var(--hair); }
 .setup-dots i.on { background: var(--grape); }
 .steps-list { margin: 0; padding-left: 1.3em; display: grid; gap: 8px; line-height: 1.45; }
+
+/* Each suite's own mark in the top bar, and a band of the tool's room under it (the places from the Busy Studio). */
+.topbar[data-suite="growth"] .brandmark .blob { background: var(--mint); }
+.topbar[data-suite="house"] .brandmark .blob { background: #FF8A5B; }
+.room-band { height: 92px; margin-bottom: -40px; background: center 58% / cover no-repeat; opacity: .85;
+  -webkit-mask-image: linear-gradient(#000 35%, transparent); mask-image: linear-gradient(#000 35%, transparent); pointer-events: none; }
+@media print { .room-band { display: none; } }

@@ -54,10 +54,11 @@
     let hidden = false;
     try { hidden = localStorage.getItem('bw.hideStart:growth') === '1'; } catch (e) { /* private window */ }
     const tile = (a) => a.ready
-      ? `<a class="tile" style="--c:var(--${a.color})" href="apps/${a.id}/index.html"><span class="icon">${a.emoji}</span><b>${a.name}</b><p>${a.tagline}</p><span class="go">Open <span>→</span></span></a>`
-      : `<div class="tile soon" style="--c:var(--${a.color})"><span class="chip chip-grape sticker">Soon</span><span class="icon">${a.emoji}</span><b>${a.name}</b><p>${a.tagline}</p></div>`;
+      ? `<a class="tile" style="--c:var(--${a.color})" href="apps/${a.id}/index.html">${BW.roomPic(a.id)}<span class="icon">${a.emoji}</span><b>${a.name}</b><p>${a.tagline}</p><span class="go">Open <span>→</span></span></a>`
+      : `<div class="tile soon" style="--c:var(--${a.color})"><span class="chip chip-grape sticker">Soon</span>${BW.roomPic(a.id)}<span class="icon">${a.emoji}</span><b>${a.name}</b><p>${a.tagline}</p></div>`;
 
     main.innerHTML = `
+      ${BW.placeBanner()}
       <section class="home-hero">
         <div><h1>${hello}${name ? ', ' + esc(name) : ''} <span class="hand">🌱</span></h1>
           <p class="lead">${s.targetRole ? `Heading for <b>${esc(s.targetRole)}</b>. ` : ''}${s.goal ? `Your goal: ${esc(s.goal.replace(/[.\s]+$/, ''))}.` : 'Learn it, prove it, land it.'}</p></div>

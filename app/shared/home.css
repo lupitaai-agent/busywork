@@ -71,3 +71,16 @@
 
 /* A word (a skill's name) instead of a number in a glance card */
 .glance .stat .v.word { font-size: 1.3rem; line-height: 1.2; overflow-wrap: anywhere; }
+
+/* The place on the home screen (its front, as on the website) and each tool's room on its tile. */
+.place-banner { position: relative; margin: 24px 0 0; aspect-ratio: 16 / 6; overflow: hidden; border: 2px solid var(--border); border-radius: 26px; box-shadow: var(--shadow); background: #16141F; }
+.place-banner img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; }
+.place-sign { position: absolute; display: flex; align-items: center; justify-content: center; overflow: hidden; white-space: nowrap; container-type: size;
+  color: var(--brand); font-weight: 900; letter-spacing: -.01em; animation: sign-in .8s ease-out; }
+.place-sign b { font-size: min(58cqh, calc(170cqw / var(--len))); }
+@keyframes sign-in { from { opacity: 0; filter: blur(4px); } }
+.place-banner + .home-hero { padding-top: 22px; }
+.tile .room-pic { display: block; margin: -22px -22px -40px; height: 112px; background: center / cover no-repeat; border-bottom: 2px solid var(--border); }
+.tile .room-pic + .icon { position: relative; margin-left: 4px; }
+.tile.soon .room-pic { filter: saturate(.3); opacity: .6; }
+@media (prefers-reduced-motion: reduce) { .place-sign { animation: none; } }

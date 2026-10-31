@@ -62,6 +62,30 @@
   };
   BW.suite = 'business';
   const suite = () => BW.SUITES[BW.suite] || BW.SUITES.business;
+  // Each suite is a place, rendered in the Busy Studio as on the website: its front (on the home screen) and
+  // the room every tool lives in (shared/places/<place>/<room>.jpg). The Workshop's sign (where on the
+  // picture, as a share of its width and height) carries the business's own name in its brand colour.
+  BW.PLACES = {
+    business: { dir: 'workshop', front: 'front', name: 'the Workshop', sign: { left: 37.6, top: 4.6, width: 42.2, height: 11.5 },
+      rooms: { brand: 'front', time: 'bench', projects: 'bench', board: 'bench', invoices: 'counter', clients: 'counter', expenses: 'office', money: 'office',
+        subscriptions: 'office', docs: 'desk', stock: 'stock', trips: 'yard', marketing: 'window' } },
+    growth: { dir: 'glasshouse', front: 'foot', name: 'the Glasshouse',
+      rooms: { library: 'roots', learning: 'potting', skills: 'trellis', wins: 'trellis', jobs: 'lookout', cv: 'print', stories: 'print', contacts: 'bridge', review: 'roof' } },
+    house: { dir: 'house', front: 'door', name: "Tuck's house",
+      rooms: { papers: 'papers', contracts: 'contracts', upkeep: 'upkeep', inventory: 'inventory', letters: 'letters', moving: 'moving', binder: 'binder' } },
+  };
+  const placeImg = (room) => `${BW.root}shared/places/${BW.PLACES[BW.suite].dir}/${room}.jpg`;
+  BW.roomOf = (appId) => { const p = BW.PLACES[BW.suite]; return p && p.rooms[appId] ? placeImg(p.rooms[appId]) : ''; };
+  BW.roomPic = (appId) => { const src = BW.roomOf(appId); return src ? `<span class="room-pic" style="background-image:url('${src}')" aria-hidden="true"></span>` : ''; };
+  // The home screen's picture: the place's front (the Workshop's sign painted with the business's name).
+  BW.placeBanner = () => {
+    const p = BW.PLACES[BW.suite];
+    if (!p) return '';
+    const name = (BW.settings && BW.settings.businessName) || '';
+    const s = p.sign, h = s && (s.height * 9 / 6) + '%'; // the banner shows the top 6/9 of the 16:9 picture
+    const sign = s && name ? `<span class="place-sign" style="left:${s.left}%;width:${s.width}%;top:${s.top * 9 / 6}%;height:${h};--brand:${BW.esc(BW.settings.brandColor || '#FF6B4A')};--len:${Math.max(6, name.length)}"><b>${BW.esc(name)}</b></span>` : '';
+    return `<figure class="place-banner" aria-label="${BW.esc(p.name)}, rendered in the Busy Studio"><img src="${placeImg(p.front)}" alt="">${sign}</figure>`;
+  };
   BW.suiteApps = () => BW.apps.filter((a) => a.suite === BW.suite);
 
   const DEFAULTS = {
@@ -1475,8 +1499,8 @@
 
   function topbar(app) {
     const theme = THEMES.find((t) => t[0] === (ls.get('bw.theme') || '')) || THEMES[0];
-    const bar = BW.html(`<header class="topbar"><div class="wrap">
-      <a class="brandmark" href="${BW.root}${suite().home}" title="All tools"><span class="blob">✦</span><span class="word">${BW.brand.name}</span></a>
+    const bar = BW.html(`<header class="topbar" data-suite="${BW.suite}"><div class="wrap">
+      <a class="brandmark" href="${BW.root}${suite().home}" title="All tools"><span class="blob">✦</span><span class="word">${suite().name}</span></a>
       ${app ? `<div class="crumb"><span class="slash">/</span><span>${app.emoji}</span><span class="app-name">${app.name}</span></div>` : ''}
       <div class="spacer"></div>
       <button class="btn btn-ghost search-btn" data-palette hidden title="Search everything (⌘K)"><span>🔍</span><span class="lbl">Search</span><kbd class="lbl">⌘K</kbd></button>
@@ -1497,6 +1521,9 @@
     BW.suite = document.body.dataset.suite || (app && app.suite) || 'business';
     if (BW.suite === 'business') BW.olafInstalled(); // early, so tip cards know whether Olaf is here
     const bar = topbar(app);
+    // A tool page opens with a band of the room it lives in; the home screen is called after the suite.
+    if (app && BW.roomOf(app.id)) bar.after(BW.html(`<div class="room-band" aria-hidden="true" style="background-image:url('${BW.roomOf(app.id)}')"></div>`));
+    if (!app) document.title = suite().name;
     try {
       await connect();
       const data = await BW.migrate();
