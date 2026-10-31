@@ -108,13 +108,20 @@ async function start(house) {
       b.addEventListener('click', () => doAct(h.id));
       spots.append(b);
     });
-    focusX = 0.5;
     if (tuck) tuck.room(r, walk);
+    layout();
+    focusX = framing(r);
     layout();
     say(s.say);
     if (s.move && tuck) tuck.play(s.move);
     bindCard();
     if (steps[at + 1]) preload(steps[at + 1].plate);
+  }
+
+  // Where to look on a narrow screen: between Tuck and the first thing to tap (as a share of the room's width).
+  function framing(r) {
+    const xs = [r.walk.stand, ...r.hotspots.slice(0, 1).map((h) => h.at)].map((p) => onScreen(p, r)).filter(Boolean).map((pt) => (pt.x - frame.ox) / frame.fw);
+    return xs.length ? Math.min(0.85, Math.max(0.15, xs.reduce((a, b) => a + b, 0) / xs.length)) : 0.5;
   }
 
   function bindCard() {
@@ -151,13 +158,15 @@ async function start(house) {
     if (to < 0) return;
     busy = true;
     const target = to >= steps.length ? 0 : to;
+    const box = view.getBoundingClientRect();
+    if (box.top < -box.height / 3 || box.bottom > innerHeight + box.height / 3) view.scrollIntoView({ block: 'start', behavior: 'smooth' });
     await preload(steps[target].plate);
-    if (tuck) await tuck.leave(dir);
+    if (tuck) await Promise.race([tuck.leave(dir), wait(2500)]);
     house.classList.add('cut');
     await wait(180);
     show(target, { walk: dir });
     house.classList.remove('cut');
-    if (tuck) await tuck.enter(dir);
+    if (tuck) await Promise.race([tuck.enter(dir), wait(2500)]);
     busy = false;
     if (tuck && steps[at].move) tuck.play(steps[at].move);
   }
@@ -347,9 +356,9 @@ async function tuckIn(view, model, getFrame) {
   }
   function headAt() {
     model3.updateMatrixWorld(true);
-    (head ? head.getWorldPosition(v) : v.copy(holder.position).add(new THREE.Vector3(0, 1, 0)));
-    v.y += 0.25;
-    return project([v.x, v.y, v.z]);
+    // Above the top of his (big) head: the head bone sits low inside it. Sideways it follows the head as he moves.
+    if (head) head.getWorldPosition(v); else v.copy(holder.position);
+    return project([v.x, holder.position.y + 1.28 * holder.scale.y, v.z]);
   }
   // Walking: out of the room to one side, into the next from the other.
   function walkTo(target, speed = 0.9) {
@@ -395,7 +404,7 @@ async function tuckIn(view, model, getFrame) {
   const clock = new THREE.Clock();
   renderer.setAnimationLoop((now) => {
     const dt = Math.min(clock.getDelta(), 0.1);
-    if (!onScreen || document.hidden) return;
+    if (!onScreen || document.hidden) { if (walking) walking(Infinity); return; }
     if (walking) walking(performance.now());
     mixer.update(dt);
     if (!walking && head) {

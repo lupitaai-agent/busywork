@@ -502,5 +502,5 @@ html, body.site { overflow-x: clip; }
   .house-nav { position: static; padding: 0 12px 18px; }
   .house-nav .btn { padding: 8px 14px; }
   .house-hud { font-size: .82rem; left: 10px; top: 10px; }
-  .house-bubble { font-size: .9rem; }
+  .house-bubble { font-size: .84rem; padding: 8px 11px; max-width: min(250px, calc(100% - 24px)); }
 }
