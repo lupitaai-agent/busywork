@@ -119,3 +119,7 @@
   .place-guide img { height: 70%; }
   .guide-bubble { max-width: min(220px, 58vw); font-size: .78rem; padding: 7px 10px; margin-bottom: 8%; }
 }
+
+/* Busy Home: what's already late sits above what's coming, in tomato. */
+.attention.overdue { border-color: color-mix(in srgb, var(--tomato) 60%, var(--border)); background: color-mix(in srgb, var(--tomato) 10%, var(--surface)); }
+.attention.overdue small { color: color-mix(in srgb, var(--tomato) 70%, var(--ink)); font-weight: 700; }

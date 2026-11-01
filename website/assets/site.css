@@ -233,6 +233,9 @@ html, body.site { overflow-x: clip; }
 .feat { padding: 22px; transition: transform .25s cubic-bezier(.3, 1.5, .5, 1); }
 .feat:hover { transform: translateY(-4px) rotate(-.6deg); }
 .feat .fe { font-size: 2rem; display: block; margin-bottom: 8px; }
+a.tool-card { color: inherit; text-decoration: none; border-top: 6px solid var(--c); }
+a.tool-card p { color: var(--ink-2); }
+a.tool-card .more { display: inline-block; margin-top: 8px; font-weight: 800; color: var(--ink); }
 .feat h3 { font-size: 1.15rem; margin-bottom: 6px; }
 .feat p { color: var(--ink-2); }
 .section.tint { background: color-mix(in srgb, var(--c) 14%, var(--bg)); border-block: 2px solid var(--border); }
@@ -442,6 +445,8 @@ html, body.site { overflow-x: clip; }
 .ivy-card { display: flex; gap: 22px; align-items: flex-start; padding: 26px; background: #12261E; color: #F2FFF7; }
 .ivy-card img { flex: none; }
 .ivy-card .kicker { color: #8EE3B5; }
+.ivy-card .get-list li, .ivy-card p { color: inherit; }
+.ivy-card a:not(.btn) { color: inherit; text-decoration: underline; }
 .ivy-card.juno-card { background: #2A1611; color: #FFF3EC; }
 .juno-card .kicker { color: #FFB899; }
 @media (max-width: 600px) { .expert, .ivy-card { flex-direction: column; } }
@@ -518,8 +523,7 @@ html, body.site { overflow-x: clip; }
 .house-street .house-decal[data-decal="homesign"] { color: #FBF7EE; font-size: calc(var(--h) * .6); }
 .house-street .house-card h1 { font-size: clamp(2.1rem, 4.2vw, 3.3rem); line-height: 1; }
 .house-street .house-card h1 .swap span { box-shadow: 4px 4px 0 var(--shadow-c); }
-.house-street .suite-go { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 8px; }
-.house-street .suite-go .btn { padding: 7px 12px; }
+
 .mini { display: grid; grid-template-columns: repeat(var(--n), 1fr); gap: 3%; width: 90%; height: 90%; }
 .mini i { display: flex; align-items: center; justify-content: center; border-radius: 8%; font-style: normal; font-size: calc(var(--h) * .09); }
 .mini-stars i { background: rgba(255, 255, 255, .1); }

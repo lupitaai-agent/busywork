@@ -64,7 +64,7 @@
       expenses.map((x) => [x.updatedAt, '📸', x.vendor || 'Expense', `apps/expenses/index.html#open/${x.id}`]),
       docs.map((x) => [x.updatedAt, '📝', x.title || 'Document', `apps/docs/index.html#edit/${x.id}`]),
     ).filter((x) => x[0]).sort((a, b) => b[0].localeCompare(a[0])).slice(0, 6);
-    const soon = BW.apps.filter((a) => !a.ready);
+    const soon = BW.suiteApps().filter((a) => !a.ready);  // only this suite's: Ivy and Juno belong to Growth and Home
     const tile = (a) => a.ready
       ? `<a class="tile" style="--c:var(--${a.color})" href="apps/${a.id}/index.html" ${a.addon ? `data-addon="${a.id}"` : ''}>${a.addon ? '<span class="chip chip-sun sticker" data-addon-chip>Paid add-on</span>' : ''}${BW.roomPic(a.id)}<span class="icon">${a.emoji}</span><b>${a.name}</b><p>${a.tagline}</p><span class="go">Open <span>→</span></span></a>`
       : `<div class="tile soon" style="--c:var(--${a.color})"><span class="chip chip-grape sticker">Soon</span>${BW.roomPic(a.id)}<span class="icon">${a.emoji}</span><b>${a.name}</b><p>${a.tagline}</p></div>`;

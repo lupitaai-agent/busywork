@@ -354,7 +354,7 @@ def leak_check() -> None:
 
 def scenes() -> dict:
     """The little moving pictures from the Busy Business showcase, reused on each product page."""
-    src = (SITE / "business" / "index.html").read_text()
+    src = (SITE / "content" / "scenes.html").read_text()
     found = re.findall(r'(<div class="scene" data-scene="(\w+)">.*?</div>)(?=\s*<div class="scene"|\s*</div>\s*</div>\s*</div>)', src, re.S)
     return {sid: block.replace('class="scene"', 'class="scene on"', 1) for block, sid in found}
 
@@ -1148,10 +1148,10 @@ def growth_page(tools: list) -> str:
       <p class="faint" style="margin-top:10px">Can’t install apps? <a href="../downloads/busy-growth.zip" download>Use the browser version (zip)</a> in Chrome or Edge.</p></div>
   </div></section>
   {ivy}
-  <section class="section"><div class="wrap center">
+  {f'''<section class="section"><div class="wrap center">
     <h2 class="big">Want to know when Ivy is ready?</h2>
     {signup}
-  </div></section>
+  </div></section>''' if GROWTH_WAITLIST_ENDPOINT else ""}
 </main>
 {footer("../", tools)}
 <script src="../assets/site.js"></script>
@@ -1601,14 +1601,12 @@ STREET_DECALS = {"sign": ("Busy Business", True), "plaque": ("Busy Growth", True
 def street_card(s: dict) -> str:
     back = '<button type="button" class="btn" data-house-go="wide">← Back to the street</button>'
     if s["id"] == "wide":
-        what = ("business tools, career growth, household paperwork and daily brain games" if GROWTH_LIVE and HOME_LIVE
-                else "business tools, daily brain games and soon career growth")
+        what = ("your business, your career, your home and your coffee break" if GROWTH_LIVE and HOME_LIVE
+                else "your business and your coffee break, and soon your career")
         return ('<span class="chip chip-sun">Free · private · no account</span>'
                 '<h1>Make your <span class="swap" data-swap=\'["paperwork","job search","coffee break","invoices","learning","timesheets"]\'><span>paperwork</span></span> fun again.</h1>'
-                f'<p>Busy makes free, private tools for work and life: {what}. Everything stays in your own folder. Nothing sent to us.</p>'
-                '<p class="house-task">👉 Tap a building to look inside.</p>'
-                '<div class="suite-go"><button type="button" class="btn" data-house-go="shop">💼 Business</button><button type="button" class="btn" data-house-go="glass">🌱 Growth</button>'
-                '<button type="button" class="btn" data-house-go="house">🏡 Home</button><button type="button" class="btn" data-house-go="kiosk">🧩 Games</button></div>'
+                f'<p>Free, private tools for {what}. Everything stays in your own folder; nothing is sent to us.</p>'
+                '<p class="house-task">👉 Tap a building to look inside, or a lit window upstairs.</p>'
                 '<div class="house-result" data-result hidden></div>')
     return (f'<p class="kicker">{e(s["kicker"])}</p><h2>{e(s["h"])}</h2><p>{e(s["p"])}</p><p class="house-task">👉 {e(s["task"])}</p>'
             f'<div class="house-result" data-result hidden></div><div class="row-flex">{back}</div>')

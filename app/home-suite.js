@@ -62,12 +62,13 @@
       ${BW.placeBanner(say, mood)}
       <section class="home-hero">
         <div><h1>${hello}${name ? ', ' + esc(name) : ''} <span class="hand">🏡</span></h1>
-          <p class="lead">${coming.length ? `${coming.length} thing${coming.length === 1 ? '' : 's'} coming up at home. Here’s what and when.` : 'Your household paperwork, under control.'}</p></div>
+          <p class="lead">${coming.length ? `${coming.length} thing${coming.length === 1 ? '' : 's'} to keep an eye on at home. Here’s what and when.` : 'Your household paperwork, under control.'}</p></div>
       </section>
       <section class="stats glance rise">${glance.map(([c, e, k, v, sub, app]) => `
         <a class="card stat" style="--tint:var(--${c})" href="apps/${app}/index.html"><div class="k">${e} ${k}</div><div class="v ${/^[\d€$£.,\s-]/.test(v) ? '' : 'word'}">${esc(v)}</div><div class="s">${esc(sub)}</div></a>`).join('')}</section>
-      ${coming.length ? `<section class="card attention rise" style="margin-top:6px"><h2>📅 Coming up</h2>${coming.slice(0, 8).map((x) => `
-        <a href="apps/${x.app}/index.html#open/${x.id}"><span class="e">${x.emoji}</span><span class="main"><b>${esc(x.text)}</b><small>${BW.fmtDate(x.date, { weekday: 'short', day: 'numeric', month: 'long' })}, ${H.when(x.left)}</small></span></a>`).join('')}</section>` : ''}
+      ${[['⚠️ Overdue', coming.filter((x) => x.left < 0), ' overdue'], ['📅 Coming up', coming.filter((x) => x.left >= 0), '']].filter(([, list]) => list.length).map(([title, list, cls]) => `
+      <section class="card attention rise${cls}" style="margin-top:6px"><h2>${title}</h2>${list.slice(0, 8).map((x) => `
+        <a href="apps/${x.app}/index.html#open/${x.id}"><span class="e">${x.emoji}</span><span class="main"><b>${esc(x.text)}</b><small>${BW.fmtDate(x.date, { weekday: 'short', day: 'numeric', month: 'long' })}, ${H.when(x.left)}</small></span></a>`).join('')}</section>`).join('')}
       ${!hidden && doneN < steps.length ? `<section class="card start rise">
         <div class="start-head"><div><h2>🚀 Getting started</h2><small>${doneN} of ${steps.length} done</small></div><div class="bar"><i style="width:${doneN / steps.length * 100}%"></i></div><button class="link" data-hide>Hide</button></div>
         <div class="start-steps">${steps.map(([ok, e, t, sub, go], i) => `<${go && !ok ? `a href="${go}"` : 'button type="button"'} class="step ${ok ? 'ok' : ''}" data-step="${i}"><span class="tick">${ok ? '✓' : e}</span><span><b>${t}</b><small>${sub}</small></span></${go && !ok ? 'a' : 'button'}>`).join('')}</div>
