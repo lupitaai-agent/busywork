@@ -7,7 +7,8 @@
    The rooms' words and what happens in them live in the page (the <article data-room> list, written by
    build.py); the cameras, spots and decals come from assets/<place>/rooms.json (made by the Busy Studio).
    An act's data-then lists what else happens: "next" (on to the next room), "to:<room>" (straight to that
-   room: on Busy Street, a building's close-up), "confetti", "beep", "show:<decal>". A button with
+   room: on Busy Street, a building's close-up), "enter" (through the door: the card's main button, after the
+   line), "confetti", "beep", "show:<decal>". A button with
    data-house-go="<room>" goes there too. Decals are flat things in the room the page draws on, like a shop sign in your colour.
    Every room was rendered in the morning, by day and in the evening, with its depth and its lights (busy-studio
    place_web.py): the pictures follow the clock, the guide stands behind the furniture and is lit like the room,
@@ -143,7 +144,8 @@ async function start(house) {
       const b = document.createElement('button');
       b.type = 'button'; b.className = 'house-spot'; b.dataset.spot = h.id; b.setAttribute('aria-label', h.label);
       b.innerHTML = '<span></span>';
-      b.addEventListener('click', () => doAct(h.id));
+      // Tapped again once it's done: the way on that the card offers (the street's "Walk round the Workshop").
+      b.addEventListener('click', () => { const way = b.classList.contains('done') && card.querySelector('[data-result]:not([hidden]) a.btn-primary'); if (way) way.click(); else doAct(h.id); });
       spots.append(b);
     });
     drawDecals(r);
@@ -240,6 +242,8 @@ async function start(house) {
     if (then.includes('confetti')) confetti(view);
     if (then.includes('beep')) beep();
     if (then.includes('next')) setTimeout(() => go(1), 1600);
+    // "enter": straight through the door after the line (Busy Street's buildings), the way the card's button goes.
+    if (then.includes('enter')) setTimeout(() => { const way = card.querySelector('[data-result]:not([hidden]) a.btn-primary'); if (way) way.click(); }, 1500);
     const to = then.find((w) => w.startsWith('to:'));
     if (to) setTimeout(() => jump(to.slice(3)), 700);
   }
