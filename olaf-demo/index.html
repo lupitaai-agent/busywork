@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://api.anthropic.com; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' blob: https://api.anthropic.com; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Olaf · Busy</title>
 <link rel="icon" href="../../shared/icons/olaf.svg" type="image/svg+xml">
@@ -94,6 +94,8 @@
 <script src="library.js"></script>
 <script src="olaf-installed.js"></script>
 <script src="../../shared/ai.js"></script>
+<script src="room/room.js" data-expert="olaf" data-size="1.45"></script>
+<script src="room/home.js"></script>
 <script src="../marketing/profile.js"></script>
 <script src="../../shared/mkt-dash.js"></script>
 <script src="../../shared/mkt-insights.js"></script>

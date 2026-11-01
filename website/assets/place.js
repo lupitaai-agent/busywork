@@ -9,6 +9,9 @@
    An act's data-then lists what else happens: "next" (on to the next room), "to:<room>" (straight to that
    room: on Busy Street, a building's close-up), "confetti", "beep", "show:<decal>". A button with
    data-house-go="<room>" goes there too. Decals are flat things in the room the page draws on, like a shop sign in your colour.
+   Every room was rendered in the morning, by day and in the evening, with its depth and its lights (busy-studio
+   place_web.py): the pictures follow the clock, the guide stands behind the furniture and is lit like the room,
+   and the room moves a little with the pointer (the shared engine: app/shared/scene.js).
    Without WebGL the rooms, words and buttons all still work, just without the guide. */
 const house = document.querySelector('[data-house]');
 if (house) start(house).catch((e) => console.info('The place stays simple:', e && e.message));
@@ -35,9 +38,18 @@ async function start(house) {
     say: a.dataset.say, move: a.dataset.move, acts: [...a.querySelectorAll('[data-act]')].map((t) => ({ id: t.dataset.act, move: t.dataset.move, say: t.dataset.say, then: t.dataset.then, html: t.innerHTML })),
   }));
   const data = await (await fetch(house.dataset.houseRooms)).json();
+  // The paid expert's room upstairs (the tour's last room) comes from the experts' own place.
+  if (house.dataset.extraRooms) {
+    const extra = await (await fetch(house.dataset.extraRooms)).json().catch(() => ({ rooms: [] }));
+    extra.rooms.forEach((r) => { r.base = house.dataset.extraPlates; data.rooms.push(r); });
+  }
   const roomData = Object.fromEntries(data.rooms.map((r) => [r.id, r]));
   const wide = () => innerWidth * Math.min(devicePixelRatio || 1, 2) > 1400;
-  const src = (id) => `${house.dataset.housePlates}room-${id}-${wide() ? 1920 : 1280}.jpg`;
+  const hour = new Date().getHours(), tod = hour >= 5 && hour < 11 ? 'morning' : hour >= 11 && hour < 17 ? 'day' : 'evening';
+  const timeOf = (id) => (roomData[id] && roomData[id].times && roomData[id].times.includes(tod) && tod !== 'day' ? '-' + tod : '');
+  const base = (id) => (roomData[id] && roomData[id].base) || house.dataset.housePlates;
+  const src = (id) => `${base(id)}room-${id}${timeOf(id)}-${wide() ? 1920 : 1280}.jpg`;
+  const depthSrc = (id) => `${base(id)}room-${id}-depth.png`;
   const ready = {};
   const preload = (id) => ready[id] || (ready[id] = new Promise((ok) => { const i = new Image(); i.onload = i.onerror = ok; i.src = src(id); }));
 
@@ -64,7 +76,8 @@ async function start(house) {
     if (zc <= 0) return null;
     const tx = Math.tan(r.camera.hfov * Math.PI / 360), ty = tx / r.camera.aspect;
     const nx = dot(d, rt) / zc / tx, ny = dot(d, up) / zc / ty;
-    return { x: (nx + 1) / 2 * frame.fw + frame.ox, y: (1 - ny) / 2 * frame.fh + frame.oy };
+    const sh = tuck ? tuck.shift(zc) : { x: 0, y: 0 };  // the room moves a little with the pointer: so do its spots
+    return { x: (nx + 1) / 2 * frame.fw + frame.ox + sh.x, y: (1 - ny) / 2 * frame.fh + frame.oy + sh.y };
   }
   function place() {
     const s = steps[at], r = roomData[s.plate];
@@ -134,8 +147,9 @@ async function start(house) {
       spots.append(b);
     });
     drawDecals(r);
-    if (tuck) tuck.room(r, walk);
     layout();
+    stand = standFor(r);
+    if (tuck) tuck.room(r, walk, stand);
     focusX = framing(r);
     layout();
     bubble.hidden = !s.say;  // a room without a line (Busy Street's wide shot) doesn't keep the last one
@@ -145,9 +159,27 @@ async function start(house) {
     if (steps[at + 1]) preload(steps[at + 1].plate);
   }
 
-  // Where to look on a narrow screen: between the guide and the first thing to tap (as a share of the room's width).
-  function framing(r) {
-    const xs = [r.walk.stand, ...r.hotspots.slice(0, 1).map((h) => h.at)].map((p) => onScreen(p, r)).filter(Boolean).map((pt) => (pt.x - frame.ox) / frame.fw);
+  // On a narrow screen only part of the room shows. The guide then stands next to the first thing to tap (somewhere
+  // along the walk line), so both are in view; the view looks between them.
+  let stand = null;
+  function standFor(r, h = r.hotspots[0]) {
+    const s0 = r.walk.stand;
+    if (!frame || !h || frame.W / frame.fw > 0.8) return s0;
+    const spot = onScreen(h.at, r), home = onScreen(s0, r);
+    if (!spot || !home) return s0;
+    const reach = frame.W * 0.42;  // the guide this far from the spot at most
+    if (Math.abs(home.x - spot.x) <= reach) return s0;
+    const want = spot.x + Math.sign(home.x - spot.x || 1) * reach;
+    let best = s0, bestD = Infinity;
+    for (let k = 0; k <= 40; k++) {
+      const t = k / 40, p = [0, 1, 2].map((i) => r.walk.from[i] + (r.walk.to[i] - r.walk.from[i]) * t);
+      const pt = onScreen(p, r);
+      if (pt && Math.abs(pt.x - want) < bestD) { bestD = Math.abs(pt.x - want); best = p; }
+    }
+    return best;
+  }
+  function framing(r, h = r.hotspots[0]) {
+    const xs = [stand || r.walk.stand, ...(h ? [h.at] : [])].map((p) => onScreen(p, r)).filter(Boolean).map((pt) => (pt.x - frame.ox) / frame.fw);
     return xs.length ? Math.min(0.85, Math.max(0.15, xs.reduce((a, b) => a + b, 0) / xs.length)) : 0.5;
   }
 
@@ -183,9 +215,17 @@ async function start(house) {
     if (!a) return;
     const r = roomData[s.plate];
     const h = r.hotspots.find((x) => x.id === id);
-    if (h) { const pt = onScreen(h.at, r); if (pt) focusX = Math.min(0.85, Math.max(0.15, (pt.x - frame.ox) / frame.fw)); layout(); }
+    // Frame the guide and the spot together; on a phone the guide first walks over if they're far apart.
+    if (h) {
+      const st = standFor(r, h);
+      const far = tuck && st !== stand && frame.W / frame.fw <= 0.8;
+      if (far) stand = st;
+      focusX = framing(r, h); layout();
+      if (far) await Promise.race([tuck.walk(st), wait(2000)]);
+    }
     spots.querySelector(`[data-spot="${id}"]`)?.classList.add('done');
-    if (a.move && tuck) tuck.play(a.move);
+    // "Thinking>Writing>Nodding": one move after the other (the expert at work).
+    if (a.move && tuck) a.move.split('>').forEach((m, k) => setTimeout(() => tuck.play(m), k * 1900));
     say(a.say);
     if (a.html.trim()) {
       const out = card.querySelector('[data-result]');
@@ -245,15 +285,35 @@ async function start(house) {
     if (e.key === 'ArrowRight') { e.preventDefault(); go(1); }
     if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
   });
-  let sx = null;
-  view.addEventListener('pointerdown', (e) => { sx = e.clientX; });
-  view.addEventListener('pointerup', (e) => { if (sx !== null && Math.abs(e.clientX - sx) > 60) go(e.clientX < sx ? 1 : -1); sx = null; });
+  let sx = null, swiped = false;
+  view.addEventListener('pointerdown', (e) => { sx = e.clientX; swiped = false; });
+  view.addEventListener('pointerup', (e) => { if (sx !== null && Math.abs(e.clientX - sx) > 60) { swiped = true; go(e.clientX < sx ? 1 : -1); } sx = null; });
+  // Tapping the picture itself: the room's thing to do (the one spot, or the nearest), and once it's done, the way
+  // on that the card offers (the street's "Walk round the Workshop", "Step inside").
+  view.addEventListener('click', (e) => {
+    if (swiped || busy || e.target.closest('button, a, [data-tuck-bubble]')) return;
+    const r = roomData[steps[at].plate], box = view.getBoundingClientRect();
+    const open = r.hotspots.filter((h) => steps[at].el.querySelector(`[data-act="${h.id}"]`) && !spots.querySelector(`[data-spot="${h.id}"].done`));
+    const near = open.map((h) => ({ h, pt: onScreen(h.at, r) })).filter((x) => x.pt)
+      .map((x) => ({ ...x, d: Math.hypot(x.pt.x - (e.clientX - box.left), x.pt.y - (e.clientY - box.top)) })).sort((a, b) => a.d - b.d)[0];
+    if (near && (open.length === 1 || near.d < Math.max(120, box.width * 0.18))) return doAct(near.h.id);
+    const way = card.querySelector('[data-result]:not([hidden]) a.btn-primary');
+    if (way) way.click();
+  });
   new ResizeObserver(layout).observe(view);
+  // A link to a room on the same page ("See Juno at work": #upstairs) walks there.
+  addEventListener('hashchange', () => {
+    const id = location.hash.slice(1);
+    if (!steps.some((s) => s.id === id)) return;
+    view.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    jump(id);
+  });
 
   show(at);
   // The live guide, once the page itself is there.
-  const load = () => tuckIn(view, house.dataset.tuckModel, () => frame).then((t) => {
-    tuck = t; tuck.room(roomData[steps[at].plate]); layout(); place(); view.classList.add('live');
+  const expert = house.dataset.expert ? { room: house.dataset.expert, model: house.dataset.expertModel, size: +house.dataset.expertSize || 1 } : null;
+  const load = () => tuckIn(view, house.dataset.tuckModel, () => frame, +house.dataset.guideHeight || 1, { tod, src, depth: depthSrc, expert }).then((t) => {
+    tuck = t; stand = standFor(roomData[steps[at].plate]); tuck.room(roomData[steps[at].plate], false, stand); layout(); place(); view.classList.add('live');
     tuck.onFrame(place);
     if (steps[at].move) tuck.play(steps[at].move);
   }, (e) => console.info('The guide stays away:', e && e.message));
@@ -303,12 +363,19 @@ function confetti(near) {
 }
 
 // ---------- the live guide ----------
-async function tuckIn(view, model, getFrame) {
+// The shared scene engine (app/shared/scene.js, a plain script) draws the room with its depth and lights the guide.
+const sceneJs = () => window.BusyScene ? Promise.resolve() : new Promise((ok, no) => {
+  const t = document.createElement('script'); t.src = new URL('../app/shared/scene.js', import.meta.url).href; t.onload = ok; t.onerror = () => no(new Error('no scene engine')); document.head.append(t);
+});
+
+async function tuckIn(view, model, getFrame, size, files) {
   const probe = document.createElement('canvas');
   if (!(probe.getContext('webgl2') || probe.getContext('webgl'))) throw new Error('no WebGL');
   const THREE = await import('three');
   const { GLTFLoader } = await import('./vendor/three/examples/jsm/loaders/GLTFLoader.js');
-  const gltf = await new GLTFLoader().loadAsync(model);
+  const loader = new GLTFLoader();
+  const [gltf] = await Promise.all([loader.loadAsync(model), sceneJs()]);
+  const S = window.BusyScene;
 
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'low-power' });
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.75));
@@ -317,72 +384,62 @@ async function tuckIn(view, model, getFrame) {
   renderer.toneMappingExposure = 1.1;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.autoClear = false;
   const canvas = renderer.domElement;
   canvas.className = 'house-tuck';
   canvas.setAttribute('aria-hidden', 'true');
   view.querySelector('[data-house-spots]').before(canvas);
 
   const scene = new THREE.Scene();
-  scene.add(new THREE.HemisphereLight(0xffe6d5, 0x3b2a20, 1.25));
-  const key = new THREE.DirectionalLight(0xffd7a8, 2.4);
-  key.castShadow = true;
-  key.shadow.mapSize.set(1024, 1024);
-  Object.assign(key.shadow.camera, { left: -1.5, right: 1.5, top: 2, bottom: -0.5, near: 0.5, far: 12 });
-  key.shadow.bias = -0.0006;
-  scene.add(key, key.target);
-  const rim = new THREE.DirectionalLight(0x7fe0ff, 2.2);
-  scene.add(rim, rim.target);
+  const plate = S.plate(THREE);
+  let roomLights = null;
   const floor = new THREE.Mesh(new THREE.PlaneGeometry(4, 4), new THREE.ShadowMaterial({ opacity: 0.42 }));
   floor.rotation.x = -Math.PI / 2;
   floor.receiveShadow = true;
   scene.add(floor);
 
-  // The guide, one metre tall, feet on the floor.
-  const holder = new THREE.Group();
-  const model3 = gltf.scene;
-  model3.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.frustumCulled = false; } });
-  holder.add(model3);
+  // The guide, one metre tall, feet on the floor (S.character), at their size next to Tuck.
+  const who = S.character(THREE, gltf);
+  const holder = who.holder, model3 = who.model;
   scene.add(holder);
-  model3.updateMatrixWorld(true);
-  let box = new THREE.Box3().setFromObject(model3);
-  model3.scale.setScalar(1 / (box.max.y - box.min.y));
-  model3.updateMatrixWorld(true);
-  box = new THREE.Box3().setFromObject(model3);
-  const c = box.getCenter(new THREE.Vector3());
-  model3.position.set(-c.x, -box.min.y, -c.z);
-
-  // Movements. "Walk" is the steady part of Start Walking, looped.
-  const mixer = new THREE.AnimationMixer(model3);
+  // Movements. "Walk" is the steady part of Start Walking, looped (the older Tuck); Meshy guides have a Walk clip.
   const clips = Object.fromEntries(gltf.animations.map((a) => [a.name, a]));
-  if (clips.StartWalking) clips.Walk = THREE.AnimationUtils.subclip(clips.StartWalking, 'Walk', 34, 87, 30);
-  const actions = Object.fromEntries(Object.entries(clips).map(([n, a]) => [n, mixer.clipAction(a)]));
-  const loops = new Set(['Idle', 'Walk', 'Typing', 'JoggingWithBox']);
-  let current = actions.Idle;
-  current.play();
-  mixer.addEventListener('finished', () => fade(actions.Idle));
-  function fade(nextA, loop) {
-    if (!nextA) return;
-    if (nextA === current) { if (!loop) nextA.reset().play(); return; }
-    nextA.reset().setEffectiveWeight(1).fadeIn(0.25).play();
-    current.fadeOut(0.25);
-    current = nextA;
-  }
+  if (clips.StartWalking && !clips.Walk) { who.actions.Walk = who.mixer.clipAction(THREE.AnimationUtils.subclip(clips.StartWalking, 'Walk', 34, 87, 30)); }
+  // Upstairs the guide steps aside and the paid expert stands in the room (loaded the first time it's needed).
+  let expert = null, upstairs = false;
+  const ex = files.expert;
+  const loadExpert = () => expert || (expert = loader.loadAsync(ex.model).then((g) => {
+    const w = S.character(THREE, g); w.holder.visible = false; scene.add(w.holder); return w;
+  }));
+  const active = () => (upstairs && expert && expert.ready ? expert.ready : who);
   function play(name) {
-    const a = actions[name];
-    if (!a) return;
-    const loop = loops.has(name) && name !== 'Typing' && name !== 'JoggingWithBox';
-    a.setLoop(loop ? THREE.LoopRepeat : THREE.LoopOnce, loop ? Infinity : 1);
-    a.clampWhenFinished = !loop;
-    if (name === 'Typing' || name === 'JoggingWithBox') { a.setLoop(THREE.LoopRepeat, 2); a.clampWhenFinished = true; }
-    fade(a, loop);
+    if (upstairs) { const w = expert && expert.ready; return w && w.play(name); }
+    // Short work loops play twice; a long clip once is enough.
+    if (name === 'Typing' || name === 'JoggingWithBox') return who.actions[name] && who.play(name, who.actions[name].getClip().duration < 3 ? 2 : 1);
+    return who.play(name);
   }
 
   const camera = new THREE.PerspectiveCamera(30, 16 / 9, 0.1, 60);
-  let room = null;
+  let room = null, here = null, pivot = 8;
+  const base = new THREE.Vector3(), right = new THREE.Vector3(), up = new THREE.Vector3();
   const v = new THREE.Vector3();
   const head = model3.getObjectByName('Head');
-  function setRoom(r, walk) {
+  function setRoom(r, walk, standAt) {
     room = r;
+    upstairs = !!(ex && r.id === ex.room);
+    holder.visible = !upstairs;
+    if (expert && expert.ready) expert.ready.holder.visible = upstairs;
+    if (upstairs) {
+      loadExpert().then((w) => {
+        expert.ready = w;
+        if (room !== r) return;
+        const s = r.walk.stand;
+        w.holder.position.set(s[0], s[1], s[2]); w.holder.scale.setScalar(r.tuckHeight * ex.size); w.holder.visible = true;
+        w.play('Waving');
+        listeners.forEach((fn) => fn());
+      }, () => {});
+    }
+    here = standAt || r.walk.stand;
     const p = r.camera.position, t = r.camera.target;
     camera.position.set(p[0], p[1], p[2]);
     camera.up.set(0, 1, 0);
@@ -390,22 +447,45 @@ async function tuckIn(view, model, getFrame) {
     camera.fov = 2 * Math.atan(Math.tan((r.camera.hfov * Math.PI / 180) / 2) / r.camera.aspect) * 180 / Math.PI;
     camera.aspect = r.camera.aspect;
     camera.updateProjectionMatrix();
-    const s = r.walk.stand;
+    camera.updateMatrixWorld(true);
+    base.copy(camera.position);
+    right.setFromMatrixColumn(camera.matrixWorld, 0); up.setFromMatrixColumn(camera.matrixWorld, 1);
+    const s = here;
+    pivot = base.distanceTo(v.set(s[0], s[1], s[2]));
     if (!walk) holder.position.set(s[0], s[1], s[2]);
-    holder.scale.setScalar(r.tuckHeight);
-    key.position.set(s[0] - 2.2, s[1] + 3.2, s[2] + 3.2);
-    key.target.position.set(s[0], s[1], s[2]);
-    rim.position.set(s[0] + 2.5, s[1] + 2.4, s[2] - 2.5);
-    rim.target.position.set(s[0], s[1] + 0.5, s[2]);
-    floor.position.set(s[0], s[1] + 0.002, s[2]);
+    holder.scale.setScalar(r.tuckHeight * size);
+    floor.position.set(s[0], s[1] + 0.003, s[2]);
     holder.rotation.y = 0;
+    if (roomLights) scene.remove(roomLights);
+    roomLights = S.lights(THREE, r, files.tod, s);
+    scene.add(roomLights);
+    floor.material.opacity = files.tod === 'evening' ? 0.5 : 0.42;
+    // The room itself, drawn with its depth once both pictures are in (the still shows until then).
+    view.classList.remove('gl-plate');
+    if (r.depth) plate.load(files.src(r.id), files.depth(r.id), r.depth).then((ok) => { if (ok && room === r) view.classList.add('gl-plate'); }, () => {});
+    else plate.clear();
+    setFrame(getFrame());
   }
+  let fr = null;
   function setFrame(f) {
     if (!f) return;
+    fr = f;
     renderer.setSize(f.W, f.H, false);
     canvas.style.width = f.W + 'px'; canvas.style.height = f.H + 'px';
-    camera.setViewOffset(f.fw, f.fh, -f.ox, -f.oy, f.W, f.H);
+    if (room) plate.frame(f, room.camera.hfov, camera);
+  }
+  // The pointer moves the camera a few centimetres (and its lens back), so near things move more than far ones.
+  const AMP = S.reduced() ? 0 : 0.1;
+  const par = { x: 0, y: 0, tx: 0, ty: 0 }, paim = { x: 0, y: 0 };
+  const fpx = () => (fr && room ? fr.fw / (2 * Math.tan(room.camera.hfov * Math.PI / 360)) : 0);
+  const shift = (z) => ({ x: fpx() * par.tx * (1 / pivot - 1 / z), y: fpx() * par.ty * (1 / z - 1 / pivot) });
+  function applyCamera() {
+    if (!room || !fr) return;
+    camera.position.copy(base).addScaledVector(right, par.tx).addScaledVector(up, par.ty);
+    const k = fpx();
+    camera.setViewOffset(fr.fw, fr.fh, -fr.ox - k * par.tx / pivot, -fr.oy + k * par.ty / pivot, fr.W, fr.H);
     camera.updateProjectionMatrix();
+    plate.parallax(par.tx, par.ty, pivot);
   }
   function project(p) {
     const f = getFrame();
@@ -414,10 +494,11 @@ async function tuckIn(view, model, getFrame) {
     return { x: (v.x + 1) / 2 * f.W, y: (1 - v.y) / 2 * f.H };
   }
   function headAt() {
-    model3.updateMatrixWorld(true);
-    // Above the top of his (big) head: the head bone sits low inside it. Sideways it follows the head as he moves.
-    if (head) head.getWorldPosition(v); else v.copy(holder.position);
-    return project([v.x, holder.position.y + 1.28 * holder.scale.y, v.z]);
+    const w = active(), hd = w === who ? head : w.head, hl = w.holder;
+    w.model.updateMatrixWorld(true);
+    // Above the top of the (big) head: the head bone sits low inside it. Sideways it follows the head as it moves.
+    if (hd) hd.getWorldPosition(v); else v.copy(hl.position);
+    return project([v.x, hl.position.y + (w === who ? 1.28 : 1.1) * hl.scale.y, v.z]);
   }
   // Walking: out of the room to one side, into the next from the other.
   function walkTo(target, speed = 0.9) {
@@ -426,25 +507,26 @@ async function tuckIn(view, model, getFrame) {
       const dist = from.distanceTo(to);
       if (dist < 0.02) return done();
       holder.rotation.y = to.x > from.x ? Math.PI / 2 : -Math.PI / 2;
-      play('Walk');
-      if (actions.Walk) actions.Walk.timeScale = 1.6;
+      who.play('Walk');
+      if (who.actions.Walk) who.actions.Walk.timeScale = 1.6;
       const t0 = performance.now(), dur = dist / speed * 1000;
       walking = (now) => {
         const k = Math.min(1, (now - t0) / dur);
         holder.position.lerpVectors(from, to, k);
-        if (k >= 1) { walking = null; holder.rotation.y = 0; fade(actions.Idle); done(); }
+        if (k >= 1) { walking = null; holder.rotation.y = 0; who.play('Idle'); done(); }
       };
     });
   }
   let walking = null;
-  const leave = (dir) => walkTo(dir > 0 ? room.walk.to : room.walk.from, 1.3);
+  const leave = (dir) => (upstairs ? Promise.resolve() : walkTo(dir > 0 ? room.walk.to : room.walk.from, 1.3));
   async function enter(dir) {
+    if (upstairs) return;
     const startAt = dir > 0 ? room.walk.from : room.walk.to;
     holder.position.set(...startAt);
-    await walkTo(room.walk.stand, 1.1);
+    await walkTo(here, 1.1);
   }
 
-  // The head follows the pointer, gently.
+  // The head follows the pointer, gently; the room shifts with it.
   const aim = { x: 0, y: 0 }, look = { x: 0, y: 0 };
   let lastMove = 0;
   addEventListener('pointermove', (e) => {
@@ -453,28 +535,44 @@ async function tuckIn(view, model, getFrame) {
     if (!h) return;
     aim.x = Math.max(-1, Math.min(1, (e.clientX - r.left - h.x) / (r.width / 2)));
     aim.y = Math.max(-1, Math.min(1, (e.clientY - r.top - h.y) / (r.height / 2)));
+    paim.x = Math.max(-1, Math.min(1, ((e.clientX - r.left) / r.width) * 2 - 1));
+    paim.y = Math.max(-1, Math.min(1, ((e.clientY - r.top) / r.height) * 2 - 1));
     lastMove = performance.now();
   }, { passive: true });
   const q = new THREE.Quaternion(), eul = new THREE.Euler();
+  let headBase = null;
 
   const listeners = [];
   let onScreen = true;
   new IntersectionObserver(([e]) => { onScreen = e.isIntersecting; }).observe(view);
   const clock = new THREE.Clock();
-  renderer.setAnimationLoop((now) => {
+  renderer.setAnimationLoop(() => {
     const dt = Math.min(clock.getDelta(), 0.1);
     if (!onScreen || document.hidden) { if (walking) walking(Infinity); return; }
     if (walking) walking(performance.now());
-    mixer.update(dt);
+    const now = performance.now();
+    if (now - lastMove > 6000) { const t = now / 1000; paim.x = Math.sin(t * 0.23) * 0.5; paim.y = Math.sin(t * 0.17) * 0.25; }
+    const ox = par.tx, oy = par.ty;
+    par.x += (paim.x - par.x) * Math.min(1, dt * 2.5); par.y += (paim.y - par.y) * Math.min(1, dt * 2.5);
+    par.tx = par.x * AMP; par.ty = -par.y * AMP * 0.5;
+    const moved = Math.abs(par.tx - ox) + Math.abs(par.ty - oy) > 0.0004;
+    applyCamera();
+    if (head && headBase) head.quaternion.copy(headBase);  // undo last frame's turn (a clip may not move the head)
+    who.mixer.update(dt);
+    if (expert && expert.ready) expert.ready.mixer.update(dt);
     if (!walking && head) {
-      if (performance.now() - lastMove > 5000) { const t = performance.now() / 1000; aim.x = Math.sin(t * 0.35) * 0.45; aim.y = Math.sin(t * 0.21) * 0.12; }
+      headBase = head.quaternion.clone();
+      if (now - lastMove > 5000) { const t = now / 1000; aim.x = Math.sin(t * 0.35) * 0.45; aim.y = Math.sin(t * 0.21) * 0.12; }
       look.x += (aim.x - look.x) * Math.min(1, dt * 5);
       look.y += (aim.y - look.y) * Math.min(1, dt * 5);
       eul.set(look.y * 0.3, look.x * 0.55, 0, 'YXZ');
       head.quaternion.multiply(q.setFromEuler(eul));
-    }
+    } else headBase = null;
+    renderer.clear();
+    plate.render(renderer);
     renderer.render(scene, camera);
-    if (walking) listeners.forEach((fn) => fn());
+    if (walking || moved) listeners.forEach((fn) => fn());
   });
-  return { play, room: setRoom, frame: setFrame, project, head: headAt, leave, enter, onFrame: (fn) => listeners.push(fn) };
+  const walk = (p) => { here = p; return walkTo(p, 1.1); };
+  return { play, room: setRoom, frame: setFrame, project, head: headAt, shift, leave, enter, walk, onFrame: (fn) => listeners.push(fn) };
 }

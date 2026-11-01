@@ -1,0 +1,721 @@
+{
+ "rooms": [
+  {
+   "id": "olaf",
+   "name": "Olaf's study",
+   "tool": "Olaf",
+   "camera": {
+    "position": [
+     0.0,
+     1.65,
+     7.6
+    ],
+    "target": [
+     0.0,
+     1.25,
+     0.0
+    ],
+    "hfov": 39.5978,
+    "aspect": 1.7777777777777777
+   },
+   "walk": {
+    "from": [
+     -2.6,
+     0.0,
+     -0.1
+    ],
+    "to": [
+     2.6,
+     0.0,
+     -0.1
+    ],
+    "stand": [
+     0.55,
+     0.0,
+     -0.55
+    ]
+   },
+   "tuckHeight": 1.0,
+   "hotspots": [
+    {
+     "id": "desk",
+     "label": "Olaf's plan on the desk",
+     "at": [
+      1.9,
+      0.9,
+      -0.25
+     ]
+    }
+   ],
+   "times": [
+    "morning",
+    "day",
+    "evening"
+   ],
+   "depth": {
+    "near": 6.308,
+    "far": 9.927
+   },
+   "light": {
+    "morning": {
+     "lights": [
+      {
+       "kind": "point",
+       "at": [
+        0.0,
+        2.8,
+        -0.3
+       ],
+       "color": "#FFD29A",
+       "cd": 13.75,
+       "radius": 9.0
+      },
+      {
+       "kind": "rect",
+       "at": [
+        -3.0,
+        2.0,
+        0.0
+       ],
+       "color": "#E8F1FF",
+       "cd": 57.2,
+       "to": [
+        0.0,
+        0.6,
+        -0.6
+       ]
+      },
+      {
+       "kind": "rect",
+       "at": [
+        4.4,
+        2.6,
+        3.0
+       ],
+       "color": "#7FE0FF",
+       "cd": 14.4,
+       "to": [
+        0.0,
+        0.6,
+        -0.8
+       ]
+      },
+      {
+       "kind": "point",
+       "at": [
+        2.5,
+        1.08,
+        -0.25
+       ],
+       "color": "#B48CFF",
+       "cd": 7.8,
+       "radius": 5.2
+      }
+     ],
+     "sky": {
+      "color": "#D6E4FF",
+      "intensity": 0.7
+     }
+    },
+    "day": {
+     "lights": [
+      {
+       "kind": "point",
+       "at": [
+        0.0,
+        2.8,
+        -0.3
+       ],
+       "color": "#FFD29A",
+       "cd": 55.0,
+       "radius": 9.0
+      },
+      {
+       "kind": "rect",
+       "at": [
+        -3.0,
+        2.0,
+        0.0
+       ],
+       "color": "#CFE2FF",
+       "cd": 22.0,
+       "to": [
+        0.0,
+        0.6,
+        -0.6
+       ]
+      },
+      {
+       "kind": "rect",
+       "at": [
+        4.4,
+        2.6,
+        3.0
+       ],
+       "color": "#7FE0FF",
+       "cd": 18.0,
+       "to": [
+        0.0,
+        0.6,
+        -0.8
+       ]
+      },
+      {
+       "kind": "point",
+       "at": [
+        2.5,
+        1.08,
+        -0.25
+       ],
+       "color": "#B48CFF",
+       "cd": 26.0,
+       "radius": 5.2
+      }
+     ],
+     "sky": {
+      "color": "#FFE2CC",
+      "intensity": 0.35
+     }
+    },
+    "evening": {
+     "lights": [
+      {
+       "kind": "point",
+       "at": [
+        0.0,
+        2.8,
+        -0.3
+       ],
+       "color": "#FFD29A",
+       "cd": 132.0,
+       "radius": 9.0
+      },
+      {
+       "kind": "rect",
+       "at": [
+        -3.0,
+        2.0,
+        0.0
+       ],
+       "color": "#5A68B8",
+       "cd": 2.64,
+       "to": [
+        0.0,
+        0.6,
+        -0.6
+       ]
+      },
+      {
+       "kind": "rect",
+       "at": [
+        4.4,
+        2.6,
+        3.0
+       ],
+       "color": "#7FE0FF",
+       "cd": 8.1,
+       "to": [
+        0.0,
+        0.6,
+        -0.8
+       ]
+      },
+      {
+       "kind": "point",
+       "at": [
+        2.5,
+        1.08,
+        -0.25
+       ],
+       "color": "#B48CFF",
+       "cd": 46.8,
+       "radius": 5.2
+      }
+     ],
+     "sky": {
+      "color": "#8A78C0",
+      "intensity": 0.1
+     }
+    }
+   }
+  },
+  {
+   "id": "ivy",
+   "name": "Ivy's room at the top of the Glasshouse",
+   "tool": "Ivy",
+   "camera": {
+    "position": [
+     24.0,
+     1.65,
+     7.6
+    ],
+    "target": [
+     24.0,
+     1.25,
+     0.0
+    ],
+    "hfov": 39.5978,
+    "aspect": 1.7777777777777777
+   },
+   "walk": {
+    "from": [
+     21.4,
+     0.0,
+     -0.1
+    ],
+    "to": [
+     26.6,
+     0.0,
+     -0.1
+    ],
+    "stand": [
+     24.55,
+     0.0,
+     -0.55
+    ]
+   },
+   "tuckHeight": 1.0,
+   "hotspots": [
+    {
+     "id": "desk",
+     "label": "Ivy's desk",
+     "at": [
+      25.9,
+      0.9,
+      -0.25
+     ]
+    }
+   ],
+   "times": [
+    "morning",
+    "day",
+    "evening"
+   ],
+   "depth": {
+    "near": 6.308,
+    "far": 9.927
+   },
+   "light": {
+    "morning": {
+     "lights": [
+      {
+       "kind": "point",
+       "at": [
+        24.0,
+        2.8,
+        -0.3
+       ],
+       "color": "#FFE6C0",
+       "cd": 13.75,
+       "radius": 9.0
+      },
+      {
+       "kind": "rect",
+       "at": [
+        21.0,
+        2.0,
+        0.0
+       ],
+       "color": "#E8F1FF",
+       "cd": 57.2,
+       "to": [
+        24.0,
+        0.6,
+        -0.6
+       ]
+      },
+      {
+       "kind": "rect",
+       "at": [
+        28.4,
+        2.6,
+        3.0
+       ],
+       "color": "#7FE0FF",
+       "cd": 14.4,
+       "to": [
+        24.0,
+        0.6,
+        -0.8
+       ]
+      },
+      {
+       "kind": "point",
+       "at": [
+        26.5,
+        1.08,
+        -0.25
+       ],
+       "color": "#4FE0A0",
+       "cd": 7.8,
+       "radius": 5.2
+      }
+     ],
+     "sky": {
+      "color": "#D6E4FF",
+      "intensity": 0.7
+     }
+    },
+    "day": {
+     "lights": [
+      {
+       "kind": "point",
+       "at": [
+        24.0,
+        2.8,
+        -0.3
+       ],
+       "color": "#FFE6C0",
+       "cd": 55.0,
+       "radius": 9.0
+      },
+      {
+       "kind": "rect",
+       "at": [
+        21.0,
+        2.0,
+        0.0
+       ],
+       "color": "#CFE2FF",
+       "cd": 22.0,
+       "to": [
+        24.0,
+        0.6,
+        -0.6
+       ]
+      },
+      {
+       "kind": "rect",
+       "at": [
+        28.4,
+        2.6,
+        3.0
+       ],
+       "color": "#7FE0FF",
+       "cd": 18.0,
+       "to": [
+        24.0,
+        0.6,
+        -0.8
+       ]
+      },
+      {
+       "kind": "point",
+       "at": [
+        26.5,
+        1.08,
+        -0.25
+       ],
+       "color": "#4FE0A0",
+       "cd": 26.0,
+       "radius": 5.2
+      }
+     ],
+     "sky": {
+      "color": "#FFE2CC",
+      "intensity": 0.35
+     }
+    },
+    "evening": {
+     "lights": [
+      {
+       "kind": "point",
+       "at": [
+        24.0,
+        2.8,
+        -0.3
+       ],
+       "color": "#FFE6C0",
+       "cd": 132.0,
+       "radius": 9.0
+      },
+      {
+       "kind": "rect",
+       "at": [
+        21.0,
+        2.0,
+        0.0
+       ],
+       "color": "#5A68B8",
+       "cd": 2.64,
+       "to": [
+        24.0,
+        0.6,
+        -0.6
+       ]
+      },
+      {
+       "kind": "rect",
+       "at": [
+        28.4,
+        2.6,
+        3.0
+       ],
+       "color": "#7FE0FF",
+       "cd": 8.1,
+       "to": [
+        24.0,
+        0.6,
+        -0.8
+       ]
+      },
+      {
+       "kind": "point",
+       "at": [
+        26.5,
+        1.08,
+        -0.25
+       ],
+       "color": "#4FE0A0",
+       "cd": 46.8,
+       "radius": 5.2
+      }
+     ],
+     "sky": {
+      "color": "#8A78C0",
+      "intensity": 0.1
+     }
+    }
+   }
+  },
+  {
+   "id": "juno",
+   "name": "Juno's gable room",
+   "tool": "Juno",
+   "camera": {
+    "position": [
+     48.0,
+     1.65,
+     7.6
+    ],
+    "target": [
+     48.0,
+     1.25,
+     0.0
+    ],
+    "hfov": 39.5978,
+    "aspect": 1.7777777777777777
+   },
+   "walk": {
+    "from": [
+     45.4,
+     0.0,
+     -0.1
+    ],
+    "to": [
+     50.6,
+     0.0,
+     -0.1
+    ],
+    "stand": [
+     48.55,
+     0.0,
+     -0.55
+    ]
+   },
+   "tuckHeight": 1.0,
+   "hotspots": [
+    {
+     "id": "desk",
+     "label": "The letter on Juno's desk",
+     "at": [
+      49.9,
+      0.9,
+      -0.25
+     ]
+    }
+   ],
+   "times": [
+    "morning",
+    "day",
+    "evening"
+   ],
+   "depth": {
+    "near": 5.533,
+    "far": 9.927
+   },
+   "light": {
+    "morning": {
+     "lights": [
+      {
+       "kind": "point",
+       "at": [
+        48.0,
+        2.8,
+        -0.3
+       ],
+       "color": "#FFC98A",
+       "cd": 13.75,
+       "radius": 9.0
+      },
+      {
+       "kind": "rect",
+       "at": [
+        45.0,
+        2.0,
+        0.0
+       ],
+       "color": "#E8F1FF",
+       "cd": 57.2,
+       "to": [
+        48.0,
+        0.6,
+        -0.6
+       ]
+      },
+      {
+       "kind": "rect",
+       "at": [
+        52.4,
+        2.6,
+        3.0
+       ],
+       "color": "#7FE0FF",
+       "cd": 14.4,
+       "to": [
+        48.0,
+        0.6,
+        -0.8
+       ]
+      },
+      {
+       "kind": "point",
+       "at": [
+        50.5,
+        1.08,
+        -0.25
+       ],
+       "color": "#FF9A6B",
+       "cd": 7.8,
+       "radius": 5.2
+      }
+     ],
+     "sky": {
+      "color": "#D6E4FF",
+      "intensity": 0.7
+     }
+    },
+    "day": {
+     "lights": [
+      {
+       "kind": "point",
+       "at": [
+        48.0,
+        2.8,
+        -0.3
+       ],
+       "color": "#FFC98A",
+       "cd": 55.0,
+       "radius": 9.0
+      },
+      {
+       "kind": "rect",
+       "at": [
+        45.0,
+        2.0,
+        0.0
+       ],
+       "color": "#CFE2FF",
+       "cd": 22.0,
+       "to": [
+        48.0,
+        0.6,
+        -0.6
+       ]
+      },
+      {
+       "kind": "rect",
+       "at": [
+        52.4,
+        2.6,
+        3.0
+       ],
+       "color": "#7FE0FF",
+       "cd": 18.0,
+       "to": [
+        48.0,
+        0.6,
+        -0.8
+       ]
+      },
+      {
+       "kind": "point",
+       "at": [
+        50.5,
+        1.08,
+        -0.25
+       ],
+       "color": "#FF9A6B",
+       "cd": 26.0,
+       "radius": 5.2
+      }
+     ],
+     "sky": {
+      "color": "#FFE2CC",
+      "intensity": 0.35
+     }
+    },
+    "evening": {
+     "lights": [
+      {
+       "kind": "point",
+       "at": [
+        48.0,
+        2.8,
+        -0.3
+       ],
+       "color": "#FFC98A",
+       "cd": 132.0,
+       "radius": 9.0
+      },
+      {
+       "kind": "rect",
+       "at": [
+        45.0,
+        2.0,
+        0.0
+       ],
+       "color": "#5A68B8",
+       "cd": 2.64,
+       "to": [
+        48.0,
+        0.6,
+        -0.6
+       ]
+      },
+      {
+       "kind": "rect",
+       "at": [
+        52.4,
+        2.6,
+        3.0
+       ],
+       "color": "#7FE0FF",
+       "cd": 8.1,
+       "to": [
+        48.0,
+        0.6,
+        -0.8
+       ]
+      },
+      {
+       "kind": "point",
+       "at": [
+        50.5,
+        1.08,
+        -0.25
+       ],
+       "color": "#FF9A6B",
+       "cd": 46.8,
+       "radius": 5.2
+      }
+     ],
+     "sky": {
+      "color": "#8A78C0",
+      "intensity": 0.1
+     }
+    }
+   }
+  }
+ ]
+}

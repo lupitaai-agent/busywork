@@ -132,9 +132,10 @@ test('every page loads the scripts it needs in a working order', () => {
 
 test('the app never reaches anywhere but Anthropic', () => {
   // Only the AI client calls fetch (the proxy transport goes where a shell says). The offline
-  // worker re-fetches the site's own files, and only those.
+  // worker re-fetches the site's own files, and only those. three.js (the live guides) reads the model's
+  // own textures from blob: URLs in the page; the security policy keeps every page to itself and Anthropic.
   const callers = walk(APP).filter((f) => /\bfetch\(/.test(read(f))).map((f) => path.relative(APP, f));
-  assert.deepEqual(callers, [path.join('shared', 'ai.js'), 'sw.js']);
+  assert.deepEqual(callers, [path.join('shared', 'ai.js'), path.join('shared', 'vendor', 'three-busy.js'), 'sw.js']);
   assert.match(read(path.join(APP, 'sw.js')), /new URL\(req\.url\)\.origin !== location\.origin\) return;/);
   assert.match(read(path.join(APP, 'shared', 'ai.js')), /const API = 'https:\/\/api\.anthropic\.com\/v1\/messages';/);
 });
@@ -157,8 +158,9 @@ test('names the owner typed are escaped in forms', async () => {
   assert.ok(BW.fieldsHtml([{ k: 'c', label: 'Colour', type: 'chips', html: true, options: [['x', '<span class="swatch"></span>']] }], {}).includes('<span class="swatch">'));
 });
 
-// Every tool page: scripts only from Busy's own files, no inline script, network only to Anthropic.
-const STRICT = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://api.anthropic.com; object-src 'none'; base-uri 'none'; form-action 'none'";
+// Every tool page: scripts only from Busy's own files, no inline script, network only to Anthropic (blob: is the
+// page's own memory: the live guide's textures).
+const STRICT = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' blob: https://api.anthropic.com; object-src 'none'; base-uri 'none'; form-action 'none'";
 test('every tool page carries the strict security policy and no inline script', () => {
   const olaf = path.join(ROOT, '..', 'busywork-olaf', 'app', 'index.html');
   const pages = [path.join(APP, 'index.html'), ...fs.readdirSync(path.join(APP, 'apps')).map((a) => path.join(APP, 'apps', a, 'index.html')), olaf].filter((p) => fs.existsSync(p));

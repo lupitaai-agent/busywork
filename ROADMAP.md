@@ -44,6 +44,26 @@
 
 ## Next up
 
+### 0. The places and the characters (built 2026-11-01, not pushed yet)
+All six characters come from Meshy and go out together. Done, waiting for the push:
+- The rooms rendered in the morning, by day and in the evening, each with its depth and its lights
+  (busy-studio `render_places.sh`, `place_web.py`). The pictures follow the clock, the characters stand
+  behind the furniture and are lit like the room, and the room moves a little with the pointer
+  (`app/shared/scene.js`, also used by `website/assets/place.js`).
+- The apps' home screens: the guide stands live in the front room (Tuck, Rivet, Pim), also when the app is
+  opened from a file and in the desktop apps. Still pictures with reduced motion or without WebGL.
+- The paid apps: Olaf, Ivy and Juno live in their rooms upstairs and act out what the AI is doing
+  (thinking, writing, done, saved). Only in the paid downloads (`busywork-olaf/experts/`).
+- Fixed: on phones the guide walks over to the thing to tap, so both stay in view; tapping the picture does
+  the room's thing, and on Busy Street a second tap goes through the door.
+
+Next for the places:
+- Room objects that follow the user's own data (the stock shelf empties, invoices pile up on the counter,
+  the trellis grows a leaf per skill, a drawer label glows before something expires).
+- Short rendered clips for big moments, like Tuck's "Cancelled in time!" cheer, for the other places.
+- More moves from Meshy: a real Typing, Carrying a box and Pointing for Tuck; a clear point for Pim; a
+  sitting or writing move for the experts.
+
 ### 1. Project Planner, next steps
 - Hours spent: link Time Tracker entries to a task (the "track time on this" button already knows
   the task), then show budget against hours spent per project.

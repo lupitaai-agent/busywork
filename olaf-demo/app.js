@@ -133,8 +133,11 @@
     return j;
   }
 
+  // The six stages as a path through the Workshop (room/home.js), with the plain list as the fallback.
+  const STAGE_ROOMS = ['front', 'counter', 'window', 'bench', 'office', 'yard'];
   function stageCards(stages) {
     const now = (stages.find((s) => !s.done) || {}).n;
+    if (BW.expertUI) return BW.expertUI.path(stages.map((s, i) => ({ title: s.title, sub: s.done ? 'Done' : s.n === now ? 'You are here' : '', place: 'workshop', room: STAGE_ROOMS[i % 6], state: s.done ? 'done' : s.n === now ? 'here' : '' })), '').replace('<div class="section-h"><h2></h2></div>', '');
     return `<div class="stages">${stages.map((s) => `<div class="stage ${s.done ? 'done' : ''} ${s.n === now ? 'now' : ''}"><span class="n">${s.done ? '✓' : s.n}</span><b>${esc(s.title)}</b><small>${s.done ? 'Done ' + esc(s.when || '') : s.n === now ? 'You are here' : ''}</small></div>`).join('')}</div>`;
   }
 
@@ -250,6 +253,7 @@
   /* ---------- the dashboard (home) ---------- */
   async function viewHome(v) {
     const st = await setupState(), j = st.j, key = BW.ai.ready();
+    const go = { weekly: 'Weekly check-in', monthly: 'Monthly review' };
     const due = j && (!j['Next check-in'] || j['Next check-in'] <= BW.today());
     v.innerHTML = `
       ${key ? '' : `<div class="next rise" style="margin-bottom:16px"><button data-key><span class="e">🔌</span><span><b>Connect Olaf to Claude</b><small>Five minutes, once, with a step-by-step guide. Your key stays in this browser and is only sent to Anthropic.</small></span></button></div>`}
@@ -264,6 +268,12 @@
       <div class="dash rise">${BW.mktDash.planHtml(st.d, { planLink: '../marketing/index.html#tab/plan' })}${BW.mktDash.numbersHtml(st.d)}${BW.mktDash.workHtml(st.d)}</div>
       <div style="height:40px"></div>`;
     const k = $('[data-key]', v); if (k) k.onclick = connect;
+    // Olaf says what's next from his study: the check-in when it's due, otherwise where you are.
+    if (window.BusyRoom) {
+      if (!j) BusyRoom.say('Let’s set up your marketing together: one topic at a time.', '', null);
+      else if (due) BusyRoom.say('It’s time for our weekly check-in: ten minutes.', 'Start the check-in', () => start('marketing-journey', go.weekly));
+      else BusyRoom.say(`We’re at stage ${Math.min(j.stages.filter((s) => s.done).length + 1, 6)}: ${(j.stages.find((s) => !s.done) || { title: 'keep it going' }).title}.`, '', null);
+    }
     BW.mktDash.bind(v, st.d, () => viewHome(v));
     $$('[data-open]', v).forEach((a) => a.onclick = (e) => { e.preventDefault(); openFile = a.dataset.open; tab = 'files'; render(); });
     $$('[data-topic]', v).forEach((b) => b.onclick = () => { const tp = SETUP.find((x) => x.id === b.dataset.topic); start('onboarding', topicPrompt(tp)); });
@@ -274,7 +284,6 @@
     const mp = $('[data-makeplan]', v); if (mp) mp.onclick = () => start('marketing-journey', 'Make my plan: I have finished setting up.');
     const rv = $('[data-review]', v); if (rv) rv.onclick = () => { const box = BW.html(`<div>${setupHtml(Object.assign({}, st, { planned: true }))}</div>`); BW.modal({ title: 'Setup topics', body: box, wide: true }); $$('[data-topic]', box).forEach((b) => b.onclick = () => { $('.modal .close, .modal [aria-label=Close]') && $('.modal .close, .modal [aria-label=Close]').click(); start('onboarding', topicPrompt(SETUP.find((x) => x.id === b.dataset.topic))); }); };
     $$('[data-week]', v).forEach((li) => li.onclick = async () => { await toggleWeek(Number(li.dataset.week)); viewHome(v); });
-    const go = { weekly: 'Weekly check-in', monthly: 'Monthly review' };
     $$('[data-go]', v).forEach((b) => b.onclick = () => (b.dataset.go === 'ask' ? ask() : start('marketing-journey', go[b.dataset.go])));
   }
 
@@ -376,6 +385,7 @@
   }
 
   function renderSession() {
+    if (window.BusyRoom) BusyRoom.say('');
     const s = session;
     main.innerHTML = `
       <div style="padding-top:18px"><button class="btn btn-ghost" data-back style="margin-left:-10px">← Olaf</button></div>

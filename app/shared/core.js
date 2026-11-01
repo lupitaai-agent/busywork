@@ -65,19 +65,22 @@
   // Each suite is a place, rendered in the Busy Studio as on the website: its front (on the home screen) and
   // the room every tool lives in (shared/places/<place>/<room>.jpg). The Workshop's sign (where on the
   // picture, as a share of its width and height) carries the business's own name in its brand colour.
-  // Each place has a guide who says one scripted line on the home screen (no AI): Tuck in Busy Home, in three
-  // poses (shared/places/house/tuck-<pose>.png); Rivet and Pim get theirs when they're made, and until then
-  // their line floats on the picture where they'll stand.
+  // Each place has a guide who says one scripted line on the home screen (no AI), in three poses
+  // (shared/places/<place>/<guide>-<pose>.png): Rivet in the Workshop, Pim in the Glasshouse, Tuck in his house.
+  // With WebGL the guide stands live in the front room instead (model: shared/places/<place>/<model>.glb.js, see
+  // shared/scene.js), at their size next to Tuck. Every room was rendered in the morning, by day and in the evening
+  // (<room>-morning.jpg, <room>.jpg, <room>-evening.jpg): the pictures follow the clock.
   BW.PLACES = {
-    business: { dir: 'workshop', front: 'front', name: 'the Workshop', guide: { name: 'Rivet' }, sign: { left: 37.6, top: 4.6, width: 42.2, height: 11.5 },
+    business: { dir: 'workshop', front: 'front', name: 'the Workshop', guide: { name: 'Rivet', poses: ['hello', 'point', 'happy'], model: 'rivet', size: 0.9 }, sign: { left: 37.6, top: 4.6, width: 42.2, height: 11.5 },
       rooms: { brand: 'front', time: 'bench', projects: 'bench', board: 'bench', invoices: 'counter', clients: 'counter', expenses: 'office', money: 'office',
         subscriptions: 'office', docs: 'desk', stock: 'stock', trips: 'yard', marketing: 'window' } },
-    growth: { dir: 'glasshouse', front: 'foot', name: 'the Glasshouse', guide: { name: 'Pim' },
+    growth: { dir: 'glasshouse', front: 'foot', name: 'the Glasshouse', guide: { name: 'Pim', poses: ['hello', 'point', 'happy'], model: 'pim', size: 1.25 },
       rooms: { library: 'roots', learning: 'potting', skills: 'trellis', wins: 'trellis', jobs: 'lookout', cv: 'print', stories: 'print', contacts: 'bridge', review: 'roof' } },
-    house: { dir: 'house', front: 'door', name: "Tuck's house", guide: { name: 'Tuck', poses: ['hello', 'point', 'happy'] },
+    house: { dir: 'house', front: 'door', name: "Tuck's house", guide: { name: 'Tuck', poses: ['hello', 'point', 'happy'], model: 'tuck', size: 1 },
       rooms: { papers: 'papers', contracts: 'contracts', upkeep: 'upkeep', inventory: 'inventory', letters: 'letters', moving: 'moving', binder: 'binder' } },
   };
-  const placeImg = (room) => `${BW.root}shared/places/${BW.PLACES[BW.suite].dir}/${room}.jpg`;
+  const tod = () => { const h = new Date().getHours(); return h >= 5 && h < 11 ? '-morning' : h >= 11 && h < 17 ? '' : '-evening'; };
+  const placeImg = (room) => `${BW.root}shared/places/${BW.PLACES[BW.suite].dir}/${room}${tod()}.jpg`;
   BW.roomOf = (appId) => { const p = BW.PLACES[BW.suite]; return p && p.rooms[appId] ? placeImg(p.rooms[appId]) : ''; };
   BW.roomPic = (appId) => { const src = BW.roomOf(appId); return src ? `<span class="room-pic" style="background-image:url('${src}')" aria-hidden="true"></span>` : ''; };
   // The home screen's picture: the place's front (the Workshop's sign painted with the business's name).
@@ -86,14 +89,54 @@
     const p = BW.PLACES[BW.suite];
     if (!p) return '';
     const name = (BW.settings && BW.settings.businessName) || '';
-    const s = p.sign, h = s && (s.height * 9 / 6) + '%'; // the banner shows the top 6/9 of the 16:9 picture
-    const sign = s && name ? `<span class="place-sign" style="left:${s.left}%;width:${s.width}%;top:${s.top * 9 / 6}%;height:${h};--brand:${BW.esc(BW.settings.brandColor || '#FF6B4A')};--len:${Math.max(6, name.length)}"><b>${BW.esc(name)}</b></span>` : '';
+    const s = p.sign;  // the room sits in a 16:9 frame (.place-frame), so the sign is placed in shares of that
+    const sign = s && name ? `<span class="place-sign" style="left:${s.left}%;width:${s.width}%;top:${s.top}%;height:${s.height}%;--brand:${BW.esc(BW.settings.brandColor || '#FF6B4A')};--len:${Math.max(6, name.length)}"><b>${BW.esc(name)}</b></span>` : '';
     const last = BW.lastTool();
     const back = last ? `<a class="resume" href="${BW.root}apps/${last.id}/index.html">↩ Back to ${last.emoji} ${BW.esc(last.name)}</a>` : '';
     const g = p.guide, pose = g && g.poses && (g.poses.includes(mood) ? mood : g.poses[0]);
     const guide = say && g ? `<div class="place-guide${pose ? '' : ' no-pic'}">${pose ? `<img src="${BW.root}shared/places/${p.dir}/${g.name.toLowerCase()}-${pose}.png" alt="${BW.esc(g.name)}">` : ''}`
       + `<p class="guide-bubble" role="status">${pose ? `<b>${BW.esc(g.name)}</b>` : ''}${BW.esc(say)}</p></div>` : '';
-    return `<figure class="place-banner${guide ? ' has-guide' : ''}" aria-label="${BW.esc(p.name)}, rendered in the Busy Studio"><img src="${placeImg(p.front)}" alt="">${sign}${back}${guide}</figure>`;
+    if (guide) requestAnimationFrame(() => BW.liveBanner(pose));
+    return `<figure class="place-banner${guide ? ' has-guide' : ''}" aria-label="${BW.esc(p.name)}, rendered in the Busy Studio"><div class="place-frame"><img src="${placeImg(p.front)}" alt="">${sign}</div>${back}${guide}</figure>`;
+  };
+  // The live guide on the home screen (shared/scene.js): loaded once, then moved into each new banner when the home
+  // screen redraws. The drawn pose stays when there's no WebGL, with reduced motion, or while it loads.
+  const MOVE = { hello: 'Waving', point: 'PointingGesture', happy: 'Victory' };
+  let live = null, loading = null, lastMood = '';
+  BW.liveBanner = async (mood) => {
+    const p = BW.PLACES[BW.suite], g = p && p.guide;
+    if (!g || !g.model || !document.querySelector('.place-banner .place-frame')) return;
+    const show = () => {
+      const fig = document.querySelector('.place-banner'), el = fig && fig.querySelector('.place-frame');
+      if (!el || !live) return;
+      live.attach(el);
+      fig.classList.add('live');
+      if (mood !== lastMood) { lastMood = mood; live.play(MOVE[mood] || 'Waving'); }
+    };
+    if (live) return show();
+    if (!loading) {
+      loading = (async () => {
+        const load = (src) => new Promise((ok, no) => { const t = document.createElement('script'); t.src = BW.root + src; t.onload = ok; t.onerror = no; document.head.append(t); });
+        if (!window.BusyScene) await load('shared/scene.js');
+        if (!BusyScene.canGL() || BusyScene.reduced()) throw new Error('stays still');
+        if (!window.BusyThree) await load('shared/vendor/three-busy.js');
+        await load(`shared/places/${p.dir}/scene.js`);
+        await load(`shared/places/${p.dir}/${g.model}.glb.js`);
+        const el = document.querySelector('.place-banner .place-frame');
+        live = await BusyScene.stage(el, window.BusyScenes[p.dir], window.BusyGLB[g.model], {
+          size: g.size,
+          onFrame: (h, shift) => {
+            const fig = live && live.el && live.el.closest('.place-banner');
+            if (!fig || !h) return;
+            fig.style.setProperty('--head-x', Math.round(h.x) + 'px'); fig.style.setProperty('--head-y', Math.round(h.y) + 'px');
+            const sign = fig.querySelector('.place-sign'), sc = window.BusyScenes[p.dir];
+            if (sign && sc.depth) { const d = shift(sc.depth.far * 0.97); sign.style.transform = `translate(${d.x.toFixed(1)}px, ${d.y.toFixed(1)}px)`; }
+          },
+        });
+      })().catch((e) => { console.info('The guide stays drawn:', e && e.message); });
+    }
+    await loading;
+    show();
   };
   BW.suiteApps = () => BW.apps.filter((a) => a.suite === BW.suite);
 

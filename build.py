@@ -652,7 +652,7 @@ IMAGES = {
     "assets/og-busy.png": ("Busy: free, private tools for work and life",
                            "Busy share image: free, private tools for work and life, with suites for business, daily brain games and career growth."),
     "assets/og-olaf.png": ("Olaf by Busy: AI expert for marketing and projects",
-                           "Olaf share image: the AI expert for marketing and projects in the paid edition of Busy."),
+                           "Olaf share image: the AI expert for marketing and projects in the paid edition of Busy, in his study above the Workshop."),
     "assets/logo-512.png": ("Busy logo", "The Busy logo: a sun-yellow rounded tile with a dark sparkle."),
     "apple-touch-icon.png": ("Busy icon", "The Busy app icon: a sun-yellow rounded tile with a dark sparkle."),
     "assets/favicon.svg": ("Busy logo", "The Busy logo: a sun-yellow rounded tile with a dark sparkle."),
@@ -660,10 +660,10 @@ IMAGES = {
     "assets/og-business.png": ("Busy Business: free tools for small businesses",
                                "Busy Business share image: free, private business tools for invoices, time, receipts, money, projects and marketing."),
     "assets/og-ivy.png": ("Ivy by Busy: AI coach for professional growth",
-                          "Ivy share image: the AI coach for professional growth in Busy Growth, coming soon."),
+                          "Ivy share image: the AI coach for professional growth in Busy Growth, at the top of the Glasshouse."),
     "assets/ivy-mark.svg": ("Ivy logo", "The Ivy logo: a green ivy leaf on a short stem, leaning up and to the right."),
     "assets/og-juno.png": ("Juno by Busy: AI expert for household paperwork",
-                           "Juno share image: the AI expert for household paperwork in Busy Home. Explains the letter, writes the reply, keeps you ahead."),
+                           "Juno share image: the AI expert for household paperwork in Busy Home. Explains the letter, writes the reply, keeps you ahead. Juno in her gable room."),
     "assets/juno-mark.svg": ("Juno logo", "The Juno logo: a coral house with a lit window and a chimney, leaning up and to the right."),
 }
 
@@ -879,6 +879,7 @@ def olaf_page(tools: list) -> str:
         </div></div></div>
     </div>
   </section>
+  <section class="section"><div class="wrap">{expert_intro("olaf", "Rivet", "app/shared/places/workshop/rivet-hello.png", "business/index.html#upstairs", "")}</div></section>
   <section class="section"><div class="wrap">
     <div class="center reveal"><h2 class="big">What Olaf does</h2><p class="lead">The free Marketing Studio gives you the playbooks. Olaf runs them with you, week after week.</p></div>
     <div class="feats">{"".join(f'<div class="card feat reveal pop" style="transition-delay:{i * .06:.2f}s"><span class="fe">{f[0]}</span><h3>{e(f[1])}</h3><p>{e(f[2])}</p></div>' for i, f in enumerate(feats))}</div>
@@ -1086,6 +1087,7 @@ def growth_page(tools: list) -> str:
     else:
         signup = '<p class="lead">The list opens soon. Meanwhile, keep your brain busy with <a href="../games/index.html">today\'s puzzles</a>.</p>'
     ivy = f"""<section class="section" id="ivy"><div class="wrap">
+    {expert_intro("ivy", "Pim", "../app/shared/places/glasshouse/pim-hello.png", "#upstairs")}
     <div class="card ivy-card reveal"><img src="../assets/ivy-mark.svg" alt="" width="96" height="96">
       <div><p class="kicker">Ivy by Busy · €30 once{"" if IVY_CHECKOUT_URL else " · coming soon"}</p><h2>Your AI coach for professional growth</h2>
       <p>Ivy turns what you learn into skills and wins, those into a stronger CV, and helps with every application and interview. Learn it, prove it, land it. Ivy never invents experience: every line comes with its proof.</p>
@@ -1131,7 +1133,8 @@ def growth_page(tools: list) -> str:
 <body class="site app-mint">
 {nav("../", ("⬇️ Download free", "#get"))}
 <main id="main">
-  {place_html("glasshouse", GLASSHOUSE_STEPS, glasshouse_card, "The Glasshouse: a tour of Busy Growth", next_label="Up a floor ↑", decals=GLASSHOUSE_DECALS)}
+  {place_html("glasshouse", GLASSHOUSE_STEPS, glasshouse_card, "The Glasshouse: a tour of Busy Growth", next_label="Up a floor ↑", decals=GLASSHOUSE_DECALS,
+             model="../assets/pim/pim.glb", height=1.25, expert="ivy")}
   <section class="section"><div class="wrap">
     <div class="center reveal"><h2 class="big">{len(GROWTH_TOOLS)} tools that work together</h2><p class="lead">A gap in your skills becomes a plan, the plan becomes a win, the win becomes a CV line and an interview story.</p></div>
     <div class="feats">{feats}</div>
@@ -1225,12 +1228,51 @@ HOUSE_STEPS = [
      "task": "Tap the safe.", "say": "The safe corner. The binder your family would need if something happened to you.",
      "acts": [("safe", "Victory", "People to call, where everything is, your wishes: one PDF. Important stuff.",
                "<b>📕 Just in Case</b><span>6 people · 14 documents · wishes</span><span>One PDF for the family</span>", "confetti")]},
+    {"id": "upstairs", "plate": "juno", "title": "Upstairs · Juno", "expert": "juno",
+     "h": "Juno reads the letter and writes the reply", "task": "Tap the letter on Juno's desk.",
+     "p": "Upstairs, in the gable, works Juno: Busy Home's AI expert. She explains a letter in plain words, says what to do by when, and writes the reply, from your own Busy Home files.",
+     "say": "Hello, I'm Juno. Tuck keeps the paperwork in order; I read the letters. Hand me one.", "move": "Waving",
+     "acts": [("desk", "Thinking>Writing>Nodding", "An energy bill with a higher monthly amount. Here's what it says, and your reply.",
+               "<b>📬 The energy bill, explained</b><span>Your monthly payment goes from €118 to €142 from 1 December.</span>"
+               "<span>⏰ Send a meter reading before 14 November: the new amount may be too high.</span>"
+               "<span class=\"faint\">An example. Juno works from your own letters, with your own Claude key.</span>", "")]},
     {"id": "home", "plate": "door", "title": "Take Tuck home", "say": "That's the tour! Take me home: I'm free, for Mac and Windows.", "move": "Waving", "acts": []},
 ]
 
 
+EXPERTS = {  # the paid AI experts upstairs: their room and model (busy-studio), size next to Tuck, page and price
+    "olaf": {"name": "Olaf", "size": 1.45, "page": "olaf.html", "price": lambda: OLAF_PRICE.split(" ·")[0]},
+    "ivy": {"name": "Ivy", "size": 1.28, "page": "#ivy", "price": lambda: "€30 once"},  # "coming soon" stays in the expert's own section
+    "juno": {"name": "Juno", "size": 1.05, "page": "#juno", "price": lambda: f"{JUNO_PRICE} once"},
+}
+
+
+def expert_intro(expert: str, guide: str, guide_pic: str, tour: str, prefix: str = "../") -> str:
+    """An expert on their page: in their room upstairs (rendered in the Busy Studio), a way to watch them at work in
+    the tour's last room, and the guide next to them: the guide is free and scripted, the expert is paid AI."""
+    x = EXPERTS[expert]
+    return f"""<div class="expert-intro reveal">
+      <figure class="expert-pic"><img src="{prefix}assets/experts/{expert}-card.jpg" alt="{x["name"]} in the room upstairs, rendered in the Busy Studio" loading="lazy" width="1200" height="675">
+        <a class="btn btn-primary" href="{tour}">👀 See {x["name"]} at work</a></figure>
+      <div class="expert-duo">
+        <div class="card"><img src="{guide_pic}" alt="" loading="lazy"><div><b>{guide} · free</b><small>Your guide downstairs: shows you every tool. Scripted, no AI.</small></div></div>
+        <div class="card"><img src="{prefix}assets/experts/{expert}-hello.png" alt="" loading="lazy"><div><b>{x["name"]} · paid</b><small>The AI expert upstairs, on your own Claude key. {e(x["price"]())}.</small></div></div>
+      </div>
+    </div>"""
+
+
+def expert_card(s: dict) -> str:
+    """The last room of a tour: upstairs, the paid expert at work (scripted here: no AI on the website)."""
+    x = EXPERTS[s["expert"]]
+    return (f'<span class="chip chip-grape">Paid · AI expert · {e(x["price"]())}</span><h2>{e(s["h"])}</h2><p>{e(s["p"])}</p>'
+            f'<p class="house-task">👉 {e(s["task"])}</p><div class="house-result" data-result hidden></div>'
+            f'<p class="house-try"><a href="{x["page"]}">Meet {x["name"]} →</a></p>')
+
+
 def house_card(s: dict) -> str:
     """The words of one room, shown in the card next to it."""
+    if s.get("expert"):
+        return expert_card(s)
     if s["id"] == "door":
         return ('<span class="chip chip-tomato">Free · no account · Mac and Windows</span><h1>Busy Home 🏡</h1>'
                 '<p>Free tools for the paperwork every household has: passports, policies, contracts, upkeep, the things you own and the letters you need to send. '
@@ -1251,10 +1293,10 @@ PLACE_HEAD = ('<script type="importmap">{{"imports":{{"three":"../assets/vendor/
 
 
 def place_html(place: str, steps: list, card, label: str, model: str = "", next_label: str = "Next room →",
-               decals: dict = None, brand: str = "", root: str = "../") -> str:
+               decals: dict = None, brand: str = "", root: str = "../", height: float = 1, expert: str = "") -> str:
     """A place (assets/place.js) and every room's words as plain HTML (search engines and screen readers read these).
     decals: {id: (html, shown from the start)}, the words the page draws on the rooms. Without a model the place has no
-    live guide (yet): the guide's lines float where it will stand."""
+    live guide (yet): the guide's lines float where it will stand. height: the guide's size next to Tuck (1)."""
     rooms = "".join(
         f'<article data-room="{s["id"]}" data-plate="{s.get("plate", s["id"])}" data-title="{e(s["title"])}" data-say="{e(s["say"])}"'
         f'{(" data-move=" + chr(34) + s["move"] + chr(34)) if s.get("move") else ""} hidden>'
@@ -1264,7 +1306,7 @@ def place_html(place: str, steps: list, card, label: str, model: str = "", next_
         + "</article>" for s in steps)
     words = "".join(f'<template data-decal="{d}"{" data-shown" if shown else ""}>{html}</template>' for d, (html, shown) in (decals or {}).items())
     first = steps[0]
-    return f"""<section class="house house-{place}" data-house data-house-rooms="{root}assets/{place}/rooms.json" data-house-plates="{root}assets/{place}/"{f' data-tuck-model="{model}"' if model else ''} data-next-label="{e(next_label)}"{f' data-brand-color="{brand}"' if brand else ''} aria-label="{e(label)}">
+    return f"""<section class="house house-{place}" data-house data-house-rooms="{root}assets/{place}/rooms.json" data-house-plates="{root}assets/{place}/"{f' data-tuck-model="{model}"' if model else ''}{f' data-guide-height="{height}"' if height != 1 else ''}{f' data-expert="{expert}" data-expert-model="{root}assets/experts/{expert}.glb" data-expert-size="{EXPERTS[expert]["size"]}" data-extra-rooms="{root}assets/experts/rooms.json" data-extra-plates="{root}assets/experts/"' if expert else ''} data-next-label="{e(next_label)}"{f' data-brand-color="{brand}"' if brand else ''} aria-label="{e(label)}">
     <div class="house-view" data-house-view>
       <img class="house-plate" data-house-plate src="{root}assets/{place}/room-{first.get("plate", first["id"])}-1920.jpg" alt="{e(first["title"])}, rendered in the Busy Studio" fetchpriority="high">
       <div class="house-decals" data-house-decals></div>
@@ -1280,7 +1322,7 @@ def place_html(place: str, steps: list, card, label: str, model: str = "", next_
 
 
 def house_html() -> str:
-    return place_html("house", HOUSE_STEPS, house_card, "Tuck's house: a tour of Busy Home", model="../assets/tuck/tuck.glb")
+    return place_html("house", HOUSE_STEPS, house_card, "Tuck's house: a tour of Busy Home", model="../assets/tuck/tuck.glb", expert="juno")
 
 
 def home_page(tools: list) -> str:
@@ -1288,6 +1330,7 @@ def home_page(tools: list) -> str:
     buy = (f'<p style="margin-top:14px"><a class="btn btn-primary" href="{e(JUNO_CHECKOUT_URL)}">Get Juno · {JUNO_PRICE}</a> <a class="btn" href="../claude-key.html">How Juno connects to Claude</a></p>'
            if JUNO_CHECKOUT_URL else '<p style="margin-top:12px"><a href="../claude-key.html">How Juno will connect to Claude →</a></p>')
     juno = f"""<section class="section" id="juno"><div class="wrap">
+    {expert_intro("juno", "Tuck", "../app/shared/places/house/tuck-hello.png", "#upstairs")}
     <div class="card ivy-card juno-card reveal"><img src="../assets/juno-mark.svg" alt="" width="96" height="96">
       <div><p class="kicker">Juno by Busy · {JUNO_PRICE} once{"" if JUNO_CHECKOUT_URL else " · coming soon"}</p><h2>Your AI expert for household paperwork</h2>
       <p>Attach the letter you've been avoiding and Juno tells you what it means and what to do by when, with the reply already drafted. It reads your contracts and policies, says when to keep, switch or cancel, sorts a pile of scans, helps with a claim or a move, and sends you a short briefing each month. It works on your own folder and never gives legal advice: it tells you when to ask a professional.</p>
@@ -1352,7 +1395,7 @@ WORKSHOP_SWATCHES = (("#FF6B4A", "", "Tomato"), ("#2FD18C", "Georgia, serif", "M
                      ("#9B6BFF", "'Courier New', monospace", "Grape, typewriter"), ("#1E1B2E", "Georgia, serif", "Ink, classic letters"))
 WORKSHOP_STEPS = [
     {"id": "front", "title": "The shop front · Brand Kit", "tool": "brand", "kicker": "Brand Kit",
-     "say": "Welcome to Studio Noor's workshop. The sign above the door is still blank: shall we paint it?",
+     "say": "Welcome to Studio Noor's workshop. The sign above the door is still blank: shall we paint it?", "move": "Waving",
      "acts": [("sign", "PointingGesture", "Your brand, your colours. Pick one and watch the sign.",
                "<b>🎨 Brand Kit</b><span>Pick the colour and letters for the sign:</span><div class=\"house-swatches\">"
                + "".join(f'<button type="button" class="btn" data-house-do="painted" data-paint="{c}" data-font="{e(f)}"><i style="background:{c}"></i>{e(n)}</button>'
@@ -1381,7 +1424,7 @@ WORKSHOP_STEPS = [
     {"id": "office", "title": "Back office · Receipts & Money", "tool": "expenses", "kicker": "Receipts, Money Dashboard & Subscriptions", "h": "See where you stand",
      "p": "Drop a photo of a receipt and it's filed, with the VAT you claim back. The dashboard shows profit, what to put aside and who still owes you, and every little monthly bill is in one place.",
      "task": "Tap the shoebox, then the gauge on the wall.", "say": "The back office. Everyone has a shoebox like that one…",
-     "acts": [("shoebox", "Typing", "Sorted! Every receipt filed, with the VAT you can claim back.",
+     "acts": [("shoebox", "Stretch", "Sorted! Every receipt filed, with the VAT you can claim back.",
                "<b>📸 Receipts sorted</b><ul class=\"house-ticks\"><li data-tick>Paint and brushes · €84.20 · materials</li><li data-tick>Oak boards · €126.00 · materials</li>"
                "<li data-tick>Train to Rotterdam · €12.40 · travel</li></ul><span>VAT to claim back: <b>€37.84</b></span>", ""),
               ("gauge", "PointingGesture", "Here's where you stand: profit, what to keep aside, and who still owes you.",
@@ -1390,13 +1433,13 @@ WORKSHOP_STEPS = [
     {"id": "desk", "title": "Writing desk · Document Maker", "tool": "docs", "kicker": "Document Maker", "h": "Quotes and contracts, filled in",
      "p": "Pick a template and a client. Names, addresses, dates and bank details are filled in; you add the good bits and save a PDF with your logo.",
      "task": "Tap the laptop.", "say": "The writing desk. Café Morgenrood wants lettering on the side window too. A quote?",
-     "acts": [("laptop", "Typing", "Names, addresses, dates and bank details: all filled in. Your logo on top.",
+     "acts": [("laptop", "Happy", "Names, addresses, dates and bank details: all filled in. Your logo on top.",
                "<b>📝 Quote: window lettering</b><span data-type>Dear Sam, thank you for asking us about lettering for the side window. Below is our quote for the design and two sessions of hand lettering, materials included. Valid until the end of the month. Kind regards, Noor Visser, Studio Noor</span>"
                "<span>📄 Saved as a PDF with your logo</span>", "")]},
     {"id": "stock", "title": "Stockroom · Stock Keeper", "tool": "stock", "kicker": "Stock Keeper", "h": "Never run out halfway through a job",
      "p": "Tap plus and minus as things come in and go out. Busy warns you before the shelf runs empty and keeps a history of every change.",
      "task": "Tap the stack of oak boards.", "say": "The stockroom. Those oak boards go fast.",
-     "acts": [("boards", "JoggingWithBox", "Three boards out for the sign. Only four left: time to order.",
+     "acts": [("boards", "Stomp", "Three boards out for the sign. Only four left: time to order.",
                "<b>📦 Oak boards</b><span>7 → 4 left (3 for Café Morgenrood)</span><span><b>⚠️ Running low: order 10 before Friday</b></span><span>Every change kept in the history</span>", "")]},
     {"id": "yard", "title": "The yard · Trip Log", "tool": "trips", "kicker": "Trip Log", "h": "Every kilometre counts at tax time",
      "p": "Log a trip in seconds, tap your usual routes, and see what your kilometres are worth at tax time.",
@@ -1411,6 +1454,14 @@ WORKSHOP_STEPS = [
                "<li data-tick>Next week: behind the scenes of the lettering</li><li data-tick>In two weeks: a customer story</li><li data-tick>In three weeks: open studio day</li></ul>", "show:poster"),
               ("chalkboard", "Happy", "Your own invoices say it: your best clients come through recommendations. So ask for them!",
                "<b>💡 From your invoices</b><span>4 of your 5 best clients came through a recommendation</span><span>Idea: a small thank-you for every referral</span>", "")]},
+    {"id": "upstairs", "plate": "olaf", "title": "Upstairs · Olaf", "expert": "olaf",
+     "h": "Olaf plans your marketing and does the work with you", "task": "Tap the plan on Olaf's desk.",
+     "p": "Upstairs in the Workshop works Olaf: Busy Business's AI expert. He works out where you stand, makes a plan you can keep up with, checks in every week and does the work with you.",
+     "say": "Good evening, I'm Olaf. Rivet runs the shop; I plan how people find it.", "move": "Waving",
+     "acts": [("desk", "Thinking>Writing>Nodding", "Studio Noor's next step: be easy to find. Three jobs for this week.",
+               "<b>🧭 This week, for Studio Noor</b><span>☐ Opening hours, prices and six photos on your Google listing · 40 min</span>"
+               "<span>☐ Ask your last five clients for a review · 20 min</span><span>☐ Two short posts about the new sign · 15 min</span>"
+               "<span class=\"faint\">An example. Olaf works from your own business, with your own Claude key.</span>", "")]},
     {"id": "end", "plate": "front", "title": "Take the workshop home", "say": "That's the workshop! Take it home: free, for Mac and Windows.", "acts": []},
 ]
 WORKSHOP_DECALS = {"sign": ("Studio Noor", False), "van": ("Studio Noor", True),
@@ -1419,6 +1470,8 @@ WORKSHOP_DECALS = {"sign": ("Studio Noor", False), "van": ("Studio Noor", True),
 
 def workshop_card(s: dict) -> str:
     """The words of one room of the Workshop, shown in the card next to it."""
+    if s.get("expert"):
+        return expert_card(s)
     if s["id"] == "front":
         return ('<span class="chip chip-sun">Free · no account · Mac and Windows</span><h1>Busy Business 🛠️</h1>'
                 f'<p>Free tools for freelancers, makers and small studios: invoices, hours, receipts, projects, stock and marketing. Everything in your own folder. Walk round the workshop to see how.</p>'
@@ -1433,7 +1486,8 @@ def workshop_card(s: dict) -> str:
 
 
 def workshop_html() -> str:
-    return place_html("workshop", WORKSHOP_STEPS, workshop_card, "The Workshop: a tour of Busy Business", decals=WORKSHOP_DECALS, brand="#FF6B4A")
+    return place_html("workshop", WORKSHOP_STEPS, workshop_card, "The Workshop: a tour of Busy Business", decals=WORKSHOP_DECALS, brand="#FF6B4A",
+                      model="../assets/rivet/rivet.glb", height=0.9, expert="olaf")
 
 
 def put_place(page: Path, html: str) -> None:
@@ -1448,54 +1502,64 @@ def put_place(page: Path, html: str) -> None:
 # following the demo's pretend person, Lena, a customer service lead moving into data analysis. The guide
 # (Pim) comes later; until then the lines float where Pim will stand. Same step format as HOUSE_STEPS.
 GLASSHOUSE_STEPS = [
-    {"id": "foot", "title": "The Glasshouse", "say": "Welcome to the Glasshouse. Ring the bell: we climb from the roots to the roof.",
-     "acts": [("bell", "", "Ding! Up we go, one floor at a time.", "", "next")]},
+    {"id": "foot", "title": "The Glasshouse", "say": "Welcome to the Glasshouse. Ring the bell: we climb from the roots to the roof.", "move": "Waving",
+     "acts": [("bell", "Waving", "Ding! Up we go, one floor at a time.", "", "next")]},
     {"id": "roots", "title": "The roots · Library", "tool": "library", "kicker": "Library", "h": "Everything you learn, findable",
      "p": "Files, links and notes from everything you read and learn, tagged and searchable down to the words inside a PDF.",
      "task": "Tap the shelf.", "say": "The roots: everything Lena reads ends up here.",
-     "acts": [("shelf", "", "Tagged and findable. Search 'SQL' and three things light up.",
+     "acts": [("shelf", "PointingGesture", "Tagged and findable. Search 'SQL' and three things light up.",
                "<b>📚 A friendly guide to SQL window functions</b><span>Tags: SQL · data analysis</span><span>🔎 'SQL' finds 3 things: a course, an article and her notes</span>", "")]},
     {"id": "potting", "title": "Potting bench · Learning planner", "tool": "learning", "kicker": "Learning planner", "h": "Plant a course, watch it grow",
      "p": "Courses, books and projects with goals, dates and the hours a week you can give them.",
      "task": "Tap the seed tray.", "say": "The potting bench: every course starts as a seed.",
-     "acts": [("tray", "", "Planted: three hours a week, done before the summer.",
+     "acts": [("tray", "Happy", "Planted: three hours a week, done before the summer.",
                "<b>🗓️ SQL for data analysis</b><span>3 hours a week · 40% done</span><span><b>Done by 12 December</b> at this pace</span>", "show:label")]},
     {"id": "trellis", "title": "The trellis · Skills map & Wins", "tool": "skills", "kicker": "Skills map & Wins log", "h": "Every skill with its proof",
      "p": "What you can do and how well, with the proof behind it. Wins go in as they happen, ready for your CV and your next review.",
      "task": "Tap the jar of wins, then the trellis.", "say": "The trellis: skills grow here, and every one needs proof.",
-     "acts": [("jar", "", "A win from the jar: three hours of work cut to twenty minutes.",
+     "acts": [("jar", "Victory", "A win from the jar: three hours of work cut to twenty minutes.",
                "<b>🏆 Cut the weekly ticket report from 3 hours to 20 minutes</b><span>March · at Fietsplan</span>"
                "<button type=\"button\" class=\"btn btn-primary\" data-house-do=\"trellis\">🌿 Tie it to a skill</button>", ""),
-              ("trellis", "", "Tied to Excel as proof. The skill grows a leaf.",
+              ("trellis", "Backflip", "Tied to Excel as proof. The skill grows a leaf.",
                "<b>🧠 Excel</b><span>Level 3 → 4 · proof: the three-hour report</span><span>SQL, Data visualisation and Python are growing too</span>", "show:skill")]},
     {"id": "lookout", "title": "The lookout · Job tracker", "tool": "jobs", "kicker": "Job tracker", "h": "Paste an ad, see where you stand",
      "p": "Paste an ad and it's on your board: the skills it asks for, the words your CV misses, who you know there, and follow-ups that don't slip.",
      "task": "Tap an ad on the line.", "say": "The lookout: from up here you see every job on the line.",
-     "acts": [("ad", "", "Northwind wants a data analyst. And Lena knows someone there.",
+     "acts": [("ad", "PointingGesture", "Northwind wants a data analyst. And Lena knows someone there.",
                "<b>🗂️ Data analyst · Northwind</b><span>Matches 7 of 9 skills · your CV misses 'Power BI'</span><span>🤝 You know Bram Peters there</span><span>⏰ Follow up on Tuesday</span>", "")]},
     {"id": "print", "title": "The print room · CV & stories", "tool": "cv", "kicker": "CV and LinkedIn builder, Interview story bank", "h": "A CV from what you can prove",
      "p": "CVs and cover letters from your real skills and wins, a CV check, and your LinkedIn profile from the same facts. Your best stories wait for the interview.",
      "task": "Tap the press, or the tapes.", "say": "The print room: everything from the floors below comes together here.",
-     "acts": [("press", "", "Printed: the skills and wins from downstairs, nothing made up.",
+     "acts": [("press", "Penguin", "Printed: the skills and wins from downstairs, nothing made up.",
                "<b>📄 Data analyst CV</b><span>Customer service lead moving into data analysis</span><span>✓ 6 skills with proof · ✓ 3 wins · ✓ fits on one page</span><span>💼 The same facts as LinkedIn text, ready to paste</span>", ""),
-              ("tape", "", "The interview story for 'tell me about a time you improved something'.",
+              ("tape", "Happy", "The interview story for 'tell me about a time you improved something'.",
                "<b>🎤 The three-hour report</b><span>Situation, task, action, result: 3 hours became 20 minutes</span><span>Proves: Excel, SQL, process</span>", "")]},
     {"id": "bridge", "title": "The rope bridge · Contacts", "tool": "contacts", "kicker": "Contacts", "h": "The people in your corner",
      "p": "The people who help you along, your LinkedIn connections included, with a reminder when it's time to catch up.",
      "task": "Tap the lantern.", "say": "The rope bridge to the next tower: people.",
-     "acts": [("lantern", "", "The lantern glows: it's been three months since Bram.",
+     "acts": [("lantern", "Tightrope", "The lantern glows: it's been three months since Bram.",
                "<b>🤝 Bram Peters · Senior data analyst, Northwind</b><span>Last spoke: 3 months ago</span><span><b>Catch up this week</b> · and he works where you applied</span>", "")]},
     {"id": "roof", "title": "The roof garden · Weekly review", "tool": "review", "kicker": "Weekly review", "h": "Ten minutes on Friday",
      "p": "What moved, what was hard, what's next. Ten minutes at the end of the week keep the whole tower growing.",
      "task": "Tap the bench.", "say": "The roof garden. Friday, sunset, ten minutes.",
-     "acts": [("bench", "", "That was a good week.",
+     "acts": [("bench", "Victory", "That was a good week.",
                "<b>🪞 This week</b><ul class=\"house-ticks\"><li data-tick>Moved: SQL course to 40%</li><li data-tick>Hard: finding time on Wednesdays</li><li data-tick>Next: apply to Northwind, catch up with Bram</li></ul>", "confetti")]},
+    {"id": "upstairs", "plate": "ivy", "title": "The top · Ivy", "expert": "ivy",
+     "h": "Ivy turns what you did into proof", "task": "Tap Ivy's desk.",
+     "p": "At the top of the Glasshouse works Ivy: Busy Growth's AI coach. She reads your library, skills and wins, and helps you learn, prove it and land the job, without inventing anything.",
+     "say": "Hi, I'm Ivy. Pim shows you the floors; I help you climb them. Show me your wins.", "move": "Waving",
+     "acts": [("desk", "Thinking>Writing>Nodding", "Three wins from the jar, three lines for your CV. All true, all yours.",
+               "<b>✨ From your wins to your CV</b><span>• Cut the weekly ticket report from 3 hours to 20 minutes with Excel and SQL</span>"
+               "<span>• Trained four colleagues on the new support dashboard</span><span>• Brought the first-reply time down to under 2 hours</span>"
+               "<span class=\"faint\">An example. Ivy works from your own wins, with your own Claude key.</span>", "")]},
     {"id": "end", "plate": "foot", "title": "Take the Glasshouse home", "say": "That's the climb! Take it home: free, for Mac and Windows.", "acts": []},
 ]
 GLASSHOUSE_DECALS = {"label": ("SQL · 12 Dec", False), "skill": ("Excel ★4", False)}
 
 
 def glasshouse_card(s: dict) -> str:
+    if s.get("expert"):
+        return expert_card(s)
     if s["id"] == "foot":
         return ('<span class="chip chip-mint">Free · no account · Mac and Windows</span><h1>Busy Growth 🌱</h1>'
                 '<p>Free tools to grow your career: learn something, prove it, show it and land the next role. Everything in your own folder. Climb the Glasshouse to see how.</p>'
@@ -1566,11 +1630,11 @@ def street_steps() -> list:
          "acts": [("shop", "", "The Workshop: Busy Business.", "", "to:shop"), ("glass", "", "The Glasshouse: Busy Growth.", "", "to:glass"),
                   ("house", "", "Tuck's house: Busy Home.", "", "to:house"), ("kiosk", "", "The puzzle kiosk: Busy Games.", "", "to:kiosk"),
                   ("olaf", "", "Someone's working late at the Workshop…",
-                   '<b>💜 Olaf works upstairs</b><span>Your AI expert for marketing and projects · €149 once</span><a class="btn" href="business/olaf.html">Meet Olaf →</a>', ""),
+                   '<img class="expert-shot" src="assets/experts/olaf-card.jpg" alt="Olaf in his study above the Workshop" loading="lazy"><b>💜 Olaf works upstairs</b><span>Your AI expert for marketing and projects · €149 once</span><a class="btn" href="business/olaf.html">Meet Olaf →</a>', ""),
                   ("ivy", "", "A green light at the top of the Glasshouse…",
-                   f'<b>🌿 Ivy works at the top</b><span>Your AI career coach · €30 once{soon(IVY_CHECKOUT_URL)}</span>{ivy}', ""),
+                   f'<img class="expert-shot" src="assets/experts/ivy-card.jpg" alt="Ivy at the top of the Glasshouse" loading="lazy"><b>🌿 Ivy works at the top</b><span>Your AI career coach · €30 once{soon(IVY_CHECKOUT_URL)}</span>{ivy}', ""),
                   ("juno", "", "A light in Tuck's gable…",
-                   f'<b>🧡 Juno works in the attic</b><span>Your AI expert for household paperwork · {JUNO_PRICE} once{soon(JUNO_CHECKOUT_URL)}</span>{juno}', "")]},
+                   f'<img class="expert-shot" src="assets/experts/juno-card.jpg" alt="Juno in the gable room of Tuck\'s house" loading="lazy"><b>🧡 Juno works in the attic</b><span>Your AI expert for household paperwork · {JUNO_PRICE} once{soon(JUNO_CHECKOUT_URL)}</span>{juno}', "")]},
         {"id": "shop", "title": "The Workshop · Busy Business", "kicker": "Busy Business", "h": "Free tools for small businesses",
          "p": "Invoices and quotes, hours, receipts, money, clients, projects, stock and a marketing studio: 13 tools for freelancers, makers and small studios.",
          "task": "Pull up the shutter.", "say": "The Workshop. Somebody's still working…",
