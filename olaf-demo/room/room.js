@@ -10,7 +10,7 @@
    The paid build copies this file with the expert's room (scene.js) and model (<name>.glb.js) into
    apps/<name>/room/. Loaded after shared/ai.js:
      <script src="room/room.js" data-expert="ivy" data-size="1.28"></script>
-   Without WebGL, or with reduced motion, the still room shows with the expert's drawn pose. The room sits above
+   Without WebGL the still room shows with the expert's drawn pose. The room sits above
    <main>, so it stays while the page redraws and during a conversation. Nothing here talks to the AI itself. */
 (function () {
   'use strict';
@@ -88,7 +88,7 @@
     wrapAi();
     try {
       if (!window.BusyScene) await load(root + 'shared/scene.js');
-      if (!BusyScene.canGL() || BusyScene.reduced()) return;
+      if (!BusyScene.canGL()) return;
       if (!window.BusyThree) await load(root + 'shared/vendor/three-busy.js');
       await load(BASE + 'scene.js');
       await load(BASE + NAME + '.glb.js');

@@ -100,7 +100,7 @@
     return `<figure class="place-banner${guide ? ' has-guide' : ''}" aria-label="${BW.esc(p.name)}, rendered in the Busy Studio"><div class="place-frame"><img src="${placeImg(p.front)}" alt="">${sign}</div>${back}${guide}</figure>`;
   };
   // The live guide on the home screen (shared/scene.js): loaded once, then moved into each new banner when the home
-  // screen redraws. The drawn pose stays when there's no WebGL, with reduced motion, or while it loads.
+  // screen redraws. The drawn pose stays when there's no WebGL, or while it loads.
   const MOVE = { hello: 'Waving', point: 'PointingGesture', happy: 'Victory' };
   let live = null, loading = null, lastMood = '';
   BW.liveBanner = async (mood) => {
@@ -118,7 +118,7 @@
       loading = (async () => {
         const load = (src) => new Promise((ok, no) => { const t = document.createElement('script'); t.src = BW.root + src; t.onload = ok; t.onerror = no; document.head.append(t); });
         if (!window.BusyScene) await load('shared/scene.js');
-        if (!BusyScene.canGL() || BusyScene.reduced()) throw new Error('stays still');
+        if (!BusyScene.canGL()) throw new Error('no WebGL');
         if (!window.BusyThree) await load('shared/vendor/three-busy.js');
         await load(`shared/places/${p.dir}/scene.js`);
         await load(`shared/places/${p.dir}/${g.model}.glb.js`);

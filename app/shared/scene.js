@@ -8,16 +8,17 @@
    - The pictures follow the clock: the same room in the morning, by day or in the evening.
 
    A plain script (no modules), so it also works when the apps are opened from files on disk. The apps load
-   shared/vendor/three-busy.js first (window.BusyThree). Without WebGL, or with reduced motion, the page keeps its
-   still picture and the guide's drawn pose: nothing here is needed to use Busy. No AI, nothing sent anywhere. */
+   shared/vendor/three-busy.js first (window.BusyThree). Without WebGL the page keeps its still picture and the
+   guide's drawn pose: nothing here is needed to use Busy. With reduced motion the characters still live (they
+   hardly move), but the room stays put: no sliding with the pointer, no drifting. No AI, nothing sent anywhere. */
 (function () {
   'use strict';
   const S = window.BusyScene = {};
 
   // Morning 5-11, day 11-17, evening after that: the room picture and the light that match the clock.
   S.timeOfDay = (d = new Date()) => { const h = d.getHours(); return h >= 5 && h < 11 ? 'morning' : h >= 11 && h < 17 ? 'day' : 'evening'; };
-  // ?live=1 in the address shows the live scene even with reduced motion switched on (to preview it).
-  S.reduced = () => !/[?&]live=1\b/.test(location.search) && !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // Reduced motion: the room doesn't slide with the pointer or drift (the characters still live).
+  S.reduced = () => !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
   S.canGL = () => { try { return !!document.createElement('canvas').getContext('webgl2'); } catch (e) { return false; } };
   // A room's picture at this time of day, if it was rendered then (else by day).
   S.timeFor = (room, tod = S.timeOfDay()) => (room && room.times && room.times.includes(tod) ? tod : 'day');
@@ -176,7 +177,7 @@
   // room, its pictures and depth as data); glb: base64; opts: { size, hello, loops, onFrame(head) }.
   // Resolves to { play(name), head() } once the character stands in the room, or rejects (then the still stays).
   S.stage = async function (el, scene, glb, opts = {}) {
-    if (!S.canGL() || S.reduced()) throw new Error(S.reduced() ? 'reduced motion' : 'no WebGL');
+    if (!S.canGL()) throw new Error('no WebGL');
     const B = window.BusyThree;
     if (!B) throw new Error('three.js is missing');
     const { THREE, GLTFLoader } = B;
@@ -225,7 +226,7 @@
       canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
       plate.frame(f, C.hfov, cam);
     }
-    // The pointer moves the camera a few centimetres; with reduced motion nothing moves (we don't get here then).
+    // The pointer moves the camera a few centimetres; with reduced motion the room stays put.
     const aim = { x: 0, y: 0 }, par = { x: 0, y: 0 }, look = { x: 0, y: 0 };
     let lastMove = 0;
     const onMove = (e) => {
@@ -264,7 +265,7 @@
       frame();
     }
     const clock = new THREE.Clock();
-    const AMP = 0.1;
+    const AMP = S.reduced() ? 0 : 0.1;
     renderer.setAnimationLoop(() => {
       const dt = Math.min(clock.getDelta(), 0.1);
       if (!visible || document.hidden) return;
