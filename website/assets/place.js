@@ -6,8 +6,9 @@
 
    The rooms' words and what happens in them live in the page (the <article data-room> list, written by
    build.py); the cameras, spots and decals come from assets/<place>/rooms.json (made by the Busy Studio).
-   An act's data-then lists what else happens: "next" (on to the next room), "confetti", "beep",
-   "show:<decal>". Decals are flat things in the room the page draws on, like a shop sign in your colour.
+   An act's data-then lists what else happens: "next" (on to the next room), "to:<room>" (straight to that
+   room: on Busy Street, a building's close-up), "confetti", "beep", "show:<decal>". A button with
+   data-house-go="<room>" goes there too. Decals are flat things in the room the page draws on, like a shop sign in your colour.
    Without WebGL the rooms, words and buttons all still work, just without the guide. */
 const house = document.querySelector('[data-house]');
 if (house) start(house).catch((e) => console.info('The place stays simple:', e && e.message));
@@ -137,6 +138,7 @@ async function start(house) {
     layout();
     focusX = framing(r);
     layout();
+    bubble.hidden = !s.say;  // a room without a line (Busy Street's wide shot) doesn't keep the last one
     say(s.say);
     if (s.move && tuck) tuck.play(s.move);
     bindCard();
@@ -170,6 +172,7 @@ async function start(house) {
       doAct(b.dataset.houseDo);
     }));
     root?.querySelectorAll('[data-house-next]').forEach((b) => b.addEventListener('click', () => go(1)));
+    root?.querySelectorAll('[data-house-go]').forEach((b) => b.addEventListener('click', () => jump(b.dataset.houseGo)));
   }
   const bindCard = () => bind(card);
 
@@ -197,12 +200,20 @@ async function start(house) {
     if (then.includes('confetti')) confetti(view);
     if (then.includes('beep')) beep();
     if (then.includes('next')) setTimeout(() => go(1), 1600);
+    const to = then.find((w) => w.startsWith('to:'));
+    if (to) setTimeout(() => jump(to.slice(3)), 700);
+  }
+
+  function jump(id) {
+    const k = steps.findIndex((x) => x.id === id);
+    if (k >= 0 && k !== at) go(k - at);
   }
 
   async function go(dir) {
     if (busy) return;
     const to = at + dir;
     if (to < 0) return;
+    dir = Math.sign(dir);
     busy = true;
     const target = to >= steps.length ? 0 : to;
     const box = view.getBoundingClientRect();

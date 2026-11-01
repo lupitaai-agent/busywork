@@ -34,6 +34,14 @@
       ['sun', '🛠️', 'Upkeep due', String(due.length), due[0] ? due.map((j) => j.task).slice(0, 2).join(', ') : upkeep.length ? 'All on schedule' : 'Pick jobs from a ready-made list', 'upkeep'],
       ['grape', '💶', 'Contracts a month', BW.money(H.totalMonthly(live, today)), `${live.length} contract${live.length === 1 ? '' : 's'}`, 'contracts'],
     ].filter(Boolean);
+    // Tuck's line: the most pressing thing, or a welcome, or the all-clear.
+    const [say, mood] = !(papers.length + contracts.length + upkeep.length + inventory.length)
+      ? ["Hello, I'm Tuck! Start with your passport: I'll tell you four months before it expires.", 'hello']
+      : decide[0] ? [`${decide[0].contract.name || decide[0].contract.provider}: ${decide[0].kind === 'term' ? 'the fixed term ends' : 'the last day to cancel is'} ${decide[0].left === 0 ? 'today' : BW.fmtDate(decide[0].by, { day: 'numeric', month: 'long' })}. Keep it?`, 'point']
+        : expiring[0] ? [`${expiring[0].paper.title}: ${H.when(expiring[0].left)}. Time to renew?`, 'point']
+          : due[0] ? [`Upkeep time: ${due[0].task}.`, 'point']
+            : move ? [`${H.days(today, move.date)} days to moving day. I'll keep the list.`, 'happy']
+              : ['All quiet at home. Nothing needs you today.', 'happy'];
     const byId = Object.fromEntries(BW.apps.map((a) => [a.id, a]));
     const steps = [
       [papers.some((p) => p.kind === 'id'), '🪪', 'Add a passport or ID card', 'Busy warns you four months before it expires', 'apps/papers/index.html#new/id'],
@@ -51,7 +59,7 @@
       : `<div class="tile soon" style="--c:var(--${a.color})"><span class="chip chip-grape sticker">Soon</span>${BW.roomPic(a.id)}<span class="icon">${a.emoji}</span><b>${a.name}</b><p>${a.tagline}</p></div>`;
 
     main.innerHTML = `
-      ${BW.placeBanner()}
+      ${BW.placeBanner(say, mood)}
       <section class="home-hero">
         <div><h1>${hello}${name ? ', ' + esc(name) : ''} <span class="hand">🏡</span></h1>
           <p class="lead">${coming.length ? `${coming.length} thing${coming.length === 1 ? '' : 's'} coming up at home. Here’s what and when.` : 'Your household paperwork, under control.'}</p></div>

@@ -35,6 +35,15 @@
       low.length && ['tomato', '🚨', 'Running low', String(low.length), low.slice(0, 3).map((i) => i.name).join(', '), 'stock'],
       renewing.length && ['grape', '🔁', 'Renewing this week', BW.money(renewing.reduce((a, x) => a + BW.num(x.amount), 0)), renewing.map((x) => x.name).join(', '), 'subscriptions'],
     ].filter(Boolean);
+    // Rivet's line (the guide of the Workshop): the most pressing thing, or a welcome, or the all-clear.
+    const say = !(invoices.length + time.length + clients.length)
+      ? 'Welcome to the Workshop! Add your bank details, then send your first invoice.'
+      : late.length ? `${late.length} invoice${late.length === 1 ? ' is' : 's are'} overdue: ${BW.money(sum(late))}. A friendly reminder?`
+        : running ? `The timer's running${running.desc ? ': ' + running.desc : ''}.`
+          : dueSoon.length ? `${dueSoon[0].title} is due ${dueSoon[0].due <= today ? 'today' : 'soon'}.`
+            : low.length ? `Running low on ${low[0].name}. Time to order?`
+              : out.length ? `${BW.money(sum(out))} still to come in. Nothing overdue.`
+                : 'All caught up. Nice work!';
     const byId = Object.fromEntries(BW.apps.map((a) => [a.id, a]));
     // Getting started: ticks itself off as people use the tools (the Stripe / Notion onboarding pattern).
     const steps = [
@@ -61,7 +70,7 @@
       : `<div class="tile soon" style="--c:var(--${a.color})"><span class="chip chip-grape sticker">Soon</span>${BW.roomPic(a.id)}<span class="icon">${a.emoji}</span><b>${a.name}</b><p>${a.tagline}</p></div>`;
 
     main.innerHTML = `
-      ${BW.placeBanner()}
+      ${BW.placeBanner(say)}
       <section class="home-hero">
         <div><h1>${hello}${name ? ', ' + esc(name) : ''} <span class="hand">👋</span></h1>
           <p class="lead">${glance.length ? 'Here’s what needs you today.' : BW.brand.tagline + ' What are we ticking off today?'}</p></div>

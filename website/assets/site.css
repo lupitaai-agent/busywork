@@ -25,9 +25,9 @@ html, body.site { overflow-x: clip; }
 @keyframes morph { 50% { border-radius: 58% 42% 35% 65% / 55% 62% 38% 45%; transform: translate(30px, -20px) rotate(20deg) scale(1.08); } }
 .hero-copy { position: relative; z-index: 2; max-width: 980px; }
 .hero h1 { font-size: clamp(2.8rem, 9vw, 7rem); line-height: .95; letter-spacing: -.045em; font-weight: 950; }
-.hero .swap { display: inline-block; position: relative; color: var(--ink); }
-.hero .swap span { display: inline-block; padding: 0 .18em; border: 3px solid var(--border); border-radius: .25em; box-shadow: 6px 6px 0 var(--shadow-c); transform: rotate(-2deg); transition: background .4s; }
-.hero .swap.flip span { animation: flip .6s cubic-bezier(.3, 1.5, .5, 1); }
+.hero .swap, .house-card .swap { display: inline-block; position: relative; color: var(--ink); }
+.hero .swap span, .house-card .swap span { display: inline-block; padding: 0 .18em; border: 3px solid var(--border); border-radius: .25em; box-shadow: 6px 6px 0 var(--shadow-c); transform: rotate(-2deg); transition: background .4s; }
+.hero .swap.flip span, .house-card .swap.flip span { animation: flip .6s cubic-bezier(.3, 1.5, .5, 1); }
 @keyframes flip { 0% { transform: rotateX(90deg) rotate(-2deg); opacity: 0; } 100% { transform: rotateX(0) rotate(-2deg); opacity: 1; } }
 .hero .lead { font-size: clamp(1.1rem, 2.2vw, 1.4rem); color: var(--ink-2); max-width: 680px; margin: 26px auto 34px; }
 .hero .ctas { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
@@ -198,7 +198,7 @@ html, body.site { overflow-x: clip; }
   /* The gentle version. brand.css stops every animation for Reduce motion (stickers, bands and the
      movement inside the scenes stay still); two things fade instead of moving, because a fade is
      change without motion: the headline word, and the showcase picture as you scroll. */
-  .hero .swap.fade span { animation: fadeWord .6s ease !important; }
+  .hero .swap.fade span, .house-card .swap.fade span { animation: fadeWord .6s ease !important; }
   .showcase .scene { transform: none !important; transition: opacity .45s ease !important; }
 }
 @keyframes fadeWord { from { opacity: 0; } to { opacity: 1; } }
@@ -453,7 +453,7 @@ html, body.site { overflow-x: clip; }
 /* Busy's places (assets/place.js): Tuck's house, the Workshop. Each room as the Busy Studio rendered it, the live guide on top.
    --place is the suite's colour for the spots and dots. */
 .house { --place: #FF8A5B; position: relative; background: #16141F; }
-.house-workshop, .house-parlour { --place: #FFC93C; }
+.house-workshop, .house-parlour, .house-street { --place: #FFC93C; }
 .house-glasshouse { --place: #2FD18C; }
 .house-view { position: relative; overflow: hidden; height: min(calc(100svh - 70px), 60vw); min-height: 380px; background: #16141F; touch-action: pan-y; }
 .house-plate { position: absolute; max-width: none; user-select: none; -webkit-user-drag: none; transition: opacity .2s; }
@@ -512,6 +512,14 @@ html, body.site { overflow-x: clip; }
 .house-decal[data-decal="skill"] { background: #FBF7EE; border: 2px solid #2FD18C; border-radius: 4px; }
 .house-decal[data-decal="today"] { flex-direction: column; gap: 6%; color: #FBF7EE; font-size: calc(var(--h) * .12); font-weight: 700; }
 .house-decal[data-decal="today"] b { color: #FFC93C; font-size: 1.45em; }
+/* Busy Street: each building's name on its sign. */
+.house-street .house-decal[data-decal="sign"] { color: #1E1B2E; font-size: calc(var(--h) * .62); }
+.house-street .house-decal[data-decal="plaque"] { color: #F3E9D2; font-size: calc(var(--h) * .55); font-weight: 800; }
+.house-street .house-decal[data-decal="homesign"] { color: #FBF7EE; font-size: calc(var(--h) * .6); }
+.house-street .house-card h1 { font-size: clamp(2.1rem, 4.2vw, 3.3rem); line-height: 1; }
+.house-street .house-card h1 .swap span { box-shadow: 4px 4px 0 var(--shadow-c); }
+.house-street .suite-go { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 8px; }
+.house-street .suite-go .btn { padding: 7px 12px; }
 .mini { display: grid; grid-template-columns: repeat(var(--n), 1fr); gap: 3%; width: 90%; height: 90%; }
 .mini i { display: flex; align-items: center; justify-content: center; border-radius: 8%; font-style: normal; font-size: calc(var(--h) * .09); }
 .mini-stars i { background: rgba(255, 255, 255, .1); }

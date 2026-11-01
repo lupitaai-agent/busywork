@@ -1251,7 +1251,7 @@ PLACE_HEAD = ('<script type="importmap">{{"imports":{{"three":"../assets/vendor/
 
 
 def place_html(place: str, steps: list, card, label: str, model: str = "", next_label: str = "Next room →",
-               decals: dict = None, brand: str = "") -> str:
+               decals: dict = None, brand: str = "", root: str = "../") -> str:
     """A place (assets/place.js) and every room's words as plain HTML (search engines and screen readers read these).
     decals: {id: (html, shown from the start)}, the words the page draws on the rooms. Without a model the place has no
     live guide (yet): the guide's lines float where it will stand."""
@@ -1264,9 +1264,9 @@ def place_html(place: str, steps: list, card, label: str, model: str = "", next_
         + "</article>" for s in steps)
     words = "".join(f'<template data-decal="{d}"{" data-shown" if shown else ""}>{html}</template>' for d, (html, shown) in (decals or {}).items())
     first = steps[0]
-    return f"""<section class="house house-{place}" data-house data-house-rooms="../assets/{place}/rooms.json" data-house-plates="../assets/{place}/"{f' data-tuck-model="{model}"' if model else ''} data-next-label="{e(next_label)}"{f' data-brand-color="{brand}"' if brand else ''} aria-label="{e(label)}">
+    return f"""<section class="house house-{place}" data-house data-house-rooms="{root}assets/{place}/rooms.json" data-house-plates="{root}assets/{place}/"{f' data-tuck-model="{model}"' if model else ''} data-next-label="{e(next_label)}"{f' data-brand-color="{brand}"' if brand else ''} aria-label="{e(label)}">
     <div class="house-view" data-house-view>
-      <img class="house-plate" data-house-plate src="../assets/{place}/room-{first.get("plate", first["id"])}-1920.jpg" alt="{e(first["title"])}, rendered in the Busy Studio" fetchpriority="high">
+      <img class="house-plate" data-house-plate src="{root}assets/{place}/room-{first.get("plate", first["id"])}-1920.jpg" alt="{e(first["title"])}, rendered in the Busy Studio" fetchpriority="high">
       <div class="house-decals" data-house-decals></div>
       <div class="house-spots" data-house-spots></div>
       <p class="tuck-bubble house-bubble" data-tuck-bubble aria-live="polite" hidden></p>
@@ -1554,6 +1554,71 @@ def parlour_card(s: dict) -> str:
             f'<p class="house-try"><a href="{g["id"]}.html">Play {e(g["name"])} →</a></p>')
 
 
+# Busy Street: the homepage as a place (rooms from the Busy Studio's places/street.py). One evening street with
+# every suite as a building; tap one for its close-up, then go in. Upstairs a light is on for each paid expert.
+# No guide here: each suite has its own on its own page.
+def street_steps() -> list:
+    ivy = f'<a class="btn" href="growth/index.html#ivy">Meet Ivy →</a>'
+    juno = f'<a class="btn" href="home/index.html#juno">Meet Juno →</a>'
+    soon = lambda url: "" if url else " · coming soon"
+    return [
+        {"id": "wide", "title": "Busy Street", "say": "",
+         "acts": [("shop", "", "The Workshop: Busy Business.", "", "to:shop"), ("glass", "", "The Glasshouse: Busy Growth.", "", "to:glass"),
+                  ("house", "", "Tuck's house: Busy Home.", "", "to:house"), ("kiosk", "", "The puzzle kiosk: Busy Games.", "", "to:kiosk"),
+                  ("olaf", "", "Someone's working late at the Workshop…",
+                   '<b>💜 Olaf works upstairs</b><span>Your AI expert for marketing and projects · €149 once</span><a class="btn" href="business/olaf.html">Meet Olaf →</a>', ""),
+                  ("ivy", "", "A green light at the top of the Glasshouse…",
+                   f'<b>🌿 Ivy works at the top</b><span>Your AI career coach · €30 once{soon(IVY_CHECKOUT_URL)}</span>{ivy}', ""),
+                  ("juno", "", "A light in Tuck's gable…",
+                   f'<b>🧡 Juno works in the attic</b><span>Your AI expert for household paperwork · {JUNO_PRICE} once{soon(JUNO_CHECKOUT_URL)}</span>{juno}', "")]},
+        {"id": "shop", "title": "The Workshop · Busy Business", "kicker": "Busy Business", "h": "Free tools for small businesses",
+         "p": "Invoices and quotes, hours, receipts, money, clients, projects, stock and a marketing studio: 13 tools for freelancers, makers and small studios.",
+         "task": "Pull up the shutter.", "say": "The Workshop. Somebody's still working…",
+         "acts": [("shutter", "", "Open! Come in and walk round the shop.",
+                   '<b>🛠️ The Workshop is open</b><span>Follow one job from the workbench to the money in the bank.</span><a class="btn btn-primary" href="business/index.html">Walk round the Workshop →</a>', "")]},
+        {"id": "glass", "title": "The Glasshouse · Busy Growth", "kicker": "Busy Growth", "h": "Free tools to grow your career",
+         "p": "A library of everything you learn, a learning plan, your skills and wins, a job tracker, CVs, interview stories and the people you know.",
+         "task": "Tap the ladder.", "say": "The Glasshouse. You climb it one floor at a time.",
+         "acts": [("ladder", "", "Up we go: from the roots to the roof garden.",
+                   '<b>🌱 Climb the Glasshouse</b><span>From what you know to the job you want, one floor at a time.</span><a class="btn btn-primary" href="growth/index.html">Climb the Glasshouse →</a>', "")]},
+        {"id": "house", "title": "Tuck's house · Busy Home", "kicker": "Busy Home", "h": "Free tools for your household paperwork",
+         "p": "Documents that warn you before they expire, contracts with the last day to cancel, upkeep, inventory, letters, moving and a binder for just in case.",
+         "task": "Knock on the door.", "say": "Tuck's house. Is he in?",
+         "acts": [("door", "", "Knock knock! Tuck's home.",
+                   '<b>🏡 Tuck opens the door</b><span>Walk through his house: one room for each tool.</span><a class="btn btn-primary" href="home/index.html#door">Step inside →</a>', "")]},
+        {"id": "kiosk", "title": "The puzzle kiosk · Busy Games", "kicker": "Busy Games", "h": "Free daily brain games",
+         "p": f"Stars, Duo, Trail and Six: four new puzzles every day, the same for everyone, and {GAME_LEVELS:,} levels each when you want more.",
+         "task": "Tap the board.", "say": "The puzzle kiosk. Today's four are up.",
+         "acts": [("board", "", "Today's four. Gentle on Monday, hardest at the weekend.",
+                   '<b>🧩 Today\'s puzzles</b><span>Stars · Duo · Trail · Six</span><a class="btn btn-primary" href="games/index.html">Play today\'s puzzles →</a>', "")]},
+    ]
+
+
+STREET_DECALS = {"sign": ("Busy Business", True), "plaque": ("Busy Growth", True), "homesign": ("Busy Home", True),
+                 "today": ("<b>Today's puzzles</b><span>Stars · Duo · Trail · Six</span>", True)}
+
+
+def street_card(s: dict) -> str:
+    back = '<button type="button" class="btn" data-house-go="wide">← Back to the street</button>'
+    if s["id"] == "wide":
+        what = ("business tools, career growth, household paperwork and daily brain games" if GROWTH_LIVE and HOME_LIVE
+                else "business tools, daily brain games and soon career growth")
+        return ('<span class="chip chip-sun">Free · private · no account</span>'
+                '<h1>Make your <span class="swap" data-swap=\'["paperwork","job search","coffee break","invoices","learning","timesheets"]\'><span>paperwork</span></span> fun again.</h1>'
+                f'<p>Busy makes free, private tools for work and life: {what}. Everything stays in your own folder. Nothing sent to us.</p>'
+                '<p class="house-task">👉 Tap a building to look inside.</p>'
+                '<div class="suite-go"><button type="button" class="btn" data-house-go="shop">💼 Business</button><button type="button" class="btn" data-house-go="glass">🌱 Growth</button>'
+                '<button type="button" class="btn" data-house-go="house">🏡 Home</button><button type="button" class="btn" data-house-go="kiosk">🧩 Games</button></div>'
+                '<div class="house-result" data-result hidden></div>')
+    return (f'<p class="kicker">{e(s["kicker"])}</p><h2>{e(s["h"])}</h2><p>{e(s["p"])}</p><p class="house-task">👉 {e(s["task"])}</p>'
+            f'<div class="house-result" data-result hidden></div><div class="row-flex">{back}</div>')
+
+
+def street_html() -> str:
+    return place_html("street", street_steps(), street_card, "Busy Street: every Busy suite as a building", next_label="Next door →",
+                      decals=STREET_DECALS, root="")
+
+
 def build_games() -> list:
     out = SITE / "games"
     out.mkdir(exist_ok=True)
@@ -1574,6 +1639,7 @@ def build_pages() -> None:
     (business / "tools.html").write_text(tools_index(tools))
     (business / "olaf.html").write_text(to_business(olaf_page(tools)))
     put_place(business / "index.html", workshop_html())
+    put_place(SITE / "index.html", street_html())
     (SITE / "about.html").write_text(about_page(tools))
     (SITE / "claude-key.html").write_text(claude_key_page(tools))
     (SITE / "growth").mkdir(exist_ok=True)

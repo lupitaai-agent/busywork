@@ -76,10 +76,13 @@
     let n = 0;
     // With Reduce motion on, the word still changes, with a soft fade instead of the flip (site.css).
     const cls = calm ? 'fade' : 'flip';
+    // Looked up every time: on the homepage the word lives in Busy Street's card, which the street redraws.
     const show = () => {
-      const span = $('span', swap);
+      const el = $('[data-swap]');
+      if (!el) return;
+      const span = $('span', el);
       span.textContent = words[n % words.length]; span.style.background = colors[n % colors.length];
-      swap.classList.remove(cls); void swap.offsetWidth; swap.classList.add(cls);
+      el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls);
       n++;
     };
     show();

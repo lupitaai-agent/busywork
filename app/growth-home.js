@@ -41,6 +41,14 @@
       ['sun', '🏆', 'Wins this month', String(winsMonth.length), winsMonth[0] ? winsMonth[0].title : 'Write one down while you remember', 'wins'],
       gap && ['pink', '🧠', 'Biggest gap', esc(gap.name), `${G.LEVELS[BW.num(gap.level) - 1] || 'New'} → ${G.LEVELS[BW.num(gap.target) - 1]}`, 'skills'],
     ].filter(Boolean);
+    // Pim's line (the guide of the Glasshouse): what's due, or a welcome, or a nudge to keep growing.
+    const say = !(library.length + learning.length + wins.length + skills.length)
+      ? 'Welcome to the Glasshouse! Start from LinkedIn, or save something you read.'
+      : G.reviewDue(reviews, today) ? 'Your weekly review is due: ten minutes to look back and plan.'
+        : followUps.length ? `Time to follow up with ${followUps[0].company || followUps[0].role}.`
+          : catchUp.length ? `It's been a while since you spoke to ${catchUp[0].name}.`
+            : !winsMonth.length ? 'Any wins this month? Write one down while you remember.'
+              : 'Growing nicely. One floor at a time.';
     const byId = Object.fromEntries(BW.apps.map((a) => [a.id, a]));
     const steps = [
       [!!s.linkedinImportedAt || library.length + learning.length + wins.length > 5, '💼', 'Start from LinkedIn', 'Your jobs, skills and certificates in ten minutes', 'apps/cv/index.html#import'],
@@ -58,7 +66,7 @@
       : `<div class="tile soon" style="--c:var(--${a.color})"><span class="chip chip-grape sticker">Soon</span>${BW.roomPic(a.id)}<span class="icon">${a.emoji}</span><b>${a.name}</b><p>${a.tagline}</p></div>`;
 
     main.innerHTML = `
-      ${BW.placeBanner()}
+      ${BW.placeBanner(say)}
       <section class="home-hero">
         <div><h1>${hello}${name ? ', ' + esc(name) : ''} <span class="hand">🌱</span></h1>
           <p class="lead">${s.targetRole ? `Heading for <b>${esc(s.targetRole)}</b>. ` : ''}${s.goal ? `Your goal: ${esc(s.goal.replace(/[.\s]+$/, ''))}.` : 'Learn it, prove it, land it.'}</p></div>
