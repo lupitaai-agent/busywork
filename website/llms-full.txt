@@ -1,6 +1,6 @@
 # Busy: the full picture
 
-Busy makes free, private tools for work and life, in suites: Busy Business (thirteen tools for small businesses and freelancers: invoices and quotes, time, receipts, money, clients, projects, documents, a brand kit, subscriptions, trips, stock and a marketing studio), Busy Games (free daily brain games) and Busy Growth (tools to grow your career, coming soon). The tools run in the browser and keep everything in the owner's own folder, with no account and no subscription. Each suite can have a paid AI expert: Olaf for business, Ivy for professional growth.
+Busy makes free, private tools for work and life, in suites: Busy Business (thirteen tools for small businesses and freelancers: invoices and quotes, time, receipts, money, clients, projects, documents, a brand kit, subscriptions, trips, stock and a marketing studio), Busy Growth (tools to grow your career, coming soon), Busy Home (tools for household paperwork, coming soon) and Busy Games (free daily brain games). Each suite is a free app for Mac and Windows, or runs in the browser, and keeps everything in the owner's own folder, with no account and no subscription. Each suite can have a paid AI expert: Olaf for business, Ivy for professional growth, Juno for household paperwork.
 
 Website: https://busywork.example/
 

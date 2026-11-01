@@ -64,6 +64,21 @@ Next for the places:
 - More moves from Meshy: a real Typing, Carrying a box and Pointing for Tuck; a clear point for Pim; a
   sitting or writing move for the experts.
 
+### 0b. Being found, and growing (decided 2026-11-01)
+Done: hidden search data checked on every page (products with price, questions, breadcrumbs), one page
+per tool for Busy Home and Busy Growth, a short footer (two tools per suite), the free guide next to the
+paid expert high on every suite page, and the facts for AI assistants (`llms.txt`, `llms-full.txt`).
+Later, in this order of thinking:
+- **Markets first:** check which countries and languages are most interesting for Busy before choosing.
+- **A Dutch version** of the site and the apps (or the language that research points to).
+- **Short videos of the characters** (15–30 seconds, rendered in the Busy Studio) for social media.
+- **A privacy-friendly visitor counter** on the website only, to see which pages and downloads work.
+- **Listings:** software directories, then the Mac App Store and Microsoft Store.
+- **Selling the experts:** checkout (EU VAT) and licence keys, plus Apple notarisation so the apps open
+  without a warning. The paid Mac apps are built (busywork-olaf/desktop/build-paid.py).
+- **The places:** rooms that follow your own data, rendered clips for big moments, better moves from Meshy.
+- **iPhone apps** for the free suites first (a Capacitor wrapper, files in iCloud Drive), the experts later.
+
 ### 1. Project Planner, next steps
 - Hours spent: link Time Tracker entries to a task (the "track time on this" button already knows
   the task), then show budget against hours spent per project.

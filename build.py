@@ -604,16 +604,28 @@ def nav(prefix: str, cta: tuple = None) -> str:
 {nav_header(prefix, cta)}"""
 
 
+# The footer stays short: per suite its two best-known tools, the way to all of them and its expert.
+FOOTER_PICKS = {"business": ["brand", "projects"], "growth": ["cv", "stories"], "house": ["upkeep", "papers"], "games": ["stars", "trail"]}
+
+
 def footer(prefix: str, tools: list) -> str:
-    links = "".join(f'<li><a href="{prefix}business/{t["id"]}.html">{t["emoji"]} {e(t["name"])}</a></li>' for t in tools)
-    games = "".join(f'<li><a href="{prefix}games/{g["id"]}.html">{g["emoji"]} {e(g["name"])}</a></li>' for g in GAMES)
+    by_id = {t["id"]: t for t in tools}
+    biz = "".join(f'<li><a href="{prefix}business/{i}.html">{by_id[i]["emoji"]} {e(by_id[i]["name"])}</a></li>' for i in FOOTER_PICKS["business"] if i in by_id)
+    games = "".join(f'<li><a href="{prefix}games/{g["id"]}.html">{g["emoji"]} {e(g["name"])}</a></li>' for g in GAMES if g["id"] in FOOTER_PICKS["games"])
+
+    def suite(name, folder, live, expert):
+        if not live:
+            return f'<li><a href="{prefix}{folder}/index.html">Coming soon</a></li>{expert}'
+        ts = {t["id"]: t for t in suite_tools(folder)}
+        picks = "".join(f'<li><a href="{prefix}{folder}/{i}.html">{ts[i]["emoji"]} {e(ts[i]["name"])}</a></li>' for i in FOOTER_PICKS[name] if i in ts)
+        return f'{picks}<li><a href="{prefix}{folder}/index.html#tools">All {len(ts)} tools</a></li>{expert}'
     return f"""<footer class="footer sitemap"><div class="wrap">
   <div><span class="brandmark"><span class="blob">✦</span>Busy</span><p class="faint">Make your paperwork fun again.<br>Free, private tools for work and life.</p>
     <ul><li><a href="{prefix}about.html">About Busy</a></li><li><a href="{prefix}privacy.html">Privacy</a></li><li><a href="{prefix}terms.html">Terms</a></li></ul></div>
-  <div><b>💼 Busy Business</b><ul>{links}<li><a href="{prefix}business/tools.html">All tools</a></li><li><a href="{prefix}business/download.html">Download free</a></li><li><a href="{prefix}app/index.html">See the demo</a></li><li><a href="{prefix}business/olaf.html">🧭 Olaf by Busy</a></li></ul></div>
-  <div><b>🧩 Busy Games</b><ul>{games}<li><a href="{prefix}games/index.html">All games</a></li></ul>
-    <p style="margin-top:22px"><b>🌱 Busy Growth</b></p><ul><li><a href="{prefix}growth/index.html">{"Free tools" if GROWTH_LIVE else "Coming soon"}</a></li><li><a href="{prefix}growth/index.html#ivy">🌿 Ivy by Busy</a></li></ul>
-    <p style="margin-top:22px"><b>🏡 Busy Home</b></p><ul><li><a href="{prefix}home/index.html">{"Free tools" if HOME_LIVE else "Coming soon"}</a></li>{f'<li><a href="{prefix}app/home.html">See the demo</a></li>' if HOME_LIVE else ''}</ul></div>
+  <div><b>💼 Busy Business</b><ul>{biz}<li><a href="{prefix}business/tools.html">All {len(tools)} tools</a></li><li><a href="{prefix}business/olaf.html">🧭 Olaf by Busy</a></li></ul>
+    <p style="margin-top:22px"><b>🧩 Busy Games</b></p><ul>{games}<li><a href="{prefix}games/index.html">All games</a></li></ul></div>
+  <div><b>🌱 Busy Growth</b><ul>{suite("growth", "growth", GROWTH_LIVE, f'<li><a href="{prefix}growth/index.html#ivy">🌿 Ivy by Busy</a></li>')}</ul>
+    <p style="margin-top:22px"><b>🏡 Busy Home</b></p><ul>{suite("house", "home", HOME_LIVE, f'<li><a href="{prefix}home/index.html#juno">🏡 Juno by Busy</a></li>')}</ul></div>
 </div></footer>"""
 
 
@@ -797,6 +809,96 @@ def tools_index(tools: list) -> str:
 </body>
 </html>
 """
+
+
+# ---------- the tool pages of Busy Home and Busy Growth ----------
+# One page per tool, like Busy Business has: what it does, three steps and the questions, with the tool's own
+# room as rendered in the Busy Studio and the guide in it. The words are in website/content/<suite>-tools.json.
+SUITE_PAGES = {"home": {"name": "Busy Home", "place": "house", "guide": "tuck", "expert": "juno", "category": "LifestyleApplication",
+                        "intro": "household paperwork"},
+               "growth": {"name": "Busy Growth", "place": "glasshouse", "guide": "pim", "expert": "ivy", "category": "BusinessApplication",
+                          "intro": "growing your career"}}
+
+
+def suite_tools(folder: str) -> list:
+    # The words are source, not output: read them from the repository (tests build into a temporary site).
+    return json.loads((ROOT / "website" / "content" / f"{folder}-tools.json").read_text())
+
+
+def suite_tool_page(t: dict, ts: list, folder: str) -> str:
+    x, by_id = SUITE_PAGES[folder], {i["id"]: i for i in ts}
+    url = f'{SITE_URL}/{folder}/{t["id"]}.html'
+    ld = jsonld({"@context": "https://schema.org", "@type": "SoftwareApplication", "name": f'{x["name"]} {t["name"]}', "applicationCategory": x["category"],
+                 "operatingSystem": "macOS, Windows, ChromeOS (in Chrome or Edge)", "description": t["description"], "url": url,
+                 "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}}) + jsonld({
+        "@context": "https://schema.org", "@type": "FAQPage",
+        "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in t["faq"]]})
+    feats = "".join(f'<div class="card feat reveal pop" style="transition-delay:{i * .06:.2f}s"><span class="fe">{f[0]}</span><h3>{e(f[1])}</h3><p>{e(f[2])}</p></div>' for i, f in enumerate(t["features"]))
+    steps = "".join(f'<div class="card step reveal" style="--c:var(--{t["color"]});transition-delay:{i * .1:.1f}s"><span class="num">{i + 1}</span><h3>{e(a)}</h3><p>{e(b)}</p></div>' for i, (a, b) in enumerate(t["steps"]))
+    faq = "".join(f"<details><summary>{e(q)}</summary><p>{e(a)}</p></details>" for q, a in t["faq"])
+    related = "".join(f'<a class="card rel" href="{r}.html" style="--c:var(--{by_id[r]["color"]})"><span class="em">{by_id[r]["emoji"]}</span><b>{e(by_id[r]["name"])}</b><small>{e(by_id[r]["h1"])}</small></a>' for r in t["related"] if r in by_id)
+    room = (f'<figure class="tool-room"><img src="../assets/{x["place"]}/room-{t["room"]}-1280.jpg" alt="{e(t["name"])}: its room in {e(x["name"])}, rendered in the Busy Studio" width="1280" height="720">'
+            f'<img class="guide" src="../app/shared/places/{x["place"]}/{x["guide"]}-point.png" alt="" width="300" height="354"></figure>')
+    return f"""{head(f'{t["title"]} · {x["name"]}', t["description"], f'{folder}/{t["id"]}.html', "../", ld, image=f'og-{x["expert"]}.png')}
+<body class="site app-{t["color"]}">
+{nav("../", ("⬇️ Download free", "index.html#get"))}
+<main id="main">
+  <section class="tool-hero">
+    <div class="blob" style="width:460px;height:460px;background:var(--{t["color"]});right:-140px;top:-120px"></div>
+    <div class="wrap tool-hero-grid">
+      <div class="reveal from-left">
+        <a class="crumbs" href="index.html#tools">← All {e(x["name"])} tools</a>
+        <span class="em big" style="--c:var(--{t["color"]})">{t["emoji"]}</span>
+        <p class="kicker">{e(t["name"])} · free, private, no account</p>
+        <h1>{e(t["h1"])}</h1>
+        <p class="lead">{e(t["lead"])}</p>
+        <div class="ctas"><a class="btn btn-primary btn-big" href="../app/apps/{t["id"]}/index.html">👀 See it in the demo</a><a class="btn btn-big" href="index.html#get">⬇️ Get {e(x["name"])}, free</a></div>
+        <p class="note">Free app for Mac and Windows · Nothing is sent to us · Part of {e(x["name"])}: {len(ts)} tools for {e(x["intro"])}</p>
+      </div>
+      <div class="stage solo reveal from-right">{room}</div>
+    </div>
+  </section>
+  <section class="section"><div class="wrap">
+    <div class="center reveal"><h2 class="big">What it does</h2></div>
+    <div class="feats">{feats}</div>
+  </div></section>
+  <section class="section tint" style="--c:var(--{t["color"]})"><div class="wrap">
+    <div class="center reveal"><h2 class="big">Three steps, then you’re done</h2></div>
+    <div class="steps">{steps}</div>
+  </div></section>
+  <section class="section"><div class="wrap">
+    <div class="center reveal"><h2 class="big">Works even better with</h2><p class="lead">All {words(len(ts))} tools share your folder.</p></div>
+    <div class="rel-grid">{related}</div>
+  </div></section>
+  <section class="section" id="faq"><div class="wrap">
+    <div class="center reveal"><h2 class="big">Questions</h2></div>
+    <div class="faq reveal">{faq}</div>
+  </div></section>
+  <section class="final">
+    <h2 class="reveal pop">{e(t["name"])}, free.</h2>
+    <p class="lead reveal" style="margin-top:14px;color:var(--ink-2);font-size:1.2rem">See it in the demo, or take all of {e(x["name"])} home.</p>
+    <div class="row-flex" style="justify-content:center;margin-top:10px"><a class="btn btn-big" href="../app/apps/{t["id"]}/index.html">✨ Try {e(t["name"])}</a><a class="btn btn-big ghost-light" href="index.html#get">⬇️ Download</a></div>
+  </section>
+</main>
+{footer("../", json.loads((SITE / "content" / "tools.json").read_text()))}
+<script src="../app/shared/core.js"></script>
+<script src="../assets/site.js"></script>
+</body>
+</html>
+"""
+
+
+def suite_ld(folder: str, desc: str) -> str:
+    """A suite page's own structured data: the free suite, and its paid expert."""
+    x = SUITE_PAGES[folder]
+    ex = EXPERTS[x["expert"]]
+    return (jsonld({"@context": "https://schema.org", "@type": "SoftwareApplication", "name": x["name"], "applicationCategory": x["category"],
+                    "operatingSystem": "macOS, Windows, ChromeOS (in Chrome or Edge)", "description": desc, "url": f"{SITE_URL}/{folder}/index.html",
+                    "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}})
+            + jsonld({"@context": "https://schema.org", "@type": "SoftwareApplication", "name": f'{ex["name"]} by Busy', "applicationCategory": x["category"],
+                      "operatingSystem": "macOS, Windows, ChromeOS (in Chrome or Edge)", "url": f'{SITE_URL}/{folder}/index.html{ex["page"]}',
+                      "description": f'The paid AI expert in {x["name"]}, on the owner’s own Claude key.',
+                      "offers": {"@type": "Offer", "price": "30", "priceCurrency": "EUR"}}))
 
 
 # What Olaf does and the questions people ask, used on the Olaf page and in llms-full.txt.
@@ -1079,7 +1181,7 @@ GROWTH_TOOLS = [("📚", "Library", "Files, links and notes from everything you 
 
 
 def growth_page(tools: list) -> str:
-    feats = "".join(f'<div class="card feat reveal pop"><span class="fe">{em}</span><h3>{e(n)}</h3><p>{e(d)}</p></div>' for em, n, d in GROWTH_TOOLS)
+    feats = tool_cards(GROWTH_TOOLS, "growth", GROWTH_LIVE)
     if GROWTH_WAITLIST_ENDPOINT:
         signup = waitlist_form("growth", GROWTH_WAITLIST_ENDPOINT, "Email me when Ivy is ready. Nothing else, and I can unsubscribe any time." if GROWTH_LIVE
                                else "Email me when Busy Growth and Ivy are ready. Nothing else, and I can unsubscribe any time.",
@@ -1087,7 +1189,6 @@ def growth_page(tools: list) -> str:
     else:
         signup = '<p class="lead">The list opens soon. Meanwhile, keep your brain busy with <a href="../games/index.html">today\'s puzzles</a>.</p>'
     ivy = f"""<section class="section" id="ivy"><div class="wrap">
-    {expert_intro("ivy", "Pim", "../app/shared/places/glasshouse/pim-hello.png", "#upstairs")}
     <div class="card ivy-card reveal"><img src="../assets/ivy-mark.svg" alt="" width="96" height="96">
       <div><p class="kicker">Ivy by Busy · €30 once{"" if IVY_CHECKOUT_URL else " · coming soon"}</p><h2>Your AI coach for professional growth</h2>
       <p>Ivy turns what you learn into skills and wins, those into a stronger CV, and helps with every application and interview. Learn it, prove it, land it. Ivy never invents experience: every line comes with its proof.</p>
@@ -1129,13 +1230,14 @@ def growth_page(tools: list) -> str:
              ("💼", "Start from LinkedIn", "Download your own data from LinkedIn and Busy fills in your jobs, education, skills and certificates in minutes.")]
     how = "".join(f'<div class="card feat reveal pop"><span class="fe">{em}</span><h3>{e(n)}</h3><p>{e(d)}</p></div>' for em, n, d in steps)
     extra = PLACE_HEAD.format(first="../assets/glasshouse/room-foot-1920.jpg")
-    return f"""{head("Busy Growth: free tools to grow your career", desc, "growth/index.html", "../", extra=extra, image="og-ivy.png")}
+    return f"""{head("Busy Growth: free tools to grow your career", desc, "growth/index.html", "../", extra=extra + suite_ld("growth", desc), image="og-ivy.png")}
 <body class="site app-mint">
 {nav("../", ("⬇️ Download free", "#get"))}
 <main id="main">
   {place_html("glasshouse", GLASSHOUSE_STEPS, glasshouse_card, "The Glasshouse: a tour of Busy Growth", next_label="Up a floor ↑", decals=GLASSHOUSE_DECALS,
              model="../assets/pim/pim.glb", height=1.25, expert="ivy")}
-  <section class="section"><div class="wrap">
+  <section class="section"><div class="wrap">{expert_intro("ivy", "Pim", "../app/shared/places/glasshouse/pim-hello.png", "#upstairs")}</div></section>
+  <section class="section" id="tools"><div class="wrap">
     <div class="center reveal"><h2 class="big">{len(GROWTH_TOOLS)} tools that work together</h2><p class="lead">A gap in your skills becomes a plan, the plan becomes a win, the win becomes a CV line and an interview story.</p></div>
     <div class="feats">{feats}</div>
   </div></section>
@@ -1325,12 +1427,18 @@ def house_html() -> str:
     return place_html("house", HOUSE_STEPS, house_card, "Tuck's house: a tour of Busy Home", model="../assets/tuck/tuck.glb", expert="juno")
 
 
+def tool_cards(rows: list, folder: str, live: bool) -> str:
+    """A suite's tools as cards; live, each card opens the tool's own page."""
+    ids = [t["id"] for t in suite_tools(folder)]
+    return "".join((f'<a class="card feat reveal pop" href="{ids[i]}.html"><span class="fe">{em}</span><h3>{e(n)}</h3><p>{e(d)}</p><span class="go">More about {e(n)} →</span></a>' if live and i < len(ids)
+                    else f'<div class="card feat reveal pop"><span class="fe">{em}</span><h3>{e(n)}</h3><p>{e(d)}</p></div>') for i, (em, n, d) in enumerate(rows))
+
+
 def home_page(tools: list) -> str:
-    feats = "".join(f'<div class="card feat reveal pop"><span class="fe">{em}</span><h3>{e(n)}</h3><p>{e(d)}</p></div>' for em, n, d in HOME_TOOLS)
+    feats = tool_cards(HOME_TOOLS, "home", HOME_LIVE)
     buy = (f'<p style="margin-top:14px"><a class="btn btn-primary" href="{e(JUNO_CHECKOUT_URL)}">Get Juno · {JUNO_PRICE}</a> <a class="btn" href="../claude-key.html">How Juno connects to Claude</a></p>'
            if JUNO_CHECKOUT_URL else '<p style="margin-top:12px"><a href="../claude-key.html">How Juno will connect to Claude →</a></p>')
     juno = f"""<section class="section" id="juno"><div class="wrap">
-    {expert_intro("juno", "Tuck", "../app/shared/places/house/tuck-hello.png", "#upstairs")}
     <div class="card ivy-card juno-card reveal"><img src="../assets/juno-mark.svg" alt="" width="96" height="96">
       <div><p class="kicker">Juno by Busy · {JUNO_PRICE} once{"" if JUNO_CHECKOUT_URL else " · coming soon"}</p><h2>Your AI expert for household paperwork</h2>
       <p>Attach the letter you've been avoiding and Juno tells you what it means and what to do by when, with the reply already drafted. It reads your contracts and policies, says when to keep, switch or cancel, sorts a pile of scans, helps with a claim or a move, and sends you a short briefing each month. It works on your own folder and never gives legal advice: it tells you when to ask a professional.</p>
@@ -1362,13 +1470,14 @@ def home_page(tools: list) -> str:
       <p class="lead reveal" style="max-width:680px;margin:0 auto">Free tools for the paperwork every household has: passports, policies, contracts, upkeep, the things you own and the letters you need to send. Everything in your own folder, no account, like the rest of Busy.</p>
     </div>
   </section>"""
-    return f"""{head(title, desc, "home/index.html", "../", extra=three, image="og-juno.png")}
+    return f"""{head(title, desc, "home/index.html", "../", extra=three + suite_ld("home", desc), image="og-juno.png")}
 <body class="site app-tomato">
 {nav("../", ("⬇️ Download free", "#get") if HOME_LIVE else explore("../"))}
 <main id="main">
   {top}
-  <section class="section"><div class="wrap">
-    <div class="center reveal"><h2 class="big">{len(HOME_TOOLS)} tools that work together</h2><p class="lead">A contract knows its cancellation letter, the move knows your contracts, and the Just in Case binder knows where every document is.</p></div>
+  {'<section class="section"><div class="wrap">' + expert_intro("juno", "Tuck", "../app/shared/places/house/tuck-hello.png", "#upstairs") + "</div></section>" if HOME_LIVE else ""}
+  <section class="section" id="tools"><div class="wrap">
+    <div class="center reveal"><h2 class="big">{len(HOME_TOOLS)} tools that work together</h2><p class="lead">A contract knows its cancellation letter, the move knows your contracts, and the Just in Case binder knows where every document is.{' <a href="../app/home.html">Try them all in the demo →</a>' if HOME_LIVE else ''}</p></div>
     <div class="feats">{feats}</div>
   </div></section>
   <section class="section"><div class="wrap">
@@ -1488,6 +1597,15 @@ def workshop_card(s: dict) -> str:
 def workshop_html() -> str:
     return place_html("workshop", WORKSHOP_STEPS, workshop_card, "The Workshop: a tour of Busy Business", decals=WORKSHOP_DECALS, brand="#FF6B4A",
                       model="../assets/rivet/rivet.glb", height=0.9, expert="olaf")
+
+
+def put_block(page: Path, name: str, html: str) -> None:
+    """Writes a block into a hand-made page, between its <!-- name --> and <!-- /name --> markers."""
+    text = page.read_text()
+    new, n = re.subn(rf"<!-- {name} -->.*?<!-- /{name} -->", lambda m: f"<!-- {name} -->\n  {html}\n  <!-- /{name} -->", text, count=1, flags=re.S)
+    if not n:
+        raise SystemExit(f"{page}: the <!-- {name} --> markers are missing")
+    page.write_text(new)
 
 
 def put_place(page: Path, html: str) -> None:
@@ -1701,6 +1819,8 @@ def build_pages() -> None:
     (business / "tools.html").write_text(tools_index(tools))
     (business / "olaf.html").write_text(to_business(olaf_page(tools)))
     put_place(business / "index.html", workshop_html())
+    # The free guide downstairs, the paid expert upstairs: right after the place, before the tools.
+    put_block(business / "index.html", "experts", '<section class="section"><div class="wrap">' + expert_intro("olaf", "Rivet", "../app/shared/places/workshop/rivet-hello.png", "#upstairs") + "</div></section>")
     put_place(SITE / "index.html", street_html())
     (SITE / "about.html").write_text(about_page(tools))
     (SITE / "claude-key.html").write_text(claude_key_page(tools))
@@ -1708,6 +1828,15 @@ def build_pages() -> None:
     (SITE / "growth" / "index.html").write_text(growth_page(tools))
     (SITE / "home").mkdir(exist_ok=True)
     (SITE / "home" / "index.html").write_text(home_page(tools))
+    suite_pages = []
+    for folder, live in (("home", HOME_LIVE), ("growth", GROWTH_LIVE)):
+        ts = suite_tools(folder)
+        for t in ts:
+            f = SITE / folder / f'{t["id"]}.html'
+            if live:
+                f.write_text(suite_tool_page(t, ts, folder)); suite_pages.append(f'{folder}/{t["id"]}.html')
+            elif f.exists():
+                f.unlink()
     game_pages = build_games()
     # The addresses from before the suites (October 2026) keep working.
     old = SITE / "tools"
@@ -1719,7 +1848,7 @@ def build_pages() -> None:
     (SITE / "download.html").write_text(forward_page("business/download.html", 0))
     sync_chrome(tools)
     pages = (["", "about.html", "claude-key.html", "privacy.html", "terms.html", "business/index.html", "business/tools.html", "business/download.html", "business/olaf.html"]
-             + [f'business/{t["id"]}.html' for t in tools] + game_pages + ["growth/index.html", "home/index.html"])
+             + [f'business/{t["id"]}.html' for t in tools] + game_pages + ["growth/index.html", "home/index.html"] + suite_pages)
     today = date.today().isoformat()
     (SITE / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
                                       + "".join(f"  <url><loc>{SITE_URL}/{p}</loc><lastmod>{page_date(p)}</lastmod></url>\n" for p in pages) + "</urlset>\n")
@@ -1737,9 +1866,11 @@ def build_pages() -> None:
 # manifest, so every place describes the same thing in the same words.
 ENTITY = ("Busy makes free, private tools for work and life, in suites: Busy Business (thirteen tools for small businesses and "
           "freelancers: invoices and quotes, time, receipts, money, clients, projects, documents, a brand kit, subscriptions, trips, stock "
-          "and a marketing studio), Busy Games (free daily brain games) and Busy Growth (" + ("free tools to grow your career: a library, skills, wins, a job tracker, CVs and more" if GROWTH_LIVE else "tools to grow your career, coming soon") + "). The tools "
-          "run in the browser and keep everything in the owner's own folder, with no account and no subscription. Each suite can have a "
-          "paid AI expert: Olaf for business, Ivy for professional growth.")
+          "and a marketing studio), Busy Growth (" + ("free tools to grow your career: a library, skills, wins, a job tracker, a CV and LinkedIn builder and more" if GROWTH_LIVE else "tools to grow your career, coming soon") + "), "
+          "Busy Home (" + ("free tools for household paperwork: documents with expiry reminders, contracts with the last day to cancel, upkeep, a home inventory, letters, moving and a Just in Case binder" if HOME_LIVE else "tools for household paperwork, coming soon") + ") "
+          "and Busy Games (free daily brain games). Each suite is a free app for Mac and Windows, or runs in the browser, and keeps everything in the "
+          "owner's own folder, with no account and no subscription. Each suite can have a paid AI expert: Olaf for business, Ivy for "
+          "professional growth, Juno for household paperwork.")
 ORG_ID, WEBSITE_ID = "#organization", "#website"
 SECTIONS = {"business/": ("Busy Business", "business/index.html"), "games/": ("Busy Games", "games/index.html"), "growth/": ("Busy Growth", "growth/index.html"), "home/": ("Busy Home", "home/index.html")}
 # The name is a common word, and another company sells accounting software as BUSY. These tell search
@@ -1847,7 +1978,8 @@ def site_seo() -> None:
                     obj["isAccessibleForFree"] = True
                 elif offer:
                     offer["availability"] = "https://schema.org/InStock" if OLAF_CHECKOUT_URL else "https://schema.org/PreOrder"
-                    offer.setdefault("url", SITE_URL + "/olaf.html#get")
+                    name = str(obj.get("name", ""))
+                    offer.setdefault("url", SITE_URL + ("/growth/index.html#ivy" if "Ivy" in name else "/home/index.html#juno" if "Juno" in name else "/business/olaf.html#get"))
             return jsonld(obj).rstrip("\n")
         t = re.sub(r'<script type="application/ld\+json">(.*?)</script>\n?', fix, t, flags=re.S)
         t = re.sub(r'<script type="application/ld\+json" id="ld-site">.*?</script>\n?', "", t, flags=re.S)
@@ -1892,12 +2024,16 @@ def write_llms(tools: list) -> None:
         lines += ["", "## Busy Growth: free tools to grow your career", "",
                   f"- [Busy Growth]({b}/growth/index.html): {len(GROWTH_TOOLS)} free tools: a library of what you read and learn, skills, wins, a learning plan, a job tracker, a CV builder, interview stories, contacts and a weekly review. Ivy, an AI coach for professional growth (€30 once), is coming soon.",
                   f"- [Download Busy Growth]({b}/growth/index.html#get): the free Busy Growth app for Mac and Windows (beta), or a zip for the browser."]
+        lines += [f"- [{t['name']}]({b}/growth/{t['id']}.html): {t['description']}" for t in suite_tools("growth")]
+        lines += [f"- [Ivy, the AI coach for professional growth]({b}/growth/index.html#ivy): learn it, prove it, land it; never invents experience. €30 once, on the owner's own Claude key."]
     else:
         lines += ["", "## Busy Growth: free tools to grow your career (coming soon)", "",
                   f"- [Busy Growth]({b}/growth/index.html): a library of what you read and learn, skills, wins, a learning plan, a job tracker and a CV builder, plus Ivy, an AI coach for professional growth (€30 once). Not released yet."]
     lines += (["", "## Busy Home: free tools for household paperwork", "",
                f"- [Busy Home]({b}/home/index.html): {len(HOME_TOOLS)} free tools: documents that warn before they expire, contracts with the last day to cancel, home upkeep, a home inventory with an insurance claim pack, letters, a moving planner and a Just in Case binder. Juno, an AI expert for household paperwork ({JUNO_PRICE} once), is coming soon.",
                f"- [Download Busy Home]({b}/home/index.html#get): the free Busy Home app for Mac and Windows (beta), or a zip for the browser."]
+              + [f"- [{t['name']}]({b}/home/{t['id']}.html): {t['description']}" for t in suite_tools("home")]
+              + [f"- [Juno, the AI expert for household paperwork]({b}/home/index.html#juno): explains letters, writes the replies and keeps the household ahead. {JUNO_PRICE} once, on the owner's own Claude key."]
               if HOME_LIVE else ["", "## Busy Home: free tools for household paperwork (coming soon)", "",
                f"- [Busy Home]({b}/home/index.html): documents, contracts with the last day to cancel, upkeep, a home inventory, letters, moving and a Just in Case binder. Not released yet."])
     lines += [
