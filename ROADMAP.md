@@ -42,7 +42,26 @@
   project tools on the same plan. Research and the vetting of outside skills: the Olaf repository's
   `docs/project-research.md`.
 
+- Six languages (2026-11-02, release 0.9.4): Dutch, German, Spanish, Italian and Brazilian Portuguese
+  next to English, for the website, the games and every free tool, with local rules per country
+  (`i18n/`, `app/shared/i18n.js`). The experts answer in the chosen language.
+
 ## Next up
+
+### The next big update (decided 2026-11-02)
+Build all five first, in this order, then push and release them together as one update:
+1. **Finish the translations.** The experts' own screens (Olaf, Ivy, Juno, about 820 pieces of text, part
+   of it AI tool descriptions that are never shown) and the demo sentences built from parts ("4.5 h of 20 h",
+   "Average of your last 1 review", "Head of operations at Fietsplan").
+2. **The puzzles in 3D.** The Puzzle Parlour stays an Unreal render; the puzzle becomes a live three.js
+   object on its table, placed with the room's Unreal camera and lit like the room. Start with Stars (a
+   wooden board with brass stars), then Six, Duo and Trail. The flat board stays the default, with
+   "Play at the table"; a solve sets off a small moment in the room. Same puzzle logic.
+3. **Video loops.** Short rendered loops per place and time of day, for the site's first screen and for
+   social posts in each language.
+4. **Seasonal rooms.** All four seasons (spring, summer, autumn, winter) for Busy Street itself and for
+   every room, picked by the date.
+5. **Signs in each language.** The signs and posters painted into the renders, rendered per language.
 
 ### 0. The places and the characters (built 2026-11-01, not pushed yet)
 All six characters come from Meshy and go out together. Done, waiting for the push:
