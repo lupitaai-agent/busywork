@@ -6,6 +6,12 @@
    with is stored and reused as-is, and assistant turns go back exactly as Claude sent them. */
 (function () {
   'use strict';
+  // The language Busy speaks (shared/i18n.js): the expert talks and writes in it, with that country's ways.
+  const LANG_NAMES = { nl: 'Dutch', de: 'German', es: 'Spanish', it: 'Italian', 'pt-br': 'Brazilian Portuguese' };
+  const langNote = () => {
+    const n = LANG_NAMES[window.BusyLang];
+    return n ? `## Language\n\nBusy is set to ${n}. Talk to the person in ${n}, and write what you make for them in ${n} unless they ask for another language. Where it matters, use that country's rules, currency, dates and customs.` : '';
+  };
   const LIB = BW.olafLibrary, WS = BW.olafWs;
   const COLL = 'olaf-sessions';
   const MAX_ROUNDS = 30;  // per turn
@@ -66,6 +72,7 @@
       const system = [{ type: 'text', text: BASE }];
       if (skillId !== 'marketing-foundation' && skillId !== 'project-foundation') system.push({ type: 'text', text: foundation(skillId) });
       system.push({ type: 'text', text: brandContext(skillId) }, { type: 'text', text: skillContext(s) });
+      if (langNote()) system.push({ type: 'text', text: langNote() });
       const opening = [`Run the ${s.id} skill now.`];
       if (instruction && instruction.trim()) opening.push('\nWhat the owner asked for:\n' + instruction.trim());
       else opening.push(`\nNo extra instruction was given. Work from brand-documents/ and memory/, and ask the owner for what you genuinely need${s.hint ? ` (${s.hint})` : ''}.`);

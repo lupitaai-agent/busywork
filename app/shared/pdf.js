@@ -155,6 +155,30 @@
       validNote: 'Deze offerte is geldig tot {valid}.', page: 'Pagina', reg: 'KvK', vatNo: 'Btw-nr.', bic: 'BIC',
       credit: 'Creditnota', creditFor: 'Deze creditnota corrigeert factuur {number}.', discount: 'Korting {p}%', paid: 'Al betaald', due2: 'Nog te betalen',
       scan: 'Scan en betaal met je bank-app', payOnline: 'Online betalen:' },
+    de: { invoice: 'Rechnung', quote: 'Angebot', no: 'Nr.', from: 'Von', billTo: 'Rechnung an', quoteFor: 'Angebot für', date: 'Datum', due: 'Fällig am', valid: 'Gültig bis',
+      desc: 'Beschreibung', qty: 'Menge', price: 'Preis', vat: 'USt.', amount: 'Betrag', subtotal: 'Zwischensumme', total: 'Gesamt', vatLine: 'USt. {r}%',
+      reverse: 'Steuerschuldnerschaft des Leistungsempfängers', pay: 'Bitte überweisen Sie {total} bis zum {due} auf {iban}, Kontoinhaber {name}, mit dem Verwendungszweck {number}.',
+      validNote: 'Dieses Angebot ist gültig bis {valid}.', page: 'Seite', reg: 'Handelsreg.', vatNo: 'USt-IdNr.', bic: 'BIC',
+      credit: 'Gutschrift', creditFor: 'Diese Gutschrift korrigiert Rechnung {number}.', discount: 'Rabatt {p}%', paid: 'Bereits bezahlt', due2: 'Noch zu zahlen',
+      scan: 'Scannen und mit Ihrer Banking-App bezahlen', payOnline: 'Online bezahlen:' },
+    es: { invoice: 'Factura', quote: 'Presupuesto', no: 'N.º', from: 'De', billTo: 'Facturar a', quoteFor: 'Preparado para', date: 'Fecha', due: 'Vencimiento', valid: 'Válido hasta',
+      desc: 'Concepto', qty: 'Cant.', price: 'Precio', vat: 'IVA', amount: 'Importe', subtotal: 'Base imponible', total: 'Total', vatLine: 'IVA {r}%',
+      reverse: 'Inversión del sujeto pasivo', pay: 'Por favor, transfiera {total} antes del {due} a {iban} a nombre de {name}, indicando {number}.',
+      validNote: 'Este presupuesto es válido hasta el {valid}.', page: 'Página', reg: 'Reg. Mercantil', vatNo: 'NIF/CIF', bic: 'BIC',
+      credit: 'Factura rectificativa', creditFor: 'Esta factura rectifica la factura {number}.', discount: 'Descuento {p}%', paid: 'Ya pagado', due2: 'Pendiente de pago',
+      scan: 'Escanea para pagar con la app de tu banco', payOnline: 'Pagar en línea:' },
+    it: { invoice: 'Fattura', quote: 'Preventivo', no: 'N.', from: 'Da', billTo: 'Fatturare a', quoteFor: 'Preparato per', date: 'Data', due: 'Scadenza', valid: 'Valido fino al',
+      desc: 'Descrizione', qty: 'Q.tà', price: 'Prezzo', vat: 'IVA', amount: 'Importo', subtotal: 'Imponibile', total: 'Totale', vatLine: 'IVA {r}%',
+      reverse: 'Inversione contabile (reverse charge)', pay: 'Si prega di bonificare {total} entro il {due} su {iban} intestato a {name}, con causale {number}.',
+      validNote: 'Questo preventivo è valido fino al {valid}.', page: 'Pagina', reg: 'REA', vatNo: 'P. IVA', bic: 'BIC',
+      credit: 'Nota di credito', creditFor: 'Questa nota di credito rettifica la fattura {number}.', discount: 'Sconto {p}%', paid: 'Già pagato', due2: 'Ancora da pagare',
+      scan: 'Inquadra per pagare con l’app della tua banca', payOnline: 'Paga online:' },
+    'pt-br': { invoice: 'Fatura', quote: 'Orçamento', no: 'Nº', from: 'De', billTo: 'Faturar para', quoteFor: 'Preparado para', date: 'Data', due: 'Vencimento', valid: 'Válido até',
+      desc: 'Descrição', qty: 'Qtd.', price: 'Preço', vat: 'Imposto', amount: 'Valor', subtotal: 'Subtotal', total: 'Total', vatLine: 'Imposto {r}%',
+      reverse: 'Imposto devido pelo destinatário', pay: 'Por favor, transfira {total} até {due} para {iban} em nome de {name}, informando {number}.',
+      validNote: 'Este orçamento é válido até {valid}.', page: 'Página', reg: 'CNPJ', vatNo: 'Inscrição', bic: 'BIC',
+      credit: 'Nota de crédito', creditFor: 'Esta nota de crédito corrige a fatura {number}.', discount: 'Desconto {p}%', paid: 'Já pago', due2: 'Ainda a pagar',
+      scan: 'Escaneie para pagar com o app do seu banco', payOnline: 'Pagar online:' },
   };
   BW.docLabels = (lang) => LABELS[lang] || LABELS.en;
   const fill = (t, o) => t.replace(/\{(\w+)\}/g, (_, k) => (o[k] == null ? '' : o[k]));
@@ -228,7 +252,7 @@
       if (y + rowH > H - 170) { footer(pageNo++); d.addPage(); y = 50; head(); }
       lines.forEach((ln, i) => d.text(ln, col.desc, y + i * 13, { size: 9.5, color: ink }));
       const qty = BW.num(it.qty);
-      d.text(String(qty).replace('.', s.docLang === 'nl' ? ',' : '.'), col.qty, y, { size: 9.5, color: grey, align: 'right' });
+      d.text(String(qty).replace('.', (s.docLang || 'en') === 'en' ? '.' : ','), col.qty, y, { size: 9.5, color: grey, align: 'right' });
       d.text(money(BW.num(it.price)), col.price, y, { size: 9.5, color: grey, align: 'right' });
       if (!inv.reverseCharge) d.text(BW.num(it.vat) + '%', col.vat, y, { size: 9.5, color: grey, align: 'right' });
       d.text(money(qty * BW.num(it.price)), col.amt, y, { size: 9.5, bold: true, color: ink, align: 'right' });

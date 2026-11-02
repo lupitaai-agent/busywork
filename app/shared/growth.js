@@ -189,8 +189,8 @@
   G.careerSort = (list) => list.slice().sort((a, b) => (b.current ? 1 : 0) - (a.current ? 1 : 0) || ym(b.end || b.start).localeCompare(ym(a.end || a.start)) || ym(b.start).localeCompare(ym(a.start)));
   G.period = (e) => {
     // A month (2020-01), or only a year (2019) when that is all that is known.
-    const f = (v) => (!v ? '' : /^\d{4}$/.test(v) ? v : new Date(v + '-15T12:00:00').toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }));
-    return [f(e.start), e.current ? 'now' : f(e.end)].filter(Boolean).join(' – ');
+    const f = (v) => (!v ? '' : /^\d{4}$/.test(v) ? v : new Date(v + '-15T12:00:00').toLocaleDateString(BW.locale(), { month: 'short', year: 'numeric' }));
+    return [f(e.start), e.current ? BW.t('now') : f(e.end)].filter(Boolean).join(' – ');
   };
   const lines = (s) => String(s || '').split('\n').map((x) => x.replace(/^\s*[-•*]\s*/, '').trim()).filter(Boolean);
   // Everything a CV version shows, in order, ready to draw on screen or in a PDF.

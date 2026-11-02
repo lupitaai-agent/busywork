@@ -218,12 +218,12 @@
     const para = (txt, size = 10, color = ink, x = M, bold = false) => d.wrap(txt, W - M - x, size, bold).forEach((l) => { room(size + 5); d.text(l, x, y, { size, color, bold }); y += size + 4.5; });
     const heading = (t) => { room(36); y += 12; d.text(t.toUpperCase(), M, y, { size: 9, bold: true, color: accent }); y += 5; d.line(M, y, W - M, y, { color: '#DDD8E8' }); y += 15; };
     const bullets = (list, x = M) => list.forEach((b) => d.wrap(b, W - M - x - 12, 10).forEach((l, i) => { room(15); if (!i) d.rect(x + 2, y - 5, 3.5, 3.5, { fill: accent, r: 2 }); d.text(l, x + 12, y, { size: 10, color: ink }); y += 14.5; }));
-    d.text(m.name || 'Your name', M, y, { size: 22, bold: true, color: ink }); y += 20;
+    d.text(m.name || BW.t('Your name'), M, y, { size: 22, bold: true, color: ink }); y += 20;
     if (m.headline) para(m.headline, 11.5, soft);
     if (m.contact.length) { y += 2; para(m.contact.join('  ·  '), 9, soft); }
     if (m.summary) { y += 8; para(m.summary, 10.5); }
-    if (m.highlights.length) { heading('Highlights'); bullets(m.highlights); }
-    for (const [title, list] of [['Experience', m.work], ['Education', m.education]]) {
+    if (m.highlights.length) { heading(BW.t('Highlights')); bullets(m.highlights); }
+    for (const [title, list] of [[BW.t('Experience'), m.work], [BW.t('Education'), m.education]]) {
       if (!list.length) continue;
       heading(title);
       list.forEach((x) => {
@@ -236,8 +236,8 @@
         y += 6;
       });
     }
-    if (m.skills.length) { heading('Skills'); para(m.skills.join('  ·  ')); }
-    if (m.extras.length) { heading('More'); bullets(m.extras); }
+    if (m.skills.length) { heading(BW.t('Skills')); para(m.skills.join('  ·  ')); }
+    if (m.extras.length) { heading(BW.t('More')); bullets(m.extras); }
     const name = `${BW.fileSafe([m.name, cur.name].filter(Boolean).join(' - ') || 'CV')}.pdf`;
     BW.store.writeFile(`CVs/${name}`, d.blob(`${m.name} CV`))
       .then((r) => BW.toast(r.saved ? `Saved to ${esc(r.where)}` : `${esc(name)} is in your Downloads`, '📄'))

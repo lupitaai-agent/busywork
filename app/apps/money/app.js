@@ -140,27 +140,38 @@
     drawChart();
   }
 
-  // ---------- VAT return overview (Dutch box numbers, which match the Belastingdienst form) ----------
+  // ---------- VAT return overview ----------
+  // With the Dutch rates (21 and 9) the rows carry the box numbers of the Belastingdienst form; anywhere
+  // else the sales are grouped per rate, ready to copy into the country's own return.
   function vatHtml() {
     const from = `${vy}-${String((vq - 1) * 3 + 1).padStart(2, '0')}-01`, to = `${vy}-${String(vq * 3).padStart(2, '0')}-31`;
-    const box = { '1a': [0, 0], '1b': [0, 0], '1c': [0, 0], '1e': [0, 0], '3b': [0, 0] };
+    const dutch = String(BW.settings.vatRates || '').replace(/\s/g, '').startsWith('21,9');
+    const rates = {}, other = [0, 0], reverse = [0, 0];
     invoices.filter((i) => (i.kind === 'invoice' || i.kind === 'credit') && i.status !== 'draft' && within(i.issueDate, [from, to])).forEach((i) => {
       const t = BW.invoiceTotals(i);
-      if (i.reverseCharge) { box['3b'][0] += t.subtotal; return; }
+      if (i.reverseCharge) { reverse[0] += t.subtotal; return; }
       let taxed = 0;
-      t.vat.forEach((v) => { const k = v.rate === 21 ? '1a' : v.rate === 9 ? '1b' : '1c'; box[k][0] += v.base; box[k][1] += v.amount; taxed += v.base; });
-      box['1e'][0] += t.subtotal - taxed;
+      t.vat.forEach((v) => { const r = rates[v.rate] = rates[v.rate] || [0, 0]; r[0] += v.base; r[1] += v.amount; taxed += v.base; });
+      other[0] += t.subtotal - taxed;
     });
     const input = expenses.filter((e) => within(e.date, [from, to])).reduce((a, e) => a + expVat(e), 0);
-    const owed = box['1a'][1] + box['1b'][1] + box['1c'][1];
-    const rows = [['1a', 'Sales at 21%'], ['1b', 'Sales at 9%'], ['1c', 'Sales at other rates'], ['1e', 'Sales at 0% or not taxed here'], ['3b', 'Sales to EU businesses (reverse charge)']]
-      .filter(([k]) => box[k][0] || ['1a', '1b'].includes(k));
+    const owed = Object.values(rates).reduce((a, r) => a + r[1], 0);
+    let rows;
+    if (dutch) {
+      const at = (r) => rates[r] || [0, 0];
+      const rest = Object.keys(rates).filter((r) => r !== '21' && r !== '9').reduce((a, r) => [a[0] + rates[r][0], a[1] + rates[r][1]], [0, 0]);
+      rows = [['1a', 'Sales at 21%', at(21)], ['1b', 'Sales at 9%', at(9)], ['1c', 'Sales at other rates', rest], ['1e', 'Sales at 0% or not taxed here', other, true], ['3b', 'Sales to EU businesses (reverse charge)', reverse, true]]
+        .filter(([k, , v]) => v[0] || ['1a', '1b'].includes(k));
+    } else {
+      rows = Object.keys(rates).map(Number).sort((x, y) => y - x).map((r) => ['', `Sales at ${r}%`, rates[r]])
+        .concat([['', 'Sales at 0% or not taxed here', other, true], ['', 'Sales to EU businesses (reverse charge)', reverse, true]].filter(([, , v]) => v[0]));
+    }
     return `<section class="card"><div class="row-flex" style="margin-bottom:12px"><h3 style="flex:1">🧾 VAT return, Q${vq} ${vy}</h3>
         <button class="icon-btn" data-vq="-1" aria-label="Previous quarter">◀</button><button class="icon-btn" data-vq="1" aria-label="Next quarter">▶</button></div>
-      <table class="data-table vat"><tr><th>Box</th><th>What</th><th>Amount</th><th>VAT</th></tr>
-        ${rows.map(([k, l]) => `<tr><td><b>${k}</b></td><td>${l}</td><td>${BW.money(box[k][0])}</td><td>${['1e', '3b'].includes(k) ? '' : BW.money(box[k][1])}</td></tr>`).join('')}
-        <tr><td><b>5b</b></td><td>VAT you paid on costs</td><td></td><td>- ${BW.money(input)}</td></tr>
-        <tr class="sum"><td></td><td><b>${owed - input >= 0 ? 'To pay' : 'To get back'}</b></td><td></td><td><b>${BW.money(Math.abs(owed - input))}</b></td></tr></table>
+      <table class="data-table vat"><tr>${dutch ? '<th>Box</th>' : ''}<th>What</th><th>Amount</th><th>VAT</th></tr>
+        ${rows.map(([k, l, v, noVat]) => `<tr>${dutch ? `<td><b>${k}</b></td>` : ''}<td>${l}</td><td>${BW.money(v[0])}</td><td>${noVat ? '' : BW.money(v[1])}</td></tr>`).join('')}
+        <tr>${dutch ? '<td><b>5b</b></td>' : ''}<td>VAT you paid on costs</td><td></td><td>- ${BW.money(input)}</td></tr>
+        <tr class="sum">${dutch ? '<td></td>' : ''}<td><b>${owed - input >= 0 ? 'To pay' : 'To get back'}</b></td><td></td><td><b>${BW.money(Math.abs(owed - input))}</b></td></tr></table>
       <small class="faint" style="display:block;margin-top:10px">Based on invoices sent and expenses logged in this quarter. Check it with your accountant before you file.</small></section>`;
   }
 

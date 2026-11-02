@@ -9,7 +9,11 @@ here passes there. Needs only Node 22+ and Python 3.9+; no packages.
                               like GitHub's, has none)
 3. the logic works            node --test tests/*.test.js
 4. the build is safe          python3 -m unittest discover tests (leak check, homepage block)
+5. every language             each word list covers the English text and keeps its {0} gaps; missing
+                              text is a warning (it shows in English), a broken gap fails
 """
+import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -25,6 +29,21 @@ def run(title, cmd):
         raise SystemExit(f"check: {title} failed")
 
 
+def languages():
+    print("\n== languages", flush=True)
+    sys.path.insert(0, str(ROOT / "i18n"))
+    import i18n
+    english = json.loads((ROOT / "i18n" / "strings.json").read_text())
+    gaps = lambda t: set(re.findall(r"\{\d+\}", t))
+    for lang in i18n.LANGS:
+        words = json.loads((ROOT / "i18n" / f"{lang}.json").read_text())
+        missing = [k for k in english if not words.get(k)]
+        broken = [k for k, v in words.items() if v and not gaps(v) <= gaps(k)]
+        if broken:
+            raise SystemExit(f"check: {lang} has gaps that are not in the English: " + " | ".join(broken[:5]))
+        print(f"{lang}: {len(english) - len(missing)} of {len(english)}" + (f", still in English: {' | '.join(missing[:5])}" if missing else ""))
+
+
 def main():
     scripts = [str(p) for p in sorted((ROOT / "app").rglob("*.js")) if p.name not in GENERATED]
     scripts += [str(p) for p in sorted((ROOT / "website" / "assets").rglob("*.js"))]
@@ -36,6 +55,7 @@ def main():
     run("build", [sys.executable, "build.py"])
     run("logic tests", ["node", "--test", *sorted(str(p) for p in (ROOT / "tests").glob("*.test.js"))])
     run("build tests", [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-p", "test_*.py"])
+    languages()
     print("\ncheck: all good")
 
 

@@ -85,7 +85,7 @@
     main.innerHTML = `
       <div class="doc-editor">
         <div><a class="btn btn-ghost" href="#" style="margin:0 0 12px -10px">← All documents</a>
-          <div class="sheet" style="--doc:${esc(s.brandColor || '#FF6B4A')}">
+          <div class="sheet" translate="no" style="--doc:${esc(s.brandColor || '#FF6B4A')}">
             <div class="head">${s.logo ? `<img src="${s.logo}" alt="">` : `<span class="biz">${esc(s.businessName)}</span>`}<small class="faint">${esc([s.email, s.phone].filter(Boolean).join(' · '))}</small></div>
             <input class="title" data-title value="${esc(cur.title)}" aria-label="Document title">
             <textarea data-body aria-label="Document text" placeholder="Start typing…">${esc(cur.body)}</textarea>

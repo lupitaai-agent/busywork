@@ -9,7 +9,7 @@ Key facts:
 - Data: saved as files in a folder the owner chooses on their own computer (it can sit in Google Drive, Dropbox, OneDrive or iCloud Drive). Nothing is sent to Busy. The games keep progress in the browser.
 - Works in: a free app per suite for Mac and Windows (beta), Busy Games included; or, without installing, Chrome and Edge from a downloaded folder (also on ChromeOS and Linux). The games run in any modern browser.
 - AI: none in the free tools. Olaf, Ivy and Juno run on Claude with the owner's own API key; requests go from the browser to Anthropic only.
-- Language: English. Invoices, quotes and documents can be made in English or Dutch.
+- Languages: English, Dutch, German, Spanish, Italian and Brazilian Portuguese (the website under /nl/, /de/, /es/, /it/ and /pt-br/; the apps follow the computer's language). Invoices, quotes and letters can be made in any of them.
 
 ## Busy Business: free tools for small businesses
 

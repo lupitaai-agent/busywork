@@ -17,6 +17,7 @@ import json
 import os
 import re
 import shutil
+import sys
 import subprocess
 import zipfile
 from datetime import date
@@ -111,6 +112,16 @@ def copy_app() -> None:
 NOT_IN_DOWNLOAD = {"shared/ai.js", "shared/examples.js", "shared/growth-examples.js", "shared/house-examples.js"}
 
 
+def zip_text(p: Path, files: list):
+    """A file as it goes into a download, when it differs from the app folder: core.js points at the website,
+    and the word lists hold only the words of this download's own files."""
+    if p == APP / "shared" / "core.js":
+        return site_core(p.read_text())
+    if p.parent == APP / "shared" / "i18n" and p.suffix == ".js":
+        return I18N.words_js(p.stem, files)
+    return None
+
+
 def make_zip() -> None:
     downloads = SITE / "downloads"
     downloads.mkdir(exist_ok=True)
@@ -120,8 +131,9 @@ def make_zip() -> None:
     with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
         z.writestr("Busy/START HERE.txt", START_HERE)
         for p in files:
-            if p == APP / "shared" / "core.js":
-                z.writestr("Busy/shared/core.js", site_core(p.read_text()))
+            text = zip_text(p, files)
+            if text is not None:
+                z.writestr((Path("Busy") / p.relative_to(APP)).as_posix(), text)
             else:
                 z.write(p, Path("Busy") / p.relative_to(APP))
     print(f"{out.relative_to(ROOT)}: {len(files) + 1} files, {out.stat().st_size // 1024} KB")
@@ -186,8 +198,9 @@ def make_home_zip() -> None:
         z.writestr("Busy Home/START HERE.txt", HOME_START_HERE)
         for p in files:
             name = (Path("Busy Home") / p.relative_to(APP)).as_posix()
-            if p == APP / "shared" / "core.js":
-                z.writestr(name, site_core(p.read_text()))
+            text = zip_text(p, files)
+            if text is not None:
+                z.writestr(name, text)
             else:
                 z.write(p, name)
     print(f"website/downloads/{out.name}: {len(files) + 1} files, {out.stat().st_size // 1024} KB")
@@ -205,8 +218,9 @@ def make_growth_zip() -> None:
         z.writestr("Busy Growth/START HERE.txt", GROWTH_START_HERE)
         for p in files:
             name = (Path("Busy Growth") / p.relative_to(APP)).as_posix()
-            if p == APP / "shared" / "core.js":
-                z.writestr(name, site_core(p.read_text()))
+            text = zip_text(p, files)
+            if text is not None:
+                z.writestr(name, text)
             else:
                 z.write(p, name)
     print(f"website/downloads/{out.name}: {len(files) + 1} files, {out.stat().st_size // 1024} KB")
@@ -621,7 +635,7 @@ def footer(prefix: str, tools: list) -> str:
         return f'{picks}<li><a href="{prefix}{folder}/index.html#tools">All {len(ts)} tools</a></li>{expert}'
     return f"""<footer class="footer sitemap"><div class="wrap">
   <div><span class="brandmark"><span class="blob">✦</span>Busy</span><p class="faint">Make your paperwork fun again.<br>Free, private tools for work and life.</p>
-    <ul><li><a href="{prefix}about.html">About Busy</a></li><li><a href="{prefix}privacy.html">Privacy</a></li><li><a href="{prefix}terms.html">Terms</a></li></ul></div>
+    <ul><li><a href="{prefix}about.html">About Busy</a></li><li><a href="{prefix}privacy.html">Privacy</a></li><li><a href="{prefix}terms.html">Terms</a></li></ul><!--langs--></div>
   <div><b>💼 Busy Business</b><ul>{biz}<li><a href="{prefix}business/tools.html">All {len(tools)} tools</a></li><li><a href="{prefix}business/olaf.html">🧭 Olaf by Busy</a></li></ul>
     <p style="margin-top:22px"><b>🧩 Busy Games</b></p><ul>{games}<li><a href="{prefix}games/index.html">All games</a></li></ul></div>
   <div><b>🌱 Busy Growth</b><ul>{suite("growth", "growth", GROWTH_LIVE, f'<li><a href="{prefix}growth/index.html#ivy">🌿 Ivy by Busy</a></li>')}</ul>
@@ -2010,7 +2024,7 @@ def write_llms(tools: list) -> None:
              "- Data: saved as files in a folder the owner chooses on their own computer (it can sit in Google Drive, Dropbox, OneDrive or iCloud Drive). Nothing is sent to Busy. The games keep progress in the browser.",
              "- Works in: a free app per suite for Mac and Windows (beta), Busy Games included; or, without installing, Chrome and Edge from a downloaded folder (also on ChromeOS and Linux). The games run in any modern browser.",
              "- AI: none in the free tools. Olaf, Ivy and Juno run on Claude with the owner's own API key; requests go from the browser to Anthropic only.",
-             "- Language: English. Invoices, quotes and documents can be made in English or Dutch.",
+             "- Languages: English, Dutch, German, Spanish, Italian and Brazilian Portuguese (the website under /nl/, /de/, /es/, /it/ and /pt-br/; the apps follow the computer's language). Invoices, quotes and letters can be made in any of them.",
              "", "## Busy Business: free tools for small businesses", "",
              f"- [Busy Business]({b}/business/index.html): {len(tools)} free tools for small businesses and freelancers, and how they work together."]
     lines += [f"- [{t['name']}]({b}/business/{t['id']}.html): {t['description']}" for t in tools]
@@ -2144,7 +2158,7 @@ def about_page(tools: list) -> str:
              ("Where the data lives", "In a folder the owner chooses on their own computer, as plain files. There is no account and no server, so nothing is sent to us. The games keep your streak in your browser."),
              ("What it runs on", "The business tools run in Chrome and Edge on Windows, macOS and ChromeOS, from a downloaded folder; nothing is installed. The games run in any modern browser."),
              ("How the marketing tools work", "Busy Business's Marketing Studio and Olaf are built on proven marketing science: reach more buyers, be the business people think of in the moments they need you, and be easy to find and buy from."),
-             ("Languages", "English. Invoices, quotes and documents can be made in English or Dutch."),
+             ("Languages", "English, Dutch, German, Spanish, Italian and Brazilian Portuguese. Invoices, quotes and letters can be made in any of them."),
              ("The name", f"Busy, {DESCRIPTOR}, at busy.com.ai. Called Busywork until October 2026. Not related to BUSY accounting software.")]
     desc = "What Busy is: free, private tools for work and life, in suites for business, " + ("career growth and brain games" if GROWTH_LIVE else "brain games and soon career growth") + ". Your files stay yours."
     return f"""{head("About Busy: free, private tools for work and life", desc, "about.html", "")}
@@ -2202,8 +2216,80 @@ def site_csp() -> None:
         f.write_text(text)
 
 
+# ---------- other languages ----------
+# Every page also exists in Dutch, German, Spanish, Italian and Brazilian Portuguese, under /<lang>/ (i18n/i18n.py
+# translates the finished English page; the words are in i18n/<lang>.json). Each page says which versions exist
+# (hreflang), the footer lets people switch, and a first visit to an English page goes to the browser's language
+# once, unless the visitor chose a language before (the choice is kept in the browser).
+sys.path.insert(0, str(ROOT / "i18n"))
+import i18n as I18N  # noqa: E402
+
+LANG_LABEL = {"en": "English", **I18N.LANGS}
+# Sends a first visit to the browser's language; never search engines, never after a choice (busy.lang).
+LANG_REDIRECT = ("<script>(function(){try{if(/bot|crawl|spider|slurp|preview/i.test(navigator.userAgent))return;var c=localStorage.getItem('busy.lang');"
+                 "if(c)return;var l=(navigator.languages||[navigator.language||''])[0].toLowerCase(),k=l.slice(0,2)==='pt'?'pt-br':l.slice(0,2);"
+                 "var a=document.querySelector('link[rel=alternate][hreflang=\"'+(k==='pt-br'?'pt-BR':k)+'\"]');if(a&&k!=='en')location.replace(a.href+location.hash);}catch(e){}})();</script>")
+
+
+def lang_links(rel: str, here: str) -> tuple:
+    """(hreflang tags, the footer's language links) for one page, seen from the version in language `here`."""
+    url = lambda lang: f"{SITE_URL}/" + ("" if lang == "en" else lang + "/") + ("" if rel == "index.html" else rel)
+    tags = "".join(f'<link rel="alternate" hreflang="{"en" if l == "en" else I18N.HTML_LANG[l]}" href="{url(l)}">' for l in LANG_LABEL)
+    tags += f'<link rel="alternate" hreflang="x-default" href="{url("en")}">'
+    depth = rel.count("/") + (0 if here == "en" else 1)
+    up = "../" * depth
+    current = ' aria-current="true"'
+    links = "".join(f'<a href="{up}{"" if l == "en" else l + "/"}{rel}" data-lang="{l}" hreflang="{"en" if l == "en" else I18N.HTML_LANG[l]}"{current if l == here else ""}>{LANG_LABEL[l]}</a>'
+                    for l in LANG_LABEL)
+    return tags, f'<nav class="langs" aria-label="Language">🌐 {links}</nav>'
+
+
+def translate_site() -> None:
+    pages = {f.relative_to(SITE).as_posix(): f for f in site_pages()}
+    for d in I18N.LANGS:
+        if (SITE / d).exists():
+            shutil.rmtree(SITE / d)
+    english = {}
+    for rel, f in pages.items():
+        # a hand-written page keeps last build's language tags: take them out before adding them again
+        t = re.sub(r'\n?<link rel="alternate" hreflang="[^"]*" href="[^"]*">', "", f.read_text())
+        english[rel] = re.sub(r"\n?" + re.escape(LANG_REDIRECT), "", t)
+    for rel, text in english.items():
+        tags, langs = lang_links(rel, "en")
+        en = text.replace("<!--langs-->", langs)
+        if rel != "404.html":
+            en = re.sub(r'(<link rel="canonical"[^>]*>)', lambda m: m.group(1) + "\n" + tags + "\n" + LANG_REDIRECT, en, count=1)
+        (SITE / rel).write_text(en)
+        for lang in I18N.LANGS:
+            tags_l, langs_l = lang_links(rel, lang)
+            out = I18N.translate_html(text, lang, rel, set(pages), SITE_URL).replace("<!--langs-->", langs_l)
+            if rel != "404.html":
+                out = re.sub(r'(<link rel="canonical"[^>]*>)', lambda m: m.group(1) + "\n" + tags_l, out, count=1)
+            # the moving parts (the guides' lines from scripts, the games) translate in the browser
+            up = "../" * (rel.count("/") + 1)
+            out = out.replace("</head>", f'<script src="{up}assets/i18n/{lang}.js"></script><script src="{up}app/shared/i18n.js" data-lang="{lang}"></script>\n</head>', 1)
+            dst = SITE / lang / rel
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            dst.write_text(out)
+    for lang in I18N.LANGS:
+        (SITE / "assets" / "i18n").mkdir(parents=True, exist_ok=True)
+        (SITE / "assets" / "i18n" / f"{lang}.js").write_text(I18N.runtime_js(lang, I18N.site_script_keys()))
+    # the sitemap gets every language
+    sm = SITE / "sitemap.xml"
+    text = sm.read_text()
+    extra = "".join(m.group(0).replace(f"<loc>{SITE_URL}/", f"<loc>{SITE_URL}/{lang}/") for lang in I18N.LANGS
+                    for m in re.finditer(r"  <url><loc>[^<]*</loc>(<lastmod>[^<]*</lastmod>)?</url>\n", text))
+    sm.write_text(text.replace("</urlset>", extra + "</urlset>"))
+    n = sum(len(I18N.load(l)[2]) for l in I18N.LANGS)
+    if n and os.environ.get("I18N_MISSING"):
+        for l in I18N.LANGS:
+            print(f"  {l}: " + " | ".join(sorted(I18N.load(l)[2])))
+    print(f"website: {len(pages)} pages in {len(I18N.LANGS)} more languages" + (f"; {n} pieces of text still in English" if n else ""))
+
+
 def main() -> None:
     build_marketing()
+    I18N.write_app_words()  # the apps' word lists, from i18n/<lang>.json
     copy_app()
     copy_olaf_demo()
     make_demo()
@@ -2218,6 +2304,7 @@ def main() -> None:
     image_metadata()
     site_seo()
     site_csp()
+    translate_site()
     leak_check()
 
 

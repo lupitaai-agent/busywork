@@ -82,7 +82,7 @@
     return `<div class="card skill-card" data-id="${s.id}" tabindex="0">
       <b>${esc(s.name)}</b>
       <div class="dots5">${dots}</div>
-      <span class="lvl">${levelName(s.level)}${BW.num(s.target) > BW.num(s.level) ? ` · aiming for ${levelName(s.target)}` : BW.num(s.target) ? ' · on target ✓' : ''}</span>
+      <span class="lvl">${levelName(s.level)}${BW.num(s.target) > BW.num(s.level) ? ` · ${BW.t('aiming for')} ${levelName(s.target)}` : BW.num(s.target) ? ` · ${BW.t('on target ✓')}` : ''}</span>
       <small class="faint">${n ? `📎 ${[ev.wins.length && `${ev.wins.length} win${ev.wins.length === 1 ? '' : 's'}`, ev.learning.length && `${ev.learning.length} learned`, ev.library.length && `${ev.library.length} saved`].filter(Boolean).join(' · ')}` : 'No proof linked yet'}</small>
     </div>`;
   }

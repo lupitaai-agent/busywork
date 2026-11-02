@@ -74,7 +74,7 @@
 
   function starter() {
     const have = new Set(jobs.map((j) => String(j.task).toLowerCase()));
-    const list = H.STARTER.filter(([t]) => !have.has(t.toLowerCase()));
+    const list = H.STARTER.map(([t, a, n, tip]) => [BW.t(t), a, n, tip && BW.t(tip)]).filter(([t]) => !have.has(t.toLowerCase()));
     if (!list.length) return BW.toast('You have every job from the list already.', '📋');
     const box = BW.html(`<div><p style="margin-bottom:12px">Tick what fits your home. You can say when you last did each one afterwards.</p>
       <div class="check-list">${list.map(([t, a, n, tip], i) => `<label class="check-item"><input type="checkbox" data-i="${i}" ${a === 'car' || /chimney/i.test(t) ? '' : 'checked'}><span class="main"><b>${esc(t)}</b>${tip ? `<br><small>${esc(tip)}</small>` : ''}</span><small>${everyText(n)}</small></label>`).join('')}</div></div>`);

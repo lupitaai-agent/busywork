@@ -8,6 +8,15 @@ website/growth/
 website/download.html
 website/games/
 website/downloads/
+website/home/*
+!website/home/index.html
+website/nl/
+website/de/
+website/es/
+website/it/
+website/pt-br/
+website/assets/i18n/
+app/shared/i18n/
 website/sitemap.xml
 website/robots.txt
 app/apps/marketing/library.js
@@ -19,3 +28,4 @@ __pycache__/
 *.pyc
 .claude/
 website/olaf.html
+i18n/work/

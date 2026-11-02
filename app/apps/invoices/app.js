@@ -206,7 +206,7 @@
       <div class="editor">
         <div>
           <a class="btn btn-ghost back" href="#">← All invoices &amp; quotes</a>
-          <div class="paper" style="--doc:${esc(accent)};--on-doc:${BW.isLight(accent) ? '#1E1B2E' : '#fff'}">
+          <div class="paper" translate="no" style="--doc:${esc(accent)};--on-doc:${BW.isLight(accent) ? '#1E1B2E' : '#fff'}">
             <div class="p-top">
               <div class="p-brand">${s.logo ? `<img src="${s.logo}" alt="${esc(s.businessName)}">` : `<div class="p-biz">${esc(s.businessName)}</div>`}</div>
               <div class="p-title"><div class="p-kind">${q ? Lb.quote : cr ? Lb.credit : Lb.invoice}</div>
@@ -530,24 +530,81 @@
     return Object.assign({ blob, name }, r);
   }
 
+  // i18n: skip (the emails are written in the invoice's own language, not translated on screen)
+  // The email that goes with an invoice or quote, and the three reminders, in each invoice language.
+  const MAILS = {
+    en: {
+      hi: (f) => (f ? `Hi ${f},` : 'Hi there,'),
+      pay: (o) => `You can transfer it to ${o.iban} (${o.name}), mentioning ${o.no}.`,
+      quote: (o) => `${o.hi}\n\nPlease find attached quote ${o.no} for ${o.amount}. It's valid until ${o.valid}. Any questions? Just reply to this email.\n\nBest wishes,\n${o.sign}`,
+      invoice: (o) => `${o.hi}\n\nPlease find attached invoice ${o.no} for ${o.amount}, due on ${o.due}.${o.p1}\n\nThanks so much!\n\n${o.sign}`,
+      friendly: (o) => ['Friendly reminder', `${o.hi}\n\nJust a friendly nudge: invoice ${o.no} for ${o.amount} was due on ${o.dueShort}. It may have slipped through the cracks.${o.p2}\n\nAlready paid? Then please ignore this, and thank you!\n\n${o.sign}`],
+      firm: (o) => ['Reminder: invoice overdue', `${o.hi}\n\nInvoice ${o.no} for ${o.amount} is now ${o.late} days past its due date. Could you settle it this week?${o.p2}\n\nIf anything is wrong with it, just let me know.\n\n${o.sign}`],
+      final: (o) => ['Final reminder', `${o.hi}\n\nDespite earlier reminders, invoice ${o.no} for ${o.amount} is still open (${o.late} days late). Please pay within 7 days, after which I will have to take further steps.${o.p2}\n\n${o.sign}`],
+    },
+    nl: {
+      hi: (f) => (f ? `Hoi ${f},` : 'Hallo,'),
+      pay: (o) => `Je kunt het bedrag overmaken naar ${o.iban} t.n.v. ${o.name}, onder vermelding van ${o.no}.`,
+      quote: (o) => `${o.hi}\n\nIn de bijlage vind je offerte ${o.no} van ${o.amount}. De offerte is geldig tot ${o.valid}. Vragen? Laat het gerust weten!\n\nGroet,\n${o.sign}`,
+      invoice: (o) => `${o.hi}\n\nIn de bijlage vind je factuur ${o.no} van ${o.amount}, te betalen vóór ${o.due}.${o.p1}\n\nAlvast bedankt!\n\n${o.sign}`,
+      friendly: (o) => ['Vriendelijke herinnering', `${o.hi}\n\nEven een vriendelijk seintje: factuur ${o.no} van ${o.amount} stond open tot ${o.dueShort}. Misschien is hij tussen wal en schip geraakt?${o.p2}\n\nAl betaald? Dan mag je dit bericht negeren. Dank je wel!\n\n${o.sign}`],
+      firm: (o) => ['Herinnering: factuur verlopen', `${o.hi}\n\nFactuur ${o.no} van ${o.amount} is inmiddels ${o.late} dagen over de betaaltermijn. Wil je hem deze week voldoen?${o.p2}\n\nLaat het gerust weten als er iets niet klopt.\n\n${o.sign}`],
+      final: (o) => ['Laatste herinnering', `${o.hi}\n\nOndanks eerdere herinneringen staat factuur ${o.no} van ${o.amount} nog open (${o.late} dagen te laat). Ik vraag je het bedrag binnen 7 dagen te betalen. Daarna moet ik helaas verdere stappen zetten.${o.p2}\n\n${o.sign}`],
+    },
+    de: {
+      hi: (f) => (f ? `Hallo ${f},` : 'Guten Tag,'),
+      pay: (o) => `Bitte überweisen Sie den Betrag auf ${o.iban} (${o.name}) mit dem Verwendungszweck ${o.no}.`,
+      quote: (o) => `${o.hi}\n\nim Anhang finden Sie das Angebot ${o.no} über ${o.amount}. Es ist gültig bis zum ${o.valid}. Bei Fragen antworten Sie einfach auf diese E-Mail.\n\nViele Grüße\n${o.sign}`,
+      invoice: (o) => `${o.hi}\n\nim Anhang finden Sie die Rechnung ${o.no} über ${o.amount}, zahlbar bis zum ${o.due}.${o.p1}\n\nVielen Dank!\n\n${o.sign}`,
+      friendly: (o) => ['Freundliche Erinnerung', `${o.hi}\n\nnur eine kurze, freundliche Erinnerung: Die Rechnung ${o.no} über ${o.amount} war am ${o.dueShort} fällig. Vielleicht ist sie untergegangen.${o.p2}\n\nSchon bezahlt? Dann betrachten Sie diese Nachricht bitte als gegenstandslos. Vielen Dank!\n\n${o.sign}`],
+      firm: (o) => ['Zahlungserinnerung: Rechnung überfällig', `${o.hi}\n\ndie Rechnung ${o.no} über ${o.amount} ist inzwischen ${o.late} Tage überfällig. Könnten Sie sie diese Woche begleichen?${o.p2}\n\nFalls etwas nicht stimmt, geben Sie mir bitte Bescheid.\n\n${o.sign}`],
+      final: (o) => ['Letzte Mahnung', `${o.hi}\n\ntrotz früherer Erinnerungen ist die Rechnung ${o.no} über ${o.amount} noch offen (${o.late} Tage überfällig). Bitte zahlen Sie innerhalb von 7 Tagen; danach muss ich leider weitere Schritte einleiten.${o.p2}\n\n${o.sign}`],
+    },
+    es: {
+      hi: (f) => (f ? `Hola, ${f}:` : 'Hola:'),
+      pay: (o) => `Puede hacer la transferencia a ${o.iban} (${o.name}), indicando ${o.no}.`,
+      quote: (o) => `${o.hi}\n\nAdjunto el presupuesto ${o.no} por ${o.amount}, válido hasta el ${o.valid}. Si tiene cualquier pregunta, responda a este correo.\n\nUn saludo,\n${o.sign}`,
+      invoice: (o) => `${o.hi}\n\nAdjunto la factura ${o.no} por ${o.amount}, con vencimiento el ${o.due}.${o.p1}\n\n¡Muchas gracias!\n\n${o.sign}`,
+      friendly: (o) => ['Recordatorio amable', `${o.hi}\n\nSolo un recordatorio amable: la factura ${o.no} por ${o.amount} vencía el ${o.dueShort}. Puede que se haya traspapelado.${o.p2}\n\n¿Ya la ha pagado? Entonces ignore este mensaje, ¡y gracias!\n\n${o.sign}`],
+      firm: (o) => ['Recordatorio: factura vencida', `${o.hi}\n\nLa factura ${o.no} por ${o.amount} lleva ya ${o.late} días vencida. ¿Podría abonarla esta semana?${o.p2}\n\nSi hay algún error, no dude en decírmelo.\n\n${o.sign}`],
+      final: (o) => ['Último recordatorio', `${o.hi}\n\nA pesar de los recordatorios anteriores, la factura ${o.no} por ${o.amount} sigue pendiente (${o.late} días de retraso). Le ruego que la pague en un plazo de 7 días; de lo contrario, tendré que tomar otras medidas.${o.p2}\n\n${o.sign}`],
+    },
+    it: {
+      hi: (f) => (f ? `Ciao ${f},` : 'Buongiorno,'),
+      pay: (o) => `Puoi effettuare il bonifico su ${o.iban} intestato a ${o.name}, con causale ${o.no}.`,
+      quote: (o) => `${o.hi}\n\nin allegato trovi il preventivo ${o.no} di ${o.amount}, valido fino al ${o.valid}. Per qualsiasi domanda, rispondi pure a questa email.\n\nA presto,\n${o.sign}`,
+      invoice: (o) => `${o.hi}\n\nin allegato trovi la fattura ${o.no} di ${o.amount}, da pagare entro il ${o.due}.${o.p1}\n\nGrazie mille!\n\n${o.sign}`,
+      friendly: (o) => ['Promemoria', `${o.hi}\n\nsolo un piccolo promemoria: la fattura ${o.no} di ${o.amount} scadeva il ${o.dueShort}. Forse ti è sfuggita.${o.p2}\n\nHai già pagato? Allora ignora pure questo messaggio, e grazie!\n\n${o.sign}`],
+      firm: (o) => ['Sollecito: fattura scaduta', `${o.hi}\n\nla fattura ${o.no} di ${o.amount} è scaduta da ${o.late} giorni. Potresti saldarla entro questa settimana?${o.p2}\n\nSe c’è qualcosa che non torna, fammelo sapere.\n\n${o.sign}`],
+      final: (o) => ['Ultimo sollecito', `${o.hi}\n\nnonostante i precedenti solleciti, la fattura ${o.no} di ${o.amount} risulta ancora da pagare (${o.late} giorni di ritardo). Ti chiedo di saldarla entro 7 giorni, dopodiché dovrò purtroppo procedere per altre vie.${o.p2}\n\n${o.sign}`],
+    },
+    'pt-br': {
+      hi: (f) => (f ? `Olá, ${f},` : 'Olá,'),
+      pay: (o) => `Você pode transferir para ${o.iban} (${o.name}), informando ${o.no}.`,
+      quote: (o) => `${o.hi}\n\nSegue em anexo o orçamento ${o.no} no valor de ${o.amount}, válido até ${o.valid}. Qualquer dúvida, é só responder este e-mail.\n\nAbraço,\n${o.sign}`,
+      invoice: (o) => `${o.hi}\n\nSegue em anexo a fatura ${o.no} no valor de ${o.amount}, com vencimento em ${o.due}.${o.p1}\n\nMuito obrigado!\n\n${o.sign}`,
+      friendly: (o) => ['Lembrete amigável', `${o.hi}\n\nSó um lembrete amigável: a fatura ${o.no} no valor de ${o.amount} venceu em ${o.dueShort}. Talvez tenha passado despercebida.${o.p2}\n\nJá pagou? Então pode ignorar esta mensagem. Obrigado!\n\n${o.sign}`],
+      firm: (o) => ['Lembrete: fatura vencida', `${o.hi}\n\nA fatura ${o.no} no valor de ${o.amount} está vencida há ${o.late} dias. Você consegue quitá-la esta semana?${o.p2}\n\nSe houver algo errado, é só me avisar.\n\n${o.sign}`],
+      final: (o) => ['Último aviso', `${o.hi}\n\nApesar dos lembretes anteriores, a fatura ${o.no} no valor de ${o.amount} continua em aberto (${o.late} dias de atraso). Peço que o pagamento seja feito em até 7 dias; depois disso, terei que tomar outras providências.${o.p2}\n\n${o.sign}`],
+    },
+  };
+  // i18n: end
+  // The facts of the current invoice, ready for the texts above.
+  function mailFacts(lang, amount) {
+    const s = BW.settings, c = cur.client || {}, M = MAILS[lang] || MAILS.en;
+    const date = (iso, o) => BW.fmtDate(iso, o || { day: 'numeric', month: 'long', year: 'numeric' }, lang);
+    const o = { no: cur.number, amount, iban: s.iban, name: s.businessName, valid: date(cur.validUntil), due: date(cur.dueDate), dueShort: date(cur.dueDate, { day: 'numeric', month: 'long' }),
+      late: Math.max(0, Math.round((Date.parse(BW.today()) - Date.parse(cur.dueDate)) / 864e5)),
+      sign: [s.ownerName, s.businessName].filter((x, i, a) => x && a.indexOf(x) === i).join('\n'), hi: M.hi((c.contact || '').trim().split(/\s+/)[0]) };
+    const pay = s.iban ? M.pay(o) : '';
+    return Object.assign(o, { p1: pay ? '\n' + pay : '', p2: pay ? '\n\n' + pay : '', M });
+  }
+
   function emailText() {
-    const s = BW.settings, lang = cur.lang || s.docLang, nl = lang === 'nl', Lb = L(), c = cur.client;
-    const first = (c.contact || '').trim().split(/\s+/)[0];
-    const amount = BW.money(cur.kind === 'invoice' ? BW.balanceOf(cur) : total(cur), cur.currency, lang);
-    const date = (iso) => BW.fmtDate(iso, { day: 'numeric', month: 'long', year: 'numeric' }, lang);
-    const sign = [s.ownerName, s.businessName].filter((x, i, a) => x && a.indexOf(x) === i).join('\n');
+    const s = BW.settings, lang = cur.lang || s.docLang, Lb = L();
+    const o = mailFacts(lang, BW.money(cur.kind === 'invoice' ? BW.balanceOf(cur) : total(cur), cur.currency, lang));
     const subject = `${cur.kind === 'quote' ? Lb.quote : cur.kind === 'credit' ? Lb.credit : Lb.invoice} ${cur.number} – ${s.businessName}`;
-    let body;
-    if (nl) {
-      body = `${first ? 'Hoi ' + first : 'Hallo'},\n\n` + (cur.kind === 'quote'
-        ? `In de bijlage vind je offerte ${cur.number} van ${amount}. De offerte is geldig tot ${date(cur.validUntil)}. Vragen? Laat het gerust weten!\n\nGroet,\n`
-        : `In de bijlage vind je factuur ${cur.number} van ${amount}, te betalen vóór ${date(cur.dueDate)}.${s.iban ? `\nJe kunt het bedrag overmaken naar ${s.iban} t.n.v. ${s.businessName}, onder vermelding van ${cur.number}.` : ''}\n\nAlvast bedankt!\n\n`) + sign;
-    } else {
-      body = `${first ? 'Hi ' + first : 'Hi there'},\n\n` + (cur.kind === 'quote'
-        ? `Please find attached quote ${cur.number} for ${amount}. It's valid until ${date(cur.validUntil)}. Any questions? Just reply to this email.\n\nBest wishes,\n`
-        : `Please find attached invoice ${cur.number} for ${amount}, due on ${date(cur.dueDate)}.${s.iban ? `\nYou can transfer it to ${s.iban} (${s.businessName}), mentioning ${cur.number}.` : ''}\n\nThanks so much!\n\n`) + sign;
-    }
-    return { subject, body };
+    return { subject, body: cur.kind === 'quote' ? o.M.quote(o) : o.M.invoice(o) };
   }
 
   function mailButtons(to, subject, body) {
@@ -588,7 +645,7 @@
           <li><i>3</i><div><b>Attach the PDF and hit send</b><small>Drag <b>${esc(r.name)}</b> into the email. That’s it!</small></div></li>
         </ol>
         <details style="margin-top:20px"><summary style="cursor:pointer;font-weight:750">See the message</summary>
-          <div class="mail-preview"><b>${esc(subject)}</b>\n\n${esc(body)}</div><button class="btn" data-copy>📋 Copy message</button></details>`,
+          <div class="mail-preview" translate="no"><b>${esc(subject)}</b>\n\n${esc(body)}</div><button class="btn" data-copy>📋 Copy message</button></details>`,
         actions: [{ label: 'Done 👍', kind: 'primary' }],
       });
       const dl = $('[data-dl]', m.el); if (dl) dl.onclick = () => BW.download(r.blob, r.name);
@@ -624,29 +681,16 @@
       });
     },
     remind() {
-      const s = BW.settings, lang = cur.lang || s.docLang, nl = lang === 'nl', c = cur.client || {};
-      const first = (c.contact || '').trim().split(/\s+/)[0];
-      const late = Math.max(0, Math.round((Date.parse(BW.today()) - Date.parse(cur.dueDate)) / 864e5));
-      const amount = BW.money(BW.balanceOf(cur), cur.currency, lang), due = BW.fmtDate(cur.dueDate, { day: 'numeric', month: 'long' }, lang);
-      const sign = [s.ownerName, s.businessName].filter((x, i, a) => x && a.indexOf(x) === i).join('\n');
-      const pay = s.iban ? (nl ? `\n\nJe kunt het bedrag overmaken naar ${s.iban} t.n.v. ${s.businessName}, onder vermelding van ${cur.number}.` : `\n\nYou can transfer it to ${s.iban} (${s.businessName}), mentioning ${cur.number}.`) : '';
-      const hi = nl ? (first ? `Hoi ${first},` : 'Hallo,') : (first ? `Hi ${first},` : 'Hi there,');
-      const TONES = nl ? {
-        friendly: ['Vriendelijke herinnering', `${hi}\n\nEven een vriendelijk seintje: factuur ${cur.number} van ${amount} stond open tot ${due}. Misschien is hij tussen wal en schip geraakt?${pay}\n\nAl betaald? Dan mag je dit bericht negeren. Dank je wel!\n\n${sign}`],
-        firm: ['Herinnering: factuur verlopen', `${hi}\n\nFactuur ${cur.number} van ${amount} is inmiddels ${late} dagen over de betaaltermijn. Wil je hem deze week voldoen?${pay}\n\nLaat het gerust weten als er iets niet klopt.\n\n${sign}`],
-        final: ['Laatste herinnering', `${hi}\n\nOndanks eerdere herinneringen staat factuur ${cur.number} van ${amount} nog open (${late} dagen te laat). Ik vraag je het bedrag binnen 7 dagen te betalen. Daarna moet ik helaas verdere stappen zetten.${pay}\n\n${sign}`],
-      } : {
-        friendly: ['Friendly reminder', `${hi}\n\nJust a friendly nudge: invoice ${cur.number} for ${amount} was due on ${due}. It may have slipped through the cracks.${pay}\n\nAlready paid? Then please ignore this, and thank you!\n\n${sign}`],
-        firm: ['Reminder: invoice overdue', `${hi}\n\nInvoice ${cur.number} for ${amount} is now ${late} days past its due date. Could you settle it this week?${pay}\n\nIf anything is wrong with it, just let me know.\n\n${sign}`],
-        final: ['Final reminder', `${hi}\n\nDespite earlier reminders, invoice ${cur.number} for ${amount} is still open (${late} days late). Please pay within 7 days, after which I will have to take further steps.${pay}\n\n${sign}`],
-      };
+      const s = BW.settings, lang = cur.lang || s.docLang, c = cur.client || {};
+      const o = mailFacts(lang, BW.money(BW.balanceOf(cur), cur.currency, lang)), late = o.late;
+      const TONES = { friendly: o.M.friendly(o), firm: o.M.firm(o), final: o.M.final(o) };
       let tone = (cur.reminders || []).length >= 2 ? 'final' : (cur.reminders || []).length ? 'firm' : 'friendly';
       const box = document.createElement('div');
       const draw = () => {
         const [subj, body] = TONES[tone];
         const subject = `${subj}: ${cur.number}`;
         box.innerHTML = `<div class="choice-chips" style="margin-bottom:14px">${[['friendly', '🙂 Friendly'], ['firm', '😐 Firm'], ['final', '😤 Final']].map(([k, l]) => `<button type="button" data-tone="${k}" aria-pressed="${tone === k}">${l}</button>`).join('')}</div>
-          <div class="mail-preview"><b>${esc(subject)}</b>\n\n${esc(body)}</div>
+          <div class="mail-preview" translate="no"><b>${esc(subject)}</b>\n\n${esc(body)}</div>
           <p class="muted" style="margin:8px 0 12px">Tip: attach the invoice PDF again. ${late ? `It’s ${late} days late.` : ''}</p>
           ${mailButtons(c.email || '', subject, body)}`;
         $$('[data-tone]', box).forEach((b) => b.onclick = () => { tone = b.dataset.tone; draw(); });

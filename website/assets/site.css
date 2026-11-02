@@ -568,3 +568,9 @@ a.tool-card .more { display: inline-block; margin-top: 8px; font-weight: 800; co
 a.card.feat { display: block; color: inherit; text-decoration: none; }
 a.card.feat:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--shadow-c, rgba(0, 0, 0, .25)); }
 a.card.feat .go { display: inline-block; margin-top: 8px; font-weight: 800; font-size: .9rem; color: var(--ink-2); }
+
+/* ---------- language picker in the footer ---------- */
+.langs { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; margin-top: 14px; font-size: .88rem; }
+.langs a { font-weight: 600; color: var(--ink-2); text-decoration: none; }
+.langs a:hover, .langs a:focus-visible { text-decoration: underline; }
+.langs a[aria-current] { color: var(--ink); font-weight: 800; }

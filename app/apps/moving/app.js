@@ -91,7 +91,7 @@
       if (isNew) {
         rec.tasks = H.moveTasks(rec);
         const live = contracts.filter((c) => !c.cancelledAt);
-        rec.tell = H.WHO_TO_TELL.map((who) => ({ who, done: false })).concat(live.map((c) => ({ who: `${c.name || c.provider}${c.provider && c.provider !== c.name ? ' (' + c.provider + ')' : ''}`, contractId: c.id, done: false })));
+        rec.tell = H.WHO_TO_TELL.map((who) => ({ who: BW.t(who), done: false })).concat(live.map((c) => ({ who: `${c.name || c.provider}${c.provider && c.provider !== c.name ? ' (' + c.provider + ')' : ''}`, contractId: c.id, done: false })));
       } else if (moved) {
         // A new date moves the standard tasks with it; your own keep their dates.
         const fresh = H.moveTasks(rec);

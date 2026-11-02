@@ -140,11 +140,15 @@
   };
   BW.suiteApps = () => BW.apps.filter((a) => a.suite === BW.suite);
 
+  // The language Busy speaks (shared/i18n.js) and the rules that usually go with it: a first guess for a new
+  // business, changed any time in its details.
+  const UI_LANG = window.BusyLang || 'en';
+  const LOCAL_RULES = { nl: ['EUR', '21, 9, 0'], de: ['EUR', '19, 7, 0'], es: ['EUR', '21, 10, 4, 0'], it: ['EUR', '22, 10, 5, 4, 0'], 'pt-br': ['BRL', '0'] };
   const DEFAULTS = {
     businessName: '', ownerName: '', email: '', phone: '', website: '',
     address: '', postcode: '', city: '', country: '',
     vatNumber: '', regNumber: '', iban: '', bic: '',
-    currency: 'EUR', vatRates: '21, 9, 0', paymentDays: 14, quoteDays: 30, docLang: 'en',
+    currency: (LOCAL_RULES[UI_LANG] || ['EUR'])[0], vatRates: (LOCAL_RULES[UI_LANG] || [0, '21, 9, 0'])[1], paymentDays: 14, quoteDays: 30, docLang: UI_LANG,
     brandColor: '#FF6B4A', logo: '', logoW: 0, logoH: 0,
   };
 
@@ -160,8 +164,13 @@
   const isoDate = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
   BW.today = () => isoDate(new Date());
   BW.addDays = (iso, n) => { const [y, m, d] = iso.split('-').map(Number); return isoDate(new Date(y, m - 1, d + Number(n))); };
-  // lang ('en' or 'nl') overrides the business default, e.g. for a Dutch client's invoice.
-  BW.locale = (lang) => ((lang || (BW.settings && BW.settings.docLang)) === 'nl' ? 'nl-NL' : 'en-GB');
+  // Dates and amounts on screen follow the language Busy speaks; a document passes its own language
+  // (the invoice language, or a client's), e.g. a German invoice from a Dutch screen.
+  const LOCALES = { en: 'en-GB', nl: 'nl-NL', de: 'de-DE', es: 'es-ES', it: 'it-IT', 'pt-br': 'pt-BR' };
+  BW.locale = (lang) => LOCALES[lang || UI_LANG] || 'en-GB';
+  // Words in the language Busy speaks, for text saved into your files (a starter list, the moving checklist).
+  BW.t = (s) => (window.BusyI18n ? window.BusyI18n.t(s) : s);
+  BW.docLangs = [['en', '🇬🇧 English'], ['nl', '🇳🇱 Nederlands'], ['de', '🇩🇪 Deutsch'], ['es', '🇪🇸 Español'], ['it', '🇮🇹 Italiano'], ['pt-br', '🇧🇷 Português']];
   BW.fmtDate = (iso, opts, lang) => {
     if (!iso) return '';
     const [y, m, d] = iso.split('-').map(Number);
@@ -854,7 +863,7 @@
       { k: 'currency', label: 'Currency', type: 'select', options: CURRENCIES.map((c) => [c, c]) },
       { k: 'vatRates', label: 'VAT rates you use (%)', ph: '21, 9, 0', hint: 'The first one is your default.' },
       { k: 'paymentDays', label: 'Clients pay within', type: 'chips', options: [[7, '7 days'], [14, '14 days'], [30, '30 days']] },
-      { k: 'docLang', label: 'Invoice language', type: 'chips', options: [['en', '🇬🇧 English'], ['nl', '🇳🇱 Nederlands']] },
+      { k: 'docLang', label: 'Invoice language', type: 'chips', options: BW.docLangs },
     ] },
   ];
   // Busy Growth asks about the person, not a business.
@@ -940,7 +949,7 @@
     { k: 'city', label: 'City', ph: 'Utrecht' },
     { k: 'country', label: 'Country', ph: 'Netherlands' },
     { k: 'paymentDays', label: 'Pays within', type: 'select', options: [['', 'My usual terms'], ['7', '7 days'], ['14', '14 days'], ['30', '30 days'], ['60', '60 days']] },
-    { k: 'lang', label: 'Invoice language', type: 'select', options: [['', 'My usual language'], ['en', '🇬🇧 English'], ['nl', '🇳🇱 Nederlands']] },
+    { k: 'lang', label: 'Invoice language', type: 'select', options: [['', 'My usual language']].concat(BW.docLangs) },
     { k: 'rate', label: 'Hourly rate for them', type: 'money', ph: 'My usual rate', hint: 'The Time Tracker bills their hours at this rate.' },
     { k: 'source', label: 'How did they find you?', type: 'select', options: [['', 'Not sure']].concat(SOURCES.map((s) => [s, s])), hint: 'Shows which marketing brings new customers.' },
     { k: 'notes', label: 'Notes', type: 'textarea', span: 2, ph: 'Anything worth remembering: what they like, their dog’s name…' },
@@ -1047,6 +1056,15 @@
     });
   }
 
+  // The language Busy speaks: the computer's own, or the one picked here (kept in this browser or app).
+  const langHtml = () => `<h3 class="section-title"><span>🌐</span>Language</h3>
+    <label class="field"><span>Busy’s language</span><select class="in" data-busy-lang translate="no">${(window.BusyLanguages || [['en', 'English']]).map(([v, l]) => `<option value="${v}" ${v === UI_LANG ? 'selected' : ''}>${l}</option>`).join('')}</select>
+    <em>Busy follows your computer’s language. Pick another one here; your own words stay as you wrote them.</em></label>`;
+  const saveLang = (box) => {
+    const l = BW.$('[data-busy-lang]', box).value;
+    if (l !== UI_LANG && window.BusySetLanguage) setTimeout(() => window.BusySetLanguage(l), 400);
+  };
+
   BW.openSettings = () => {
     if (BW.suite === 'growth') return personSettings(GROWTH_DETAILS, 'What should we call you? 🙂');
     if (BW.suite === 'house') return personSettings(HOUSE_DETAILS, 'Letters need your name 🙂');
@@ -1054,7 +1072,7 @@
     const box = document.createElement('div');
     const render = () => {
       box.innerHTML = STEPS.map((st) => `<h3 class="section-title"><span>${st.emoji}</span>${st.custom === 'look' ? 'Logo and colour' : st.title.replace(/^First things first: /, '').replace(/^./, (c) => c.toUpperCase())}</h3>
-        ${st.custom === 'look' ? lookHtml(data) : fieldsHtml(st.fields, data)}`).join('');
+        ${st.custom === 'look' ? lookHtml(data) : fieldsHtml(st.fields, data)}`).join('') + langHtml();
       bindChips(box);
       bindLook(box, data, () => { readFields(box, data); render(); });
     };
@@ -1066,7 +1084,7 @@
         { label: 'Save', kind: 'primary', onClick: async () => {
           readFields(box, data);
           if (!data.businessName) { BW.toast('Your business needs a name 🙂', '✏️'); return false; }
-          try { await BW.store.saveSettings(data); BW.toast('Saved. Looking sharp!', '✨'); listeners.forEach((fn) => fn('settings')); }
+          try { await BW.store.saveSettings(data); BW.toast('Saved. Looking sharp!', '✨'); listeners.forEach((fn) => fn('settings')); saveLang(box); }
           catch (e) { BW.error(e); return false; }
         } },
       ],
@@ -1076,7 +1094,7 @@
   // Growth and Home: details about a person or a household, not a business.
   function personSettings(fields, needName) {
     const data = Object.assign({}, BW.settings);
-    const box = BW.html(`<div>${fieldsHtml(fields, data)}</div>`);
+    const box = BW.html(`<div>${fieldsHtml(fields, data)}${langHtml()}</div>`);
     bindChips(box);
     BW.modal({
       title: '⚙️ ' + suite().details, body: box, wide: true,
@@ -1085,7 +1103,7 @@
         { label: 'Save', kind: 'primary', onClick: async () => {
           readFields(box, data);
           if (!data.ownerName) { BW.toast(needName, '✏️'); return false; }
-          try { await BW.store.saveSettings(Object.assign(data, { suite: BW.suite })); BW.toast('Saved.', '✨'); listeners.forEach((fn) => fn('settings')); }
+          try { await BW.store.saveSettings(Object.assign(data, { suite: BW.suite })); BW.toast('Saved.', '✨'); listeners.forEach((fn) => fn('settings')); saveLang(box); }
           catch (e) { BW.error(e); return false; }
         } },
       ],

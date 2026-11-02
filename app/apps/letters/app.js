@@ -54,7 +54,7 @@
       const today = BW.today(), c = sel ? contracts.find((x) => x.id === sel.value) : null;
       const to = { name: $('[data-to]', box).value.trim(), address: $('[data-addr]', box).value.trim() };
       const cc = c ? { name: c.name || c.provider, reference: c.reference, end: H.nextEnd(c, today) } : {};
-      const rec = { template: t.id, to: to.name, toAddress: to.address, contractId: c ? c.id : '', title: H.fill(t.title, { me: H.me(BW.settings), to, c: cc, today }).replace(/\[addressee\]/, 'a company'),
+      const rec = { template: t.id, to: to.name, toAddress: to.address, contractId: c ? c.id : '', title: H.fill(t.title, { me: H.me(BW.settings), to, c: cc, today }).replace(`[${H.gap('addressee')}]`, BW.t('a company')),
         body: H.fill(t.body, { me: H.me(BW.settings), to, c: cc, today }) };
       try { await BW.store.put('letters', rec); } catch (e) { BW.error(e); return false; }
       await load(); setTimeout(() => { location.hash = 'edit/' + rec.id; }, 0);

@@ -78,8 +78,8 @@
         "Yes. One click turns an invoice into a credit note with its own number, ready to adjust."
       ],
       [
-        "Can I invoice in Dutch?",
-        "Yes. Choose English or Dutch per business, or per client."
+        "Can I invoice in another language?",
+        "Yes. Invoices and quotes come in English, Dutch, German, Spanish, Italian and Brazilian Portuguese: choose per business, or per client."
       ]
     ],
     "related": [
@@ -360,7 +360,7 @@
       [
         "🧾",
         "VAT return overview",
-        "Per quarter, with the Dutch box numbers, ready to check with your accountant."
+        "Per quarter, ready to check with your accountant, with the Dutch box numbers when you use the Dutch VAT rates."
       ],
       [
         "🐷",
@@ -667,8 +667,8 @@
         "No. They cover the basics in plain language. For anything important, have a lawyer look at it."
       ],
       [
-        "Can I write in Dutch?",
-        "Yes. Write anything you like, or save your own Dutch templates."
+        "Can I write in my own language?",
+        "Yes. Write anything you like, or save your own templates in your language."
       ],
       [
         "Can people sign the documents?",

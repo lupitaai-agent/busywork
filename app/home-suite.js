@@ -35,9 +35,14 @@
       ['grape', '💶', 'Contracts a month', BW.money(H.totalMonthly(live, today)), `${live.length} contract${live.length === 1 ? '' : 's'}`, 'contracts'],
     ].filter(Boolean);
     // Tuck's line: the most pressing thing, or a welcome, or the all-clear.
+    // one sentence per case, so each can be said in another language
+    const decideLine = (d) => {
+      const name = d.contract.name || d.contract.provider, when = d.left === 0 ? BW.t('today') : BW.fmtDate(d.by, { day: 'numeric', month: 'long' });
+      return d.kind === 'term' ? `${name}: the fixed term ends ${when}. Keep it?` : `${name}: the last day to cancel is ${when}. Keep it?`;
+    };
     const [say, mood] = !(papers.length + contracts.length + upkeep.length + inventory.length)
       ? ["Hello, I'm Tuck! Start with your passport: I'll tell you four months before it expires.", 'hello']
-      : decide[0] ? [`${decide[0].contract.name || decide[0].contract.provider}: ${decide[0].kind === 'term' ? 'the fixed term ends' : 'the last day to cancel is'} ${decide[0].left === 0 ? 'today' : BW.fmtDate(decide[0].by, { day: 'numeric', month: 'long' })}. Keep it?`, 'point']
+      : decide[0] ? [decideLine(decide[0]), 'point']
         : expiring[0] ? [`${expiring[0].paper.title}: ${H.when(expiring[0].left)}. Time to renew?`, 'point']
           : due[0] ? [`Upkeep time: ${due[0].task}.`, 'point']
             : move ? [`${H.days(today, move.date)} days to moving day. I'll keep the list.`, 'happy']

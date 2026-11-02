@@ -38,7 +38,7 @@
     const s = BW.settings, lines = [];
     const add = (k, v) => { if (v != null && String(v).trim()) lines.push(`**${k}:** ${String(v).trim()}`); };
     add('Business name', s.businessName); add('Owner', s.ownerName); add('Location', [s.city, s.country].filter(Boolean).join(', '));
-    add('Website', s.website); add('Brand colour', s.brandColor); add('Has a logo', s.logo ? 'yes' : 'no'); add('Writes invoices in', s.docLang === 'nl' ? 'Dutch' : 'English');
+    add('Website', s.website); add('Brand colour', s.brandColor); add('Has a logo', s.logo ? 'yes' : 'no'); add('Writes invoices in', { nl: 'Dutch', de: 'German', es: 'Spanish', it: 'Italian', 'pt-br': 'Brazilian Portuguese' }[s.docLang] || 'English');
     add('Currency', s.currency);
     add('Category (in buyers\' words)', p.category); add('What we sell', p.offer); add('Price level', p.price); add('Area served', p.area);
     add('Sells to', p.market); add('How often people buy the category', (M.CYCLES.find((c) => c[0] === p.cycle) || [])[1]);

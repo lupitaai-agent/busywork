@@ -41,7 +41,7 @@ Questions:
 - Is the invoice generator really free? Yes. No trial, no limits on the number of invoices, no account.
 - Do the invoices meet EU rules? They include what EU invoices need, including sequential numbers, VAT per rate, both parties’ details and reverse-charge wording for EU business clients. Check special cases with your accountant.
 - Can I make credit notes? Yes. One click turns an invoice into a credit note with its own number, ready to adjust.
-- Can I invoice in Dutch? Yes. Choose English or Dutch per business, or per client.
+- Can I invoice in another language? Yes. Invoices and quotes come in English, Dutch, German, Spanish, Italian and Brazilian Portuguese: choose per business, or per client.
 
 ## Client Book
 
@@ -108,7 +108,7 @@ Page: https://busywork.example/business/money.html
 
 What it does:
 - Profit, month by month: Money in and out without VAT, counted when it actually arrives.
-- VAT return overview: Per quarter, with the Dutch box numbers, ready to check with your accountant.
+- VAT return overview: Per quarter, ready to check with your accountant, with the Dutch box numbers when you use the Dutch VAT rates.
 - Keep aside: VAT to pay plus an income-tax pot at the percentage you choose.
 - Who owes you: Unpaid invoices by age: not due, 30, 60 and 60+ days late.
 - The next 90 days: Open and recurring invoices coming in, subscriptions going out.
@@ -174,7 +174,7 @@ What it does:
 
 Questions:
 - Are the agreements legally checked? No. They cover the basics in plain language. For anything important, have a lawyer look at it.
-- Can I write in Dutch? Yes. Write anything you like, or save your own Dutch templates.
+- Can I write in my own language? Yes. Write anything you like, or save your own templates in your language.
 - Can people sign the documents? Not inside the tool yet. Signatures are on the workbench.
 
 ## Brand Kit

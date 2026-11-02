@@ -16,7 +16,9 @@
   BW.shortcut('n', 'Log a trip', () => edit({ date: BW.today(), roundTrip: 1 }));
   async function load() { [trips, clients] = await Promise.all([BW.store.all('trips'), BW.store.all('clients')]); }
 
-  const rate = () => BW.num(BW.settings.kmRate == null ? 0.23 : BW.settings.kmRate);
+  // A first guess per country (what the tax office allowed recently): changed any time under the rate.
+  const KM_RATE = { nl: 0.23, de: 0.30, es: 0.26, it: 0, 'pt-br': 0 };
+  const rate = () => BW.num(BW.settings.kmRate == null ? (KM_RATE[window.BusyLang] ?? 0.23) : BW.settings.kmRate);
   const kmOf = (t) => BW.num(t.km) * (t.roundTrip === 1 || t.roundTrip === '1' ? 2 : 1);
   const clientName = (id) => (clients.find((c) => c.id === id) || {}).name || '';
 
@@ -102,7 +104,7 @@
   function changeRate() {
     BW.modal({
       title: '🧮 Your rate per km',
-      body: `<p style="margin-bottom:14px">The Dutch tax office has allowed €0.23 per business kilometre in recent years. Check the current amount for your country with your accountant.</p>
+      body: `<p style="margin-bottom:14px">The tax office allows an amount per business kilometre: in recent years €0.23 in the Netherlands, €0.30 in Germany and €0.26 in Spain. Check the current amount for your country with your accountant.</p>
         <label class="field"><span>Amount per kilometre</span><input class="in" inputmode="decimal" data-v value="${rate()}"></label>`,
       actions: [{ label: 'Never mind', kind: 'ghost' }, { label: 'Save', kind: 'primary', onClick: async () => {
         const v = BW.num($('[data-v]').value);
