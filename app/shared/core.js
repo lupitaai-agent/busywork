@@ -839,7 +839,7 @@
   // ---------- business details (wizard + settings form share these fields) ----------
   const CURRENCIES = ['EUR', 'USD', 'GBP', 'CHF', 'SEK', 'NOK', 'DKK', 'PLN', 'CAD', 'AUD'];
   const STEPS = [
-    { emoji: '👋', title: "First things first: what's your business called?", sub: 'This goes at the top of every invoice and quote.', fields: [
+    { emoji: '👋', title: "First things first: what's your business called?", short: "What's your business called?", sub: 'This goes at the top of every invoice and quote.', fields: [
       { k: 'businessName', label: 'Business name', ph: 'e.g. Sunny Side Studio', required: true },
       { k: 'ownerName', label: 'Your name', ph: 'e.g. Sam Jansen', hint: 'We use it to sign your emails.' },
     ] },
@@ -1071,7 +1071,7 @@
     const data = Object.assign({}, BW.settings);
     const box = document.createElement('div');
     const render = () => {
-      box.innerHTML = STEPS.map((st) => `<h3 class="section-title"><span>${st.emoji}</span>${st.custom === 'look' ? 'Logo and colour' : st.title.replace(/^First things first: /, '').replace(/^./, (c) => c.toUpperCase())}</h3>
+      box.innerHTML = STEPS.map((st) => `<h3 class="section-title"><span>${st.emoji}</span>${st.custom === 'look' ? 'Logo and colour' : st.short || st.title}</h3>
         ${st.custom === 'look' ? lookHtml(data) : fieldsHtml(st.fields, data)}`).join('') + langHtml();
       bindChips(box);
       bindLook(box, data, () => { readFields(box, data); render(); });
