@@ -10,6 +10,8 @@ import datetime
 import json
 import re
 import sys
+import time
+import urllib.error
 import urllib.request
 from pathlib import Path
 
@@ -32,11 +34,16 @@ def send(src: str) -> None:
     host = re.match(r"https?://([^/]+)", found[0]).group(1)
     body = json.dumps({"host": host, "key": KEY, "keyLocation": f"https://{host}/{KEY}.txt", "urlList": found}).encode()
     req = urllib.request.Request("https://api.indexnow.org/indexnow", data=body, headers={"Content-Type": "application/json; charset=utf-8"})
-    try:
-        with urllib.request.urlopen(req, timeout=30) as r:
-            print(f"IndexNow: {len(found)} pages sent, answer {r.status}")
-    except Exception as e:  # never fail a publish over this
-        print(f"IndexNow: not sent ({e})")
+    for attempt in range(4):  # just after publishing, the key file may not be live yet (403): a minute later it is
+        try:
+            with urllib.request.urlopen(req, timeout=30) as r:
+                return print(f"IndexNow: {len(found)} pages sent, answer {r.status}")
+        except urllib.error.HTTPError as e:
+            if e.code != 403 or attempt == 3:
+                return print(f"IndexNow: not sent ({e})")  # never fail a publish over this
+            time.sleep(60)
+        except Exception as e:
+            return print(f"IndexNow: not sent ({e})")
 
 
 if __name__ == "__main__":
