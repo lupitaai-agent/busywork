@@ -574,3 +574,8 @@ a.card.feat .go { display: inline-block; margin-top: 8px; font-weight: 800; font
 .langs a { font-weight: 600; color: var(--ink-2); text-decoration: none; }
 .langs a:hover, .langs a:focus-visible { text-decoration: underline; }
 .langs a[aria-current] { color: var(--ink); font-weight: 800; }
+
+/* ---------- a place's intro film (place.js): over the room, then gone ---------- */
+.house-film { position: absolute; max-width: none; z-index: 2; pointer-events: none; transition: opacity .6s ease; background: transparent; }
+.house-film.gone { opacity: 0; }
+.house.intro .house-decals, .house.intro [data-house-spots], .house.intro [data-tuck-bubble] { opacity: 0; transition: opacity .4s; }

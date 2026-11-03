@@ -1410,6 +1410,24 @@ PLACE_HEAD = ('<script type="importmap">{{"imports":{{"three":"../assets/vendor/
               '<link rel="preload" href="{first}" as="image">')
 
 
+# The places' intro films (busy-studio render_loops.sh + loops_web.py): assets/<place>/loop-<time>[-<lang>].mp4. Places whose
+# signs carry words (the "Today's puzzles" board) have a film per language; the others show only names, so one film
+# serves every language. An evening without a film in the page's language plays nothing.
+WORDED_SIGNS = {"street", "parlour"}
+
+
+def place_loops(place: str) -> str:
+    out = {}
+    for t in ("morning", "day", "evening"):
+        files = {lang: f"loop-{t}{'' if lang == 'en' else '-' + lang}.mp4" for lang in ["en", *I18N.LANGS]}
+        have = {lang: f for lang, f in files.items() if (SITE / "assets" / place / f).exists()}
+        if place not in WORDED_SIGNS and "en" in have:
+            have = {lang: have["en"] for lang in files}
+        if have:
+            out[t] = {("pt-br" if lang == "pt-br" else lang): f for lang, f in have.items()}
+    return f" data-loops='{json.dumps(out)}'" if out else ""
+
+
 def place_html(place: str, steps: list, card, label: str, model: str = "", next_label: str = "Next room →",
                decals: dict = None, brand: str = "", root: str = "../", height: float = 1, expert: str = "") -> str:
     """A place (assets/place.js) and every room's words as plain HTML (search engines and screen readers read these).
@@ -1424,7 +1442,7 @@ def place_html(place: str, steps: list, card, label: str, model: str = "", next_
         + "</article>" for s in steps)
     words = "".join(f'<template data-decal="{d}"{" data-shown" if shown else ""}>{html}</template>' for d, (html, shown) in (decals or {}).items())
     first = steps[0]
-    return f"""<section class="house house-{place}" data-house data-house-rooms="{root}assets/{place}/rooms.json" data-house-plates="{root}assets/{place}/"{f' data-tuck-model="{model}"' if model else ''}{f' data-guide-height="{height}"' if height != 1 else ''}{f' data-expert="{expert}" data-expert-model="{root}assets/experts/{expert}.glb" data-expert-size="{EXPERTS[expert]["size"]}" data-extra-rooms="{root}assets/experts/rooms.json" data-extra-plates="{root}assets/experts/"' if expert else ''} data-next-label="{e(next_label)}"{f' data-brand-color="{brand}"' if brand else ''} aria-label="{e(label)}">
+    return f"""<section class="house house-{place}" data-house data-house-rooms="{root}assets/{place}/rooms.json" data-house-plates="{root}assets/{place}/"{f' data-tuck-model="{model}"' if model else ''}{f' data-guide-height="{height}"' if height != 1 else ''}{f' data-expert="{expert}" data-expert-model="{root}assets/experts/{expert}.glb" data-expert-size="{EXPERTS[expert]["size"]}" data-extra-rooms="{root}assets/experts/rooms.json" data-extra-plates="{root}assets/experts/"' if expert else ''} data-next-label="{e(next_label)}"{f' data-brand-color="{brand}"' if brand else ''} {place_loops(place)} aria-label="{e(label)}">
     <div class="house-view" data-house-view>
       <img class="house-plate" data-house-plate src="{root}assets/{place}/room-{first.get("plate", first["id"])}-1920.jpg" alt="{e(first["title"])}, rendered in the Busy Studio" fetchpriority="high">
       <div class="house-decals" data-house-decals></div>

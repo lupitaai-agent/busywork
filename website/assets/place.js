@@ -55,7 +55,7 @@ async function start(house) {
   const preload = (id) => ready[id] || (ready[id] = new Promise((ok) => { const i = new Image(); i.onload = i.onerror = ok; i.src = src(id); }));
 
   let at = Math.max(0, steps.findIndex((s) => '#' + s.id === location.hash));
-  let tuck = null, busy = false, focusX = 0.5, frame = null;
+  let tuck = null, busy = false, focusX = 0.5, frame = null, film = null;
 
   // ---------- framing: the 16:9 room covers the view; on narrow screens it pans to what matters ----------
   function layout() {
@@ -64,7 +64,7 @@ async function start(house) {
     if (fh < H) { fh = H; fw = H * 16 / 9; }
     const ox = Math.min(0, Math.max(W - fw, W / 2 - focusX * fw)), oy = (H - fh) / 2;
     frame = { W, H, fw, fh, ox, oy };
-    plates.forEach((p) => Object.assign(p.style, { width: fw + 'px', height: fh + 'px', left: ox + 'px', top: oy + 'px' }));
+    plates.concat(film ? [film] : []).forEach((p) => Object.assign(p.style, { width: fw + 'px', height: fh + 'px', left: ox + 'px', top: oy + 'px' }));
     if (tuck) tuck.frame(frame);
     place();
   }
@@ -314,6 +314,30 @@ async function start(house) {
   });
 
   show(at);
+  intro();
+  // The intro: the first room's short film (busy-studio render_loops.sh: the camera drifts in and back), once, over the
+  // room, then the room itself. It starts and ends on the room's own camera, so the hand-over doesn't jump. Not with
+  // reduced motion or data saving, not in the morning (the films are by day and in the evening), and any tap ends it.
+  function intro() {
+    const loops = house.dataset.loops ? JSON.parse(house.dataset.loops) : null;
+    const lang = (document.documentElement.lang || 'en').toLowerCase();
+    const force = /[?&]film=1\b/.test(location.search);  // ?film=1 plays it anyway (to check it, with reduced motion on)
+    const when = force ? [tod, 'day', 'evening'].find((t) => loops && loops[t]) : tod;
+    const file = loops && at === 0 && loops[when] && (loops[when][lang] || (force && loops[when].en));
+    if (!file || (!force && (matchMedia('(prefers-reduced-motion: reduce)').matches || (navigator.connection && navigator.connection.saveData)))) return;
+    film = document.createElement('video');
+    Object.assign(film, { muted: true, playsInline: true, preload: 'auto', src: base(steps[0].plate) + file });
+    film.className = 'house-film'; film.setAttribute('aria-hidden', 'true');
+    view.append(film); house.classList.add('intro'); layout();
+    const v = film, end = () => {
+      if (v.dataset.end) return;
+      v.dataset.end = '1'; v.classList.add('gone'); house.classList.remove('intro');
+      setTimeout(() => { v.remove(); if (film === v) film = null; }, 700);
+    };
+    v.addEventListener('ended', end); v.addEventListener('error', end);
+    ['pointerdown', 'keydown', 'wheel'].forEach((e) => house.addEventListener(e, end, { once: true, passive: true }));
+    v.play().catch(end);
+  }
   // The live guide, once the page itself is there.
   const expert = house.dataset.expert ? { room: house.dataset.expert, model: house.dataset.expertModel, size: +house.dataset.expertSize || 1 } : null;
   const load = () => tuckIn(view, house.dataset.tuckModel, () => frame, +house.dataset.guideHeight || 1, { tod, src, depth: depthSrc, expert }).then((t) => {
