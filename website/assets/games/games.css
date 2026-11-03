@@ -118,7 +118,7 @@
 .room-gl { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .play.in-room .board-wrap .making { margin-top: 8px; }
 /* the page's own board lies on the wooden one: it takes the taps and keys, the wood shows */
-.room-stage .board { position: absolute; left: 0; top: 0; transform-origin: 0 0; margin: 0; border: 0; border-radius: 0; box-shadow: none; background: transparent; overflow: visible; }
+.room-stage .board { position: absolute; left: 0; top: 0; transform-origin: 0 0; grid-template-rows: repeat(var(--n), minmax(0, 1fr)); margin: 0; border: 0; border-radius: 0; box-shadow: none; background: transparent; overflow: visible; }
 .room-stage .board .cell, .room-stage .board .cell[style*="--g"] { background: transparent !important; color: transparent !important; border-color: transparent !important; text-shadow: none !important; animation: none !important; }
 .room-stage .board .tok, .room-stage .board .num, .room-stage .board .line { opacity: 0; }
 .room-stage .board .cell:focus-visible { outline: 4px solid #ffe066; outline-offset: -6px; }

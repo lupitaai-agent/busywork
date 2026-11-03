@@ -44,7 +44,7 @@ function quadMatrix(w, h, [p0, p1, p2, p3]) {
 
 async function start() {
   if (!game || !play || !webgl()) return;
-  const board = play.querySelector('[data-board]');
+  let board = play.querySelector('[data-board]'); // play.js makes a fresh board for each puzzle: follow it
   if (!board) return;
   const rooms = await fetch(new URL('../parlour/rooms.json', import.meta.url)).then((r) => r.json()).catch(() => null);
   const room = rooms && rooms.rooms.find((r) => r.id === game);
@@ -104,11 +104,13 @@ async function start() {
   const ink = mat(0x24202f, { roughness: 0.6 });
   const tomato = mat(0xd9503f, { roughness: 0.5 });
   const geo = {};
-  const starGeo = (r) => {
-    if (geo.star) return geo.star;
+  const starGeo = (r) => { // one star shape per board size
+    if (geo.star && geo.star.r === r) return geo.star.g;
+    if (geo.star) geo.star.g.dispose();
     const s = new THREE.Shape();
     for (let k = 0; k < 10; k++) { const a = Math.PI / 2 + (k * Math.PI) / 5, rr = k % 2 ? r * 0.45 : r; s[k ? 'lineTo' : 'moveTo'](Math.cos(a) * rr, Math.sin(a) * rr); }
-    return (geo.star = new THREE.ExtrudeGeometry(s, { depth: r * 0.28, bevelEnabled: true, bevelThickness: r * 0.08, bevelSize: r * 0.06, bevelSegments: 2 }));
+    geo.star = { r, g: new THREE.ExtrudeGeometry(s, { depth: r * 0.28, bevelEnabled: true, bevelThickness: r * 0.08, bevelSize: r * 0.06, bevelSegments: 2 }) };
+    return geo.star.g;
   };
   const digits = new Map();
   const digit = (d, fg, bgc) => {
@@ -127,7 +129,7 @@ async function start() {
   };
 
   function draw() {
-    pieces.children.forEach((m) => { if (m.geometry && m.geometry !== geo.star) m.geometry.dispose(); });
+    pieces.children.forEach((m) => { if (m.geometry && m.geometry !== geo.star?.g) m.geometry.dispose(); });
     pieces.clear();
     const N = n(), cs = S / N, cells = [...board.querySelectorAll('.cell')];
     cells.forEach((el, i) => {
@@ -223,8 +225,16 @@ async function start() {
 
   // the board redraws itself on every move: draw after it
   let pending = 0;
-  new MutationObserver(() => { if (!stage.hidden && !pending) pending = requestAnimationFrame(() => { pending = 0; draw(); }); })
-    .observe(board, { attributes: true, childList: true, subtree: true, characterData: true });
+  const watch = new MutationObserver(() => { if (!stage.hidden && !pending) pending = requestAnimationFrame(() => { pending = 0; draw(); }); });
+  const follow = () => watch.observe(board, { attributes: true, childList: true, subtree: true, characterData: true });
+  follow();
+  // a new puzzle (a level, the next day) is a new board in the old one's place: lay that one on the wood instead
+  new MutationObserver(() => {
+    const now = play.querySelector('[data-board]');
+    if (!now || now === board) return;
+    watch.disconnect(); board = now; follow();
+    if (!stage.hidden) { if (board.parentNode !== stage) stage.append(board); layout(); draw(); }
+  }).observe(play, { childList: true, subtree: true });
 
   // ---------- switching ----------
   const label = (on) => { toggle.textContent = on ? t('▦ Flat board') : t('🪑 In the room'); toggle.setAttribute('aria-pressed', String(on)); };
