@@ -93,6 +93,9 @@
     }
     var pre = /^([^A-Za-z\u00C0-\u024F"“‘'(¿¡]+)(\S[\s\S]*)$/.exec(key);
     if (pre && pre[1].trim()) { var rest = look(pre[2], depth + 1); if (rest !== undefined) return pre[1] + rest; }
+    // text between quotes (a note shown as a quote)
+    var q = /^([“"‘'])([\s\S]+)([”"’'])$/.exec(key);
+    if (q) { var inner = look(q[2], depth + 1); if (inner !== undefined) return q[1] + inner + q[3]; }
     // and the text before an arrow or mark at the end ("Finish →")
     var post = /^([\s\S]*[A-Za-z\u00C0-\u024F.?!)])(\s*[→←↗✓✏️⬇️]+)$/.exec(key);
     if (post) { var head = look(post[1], depth + 1); if (head !== undefined) return head + post[2]; }

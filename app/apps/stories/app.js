@@ -40,7 +40,7 @@
       ${stories.length ? `
       <div class="stats rise">
         <div class="card stat" style="--tint:var(--mint)"><div class="k">🎤 Stories</div><div class="v">${stories.length}</div><div class="s">${stories.filter((s) => s.result).length} with a result</div></div>
-        <div class="card stat" style="--tint:var(--sun)"><div class="k">❓ Questions covered</div><div class="v">${covered} of ${cov.length}</div><div class="s">Common interview questions you have a story for</div></div>
+        <div class="card stat" style="--tint:var(--sun)"><div class="k">❓ Questions covered</div><div class="v">${covered} ${BW.t('of')} ${cov.length}</div><div class="s">Common interview questions you have a story for</div></div>
         <div class="card stat" style="--tint:var(--sky)"><div class="k">🔁 Practised</div><div class="v">${stories.reduce((a, s) => a + BW.num(s.practised), 0)}×</div><div class="s">Out loud counts double</div></div>
       </div>
       <div class="filters" data-tab style="margin-bottom:18px"><button type="button" data-v="stories" aria-pressed="${tab === 'stories'}">🎤 My stories</button><button type="button" data-v="questions" aria-pressed="${tab === 'questions'}">❓ Questions</button></div>

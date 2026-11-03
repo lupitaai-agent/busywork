@@ -316,15 +316,16 @@ async function start(house) {
   show(at);
   intro();
   // The intro: the first room's short film (busy-studio render_loops.sh: the camera drifts in and back), once, over the
-  // room, then the room itself. It starts and ends on the room's own camera, so the hand-over doesn't jump. Not with
-  // reduced motion or data saving, not in the morning (the films are by day and in the evening), and any tap ends it.
+  // room, then the room itself. It starts and ends on the room's own camera, so the hand-over doesn't jump. Not when the
+  // visitor saves data, and any tap ends it.
   function intro() {
     const loops = house.dataset.loops ? JSON.parse(house.dataset.loops) : null;
     const lang = (document.documentElement.lang || 'en').toLowerCase();
-    const force = /[?&]film=1\b/.test(location.search);  // ?film=1 plays it anyway (to check it, with reduced motion on)
+    const force = /[?&]film=1\b/.test(location.search);  // ?film=1: a film from another time of day if this one has none (for checking)
     const when = force ? [tod, 'day', 'evening'].find((t) => loops && loops[t]) : tod;
     const file = loops && at === 0 && loops[when] && (loops[when][lang] || (force && loops[when].en));
-    if (!file || (!force && (matchMedia('(prefers-reduced-motion: reduce)').matches || (navigator.connection && navigator.connection.saveData)))) return;
+    // It plays with reduced motion too (the owner's choice, 2026-11-03: the drift is small and slow, like the guides).
+    if (!file || (!force && navigator.connection && navigator.connection.saveData)) return;
     film = document.createElement('video');
     Object.assign(film, { muted: true, playsInline: true, preload: 'auto', src: base(steps[0].plate) + file });
     film.className = 'house-film'; film.setAttribute('aria-hidden', 'true');
