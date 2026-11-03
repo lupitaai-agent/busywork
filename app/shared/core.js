@@ -1112,8 +1112,8 @@
 
   // ---------- connecting storage ----------
   async function welcome() {
-    // The paid edition says where Olaf's requests go; the free download has no AI to mention.
-    const olafHere = await BW.olafInstalled();
+    // The paid edition says where the expert's requests go; the free download has no AI to mention.
+    const expertHere = BW.ivyLibrary || BW.junoLibrary || await BW.olafInstalled();
     return new Promise((resolve) => {
       const ob = overlay(`<div class="ob-card card wide">
         <div class="ob-emoji">👋</div>
@@ -1125,7 +1125,7 @@
             <p>Make a new folder like <b>“${suite().folder}”</b>. <br>Tip: put it inside Google Drive, Dropbox, OneDrive or iCloud Drive and it backs up and syncs by itself.</p>
           </button>
         </div>` : `<div class="idea"><span class="e">🧭</span><div><b>Open Busy in Chrome or Edge.</b> This browser can't save to a folder on your computer, and Busy keeps your business in files, not inside a browser where clearing your history would delete it. Chrome and Edge are free for Mac and Windows: open the same <b>index.html</b> in one of them.</div></div>`}
-        <div class="privacy-note"><span>🔒</span><span><b>Private by design.</b> There's no account and no server, and nothing you type is sent to us.${olafHere ? ' Olaf sends only what you ask it to Anthropic, the maker of Claude, with your own key.' : ''}</span></div>
+        <div class="privacy-note"><span>🔒</span><span><b>Private by design.</b> There's no account and no server, and nothing you type is sent to us.${expertHere ? ' Your AI expert sends only what you ask it to Anthropic, the maker of Claude, with your own key.' : ''}</span></div>
       </div>`);
       const folder = BW.$('[data-folder]', ob);
       if (folder) folder.onclick = async () => {
@@ -1296,7 +1296,7 @@
         else if (await pickFolder()) location.reload();
       }
       if (a.dataset.a === 'browser' && await BW.confirm('Your folder stays exactly as it is. This browser starts with its own separate copy.', { ok: 'Switch' })) {
-        ls.set('bw.mode', 'browser'); location.reload();
+        ls.set('bw.mode' + suite().key, 'browser'); location.reload();
       }
     };
   }
@@ -1634,7 +1634,7 @@
       // Business kept in the browser (older versions offered it): say so plainly, with the way out.
       if (drv.kind === 'browser') {
         if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
-        const warn = BW.html(`<div class="readonly-bar" role="status">⚠️ Your business is saved only in this browser: clearing your browsing data would delete it. ${BW.canUseFolders ? '<button class="link" data-move>Move it to a folder</button>' : '<button class="link" data-backup>Download a backup</button>'}</div>`);
+        const warn = BW.html(`<div class="readonly-bar" role="status">⚠️ ${BW.t(`Your ${suite().noun} is saved only in this browser: clearing your browsing data would delete it.`)} ${BW.canUseFolders ? '<button class="link" data-move>Move it to a folder</button>' : '<button class="link" data-backup>Download a backup</button>'}</div>`);
         bar.append(warn);
         const mv = BW.$('[data-move]', warn); if (mv) mv.onclick = moveToFolder;
         const bk = BW.$('[data-backup]', warn); if (bk) bk.onclick = backup;
@@ -1651,7 +1651,7 @@
     const chip = BW.$('[data-store]', bar);
     chip.hidden = false;
     // A shell's own storage (the website demo, a desktop app) shows its own label.
-    const [icon, label] = drv.kind === 'folder' ? ['📁', drv.label] : drv.kind === 'browser' ? ['🧪', 'This browser'] : ['🎭', drv.label.replace(/^\w/, (c) => c.toUpperCase())];
+    const [icon, label] = drv.kind === 'folder' ? ['📁', drv.label] : drv.kind === 'browser' ? ['🧪', 'This browser'] : ['🎭', BW.t(drv.label).replace(/^./, (c) => c.toUpperCase())];
     BW.$('span', chip).textContent = icon;
     BW.$('.lbl', chip).textContent = label;
     chip.onclick = () => (drv.kind === 'folder' || drv.kind === 'browser' ? storeMenu(chip) : BW.toast(`Saving to ${BW.esc(drv.label)}. Download Busy to keep your ${suite().noun} in your own folder.`, icon));

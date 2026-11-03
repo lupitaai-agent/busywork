@@ -59,8 +59,8 @@
       return `<section class="card dash-card"><h3>📊 Numbers <small>growth comes from more buyers</small></h3>
         <div class="dash-kpis">
           <div><span>New customers this year</span><b>${c.newThisYear}</b><small>from your invoices</small></div>
-          ${['reviews', 'rating'].map((k) => { const dv = delta(k); return `<div><span>${k === 'reviews' ? 'Reviews' : 'Rating'}</span><b>${fmt(last && last[k], k)}</b><small>${dv == null ? (last ? 'as of ' + label(last.month) : 'not recorded yet') : (dv >= 0 ? '+' : '') + (k === 'rating' ? dv.toFixed(1) : dv) + ' since ' + label(first.month)}</small></div>`; }).join('')}
-          <div><span>Think of you first</span><b>${row && wave.n ? Math.round(row.any / wave.n * 100) + '%' : '–'}</b><small>${row ? 'brand survey ' + BW.fmtDate(wave.date) : 'no brand survey yet'}</small></div>
+          ${['reviews', 'rating'].map((k) => { const dv = delta(k); return `<div><span>${k === 'reviews' ? 'Reviews' : 'Rating'}</span><b>${fmt(last && last[k], k)}</b><small>${dv == null ? (last ? `as of ${label(last.month)}` : 'not recorded yet') : (dv >= 0 ? '+' : '') + (k === 'rating' ? dv.toFixed(1) : dv) + ' since ' + label(first.month)}</small></div>`; }).join('')}
+          <div><span>Think of you first</span><b>${row && wave.n ? Math.round(row.any / wave.n * 100) + '%' : '–'}</b><small>${row ? `brand survey ${BW.fmtDate(wave.date)}` : 'no brand survey yet'}</small></div>
         </div>
         <div class="minibars dash-bars">${c.months.map((x) => `<div class="b" title="${x.fresh} new"><em>${x.fresh || ''}</em><i style="height:${x.fresh / max * 100}%"></i><span>${label(x.m).slice(0, 3)}</span></div>`).join('')}</div>
         <small class="faint">New customers per month, from your invoices</small>

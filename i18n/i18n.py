@@ -208,18 +208,21 @@ def ui_text(t: str) -> bool:
     return True
 
 
-def script_strings(text: str) -> list:
+def script_strings(text: str, lines: bool = False) -> list:
     # text written in a document's own language (marked "// i18n: skip" … "// i18n: end") is not screen text
     text = re.sub(r"// i18n: skip.*?// i18n: end", "", text, flags=re.S)
     out = []
     for lit in js_literals(text)[0]:
         out += literal_segments(lit)
+        # in the demo data a text of several lines is a list shown one line at a time: each line too
+        if lines and "\\n" in lit and lit[:1] in "'\"":
+            out += [l for l in (x.strip() for x in lit[1:-1].split("\\n")) if ui_text(l) and not looks_like_code(l)]
     return out
 
 
 # Script files people never see text from (data, engines, libraries) and the pretend demo data.
 # the demo businesses (examples.js and co.) are translated too, so a visitor sees the demo in their language
-SKIP_SCRIPTS = {"vendor", "three-busy.js", "scene.js", "schema.js", "pdf.js", "filetext.js", "qr.js", ".glb.js"}
+SKIP_SCRIPTS = {"vendor", "shared/i18n.js", "three-busy.js", "scene.js", "schema.js", "pdf.js", "filetext.js", "qr.js", ".glb.js"}
 
 
 def app_scripts() -> list:
@@ -245,19 +248,25 @@ def site_pages() -> list:
 
 
 # Words a script asks for with BW.t() that the extractor would take for code (one lowercase word).
-EXTRA_KEYS = ["now"]
+# Sentences put together at runtime that read badly when translated in parts: the whole sentence per case.
+EXTRA_KEYS = ["now", "today", "tomorrow", "yesterday", "of", "at"] + [f"Hi! Where should your {n} live?" for n in ("business", "growth folder", "home folder")] \
+    + [f"Choose a folder for my {n}" for n in ("business", "growth folder", "home folder")] \
+    + [f"Your {n} is saved only in this browser: clearing your browsing data would delete it." for n in ("business", "growth folder", "home folder")]
+# The demo business's weekly tasks: lines inside a Markdown file in examples.js (website demo only)
+DEMO_KEYS = ["Add prices, six photos and the booking link to your Google Business Profile",
+             "Send the review request to the last five finished clients", 'Post the two "before the opening" posts Olaf wrote']
 
 
 def extract(report: bool = False) -> dict:
     keys, per = {}, {}
-    for k in EXTRA_KEYS:
+    for k in EXTRA_KEYS + DEMO_KEYS:
         keys[k] = "app"
     for p in site_pages():
         for s in page_strings(p.read_text()):
             keys.setdefault(s, "site")
     for p in app_scripts():
         text = p.read_text(errors="ignore")
-        for s in (page_strings(text) if p.suffix == ".html" else script_strings(text)):
+        for s in (page_strings(text) if p.suffix == ".html" else script_strings(text, "examples" in p.name)):
             if s not in keys:
                 per[p.name] = per.get(p.name, 0) + len(s.split())
             keys.setdefault(s, "app")
@@ -435,7 +444,7 @@ def app_keys() -> set:
     out = set()
     for p in app_scripts():
         text = p.read_text(errors="ignore")
-        out |= set(page_strings(text) if p.suffix == ".html" else script_strings(text))
+        out |= set(page_strings(text) if p.suffix == ".html" else script_strings(text, "examples" in p.name))
     return out
 
 
@@ -454,14 +463,14 @@ def words_js(lang: str, paths) -> str:
         p = Path(p)
         if p.suffix in (".js", ".html") and "/i18n/" not in p.as_posix():
             text = p.read_text(errors="ignore")
-            keys |= set(page_strings(text) if p.suffix == ".html" else script_strings(text))
+            keys |= set(page_strings(text) if p.suffix == ".html" else script_strings(text, "examples" in p.name))
     return runtime_js(lang, keys)
 
 
 def write_app_words() -> None:
     out = ROOT / "app" / "shared" / "i18n"
     out.mkdir(exist_ok=True)
-    keys = app_keys() | site_script_keys()
+    keys = app_keys() | site_script_keys() | set(EXTRA_KEYS) | set(DEMO_KEYS)
     for lang in LANGS:
         (out / f"{lang}.js").write_text(runtime_js(lang, keys))
     print(f"app/shared/i18n: {len(keys)} pieces of text for {len(LANGS)} languages")

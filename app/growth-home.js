@@ -36,7 +36,7 @@
       G.reviewDue(reviews, today) && ['sun', '🪞', 'Weekly review', 'Due', 'Ten minutes to look back and plan next week', 'review'],
       followUps.length && ['tomato', '⏰', 'Follow-ups due', String(followUps.length), followUps.map((a) => a.company || a.role).slice(0, 3).join(', '), 'jobs'],
       catchUp.length && ['grape', '☕', 'Time to catch up', String(catchUp.length), catchUp.map((c) => c.name).slice(0, 3).join(', '), 'contacts'],
-      ['grape', '🎓', 'Learning this week', `${G.hours(weekMin)}${target ? ` of ${G.hours(target)}` : ''}`, streak > 1 ? `🔥 ${streak} weeks in a row` : doing.length ? `${doing.length} thing${doing.length === 1 ? '' : 's'} on the go` : 'Plan something to learn', 'learning'],
+      ['grape', '🎓', 'Learning this week', target ? `${G.hours(weekMin)} ${BW.t('of')} ${G.hours(target)}` : G.hours(weekMin), streak > 1 ? `🔥 ${streak} weeks in a row` : doing.length ? `${doing.length} thing${doing.length === 1 ? '' : 's'} on the go` : 'Plan something to learn', 'learning'],
       ['sky', '📚', 'To read', String(toRead.length), toRead[0] ? toRead[0].title || toRead[0].url : 'Save what you want to read', 'library'],
       ['sun', '🏆', 'Wins this month', String(winsMonth.length), winsMonth[0] ? winsMonth[0].title : 'Write one down while you remember', 'wins'],
       gap && ['pink', '🧠', 'Biggest gap', esc(gap.name), `${G.LEVELS[BW.num(gap.level) - 1] || 'New'} → ${G.LEVELS[BW.num(gap.target) - 1]}`, 'skills'],

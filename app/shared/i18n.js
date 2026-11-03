@@ -42,13 +42,28 @@
     if (exact) return true;
     var W = (window.BUSY_I18N && window.BUSY_I18N.lang === lang && window.BUSY_I18N.words) || null;
     if (!W) return false;
+    // A page can bring words of its own (an expert's screens: words.js next to it, loaded before this runs).
+    var extra = window.BUSY_I18N_EXTRA && window.BUSY_I18N_EXTRA[lang];
+    if (extra) W = Object.assign({}, W, extra);
     exact = Object.create(null); buckets = Object.create(null);
     Object.keys(W).forEach(function (k) {
       if (!/\{\d+\}/.test(k)) { exact[k] = W[k]; return; }
+      // "Sentence. {0}" where {0} is a button of its own: the sentence alone is a key too
+      var end = /^([^{}]*\S)\s*\{(\d+)\}$/.exec(k), vend = end && new RegExp('^([\\s\\S]*\\S)\\s*\\{' + end[2] + '\\}$').exec(W[k]);
+      if (vend && !/\{\d+\}/.test(vend[1]) && exact[end[1]] === undefined) exact[end[1]] = vend[1];
       var lit = k.replace(/\{\d+\}/g, '').trim();
       if (!lit) return;
       var order = [];
-      var rx = new RegExp('^' + k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\\\{(\d+)\\\}/g, function (m, n) { order.push(+n); return '(.+?)'; }) + '$');
+      var src = k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\\\{(\d+)\\\}/g, function (m, n, at, str) {
+        order.push(+n);
+        // right after a letter it may be an English plural ending: empty, or just "s" when another gap follows;
+        // right after another gap it may be empty too
+        if (str.charAt(at - 1) === '}') return '(.*?)';
+        if (!/[a-z]/.test(str.charAt(at - 1))) return '(.+?)';
+        return str.slice(at + m.length).indexOf('\\{') === 0 ? '((?:es|s)?)' : '(.*?)';
+      });
+      // a gap at the very end after a space is often a button of its own, so it may be missing
+      var rx = new RegExp('^' + src.replace(/ \((\.[*+])\?\)$/, '(?: (.*?))?') + '$');
       var p = { rx: rx, v: W[k], order: order, len: k.length };
       var first = k.charAt(0);
       if (first === '{') any.push(p); else (buckets[first] = buckets[first] || []).push(p);
@@ -62,23 +77,35 @@
   function look(key, depth) {
     var v = exact[key];
     if (v !== undefined || depth > 2) return v;
+    // the exact text after an emoji in front wins over a loose pattern ("📈 Waiting times down 18% in a month")
+    var lead = /^([^A-Za-z\u00C0-\u024F"“‘'(¿¡]+)(\S[\s\S]*)$/.exec(key);
+    if (lead && lead[1].trim() && exact[lead[2]] !== undefined) return lead[1] + exact[lead[2]];
     var list = (buckets[key.charAt(0)] || []).concat(any);
     for (var i = 0; i < list.length; i++) {
       var hit = list[i].rx.exec(key);
       if (!hit) continue;
       v = list[i].v;
       for (var j = 0; j < list[i].order.length; j++) {
-        var val = hit[j + 1], t = /[A-Za-z]/.test(val) ? look(val, depth + 1) : undefined;
-        v = v.split('{' + list[i].order[j] + '}').join(t !== undefined ? t : val);
+        var val = hit[j + 1] || '', vs = /^(\s*)([\s\S]*?)(\s*)$/.exec(val), t = /[A-Za-z]/.test(val) ? look(vs[2], depth + 1) : undefined;
+        v = v.split('{' + list[i].order[j] + '}').join(t !== undefined ? vs[1] + t + vs[3] : val);
       }
-      return v;
+      return v.replace(/\s+$/, '');
     }
     var pre = /^([^A-Za-z\u00C0-\u024F"“‘'(¿¡]+)(\S[\s\S]*)$/.exec(key);
     if (pre && pre[1].trim()) { var rest = look(pre[2], depth + 1); if (rest !== undefined) return pre[1] + rest; }
+    // and the text before an arrow or mark at the end ("Finish →")
+    var post = /^([\s\S]*[A-Za-z\u00C0-\u024F.?!)])(\s*[→←↗✓✏️⬇️]+)$/.exec(key);
+    if (post) { var head = look(post[1], depth + 1); if (head !== undefined) return head + post[2]; }
     if (key.indexOf(' · ') > 0) {
       var parts = key.split(' · '), changed = false;
       for (var k = 0; k < parts.length; k++) { var p = /[A-Za-z]/.test(parts[k]) ? look(parts[k], depth + 1) : undefined; if (p !== undefined) { parts[k] = p; changed = true; } }
       if (changed) return parts.join(' · ');
+    }
+    // a list of names joined with commas ("Service the boiler, Test the smoke alarms"): only when every one is known
+    if (key.indexOf(', ') > 0) {
+      var names = key.split(', '), out = [];
+      for (var q = 0; q < names.length; q++) { var nm = exact[names[q]]; if (nm === undefined) { out = null; break; } out.push(nm); }
+      if (out) return out.join(', ');
     }
     return undefined;
   }

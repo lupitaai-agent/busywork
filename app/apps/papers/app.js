@@ -31,7 +31,7 @@
     const date = p.expires || p.reviewAt;
     if (!date || p.replaced) return '';
     const left = H.days(BW.today(), date), cls = left < 0 ? 'late' : left <= H.warnDays(p.kind) ? 'soon' : 'ok';
-    return `<span class="due ${cls}">${p.expires ? (left < 0 ? 'Expired' : 'Expires') : 'Review'} ${H.when(left)}</span>`;
+    return `<span class="due ${cls}">${BW.t(p.expires ? (left < 0 ? 'Expired' : 'Expires') : 'Review')} ${H.when(left)}</span>`;
   }
 
   function render() {
@@ -48,7 +48,7 @@
         <div class="row-flex"><button class="btn" data-add-files><span class="emo">📎</span> Add scans</button><button class="btn btn-primary btn-big" data-new><span class="emo">＋</span> Add a document</button></div>
       </div>
       ${papers.length ? `
-      ${soon.length ? `<section class="card attention rise"><h2>⏰ Coming up</h2>${soon.slice(0, 6).map((e) => `<a href="#open/${e.paper.id}"><span class="e">${H.kind(e.paper.kind)[1]}</span><span class="main"><b>${esc(e.paper.title || 'A document')}</b><small>${e.paper.expires ? (e.left < 0 ? 'Expired' : 'Expires') : 'Review'} ${H.when(e.left)}, ${BW.fmtDate(e.date)}${e.paper.kind === 'id' && e.left >= 0 ? '. Renewing takes a few weeks: book it now.' : ''}</small></span></a>`).join('')}</section>` : ''}
+      ${soon.length ? `<section class="card attention rise"><h2>⏰ Coming up</h2>${soon.slice(0, 6).map((e) => `<a href="#open/${e.paper.id}"><span class="e">${H.kind(e.paper.kind)[1]}</span><span class="main"><b>${esc(e.paper.title || 'A document')}</b><small>${BW.t(e.paper.expires ? (e.left < 0 ? 'Expired' : 'Expires') : 'Review')} ${H.when(e.left)}, ${BW.fmtDate(e.date)}${e.paper.kind === 'id' && e.left >= 0 ? `. ${BW.t('Renewing takes a few weeks: book it now.')}` : ''}</small></span></a>`).join('')}</section>` : ''}
       <div class="toolbar"><label class="search"><input class="in" type="search" placeholder="Search titles, people, notes and the words inside PDFs" value="${esc(q)}" data-q aria-label="Search documents"></label></div>
       <div class="filters" data-kind style="margin-bottom:10px"><button type="button" data-v="" aria-pressed="${!kind}">All<small>${papers.length}</small></button>${H.KINDS.filter((k) => counts[k[0]]).map((k) => `<button type="button" data-v="${k[0]}" aria-pressed="${kind === k[0]}">${k[1]} ${k[2]}<small>${counts[k[0]]}</small></button>`).join('')}</div>
       ${people.length > 1 ? `<div class="filters" data-person style="margin-bottom:18px"><button type="button" data-v="" aria-pressed="${!person}">Everyone</button>${people.map((n) => `<button type="button" data-v="${esc(n)}" aria-pressed="${person === n}">👤 ${esc(n)}</button>`).join('')}</div>` : '<div style="height:8px"></div>'}

@@ -77,7 +77,7 @@
     return `<div class="row" data-id="${c.id}" tabindex="0">
       <span class="icon-big">${(howLabel(c.how) || '🙂').split(' ')[0]}</span>
       <span class="main"><b>${esc(c.name || 'Someone')}</b>
-        <small class="faint">${[c.role, c.org].filter(Boolean).map(esc).join(' at ') || esc(howLabel(c.how).replace(/^\S+\s/, ''))}</small>
+        <small class="faint">${[c.role, c.org].filter(Boolean).map(esc).join(` ${BW.t('at')} `) || esc(howLabel(c.how).replace(/^\S+\s/, ''))}</small>
         <span class="meta">${c.lastContact ? `<span class="chip chip-grey mini">💬 ${when(c.lastContact)}</span>` : '<span class="chip chip-grey mini">💬 not yet</span>'}${next ? `<span class="chip ${due ? 'chip-sun' : 'chip-grey'} mini">☕ ${due ? 'due ' : ''}${when(next)}</span>` : ''}${G.tags(c.tags).map((t) => `<span class="chip chip-grey mini"># ${esc(t)}</span>`).join('')}</span></span>
       <button class="btn" data-chat="${c.id}" title="Write down that you talked">📝 Log a chat</button>
     </div>`;

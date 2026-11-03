@@ -43,7 +43,7 @@
     const [say, mood] = !(papers.length + contracts.length + upkeep.length + inventory.length)
       ? ["Hello, I'm Tuck! Start with your passport: I'll tell you four months before it expires.", 'hello']
       : decide[0] ? [decideLine(decide[0]), 'point']
-        : expiring[0] ? [`${expiring[0].paper.title}: ${H.when(expiring[0].left)}. Time to renew?`, 'point']
+        : expiring[0] ? [`${BW.t(expiring[0].paper.title)}: ${H.when(expiring[0].left)}. ${BW.t('Time to renew?')}`, 'point']
           : due[0] ? [`Upkeep time: ${due[0].task}.`, 'point']
             : move ? [`${H.days(today, move.date)} days to moving day. I'll keep the list.`, 'happy']
               : ['All quiet at home. Nothing needs you today.', 'happy'];

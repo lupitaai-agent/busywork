@@ -245,7 +245,7 @@
 
   function doneHtml(st) {
     const when = (st.j && st.j.Started) || '';
-    return `<section class="card setup-done rise"><span class="e">🎉</span><div><b>Your marketing is set up${when ? ' since ' + esc(BW.fmtDate(when)) : ''}.</b>
+    return `<section class="card setup-done rise"><span class="e">🎉</span><div><b>${when ? `Your marketing is set up since ${esc(BW.fmtDate(when))}.` : 'Your marketing is set up.'}</b>
       <small>Olaf keeps this dashboard current: the plan, your numbers and the work. Your part is a short check-in each week.</small></div>
       <button class="btn btn-ghost" data-review>Setup topics</button></section>`;
   }
@@ -260,7 +260,7 @@
       ${st.complete ? doneHtml(st) : setupHtml(st)}
       ${j ? `<div class="card coach-hero rise">
           <div><h2>Stage ${Math.min(j.stages.filter((s) => s.done).length + 1, 6)} of 6: ${esc((j.stages.find((s) => !s.done) || { title: 'Keep it going' }).title)}</h2>
-            <p>Next check-in ${esc(j['Next check-in'] || 'when you are ready')}${j['Hours per week'] ? ' · planned around ' + esc(j['Hours per week']) + ' hours a week' : ''}</p></div>
+            <p>Next check-in ${esc(j['Next check-in'] || 'when you are ready')}${j['Hours per week'] ? ` · ${`planned around ${esc(j['Hours per week'])} hours a week`}` : ''}</p></div>
           <div class="row-flex"><button class="btn btn-primary" data-go="weekly">${due ? '⏰ ' : ''}Weekly check-in</button><button class="btn" data-go="monthly">Monthly review</button><button class="btn" data-go="ask">Ask Olaf</button></div>
         </div>
         <div class="card pcard rise" style="margin-bottom:16px"><h3>🧭 Your journey</h3>${stageCards(j.stages)}</div>

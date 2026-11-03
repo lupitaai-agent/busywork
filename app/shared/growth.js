@@ -129,7 +129,7 @@
     while (G.minutesBetween(learning, week, BW.addDays(week, 6)) > 0) { n++; week = BW.addDays(week, -7); }
     return n;
   };
-  G.hours = (min) => { const h = min / 60; return (Math.round(h * 10) / 10).toLocaleString('en-GB') + ' h'; };
+  G.hours = (min) => { const h = min / 60; return (Math.round(h * 10) / 10).toLocaleString(BW.locale()) + ' h'; };
 
   // The brag document: a year of wins in Markdown, grouped by month, with the skills each one proves.
   // For a performance review, a raise conversation or the next CV.

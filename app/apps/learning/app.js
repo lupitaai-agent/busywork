@@ -77,7 +77,7 @@
       <div class="row-flex" style="justify-content:space-between;align-items:flex-start"><b>${emoOf(x)} ${esc(x.title)}</b>
         <span class="status-pill ${x.status === 'done' ? 'done' : x.status === 'doing' ? 'doing' : 'todo'}">${x.status === 'done' ? 'Done' : x.status === 'doing' ? 'Doing' : 'Planned'}</span></div>
       ${x.provider ? `<small class="faint">${esc(x.provider)}</small>` : ''}
-      ${plan ? `<div class="progress-bar"><i style="width:${Math.min(100, min / plan * 100)}%"></i></div><small class="faint">${G.hours(min)} of ${G.hours(plan)}</small>` : min ? `<small class="faint">${G.hours(min)} so far</small>` : ''}
+      ${plan ? `<div class="progress-bar"><i style="width:${Math.min(100, min / plan * 100)}%"></i></div><small class="faint">${G.hours(min)} ${BW.t('of')} ${G.hours(plan)}</small>` : min ? `<small class="faint">${G.hours(min)} so far</small>` : ''}
       ${x.due && x.status !== 'done' ? `<small class="${late ? '' : 'faint'}">${late ? '⏰ Was due' : '📅 Due'} ${BW.fmtDate(x.due)}</small>` : ''}
       ${x.status === 'done' && x.doneAt ? `<small class="faint">✅ Finished ${BW.fmtDate(x.doneAt)}</small>` : ''}
       <span class="meta">${G.skillChips(G.skillIds(x), skills)}</span>

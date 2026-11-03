@@ -24,7 +24,7 @@
     .sort((a, b) => a.date.localeCompare(b.date))
     .map(({ p, date }) => ({ paper: p, date, left: days(today, date) }));
   // Words for "how long until": "in 12 days", "today", "3 days ago".
-  H.when = (left) => (left === 0 ? 'today' : left === 1 ? 'tomorrow' : left > 0 ? (left > 540 ? `in ${Math.round(left / 365)} years` : left > 60 ? `in ${Math.round(left / 30)} months` : `in ${left} days`) : left === -1 ? 'yesterday' : `${-left} days ago`);
+  H.when = (left) => BW.t(left === 0 ? 'today' : left === 1 ? 'tomorrow' : left > 0 ? (left > 540 ? `in ${Math.round(left / 365)} years` : left > 60 ? `in ${Math.round(left / 30)} months` : `in ${left} days`) : left === -1 ? 'yesterday' : `${-left} days ago`);
   // A small search over title, kind, person, tags, notes and the PDF's own text.
   H.search = (list, q, fields = ['title', 'person', 'tags', 'notes', 'reference', 'text', 'name', 'provider', 'room', 'brand', 'task']) => {
     const words = String(q || '').toLowerCase().split(/\s+/).filter(Boolean);

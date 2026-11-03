@@ -2,10 +2,11 @@
 (i18n/work/keys.tsv); `show <from> <count>` prints a batch; translations go in i18n/work/<lang>/<from>.tsv
 as "number<TAB>translation" lines ("=" keeps the English, for names); `merge` checks them (the same
 {0} placeholders, nothing empty) and writes i18n/<lang>.json; `todo` says what is still missing."""
-import json, re, sys
+import json, os, re, sys
 from pathlib import Path
 
-HERE = Path(__file__).resolve().parent
+# I18N_DIR points it at another word list with the same layout (the experts' one in the private repo)
+HERE = Path(os.environ.get("I18N_DIR") or Path(__file__).resolve().parent).resolve()
 WORK = HERE / "work"
 LANGS = ["nl", "de", "es", "it", "pt-br"]
 
