@@ -134,10 +134,20 @@ test('the app never reaches anywhere but Anthropic', () => {
   // Only the AI client calls fetch (the proxy transport goes where a shell says). The offline
   // worker re-fetches the site's own files, and only those. three.js (the live guides) reads the model's
   // own textures from blob: URLs in the page; the security policy keeps every page to itself and Anthropic.
-  const callers = walk(APP).filter((f) => /\bfetch\(/.test(read(f))).map((f) => path.relative(APP, f));
-  assert.deepEqual(callers, [path.join('shared', 'ai.js'), path.join('shared', 'vendor', 'three-busy.js'), 'sw.js']);
+  // The licence check (core.js) asks Lemon Squeezy about a paid expert's key, from the experts' pages only.
+  const callers = walk(APP).filter((f) => /\bfetch\(/.test(read(f))).map((f) => path.relative(APP, f)).sort();
+  assert.deepEqual(callers, [path.join('shared', 'ai.js'), path.join('shared', 'core.js'), path.join('shared', 'vendor', 'three-busy.js'), 'sw.js'].sort());
+  const core = read(path.join(APP, 'shared', 'core.js'));
+  assert.deepEqual(core.match(/\bfetch\([^,]+/g), ["fetch('https://api.lemonsqueezy.com/v1/licenses/' + what"]);
   assert.match(read(path.join(APP, 'sw.js')), /new URL\(req\.url\)\.origin !== location\.origin\) return;/);
   assert.match(read(path.join(APP, 'shared', 'ai.js')), /const API = 'https:\/\/api\.anthropic\.com\/v1\/messages';/);
+});
+
+test('no Lemon Squeezy store or product numbers in this public repository', () => {
+  // They live outside both repositories (~/.busywork-keys/lemonsqueezy.json) and only the private, paid builds
+  // carry them (busywork-olaf build.py, licence_config). The free tools and the website never get a licence config.
+  const files = [...walk(APP), ...walk(path.join(ROOT, 'website'))].filter((f) => /\.(js|html|json)$/.test(f));
+  for (const f of files) assert.ok(!/"ls"\s*:\s*\{\s*"store"/.test(read(f)), `${path.relative(ROOT, f)} has Lemon Squeezy numbers`);
 });
 
 test('core.js loads in a bare sandbox without touching the network', () => {
@@ -167,7 +177,9 @@ test('every tool page carries the strict security policy and no inline script', 
   for (const p of pages) {
     const html = read(p);
     const csp = (html.match(/<meta http-equiv="Content-Security-Policy" content="([^"]+)">/) || [])[1];
-    assert.equal(csp, STRICT, `${path.relative(ROOT, p)} has the strict policy`);
+    // an expert's page may also reach Lemon Squeezy's licence check (shared/core.js, BW.licence)
+    const want = p === olaf ? STRICT.replace('https://api.anthropic.com;', 'https://api.anthropic.com https://api.lemonsqueezy.com;') : STRICT;
+    assert.equal(csp, want, `${path.relative(ROOT, p)} has the strict policy`);
     assert.ok(html.indexOf('Content-Security-Policy') < html.indexOf('<script'), `${path.relative(ROOT, p)}: the policy comes before any script`);
     assert.ok(!/<script(?![^>]*\bsrc=)[^>]*>/.test(html), `${path.relative(ROOT, p)} has an inline script`);
     assert.ok(!/\son[a-z]+="/.test(html), `${path.relative(ROOT, p)} has an inline event handler`);

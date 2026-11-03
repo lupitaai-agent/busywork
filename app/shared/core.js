@@ -69,7 +69,8 @@
   // (shared/places/<place>/<guide>-<pose>.png): Rivet in the Workshop, Pim in the Glasshouse, Tuck in his house.
   // With WebGL the guide stands live in the front room instead (model: shared/places/<place>/<model>.glb.js, see
   // shared/scene.js), at their size next to Tuck. Every room was rendered in the morning, by day and in the evening
-  // (<room>-morning.jpg, <room>.jpg, <room>-evening.jpg): the pictures follow the clock.
+  // (<room>-morning.jpg, <room>.jpg, <room>-evening.jpg): the pictures follow the clock. And in every season:
+  // <room>-winter.jpg, <room>-winter-evening.jpg (summer is the plain picture), picked by the month.
   BW.PLACES = {
     business: { dir: 'workshop', front: 'front', name: 'the Workshop', guide: { name: 'Rivet', poses: ['hello', 'point', 'happy'], model: 'rivet', size: 0.9 }, sign: { left: 37.6, top: 4.6, width: 42.2, height: 11.5 },
       rooms: { brand: 'front', time: 'bench', projects: 'bench', board: 'bench', invoices: 'counter', clients: 'counter', expenses: 'office', money: 'office',
@@ -80,7 +81,15 @@
       rooms: { papers: 'papers', contracts: 'contracts', upkeep: 'upkeep', inventory: 'inventory', letters: 'letters', moving: 'moving', binder: 'binder' } },
   };
   const tod = () => { const h = new Date().getHours(); return h >= 5 && h < 11 ? '-morning' : h >= 11 && h < 17 ? '' : '-evening'; };
-  const placeImg = (room) => `${BW.root}shared/places/${BW.PLACES[BW.suite].dir}/${room}${tod()}.jpg`;
+  // The season as on the website's places (shared/scene.js, the same rule): '' in summer, else '-spring', '-autumn' or
+  // '-winter'. Brazil's seasons are the other way round. ?season=winter to check.
+  BW.season = () => {
+    const asked = (location.search.match(/[?&]season=(spring|summer|autumn|winter)\b/) || [])[1];
+    const north = ['winter', 'winter', 'spring', 'spring', 'spring', 'summer', 'summer', 'summer', 'autumn', 'autumn', 'autumn', 'winter'][new Date().getMonth()];
+    const s = asked || ((document.documentElement.lang || '').toLowerCase() === 'pt-br' ? { spring: 'autumn', summer: 'winter', autumn: 'spring', winter: 'summer' }[north] : north);
+    return s === 'summer' ? '' : '-' + s;
+  };
+  const placeImg = (room) => `${BW.root}shared/places/${BW.PLACES[BW.suite].dir}/${room}${BW.season()}${tod()}.jpg`;
   BW.roomOf = (appId) => { const p = BW.PLACES[BW.suite]; return p && p.rooms[appId] ? placeImg(p.rooms[appId]) : ''; };
   BW.roomPic = (appId) => { const src = BW.roomOf(appId); return src ? `<span class="room-pic" style="background-image:url('${src}')" aria-hidden="true"></span>` : ''; };
   // The home screen's picture: the place's front (the Workshop's sign painted with the business's name).
@@ -97,7 +106,32 @@
     const guide = say && g ? `<div class="place-guide${pose ? '' : ' no-pic'}">${pose ? `<img src="${BW.root}shared/places/${p.dir}/${g.name.toLowerCase()}-${pose}.png" alt="${BW.esc(g.name)}">` : ''}`
       + `<p class="guide-bubble" role="status">${pose ? `<b>${BW.esc(g.name)}</b>` : ''}${BW.esc(say)}</p></div>` : '';
     if (guide) requestAnimationFrame(() => BW.liveBanner(pose));
+    requestAnimationFrame(BW.placeFilm);
     return `<figure class="place-banner${guide ? ' has-guide' : ''}" aria-label="${BW.esc(p.name)}, rendered in the Busy Studio"><div class="place-frame"><img src="${placeImg(p.front)}" alt="">${sign}</div>${back}${guide}</figure>`;
+  };
+  // The place's short film (busy-studio render_loops.sh: the camera drifts in and back, starting and ending on the
+  // front room's own camera), once when the app opens, over the front room; then the room itself. Any tap or key ends
+  // it. shared/places/<place>/loop[-<season>]-<time>.mp4; without one for now, nothing plays. Not when saving data.
+  let film = null;
+  BW.placeFilm = () => {
+    const p = BW.PLACES[BW.suite], el = document.querySelector('.place-banner .place-frame');
+    if (!p || !el) return;
+    if (film) { if (!film.dataset.end) { if (film.parentNode !== el) { el.append(film); film.play().catch(() => {}); } el.closest('.place-banner').classList.add('filming'); } return; }  // the home screen redrew
+    try { if (sessionStorage.getItem('bw.film' + suite().key)) return; sessionStorage.setItem('bw.film' + suite().key, '1'); } catch (e) { /* no storage: play it */ }
+    if (navigator.connection && navigator.connection.saveData) return;
+    const v = film = document.createElement('video');
+    Object.assign(v, { muted: true, playsInline: true, preload: 'auto', src: `${BW.root}shared/places/${p.dir}/loop${BW.season()}-${tod().slice(1) || 'day'}.mp4` });
+    v.className = 'place-film'; v.setAttribute('aria-hidden', 'true');
+    const end = () => {
+      if (v.dataset.end) return;
+      v.dataset.end = '1'; v.classList.add('gone');
+      const fig = v.closest('.place-banner'); if (fig) fig.classList.remove('filming');
+      setTimeout(() => v.remove(), 700);
+    };
+    v.addEventListener('ended', end); v.addEventListener('error', end);
+    ['pointerdown', 'keydown', 'wheel'].forEach((e) => addEventListener(e, end, { once: true, passive: true }));
+    el.append(v); el.closest('.place-banner').classList.add('filming');
+    v.play().catch(end);
   };
   // The live guide on the home screen (shared/scene.js): loaded once, then moved into each new banner when the home
   // screen redraws. The drawn pose stays when there's no WebGL, or while it loads.
@@ -484,7 +518,11 @@
   try { channel = new BroadcastChannel('busywork'); } catch (e) { /* older browser */ }
   const listeners = [];
   BW.onChange = (fn) => listeners.push(fn);
-  const notify = (name) => { if (channel) channel.postMessage({ name }); };
+  // other tabs hear of a save through the channel; this page through 'bw:saved' (shared/roomlife.js listens)
+  const notify = (name) => {
+    if (channel) channel.postMessage({ name });
+    try { document.dispatchEvent(new CustomEvent('bw:saved', { detail: name })); } catch (e) { /* no events here (tests) */ }
+  };
   if (channel) channel.onmessage = (e) => listeners.forEach((fn) => fn(e.data.name));
   // Files may change underneath us (Google Drive sync, another device), so re-read on focus.
   window.addEventListener('focus', () => { if (drv) listeners.forEach((fn) => fn('*')); });
@@ -1505,11 +1543,42 @@
     } catch (e) { return { ok: false, reason: 'signature' }; }
   }
   const b64u = (s) => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((s.length + 3) % 4)), (c) => c.charCodeAt(0));
+  // Or a Lemon Squeezy licence key: the checkout emails one with every order (a code like 38b1460a-5104-4067-a91d-
+  // 77b872934d51). Busy checks it online once, on this computer, with Lemon Squeezy, whose answer says which product it
+  // was sold for (BW.licenceConfig[product].ls = { store, product }: the build's LS_STORE_ID and <EXPERT>_LS_PRODUCT_ID),
+  // then keeps it in the folder like a signed licence. About once a month, when online, Busy asks again, so a refunded
+  // key stops working; without a connection it simply keeps working. Only the key goes to Lemon Squeezy.
+  const LS_KEY = /\b[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}\b/;
+  const LS_AGAIN = 30 * 864e5;
+  const lsCall = (what, body) => fetch('https://api.lemonsqueezy.com/v1/licenses/' + what,
+    { method: 'POST', headers: { Accept: 'application/json' }, body: new URLSearchParams(body) }).then((r) => r.json());
+  async function lsCheck(key, product, config, instance) {
+    const ls = config && config.ls;
+    if (!ls || !ls.store || !ls.product) return { ok: false, reason: 'format' };
+    let a;
+    try { a = await (instance ? lsCall('validate', { license_key: key, instance_id: instance }) : lsCall('activate', { license_key: key, instance_name: 'Busy · ' + product })); }
+    catch (e) { return { ok: false, reason: 'offline' }; }
+    const lk = (a && a.license_key) || {}, meta = (a && a.meta) || {};
+    if (!a || !(instance ? a.valid : a.activated)) {
+      return { ok: false, reason: lk.status === 'disabled' ? 'revoked' : lk.status === 'expired' ? 'expired' : /limit/i.test(String(a && a.error)) ? 'limit' : 'signature' };
+    }
+    if (String(meta.store_id) !== String(ls.store) || String(meta.product_id) !== String(ls.product)) return { ok: false, reason: 'product' };
+    return { ok: true, text: key, instance: (a.instance && a.instance.id) || instance,
+      licence: { v: 1, id: 'ls-' + (lk.id || key.slice(0, 8)), product, licensee: meta.customer_name || '', email: meta.customer_email || '' } };
+  }
+  // A kept Lemon Squeezy key, asked about again when a month has passed: dropped only when Lemon Squeezy says no.
+  function lsRecheck(r, product) {
+    if (Date.now() - (Date.parse(r.checkedAt) || 0) < LS_AGAIN || (navigator.onLine === false)) return;
+    lsCheck(r.key, product, BW.licenceConfig[product], r.instance).then((v) => {
+      if (v.ok) return BW.store.put('licences', Object.assign(r, { checkedAt: new Date().toISOString() }));
+      if (v.reason !== 'offline') return BW.store.remove('licences', r.id);
+    }).catch(() => { /* next time */ });
+  }
   BW.licenceConfig = BW.licenceConfig || {};
   BW.licence = {
     required: (product) => !!(BW.licenceConfig[product] && BW.licenceConfig[product].required),
     // { ok: true, licence } or { ok: false, reason } with reason one of: format, product, key,
-    // revoked, expired, signature, unsupported.
+    // revoked, expired, signature, unsupported (and for a Lemon Squeezy key: offline, limit).
     // Takes the key on its own, the whole licence file, or a key an email programme wrapped over lines.
     async verify(text, product, config = BW.licenceConfig[product]) {
       text = String(text || '');
@@ -1527,6 +1596,12 @@
     async current(product) {
       for (const r of await BW.store.all('licences')) {
         if (r.product !== product) continue;
+        if (r.kind === 'ls') {  // checked with Lemon Squeezy when it was added
+          const ls = BW.licenceConfig[product] && BW.licenceConfig[product].ls;
+          if (!ls) continue;
+          lsRecheck(r, product);
+          return { v: 1, id: r.licenceId, product, licensee: r.licensee || '' };
+        }
         const v = await BW.licence.verify(r.key, product);
         if (v.ok) return v.licence;
       }
@@ -1534,6 +1609,16 @@
     },
     // Checks a pasted key or the text of a licence file, and keeps it when it is valid.
     async add(text, product) {
+      const lsKey = !/BWL1\./.test(String(text || '')) && (String(text || '').match(LS_KEY) || [])[0];
+      if (lsKey && BW.licenceConfig[product] && BW.licenceConfig[product].ls) {
+        const v = await lsCheck(lsKey, product, BW.licenceConfig[product]);
+        if (v.ok) {
+          const old = (await BW.store.all('licences')).find((r) => r.licenceId === v.licence.id);
+          await BW.store.put('licences', Object.assign(old || {}, { product, kind: 'ls', licenceId: v.licence.id, key: v.text, instance: v.instance,
+            licensee: v.licence.licensee, checkedAt: new Date().toISOString() }));
+        }
+        return v;
+      }
       const v = await BW.licence.verify(text, product);
       if (v.ok) {
         const old = (await BW.store.all('licences')).find((r) => r.licenceId === v.licence.id);
@@ -1549,7 +1634,9 @@
         revoked: 'This licence has been withdrawn. Write to us if you think that is a mistake.',
         expired: 'This licence has ended.',
         signature: 'That licence key isn’t valid. Check that nothing was changed when it was copied.',
-        unsupported: 'This browser can’t check licences. Open Busy in a current Chrome, Edge, Safari or Firefox.' }[reason] || 'That licence key isn’t valid.';
+        unsupported: 'This browser can’t check licences. Open Busy in a current Chrome, Edge, Safari or Firefox.',
+        offline: 'Busy checks a new licence key online once. Connect to the internet and try again.',
+        limit: 'This licence key is already in use on as many computers as it allows. Write to us and we’ll sort it out.' }[reason] || 'That licence key isn’t valid.';
     },
   };
   BW.olafPage = () => BW.siteUrl + '/business/olaf.html';
@@ -1617,6 +1704,21 @@
     } catch (e) { return null; }
   };
 
+  // Some rooms follow the person's own data (shared/roomlife.js): boxes on the stock shelves, envelopes on the counter,
+  // leaves on the trellis, a glowing drawer label. Loaded after the page itself, and only with WebGL.
+  const LIVE_ROOMS = ['stock', 'invoices', 'skills', 'papers'];
+  const roomLife = (appId, band) => setTimeout(async () => {
+    try {
+      const load = (src) => new Promise((ok, no) => { const t = document.createElement('script'); t.src = BW.root + src; t.onload = ok; t.onerror = no; document.head.append(t); });
+      if (!window.BusyScene) await load('shared/scene.js');
+      if (!BusyScene.canGL()) return;
+      if (!window.BusyThree) await load('shared/vendor/three-busy.js');
+      const dir = BW.PLACES[BW.suite].dir;
+      if (!(window.BusyRooms && BusyRooms[dir])) await load(`shared/places/${dir}/rooms.js`);
+      if (!window.BusyRoomLife) await load('shared/roomlife.js');
+      await BusyRoomLife(appId, band, BW.roomOf(appId));
+    } catch (e) { console.info('The room stays as rendered:', e && e.message); }
+  }, 300);
   // Every page calls this once: draws the top bar, connects storage, runs first-time setup, then hands over.
   BW.boot = async ({ app: appId, onReady, onChange } = {}) => {
     BW.root = document.body.dataset.root || '';
@@ -1626,6 +1728,7 @@
     const bar = topbar(app);
     // A tool page opens with a band of the room it lives in; the home screen is called after the suite.
     if (app && BW.roomOf(app.id)) bar.after(BW.html(`<div class="room-band" aria-hidden="true" style="background-image:url('${BW.roomOf(app.id)}')"></div>`));
+    if (app && LIVE_ROOMS.includes(app.id) && BW.roomOf(app.id)) roomLife(app.id, bar.nextElementSibling);
     if (!app) document.title = suite().name;
     else try { localStorage.setItem(lastKey(), JSON.stringify({ id: app.id, at: Date.now() })); } catch (e) { /* private window */ }
     try {

@@ -1,0 +1,25 @@
+{
+ "about": "What changed in Busy, newest first. build.py makes the What's new page (updates.html) and the RSS feed (feed.xml) from it. Add each release here when it goes out.",
+ "updates": [
+  {"version": "0.9.5", "date": "2026-11-03", "title": "Puzzles in their room, and every screen in your language",
+   "items": ["Play the puzzles in their room: on each game, tap In the room for a real wooden board in the Puzzle Parlour.",
+             "Every place opens with a short film, and follows the seasons: spring, summer, autumn and winter.",
+             "Rooms that follow your own work: boxes on the stock shelves, unpaid invoices in the pigeonholes, a leaf on the trellis for every skill, and a drawer label that glows before a document expires.",
+             "Every screen now speaks your language, Olaf, Ivy and Juno included."]},
+  {"version": "0.9.4", "date": "2026-11-02", "title": "Busy speaks your language",
+   "items": ["Busy now speaks Dutch, German, Spanish, Italian and Brazilian Portuguese as well as English.",
+             "Local rules for each country: the right currency and VAT rates, invoices and reminders in six languages, and letters that name your country's law."]},
+  {"version": "0.9.3", "date": "2026-11-01", "title": "Your guide is alive",
+   "items": ["Rivet, Pim and Tuck now stand in the room on your home screen, and turn their head to follow you.",
+             "The rooms follow the clock: in the morning, by day or in the evening, with the light to match."]},
+  {"version": "0.9.2", "date": "2026-11-01", "title": "A guide who says what needs you",
+   "items": ["Your guide says one line on the home screen about what needs you most, like the last day to cancel a contract or an overdue invoice.",
+             "The rooms look better, with proper objects: the van, the counter, the glasshouse door, the jar of wins."]},
+  {"version": "0.9.1", "date": "2026-10-31", "title": "Every app has its own place",
+   "items": ["Each app opens in its own place: the Workshop, the Glasshouse, Tuck's house and the Puzzle Parlour.",
+             "Every tool has its own room, and the top bar jumps straight to any other tool."]},
+  {"version": "0.9.0", "date": "2026-10-27", "title": "Busy as free apps for Mac and Windows",
+   "items": ["Busy Business, Busy Growth, Busy Home and Busy Games as free apps for Mac and Windows, one for each part of your life.",
+             "Your files stay in your own folder as plain files. No account, nothing sent to us."]}
+ ]
+}

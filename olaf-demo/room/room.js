@@ -20,6 +20,11 @@
   const BASE = me.src.replace(/room\.js(\?.*)?$/, '');
   const root = (document.body && document.body.dataset.root) || '../../';
   const h = new Date().getHours(), tod = h >= 5 && h < 11 ? '-morning' : h >= 11 && h < 17 ? '' : '-evening';
+  // the season, as on the home screens (shared/scene.js): Brazil's the other way round; summer is the plain picture
+  const north = ['winter', 'winter', 'spring', 'spring', 'spring', '', '', '', 'autumn', 'autumn', 'autumn', 'winter'][new Date().getMonth()];
+  const asked = (location.search.match(/[?&]season=(spring|summer|autumn|winter)\b/) || [])[1];
+  const sea = asked ? (asked === 'summer' ? '' : asked)
+    : (document.documentElement.lang || '').toLowerCase() === 'pt-br' ? { spring: 'autumn', '': 'winter', autumn: 'spring', winter: '' }[north] : north;
   const load = (src) => new Promise((ok, no) => { const t = document.createElement('script'); t.src = src; t.onload = ok; t.onerror = () => no(new Error('could not load ' + src)); document.head.append(t); });
 
   const css = document.createElement('style');
@@ -83,8 +88,10 @@
     fig = document.createElement('figure');
     fig.className = 'expert-room';
     fig.setAttribute('aria-hidden', 'true');
-    fig.innerHTML = `<div class="place-frame"><img src="${BASE}${NAME}${tod}.jpg" alt=""></div><img class="pose" src="${BASE}${NAME}-hello.png" alt=""><p class="expert-say" hidden></p><div class="expert-tip" hidden></div>`;
+    fig.innerHTML = `<div class="place-frame"><img src="${BASE}${NAME}${sea ? '-' + sea : ''}${tod}.jpg" alt=""></div><img class="pose" src="${BASE}${NAME}-hello.png" alt=""><p class="expert-say" hidden></p><div class="expert-tip" hidden></div>`;
     main.before(fig);
+    const still = fig.querySelector('.place-frame > img');  // a room without this season's picture: the summer one
+    still.addEventListener('error', () => { if (sea) still.src = `${BASE}${NAME}${tod}.jpg`; }, { once: true });
     wrapAi();
     try {
       if (!window.BusyScene) await load(root + 'shared/scene.js');

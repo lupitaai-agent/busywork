@@ -50,6 +50,12 @@ jobs:
           HOME_LIVE: ${{ vars.HOME_LIVE }}
           IVY_CHECKOUT_URL: ${{ vars.IVY_CHECKOUT_URL }}
           JUNO_CHECKOUT_URL: ${{ vars.JUNO_CHECKOUT_URL }}
+      - name: The pages that changed, for IndexNow
+        run: python3 tools/indexnow.py urls indexnow.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: indexnow
+          path: indexnow.txt
       - uses: actions/upload-pages-artifact@v3
         with:
           path: website
@@ -63,3 +69,14 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  # Tells Bing and the other IndexNow search engines which pages changed, once they are live.
+  announce:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: indexnow
+      - run: python3 tools/indexnow.py send indexnow.txt

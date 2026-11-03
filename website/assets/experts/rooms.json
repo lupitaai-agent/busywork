@@ -237,7 +237,12 @@
       "intensity": 0.1
      }
     }
-   }
+   },
+   "seasons": [
+    "spring",
+    "autumn",
+    "winter"
+   ]
   },
   {
    "id": "ivy",
@@ -476,7 +481,12 @@
       "intensity": 0.1
      }
     }
-   }
+   },
+   "seasons": [
+    "spring",
+    "autumn",
+    "winter"
+   ]
   },
   {
    "id": "juno",
@@ -715,7 +725,12 @@
       "intensity": 0.1
      }
     }
-   }
+   },
+   "seasons": [
+    "spring",
+    "autumn",
+    "winter"
+   ]
   }
  ]
 }

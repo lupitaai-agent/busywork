@@ -24,6 +24,8 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 LANGS = {"nl": "Nederlands", "de": "Deutsch", "es": "Español", "it": "Italiano", "pt-br": "Português (Brasil)"}
 HTML_LANG = {"nl": "nl", "de": "de", "es": "es", "it": "it", "pt-br": "pt-BR"}
+# What a shared link says its language is (og:locale), so a Dutch page shared on LinkedIn or WhatsApp is Dutch.
+OG_LOCALE = {"en": "en_GB", "nl": "nl_NL", "de": "de_DE", "es": "es_ES", "it": "it_IT", "pt-br": "pt_BR"}
 # Attributes whose value people read (or hear, with a screen reader).
 TEXT_ATTRS = {"alt", "title", "aria-label", "placeholder", "data-say", "data-title", "data-next-label", "data-label", "label"}
 META_TEXT = {"description", "og:title", "og:description", "og:image:alt", "twitter:image:alt", "twitter:title", "twitter:description"}
@@ -252,6 +254,10 @@ def site_pages() -> list:
 EXTRA_KEYS = ["now", "today", "tomorrow", "yesterday", "of", "at"] + [f"Hi! Where should your {n} live?" for n in ("business", "growth folder", "home folder")] \
     + [f"Choose a folder for my {n}" for n in ("business", "growth folder", "home folder")] \
     + [f"Your {n} is saved only in this browser: clearing your browsing data would delete it." for n in ("business", "growth folder", "home folder")]
+# The words on the share images (tools/share_images.py), made in every language
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
+from share_images import texts as _share_texts  # noqa: E402
+EXTRA_KEYS += _share_texts()
 # The demo business's weekly tasks: lines inside a Markdown file in examples.js (website demo only)
 DEMO_KEYS = ["Add prices, six photos and the booking link to your Google Business Profile",
              "Send the review request to the last five finished clients", 'Post the two "before the opening" posts Olaf wrote']
@@ -419,6 +425,11 @@ def translate_html(text: str, lang: str, rel: str, pages: set, site_url: str) ->
                 v = ", ".join(" ".join([new_url(p.strip().split(" ")[0])] + p.strip().split(" ")[1:]) for p in v.split(","))
             return f"{k}{eq}{q}{v}{q}"
         t = ATTR.sub(attr, t)
+        if name == "meta" and 'property="og:locale:alternate"' in t:  # written afresh with og:locale below
+            return ""
+        if name == "meta" and 'property="og:locale"' in t:  # this page's language, and the others it comes in
+            return f'<meta property="og:locale" content="{OG_LOCALE[lang]}">' + "".join(
+                f'\n<meta property="og:locale:alternate" content="{OG_LOCALE[l]}">' for l in OG_LOCALE if l != lang)
         if name == "html":
             t = re.sub(r'lang="[^"]*"', f'lang="{HTML_LANG[lang]}"', t)
         return t

@@ -424,6 +424,11 @@ select.in { appearance: none; background-image: linear-gradient(45deg, transpare
 .topbar[data-suite="house"] .brandmark .blob { background: #FF8A5B; }
 .room-band { height: 92px; margin-bottom: -40px; background: center 58% / cover no-repeat; opacity: .85;
   -webkit-mask-image: linear-gradient(#000 35%, transparent); mask-image: linear-gradient(#000 35%, transparent); pointer-events: none; }
+/* a room that follows the person's data (roomlife.js): taller, so the shelves, the counter or the trellis show */
+.room-band.alive { position: relative; height: 190px; margin-bottom: -56px; opacity: 1; overflow: hidden; background-repeat: no-repeat;
+  -webkit-mask-image: linear-gradient(#000 62%, transparent); mask-image: linear-gradient(#000 62%, transparent); }
+.room-band .room-life { position: absolute; inset: 0; width: 100%; height: 100%; }
+@media (max-width: 640px) { .room-band.alive { height: 130px; margin-bottom: -40px; } }
 @media print { .room-band { display: none; } }
 
 /* The tool switcher: the crumb opens the suite's tools, each with its room. */

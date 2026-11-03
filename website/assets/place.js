@@ -328,7 +328,9 @@ async function start(house) {
     const loops = house.dataset.loops ? JSON.parse(house.dataset.loops) : null;
     const lang = (document.documentElement.lang || 'en').toLowerCase();
     const force = /[?&]film=1\b/.test(location.search);  // ?film=1: a film from another time of day if this one has none (for checking)
-    const when = force ? [tod, 'day', 'evening'].find((t) => loops && loops[t]) : tod;
+    // this season's film (summer is the plain one), so it hands over to the room as it looks now
+    const sea = season === 'summer' ? '' : season + '-';
+    const when = force ? [tod, 'day', 'evening'].map((t) => sea + t).find((k) => loops && loops[k]) : sea + tod;
     const file = loops && at === 0 && loops[when] && (loops[when][lang] || (force && loops[when].en));
     // It plays with reduced motion too (the owner's choice, 2026-11-03: the drift is small and slow, like the guides).
     if (!file || (!force && navigator.connection && navigator.connection.saveData)) return;
@@ -353,6 +355,9 @@ async function start(house) {
     if (steps[at].move) tuck.play(steps[at].move);
   }, (e) => console.info('The guide stays away:', e && e.message));
   if (!house.dataset.tuckModel) return;  // no guide yet: the rooms, words and bubble work without one
+  // the live guide is a 3 to 4 MB model: on a slow connection, or when saving data, the rooms and words do without it
+  const net = navigator.connection;
+  if (net && (net.saveData || /^(slow-2g|2g|3g)$/.test(net.effectiveType || ''))) return;
   if (document.readyState === 'complete') idle(load); else addEventListener('load', () => idle(load), { once: true });
 }
 

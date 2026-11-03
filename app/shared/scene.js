@@ -5,7 +5,7 @@
    - The room is drawn into the canvas together with its depth (rendered in Unreal too), so the character stands
      behind the furniture, and the room moves a little with the pointer: near things more than far ones.
    - The character is lit by the room's own lights at this time of day (morning, day, evening), exported from Unreal.
-   - The pictures follow the clock: the same room in the morning, by day or in the evening.
+   - The pictures follow the clock: the same room in the morning, by day or in the evening, and the season.
 
    A plain script (no modules), so it also works when the apps are opened from files on disk. The apps load
    shared/vendor/three-busy.js first (window.BusyThree). Without WebGL the page keeps its still picture and the
@@ -22,6 +22,15 @@
   S.canGL = () => { try { return !!document.createElement('canvas').getContext('webgl2'); } catch (e) { return false; } };
   // A room's picture at this time of day, if it was rendered then (else by day).
   S.timeFor = (room, tod = S.timeOfDay()) => (room && room.times && room.times.includes(tod) ? tod : 'day');
+  // The season, by the month (like the website's places): Brazil's seasons are the other way round. ?season=winter to check.
+  S.season = (d = new Date()) => {
+    const asked = (location.search.match(/[?&]season=(spring|summer|autumn|winter)\b/) || [])[1];
+    if (asked) return asked;
+    const north = ['winter', 'winter', 'spring', 'spring', 'spring', 'summer', 'summer', 'summer', 'autumn', 'autumn', 'autumn', 'winter'][d.getMonth()];
+    return (document.documentElement.lang || '').toLowerCase() === 'pt-br' ? { spring: 'autumn', summer: 'winter', autumn: 'spring', winter: 'summer' }[north] : north;
+  };
+  // A room's picture in this season, if it was rendered then: '-winter', or '' (summer, as the rooms always were).
+  S.seasonFor = (room, season = S.season()) => (room && room.seasons && room.seasons.includes(season) ? '-' + season : '');
 
   // ---------- the plate: the room picture with its depth ----------
   // The depth picture holds the inverse distance (grey 0-255 from far to near, see place_web.py). The shader moves
@@ -197,7 +206,8 @@
 
     const tod = S.timeFor(scene);
     const plate = S.plate(THREE);
-    if (scene.depthMap && scene.depth) await plate.load(scene.plates[tod] || scene.plates.day, scene.depthMap, scene.depth);
+    const sea = S.seasonFor(scene).slice(1);
+    if (scene.depthMap && scene.depth) await plate.load((sea && scene.plates[`${sea}-${tod}`]) || scene.plates[tod] || scene.plates.day, scene.depthMap, scene.depth);
     const world = new THREE.Scene();
     const stand = scene.walk.stand;
     world.add(S.lights(THREE, scene, tod, stand));

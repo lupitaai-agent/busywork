@@ -635,7 +635,7 @@ def footer(prefix: str, tools: list) -> str:
         return f'{picks}<li><a href="{prefix}{folder}/index.html#tools">All {len(ts)} tools</a></li>{expert}'
     return f"""<footer class="footer sitemap"><div class="wrap">
   <div><span class="brandmark"><span class="blob">✦</span>Busy</span><p class="faint">Make your paperwork fun again.<br>Free, private tools for work and life.</p>
-    <ul><li><a href="{prefix}about.html">About Busy</a></li><li><a href="{prefix}privacy.html">Privacy</a></li><li><a href="{prefix}terms.html">Terms</a></li></ul><!--langs--></div>
+    <ul><li><a href="{prefix}about.html">About Busy</a></li><li><a href="{prefix}updates.html">What's new</a></li><li><a href="{prefix}press.html">Press</a></li><li><a href="{prefix}privacy.html">Privacy</a></li><li><a href="{prefix}terms.html">Terms</a></li></ul><!--langs--></div>
   <div><b>💼 Busy Business</b><ul>{biz}<li><a href="{prefix}business/tools.html">All {len(tools)} tools</a></li><li><a href="{prefix}business/olaf.html">🧭 Olaf by Busy</a></li></ul>
     <p style="margin-top:22px"><b>🧩 Busy Games</b></p><ul>{games}<li><a href="{prefix}games/index.html">All games</a></li></ul></div>
   <div><b>🌱 Busy Growth</b><ul>{suite("growth", "growth", GROWTH_LIVE, f'<li><a href="{prefix}growth/index.html#ivy">🌿 Ivy by Busy</a></li>')}</ul>
@@ -677,6 +677,8 @@ def head(title: str, desc: str, path: str, prefix: str, extra: str = "", image: 
 IMAGES = {
     "assets/og-busy.png": ("Busy: free, private tools for work and life",
                            "Busy share image: free, private tools for work and life, with suites for business, daily brain games and career growth."),
+    "assets/og-games.png": ("Busy Games: free daily puzzles",
+                            "Busy Games share image: a new puzzle every day, free and without an account, at the puzzle kiosk on Busy Street."),
     "assets/og-olaf.png": ("Olaf by Busy: AI expert for marketing and projects",
                            "Olaf share image: the AI expert for marketing and projects in the paid edition of Busy, in his study above the Workshop."),
     "assets/logo-512.png": ("Busy logo", "The Busy logo: a sun-yellow rounded tile with a dark sparkle."),
@@ -1129,7 +1131,7 @@ def games_hub() -> str:
                  "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in GAMES_FAQ]})
     desc = f"Free daily brain games from Busy: Stars, Duo, Trail and Six. A new logic puzzle every day and {GAME_LEVELS:,} levels each. In your browser or as an app. No account."
     extra = ld + '<link rel="stylesheet" href="../assets/games/games.css">' + PLACE_HEAD.format(first="../assets/parlour/room-kiosk-1920.jpg")
-    return f"""{head("Free brain games: a new puzzle every day · Busy", desc, "games/index.html", "../", extra)}
+    return f"""{head("Free brain games: a new puzzle every day · Busy", desc, "games/index.html", "../", extra, image="og-games.png")}
 <body class="site app-sun" data-hub>
 {nav("../", explore("../"))}
 <main id="main">
@@ -1163,7 +1165,7 @@ def game_page(g: dict) -> str:
     faq = "".join(f"<details><summary>{e(q)}</summary><p>{e(a)}</p></details>" for q, a in faq_items)
     others = "".join(f'<a class="card rel" href="{o["id"]}.html" style="--c:var(--{o["color"]})"><span class="em">{o["emoji"]}</span><b>{e(o["name"])}</b><small>{e(o["lead"])}</small></a>' for o in GAMES if o["id"] != g["id"])
     three = '<script type="importmap">{"imports":{"three":"../assets/vendor/three/build/three.module.min.js"}}</script>'
-    return f"""{head(g["title"], g["desc"], f'games/{g["id"]}.html', "../", ld + '<link rel="stylesheet" href="../assets/games/games.css">' + three)}
+    return f"""{head(g["title"], g["desc"], f'games/{g["id"]}.html', "../", ld + '<link rel="stylesheet" href="../assets/games/games.css">' + three, image="og-games.png")}
 <body class="site app-{g["color"]}" data-game="{g["id"]}">
 {nav("../", explore("../"))}
 <main id="main" class="game-page">
@@ -1416,15 +1418,47 @@ PLACE_HEAD = ('<script type="importmap">{{"imports":{{"three":"../assets/vendor/
 WORDED_SIGNS = {"street", "parlour"}
 
 
+# The places' films as videos for search engines (VideoObject on the page, and the video sitemap): which page shows
+# which place's film, and what to call it. The film with words on its signs comes in each language.
+PAGE_FILM = {"": "street", "business/index.html": "workshop", "growth/index.html": "glasshouse", "home/index.html": "house", "games/index.html": "parlour"}
+FILM_TEXT = {"street": ("Busy Street", "A short film of Busy Street, where every Busy suite has its own building. Rendered in the Busy Studio."),
+             "workshop": ("The Workshop", "A short film of the Workshop, the home of Busy Business: free tools for small businesses. Rendered in the Busy Studio."),
+             "glasshouse": ("The Glasshouse", "A short film of the Glasshouse, the home of Busy Growth: free tools to grow your career. Rendered in the Busy Studio."),
+             "house": ("Tuck's house", "A short film of Tuck's house, the home of Busy Home: free tools for household paperwork. Rendered in the Busy Studio."),
+             "parlour": ("The Puzzle Parlour", "A short film of the Puzzle Parlour, the home of Busy Games: a new puzzle every day. Rendered in the Busy Studio.")}
+
+
+def film_of(place: str, lang: str = "en"):
+    """The VideoObject for a place's daytime film, or None while there is none."""
+    film = SITE / "assets" / place / (f"loop-day-{lang}.mp4" if place in WORDED_SIGNS and lang != "en" else "loop-day.mp4")
+    if not film.exists():
+        film = SITE / "assets" / place / "loop-day.mp4"
+    if not film.exists():
+        return None
+    rooms = json.loads((SITE / "assets" / place / "rooms.json").read_text())["rooms"]
+    tr = (lambda s: s) if lang == "en" else (lambda s: I18N.translate_text(s, lang))
+    name, desc = FILM_TEXT[place]
+    return {"@context": "https://schema.org", "@type": "VideoObject", "name": tr(name), "description": tr(desc),
+            "thumbnailUrl": f"{SITE_URL}/assets/{place}/room-{rooms[0]['id']}-1920.jpg", "uploadDate": "2026-11-03",
+            "duration": "PT8S", "contentUrl": f"{SITE_URL}/assets/{place}/{film.name}", "isFamilyFriendly": True,
+            "inLanguage": "en" if lang == "en" else I18N.HTML_LANG[lang]}
+
+
+def film_ld(place: str, root: str) -> str:
+    v = film_of(place)
+    return jsonld(v) if v else ""
+
+
 def place_loops(place: str) -> str:
-    out = {}
-    for t in ("morning", "day", "evening"):
-        files = {lang: f"loop-{t}{'' if lang == 'en' else '-' + lang}.mp4" for lang in ["en", *I18N.LANGS]}
-        have = {lang: f for lang, f in files.items() if (SITE / "assets" / place / f).exists()}
-        if place not in WORDED_SIGNS and "en" in have:
-            have = {lang: have["en"] for lang in files}
-        if have:
-            out[t] = {("pt-br" if lang == "pt-br" else lang): f for lang, f in have.items()}
+    out = {}  # {"day": {lang: file}, "winter-day": {...}}: summer is the plain one, as with the pictures
+    for season in ("", "spring-", "autumn-", "winter-"):
+        for t in ("morning", "day", "evening"):
+            files = {lang: f"loop-{season}{t}{'' if lang == 'en' else '-' + lang}.mp4" for lang in ["en", *I18N.LANGS]}
+            have = {lang: f for lang, f in files.items() if (SITE / "assets" / place / f).exists()}
+            if place not in WORDED_SIGNS and "en" in have:
+                have = {lang: have["en"] for lang in files}
+            if have:
+                out[season + t] = have
     return f" data-loops='{json.dumps(out)}'" if out else ""
 
 
@@ -1454,7 +1488,7 @@ def place_html(place: str, steps: list, card, label: str, model: str = "", next_
     <nav class="house-nav" aria-label="Rooms"><button type="button" class="btn" data-house-prev>← Back</button><div class="house-dots" data-house-dots></div><button type="button" class="btn btn-primary" data-house-next>{e(next_label)}</button></nav>
     {words}
   </section>
-  <div class="house-rooms">{rooms}</div>"""
+  {film_ld(place, root)}<div class="house-rooms">{rooms}</div>"""
 
 
 def house_html() -> str:
@@ -1857,6 +1891,9 @@ def build_pages() -> None:
     put_block(business / "index.html", "experts", '<section class="section"><div class="wrap">' + expert_intro("olaf", "Rivet", "../app/shared/places/workshop/rivet-hello.png", "#upstairs") + "</div></section>")
     put_place(SITE / "index.html", street_html())
     (SITE / "about.html").write_text(about_page(tools))
+    (SITE / "press.html").write_text(press_page(tools))
+    (SITE / "updates.html").write_text(updates_page(tools))
+    (SITE / "feed.xml").write_text(updates_feed())
     (SITE / "claude-key.html").write_text(claude_key_page(tools))
     (SITE / "growth").mkdir(exist_ok=True)
     (SITE / "growth" / "index.html").write_text(growth_page(tools))
@@ -1881,12 +1918,16 @@ def build_pages() -> None:
     (SITE / "olaf.html").write_text(forward_page("business/olaf.html", 0))
     (SITE / "download.html").write_text(forward_page("business/download.html", 0))
     sync_chrome(tools)
-    pages = (["", "about.html", "claude-key.html", "privacy.html", "terms.html", "business/index.html", "business/tools.html", "business/download.html", "business/olaf.html"]
+    pages = (["", "about.html", "updates.html", "press.html", "claude-key.html", "privacy.html", "terms.html", "business/index.html", "business/tools.html", "business/download.html", "business/olaf.html"]
              + [f'business/{t["id"]}.html' for t in tools] + game_pages + ["growth/index.html", "home/index.html"] + suite_pages)
     today = date.today().isoformat()
     (SITE / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
                                       + "".join(f"  <url><loc>{SITE_URL}/{p}</loc><lastmod>{page_date(p)}</lastmod></url>\n" for p in pages) + "</urlset>\n")
     (SITE / "robots.txt").write_text(robots_txt())
+    # IndexNow's key file: proves to Bing and the others that the pages we announce are ours (tools/indexnow.py)
+    sys.path.insert(0, str(ROOT / "tools"))
+    from indexnow import KEY as INDEXNOW_KEY
+    (SITE / f"{INDEXNOW_KEY}.txt").write_text(INDEXNOW_KEY)
     write_llms(tools)
     (SITE / "site.webmanifest").write_text(json.dumps({"name": "Busy", "short_name": "Busy", "description": ENTITY, "start_url": "/", "display": "browser",
         "theme_color": "#FFC93C", "background_color": "#16141F", "icons": [{"src": "assets/logo-512.png", "sizes": "512x512", "type": "image/png"},
@@ -1993,6 +2034,11 @@ def site_seo() -> None:
                 t = re.sub(r'(<meta property="og:image" content="[^"]*">)', rf'\1<meta property="og:image:alt" content="{alt}">', t, count=1)
         if "og:locale" not in t:
             t = t.replace('<meta name="theme-color"', '<meta property="og:locale" content="en_GB">\n<meta name="theme-color"', 1)
+        if "application/rss+xml" not in t:  # What's new, for feed readers
+            t = t.replace('<meta name="theme-color"', f'<link rel="alternate" type="application/rss+xml" title="Busy: what\'s new" href="{SITE_URL}/feed.xml">\n<meta name="theme-color"', 1)
+        if "og:locale:alternate" not in t:  # the languages a shared link also comes in
+            alts = "".join(f'\n<meta property="og:locale:alternate" content="{l}">' for l in ("nl_NL", "de_DE", "es_ES", "it_IT", "pt_BR"))
+            t = re.sub(r'(<meta property="og:locale" content="en_GB">)', lambda m: m.group(1) + alts, t, count=1)
         if 'name="twitter:image"' not in t:
             t = t.replace('<meta name="twitter:card" content="summary_large_image">', f'<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="{SITE_URL}/assets/{image}"><meta name="twitter:image:alt" content="{alt}">', 1)
         t = re.sub(r'<link rel="icon"[^>]*>(?:<link rel="(?:icon|apple-touch-icon|manifest)"[^>]*>)*', ICONS.replace("{prefix}", prefix), t, count=1)
@@ -2203,6 +2249,89 @@ def about_page(tools: list) -> str:
 """
 
 
+def updates_page(tools: list) -> str:
+    """What's new: every release, newest first (website/content/updates.json), with its RSS feed."""
+    ups = json.loads((SITE / "content" / "updates.json").read_text())["updates"]
+    items = "".join(f'<article class="update" id="v{u["version"]}"><p class="update-when"><b>Busy {e(u["version"])}</b> · <time datetime="{u["date"]}">{e(u["date"])}</time></p>'
+                    f'<h2>{e(u["title"])}</h2><ul>{"".join(f"<li>{e(i)}</li>" for i in u["items"])}</ul></article>' for u in ups)
+    desc = "What's new in Busy: every release of the free apps and the website, newest first."
+    return f"""{head("What's new · Busy", desc, "updates.html", "")}
+<body class="site app-sun">
+{nav("", explore(""))}
+<main class="page">
+  <h1 class="reveal">What's new</h1>
+  <p class="lead reveal">Every release of Busy, newest first.</p>
+  <p><a class="btn" href="feed.xml">📡 RSS feed</a> <a class="btn btn-primary" href="business/download.html">⬇️ Download the apps</a></p>
+  {items}
+</main>
+{footer("", tools)}
+<script src="assets/site.js"></script>
+</body>
+</html>
+"""
+
+
+def updates_feed() -> str:
+    """The RSS feed of What's new, for feed readers and the software directories that follow them."""
+    import datetime
+    from email.utils import format_datetime
+    ups = json.loads((SITE / "content" / "updates.json").read_text())["updates"]
+    when = lambda d: format_datetime(datetime.datetime.fromisoformat(d + "T12:00:00+00:00"))
+    x = lambda s: html.escape(s, quote=False)
+    items = "".join(f"<item><title>{x('Busy ' + u['version'] + ': ' + u['title'])}</title><link>{SITE_URL}/updates.html#v{u['version']}</link>"
+                    f"<guid isPermaLink=\"false\">busy-{u['version']}</guid><pubDate>{when(u['date'])}</pubDate>"
+                    f"<description>{x(' '.join(u['items']))}</description></item>\n" for u in ups)
+    return ('<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel>\n'
+            f"<title>Busy: what's new</title><link>{SITE_URL}/updates.html</link><description>Every release of Busy, free, private tools for work and life.</description>"
+            f'<language>en</language><atom:link href="{SITE_URL}/feed.xml" rel="self" type="application/rss+xml"/>'
+            f"<lastBuildDate>{when(ups[0]['date'])}</lastBuildDate>\n{items}</channel></rss>\n")
+
+
+def press_page(tools: list) -> str:
+    """For journalists, bloggers and directories: what Busy is in a few lines, and the logos, characters, pictures
+    and films to use with it, ready to download."""
+    asset = lambda p, label, kind="", poster="": (f'<figure class="press-item"><a href="{p}" download>'
+                                       + (f'<img src="{p.replace("-1920.jpg", "-1280.jpg")}" alt="{e(label)}" loading="lazy">' if not p.endswith(".mp4") else
+                                          f'<video src="{p}" poster="{poster}" muted loop playsinline preload="none" aria-label="{e(label)}"></video>')
+                                       + f'</a><figcaption>{e(label)}{f"<small>{e(kind)}</small>" if kind else ""}</figcaption></figure>')
+    logos = [("assets/favicon.svg", "Busy logo", "SVG"), ("assets/logo-512.png", "Busy logo", "PNG, 512 px"),
+             ("assets/olaf-mark.svg", "Olaf logo", "SVG"), ("assets/ivy-mark.svg", "Ivy logo", "SVG"), ("assets/juno-mark.svg", "Juno logo", "SVG")]
+    people = [("app/shared/places/house/tuck-hello.png", "Tuck, the guide of Busy Home"), ("app/shared/places/workshop/rivet-hello.png", "Rivet, the guide of Busy Business"),
+              ("app/shared/places/glasshouse/pim-hello.png", "Pim, the guide of Busy Growth"), ("assets/experts/olaf-hello.png", "Olaf, the AI expert for Busy Business"),
+              ("assets/experts/ivy-hello.png", "Ivy, the AI coach for Busy Growth"), ("assets/experts/juno-hello.png", "Juno, the AI expert for Busy Home")]
+    places = [("assets/street/room-wide-1920.jpg", "Busy Street, every suite as a building")] + [
+        (f"assets/{p}/room-{json.loads((SITE / 'assets' / p / 'rooms.json').read_text())['rooms'][0]['id']}-1920.jpg", FILM_TEXT[p][0])
+        for p in ("workshop", "glasshouse", "house", "parlour") if (SITE / "assets" / p / "rooms.json").exists()]
+    films = [(f"assets/{p}/loop-day.mp4", FILM_TEXT[p][0], "MP4", f"assets/{p}/room-{json.loads((SITE / 'assets' / p / 'rooms.json').read_text())['rooms'][0]['id']}-1280.jpg")
+             for p in ("street", "workshop", "glasshouse", "house", "parlour") if (SITE / "assets" / p / "loop-day.mp4").exists()]
+    shares = [(f"assets/{f}", IMAGES["assets/" + f][0]) for f in ("og-busy.png", "og-business.png", "og-games.png", "og-olaf.png", "og-ivy.png", "og-juno.png")]
+    short = "Busy makes free, private tools for work and life. Everything stays in your own folder: no account, no subscription."
+    grid = lambda items, kind="": '<div class="press-grid">' + "".join(asset(it[0], it[1], it[2] if len(it) > 2 else kind, it[3] if len(it) > 3 else "") for it in items) + "</div>"
+    desc = "Press and partners: what Busy is in a few lines, with its logos, characters, pictures and films to download."
+    return f"""{head("Press · Busy", desc, "press.html", "")}
+<body class="site app-sun">
+{nav("", explore(""))}
+<main class="page">
+  <h1 class="reveal">Press and partners</h1>
+  <p class="lead reveal">Writing about Busy, or listing it? Everything here is yours to use with that, as it is.</p>
+  <h2>Busy in a sentence</h2>
+  <p class="press-copy">{e(short)}</p>
+  <h2>Busy in a paragraph</h2>
+  <p class="press-copy">{e(ENTITY)}</p>
+  <p>The name is Busy, written like that, at busy.com.ai. The experts are written Olaf by Busy, Ivy by Busy and Juno by Busy. More facts: <a href="about.html">About Busy</a>.</p>
+  <h2>Logos</h2>{grid(logos)}
+  <h2>The characters</h2><p>Rendered in the Busy Studio. Please keep them as they are: no new poses, words or colours.</p>{grid(people, "PNG")}
+  <h2>The places</h2>{grid(places, "JPG, 1920 px")}
+  <h2>Short films</h2><p>Eight seconds each, made to loop.</p>{grid(films, "MP4")}
+  <h2>Share images</h2>{grid(shares, "PNG, 1200 × 630")}
+</main>
+{footer("", tools)}
+<script src="assets/site.js"></script>
+</body>
+</html>
+"""
+
+
 def apply_site_url() -> None:
     """The hand-written pages carry the placeholder address; the published copies carry the real one.
     Locally nothing changes (the placeholder is the default); on GitHub the workflow passes the domain."""
@@ -2283,6 +2412,9 @@ def translate_site() -> None:
         for lang in I18N.LANGS:
             tags_l, langs_l = lang_links(rel, lang)
             out = I18N.translate_html(text, lang, rel, set(pages), SITE_URL).replace("<!--langs-->", langs_l)
+            # the share image in this language (tools/share_images.py), where there is one
+            out = re.sub(r"/assets/(street|parlour)/loop-day\.mp4", lambda m: f"/assets/{m.group(1)}/loop-day-{lang}.mp4" if (SITE / "assets" / m.group(1) / f"loop-day-{lang}.mp4").exists() else m.group(0), out)
+            out = re.sub(r"/assets/(og-[a-z]+)\.png", lambda m: f"/assets/{m.group(1)}-{lang}.png" if (SITE / "assets" / f"{m.group(1)}-{lang}.png").exists() else m.group(0), out)
             if rel != "404.html":
                 out = re.sub(r'(<link rel="canonical"[^>]*>)', lambda m: m.group(1) + "\n" + tags_l, out, count=1)
             # the moving parts (the guides' lines from scripts, the games) translate in the browser
@@ -2294,17 +2426,39 @@ def translate_site() -> None:
     for lang in I18N.LANGS:
         (SITE / "assets" / "i18n").mkdir(parents=True, exist_ok=True)
         (SITE / "assets" / "i18n" / f"{lang}.js").write_text(I18N.runtime_js(lang, I18N.site_script_keys()))
-    # the sitemap gets every language
+    # the sitemap gets every language, and every address names its versions in the other languages (hreflang), so
+    # search engines find them together and show each person their own; the places' films go in as videos
     sm = SITE / "sitemap.xml"
     text = sm.read_text()
-    extra = "".join(m.group(0).replace(f"<loc>{SITE_URL}/", f"<loc>{SITE_URL}/{lang}/") for lang in I18N.LANGS
-                    for m in re.finditer(r"  <url><loc>[^<]*</loc>(<lastmod>[^<]*</lastmod>)?</url>\n", text))
-    sm.write_text(text.replace("</urlset>", extra + "</urlset>"))
+    hl = {"en": "en", **I18N.HTML_LANG}
+    urls = []
+    for m in re.finditer(r"  <url><loc>([^<]*)</loc>(<lastmod>[^<]*</lastmod>)?</url>\n", text):
+        path, mod = m.group(1)[len(SITE_URL) + 1:], m.group(2) or ""
+        at = {"en": f"{SITE_URL}/{path}", **{l: f"{SITE_URL}/{l}/{path}" for l in I18N.LANGS}}
+        alts = "".join(f'<xhtml:link rel="alternate" hreflang="{hl[l]}" href="{u}"/>' for l, u in at.items()) \
+            + f'<xhtml:link rel="alternate" hreflang="x-default" href="{at["en"]}"/>'
+        for l, u in at.items():
+            urls.append(f"  <url><loc>{u}</loc>{mod}{alts}{video_sitemap(path, l)}</url>\n")
+    sm.write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" '
+                  'xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">\n'
+                  + "".join(urls) + "</urlset>\n")
     n = sum(len(I18N.load(l)[2]) for l in I18N.LANGS)
     if n and os.environ.get("I18N_MISSING"):
         for l in I18N.LANGS:
             print(f"  {l}: " + " | ".join(sorted(I18N.load(l)[2])))
     print(f"website: {len(pages)} pages in {len(I18N.LANGS)} more languages" + (f"; {n} pieces of text still in English" if n else ""))
+
+
+def video_sitemap(path: str, lang: str) -> str:
+    """The place's film on this page, for the video sitemap (Google's video results)."""
+    place = PAGE_FILM.get(path)
+    v = film_of(place, lang) if place else None
+    if not v:
+        return ""
+    x = lambda s: html.escape(s, quote=True)
+    return (f"<video:video><video:thumbnail_loc>{x(v['thumbnailUrl'])}</video:thumbnail_loc><video:title>{x(v['name'])}</video:title>"
+            f"<video:description>{x(v['description'])}</video:description><video:content_loc>{x(v['contentUrl'])}</video:content_loc>"
+            f"<video:duration>8</video:duration><video:family_friendly>yes</video:family_friendly></video:video>")
 
 
 def main() -> None:

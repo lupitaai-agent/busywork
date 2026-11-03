@@ -52,7 +52,16 @@
   sign has words (busy-studio render_loops.sh, loops_web.py; social copies in Busy HQ/releases/social); all four
   seasons for the street and every room, picked by the date and flipped for Brazil (render_places.sh with
   BUSY_SEASON, seasons_web.py); the website's signs painted into the films in each language.
-  Not yet: seasons in the apps' own room pictures and in the experts' rooms; films for the apps.
+  Then (2026-11-03, still 0.9.5): the seasons and the films in the apps too (every room picture, the home screens'
+  live front rooms and the experts' rooms upstairs; a film in each season), and the first rooms that follow the
+  person's own data (app/shared/roomlife.js, live three.js things through the room's own camera: a box on the stock
+  shelves per product with enough in stock and a red tag per one running low, an envelope in the counter's
+  pigeonholes per unpaid invoice, red when overdue, a leaf on the trellis per skill, a glowing drawer label per
+  document that expires soon).
+- Selling the experts, ready on the code side (2026-11-03): Lemon Squeezy's own licence keys, checked online once and
+  about monthly (core.js BW.licence; the paid apps may reach only Anthropic and Lemon Squeezy's licence check), and
+  Developer ID signing plus notarisation that switch on by themselves (busywork-olaf desktop/signing.py). The owner's
+  steps: busywork-olaf docs/checkout-setup.md.
 
 ## Next up
 
@@ -70,8 +79,7 @@ All six characters come from Meshy and go out together. Done, waiting for the pu
   the room's thing, and on Busy Street a second tap goes through the door.
 
 Next for the places:
-- Room objects that follow the user's own data (the stock shelf empties, invoices pile up on the counter,
-  the trellis grows a leaf per skill, a drawer label glows before something expires).
+- More rooms that follow the user's own data (the first four are done: stock, invoices, skills, papers).
 - Short rendered clips for big moments, like Tuck's "Cancelled in time!" cheer, for the other places.
 - More moves from Meshy: a real Typing, Carrying a box and Pointing for Tuck; a clear point for Pim; a
   sitting or writing move for the experts.
@@ -85,10 +93,13 @@ Later, in this order of thinking:
 - **A Dutch version** of the site and the apps (or the language that research points to).
 - **Short videos of the characters** (15–30 seconds, rendered in the Busy Studio) for social media.
 - **A privacy-friendly visitor counter** on the website only, to see which pages and downloads work.
+  The owner's wishes (2026-11-03): discreet, for the owner's eyes only (no public numbers, no banner,
+  no cookies), and downloads counted per category (Business, Growth, Home, Games, and each expert)
+  as one running total that carries on across versions, so a new release continues the count.
 - **Listings:** software directories, then the Mac App Store and Microsoft Store.
-- **Selling the experts:** checkout (EU VAT) and licence keys, plus Apple notarisation so the apps open
-  without a warning. The paid Mac apps are built (busywork-olaf/desktop/build-paid.py).
-- **The places:** rooms that follow your own data, rendered clips for big moments, better moves from Meshy.
+- **Selling the experts:** the code is ready (Lemon Squeezy licence keys, signing and notarisation); waiting
+  for the owner's Lemon Squeezy store and Apple Developer account (busywork-olaf docs/checkout-setup.md).
+- **The places:** more rooms that follow your own data, rendered clips for big moments, better moves from Meshy.
 - **iPhone apps** for the free suites first (a Capacitor wrapper, files in iCloud Drive), the experts later.
 
 ### 1. Project Planner, next steps

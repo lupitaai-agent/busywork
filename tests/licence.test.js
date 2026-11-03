@@ -117,3 +117,74 @@ test('a licence signed by a newer key works once the update ships that key', asy
   BW.licenceConfig.olaf.keys[K2.kid] = K2.pub;
   assert.equal((await BW.licence.verify(key, 'olaf')).ok, true);
 });
+
+// Lemon Squeezy's licence keys: checked online once (here a stand-in for Lemon Squeezy), then kept.
+const LS_KEY = '38B1460A-5104-4067-A91D-77B872934D51';
+function lemon(answers) {
+  const calls = [];
+  const fetch = async (url, opts) => {
+    const what = url.split('/').pop(), body = Object.fromEntries(new URLSearchParams(String(opts.body)));
+    calls.push({ what, body, url });
+    const a = answers[what];
+    if (a instanceof Error) throw a;
+    return { json: async () => (typeof a === 'function' ? a(body) : a) };
+  };
+  return { fetch, calls };
+}
+const sold = (over = {}) => Object.assign({ activated: true, valid: true, error: null,
+  license_key: { id: 77, status: 'active', key: LS_KEY }, instance: { id: 'inst-1' },
+  meta: { store_id: 101, product_id: 303, customer_name: 'Lena de Boer', customer_email: 'lena@example.com' } }, over);
+async function home(fake, ls = { store: '101', product: '303' }) {
+  const win = await busywork([], { fetch: fake.fetch });
+  win.BW.licenceConfig.juno = { required: true, keys: {}, revoked: [], ls };
+  return win.BW;
+}
+
+test('a Lemon Squeezy key for this expert unlocks it, once, and is kept in the folder', async () => {
+  const fake = lemon({ activate: sold() });
+  const BW = await home(fake);
+  const r = await BW.licence.add(`Your licence key: ${LS_KEY}\nThanks!`, 'juno');
+  assert.equal(r.ok, true);
+  assert.equal(r.licence.licensee, 'Lena de Boer');
+  assert.equal(fake.calls.length, 1);
+  assert.equal(fake.calls[0].url, 'https://api.lemonsqueezy.com/v1/licenses/activate');
+  assert.equal(fake.calls[0].body.license_key, LS_KEY);
+  const kept = await BW.store.all('licences');
+  assert.equal(kept.length, 1);
+  assert.equal(kept[0].instance, 'inst-1');
+  assert.equal((await BW.licence.current('juno')).licensee, 'Lena de Boer');
+  assert.equal(fake.calls.length, 1, 'no second check within a month');
+});
+
+test('a Lemon Squeezy key for another product, store or a used-up key is refused with its reason', async () => {
+  assert.equal((await (await home(lemon({ activate: sold({ meta: { store_id: 101, product_id: 999 } }) }))).licence.add(LS_KEY, 'juno')).reason, 'product');
+  assert.equal((await (await home(lemon({ activate: sold({ meta: { store_id: 5, product_id: 303 } }) }))).licence.add(LS_KEY, 'juno')).reason, 'product');
+  assert.equal((await (await home(lemon({ activate: { activated: false, error: 'This license key has reached the activation limit.' } }))).licence.add(LS_KEY, 'juno')).reason, 'limit');
+  assert.equal((await (await home(lemon({ activate: { activated: false, error: 'license_key not found.' } }))).licence.add(LS_KEY, 'juno')).reason, 'signature');
+  assert.equal((await (await home(lemon({ activate: new Error('offline') }))).licence.add(LS_KEY, 'juno')).reason, 'offline');
+  const BW = await home(lemon({ activate: sold() }), null);  // a build without Lemon Squeezy: the key is not a licence here
+  assert.equal((await BW.licence.add(LS_KEY, 'juno')).ok, false);
+  assert.equal((await BW.store.all('licences')).length, 0);
+});
+
+test('a month on, the key is checked again: dropped when Lemon Squeezy says no, kept when offline', async () => {
+  const fake = lemon({ activate: sold(), validate: sold({ valid: false, license_key: { id: 77, status: 'disabled' } }) });
+  const BW = await home(fake);
+  await BW.licence.add(LS_KEY, 'juno');
+  const [rec] = await BW.store.all('licences');
+  await BW.store.put('licences', Object.assign(rec, { checkedAt: '2026-01-01T00:00:00Z' }));
+  assert.ok(await BW.licence.current('juno'), 'still unlocked while it asks');
+  await new Promise((r) => setTimeout(r, 20));
+  assert.equal(fake.calls[1].what, 'validate');
+  assert.equal(fake.calls[1].body.instance_id, 'inst-1');
+  assert.equal((await BW.store.all('licences')).length, 0, 'a refunded key is gone');
+
+  const off = lemon({ activate: sold(), validate: new Error('offline') });
+  const BW2 = await home(off);
+  await BW2.licence.add(LS_KEY, 'juno');
+  const [r2] = await BW2.store.all('licences');
+  await BW2.store.put('licences', Object.assign(r2, { checkedAt: '2026-01-01T00:00:00Z' }));
+  await BW2.licence.current('juno');
+  await new Promise((r) => setTimeout(r, 20));
+  assert.equal((await BW2.store.all('licences')).length, 1, 'offline: it keeps working');
+});
