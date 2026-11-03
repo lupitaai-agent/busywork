@@ -367,7 +367,7 @@
     const daily = current.kind === 'daily';
     winEl.innerHTML = `<div class="burst" aria-hidden="true">${again ? '✅' : '🎉'}</div>
       <h2>${again ? 'Already solved' : 'Solved!'}</h2>
-      <p>${current.kind === 'daily' ? `Today's ${NAMES[game]}` : `Level ${current.level.toLocaleString('en-GB')} · ${esc(puzzle.difficulty)}`} in <b>${clock(secs)}</b>${hints ? ` with ${hints} hint${hints === 1 ? '' : 's'}` : ''}.</p>
+      <p>${current.kind === 'daily' ? `Today's ${NAMES[game]}` : `Level ${current.level.toLocaleString('en-GB')} · ${esc(puzzle.difficulty)}`} · ⏱️ <b>${clock(secs)}</b>${hints ? ` · 💡 ${hints}` : ''}</p>
       ${daily && s ? `<p class="streak">🔥 ${s}-day streak</p>` : ''}
       ${daily ? `<p class="today-set" aria-label="${doneToday.length} of 4 of today's puzzles done">${['stars', 'duo', 'trail', 'six'].map((g) => `<span class="${today[g] != null ? 'done' : ''}">${NAMES[g]}</span>`).join('')}</p>
         <p><b>${waiting.length ? `${doneToday.length} of 4 today` : 'All four done today! 🏆'}</b></p>` : ''}

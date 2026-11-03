@@ -110,3 +110,15 @@
 .today-set span { padding: 3px 10px; border: 2px solid var(--border); border-radius: 999px; font-weight: 750; font-size: .85rem; opacity: .55; }
 .today-set span.done { opacity: 1; background: var(--mint); color: #1E1B2E; }
 .today-set span.done::before { content: "✓ "; }
+
+/* ---------- the puzzle in its room (room.js) ---------- */
+.room-toggle { margin-left: auto; }
+.room-stage { position: relative; width: 100%; margin: 0 auto 4px; border-radius: 18px; overflow: hidden; background: #1d2350; box-shadow: var(--shadow); }
+.room-bg { position: absolute; inset: 0; background-repeat: no-repeat; }
+.room-gl { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.play.in-room .board-wrap .making { margin-top: 8px; }
+/* the page's own board lies on the wooden one: it takes the taps and keys, the wood shows */
+.room-stage .board { position: absolute; left: 0; top: 0; transform-origin: 0 0; margin: 0; border: 0; border-radius: 0; box-shadow: none; background: transparent; overflow: visible; }
+.room-stage .board .cell, .room-stage .board .cell[style*="--g"] { background: transparent !important; color: transparent !important; border-color: transparent !important; text-shadow: none !important; animation: none !important; }
+.room-stage .board .tok, .room-stage .board .num, .room-stage .board .line { opacity: 0; }
+.room-stage .board .cell:focus-visible { outline: 4px solid #ffe066; outline-offset: -6px; }

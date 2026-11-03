@@ -1162,7 +1162,8 @@ def game_page(g: dict) -> str:
     rules = "".join(f"<li>{e(r)}</li>" for r in g["rules"])
     faq = "".join(f"<details><summary>{e(q)}</summary><p>{e(a)}</p></details>" for q, a in faq_items)
     others = "".join(f'<a class="card rel" href="{o["id"]}.html" style="--c:var(--{o["color"]})"><span class="em">{o["emoji"]}</span><b>{e(o["name"])}</b><small>{e(o["lead"])}</small></a>' for o in GAMES if o["id"] != g["id"])
-    return f"""{head(g["title"], g["desc"], f'games/{g["id"]}.html', "../", ld + '<link rel="stylesheet" href="../assets/games/games.css">')}
+    three = '<script type="importmap">{"imports":{"three":"../assets/vendor/three/build/three.module.min.js"}}</script>'
+    return f"""{head(g["title"], g["desc"], f'games/{g["id"]}.html', "../", ld + '<link rel="stylesheet" href="../assets/games/games.css">' + three)}
 <body class="site app-{g["color"]}" data-game="{g["id"]}">
 {nav("../", explore("../"))}
 <main id="main" class="game-page">
@@ -1177,6 +1178,7 @@ def game_page(g: dict) -> str:
 {footer("../", json.loads(TOOLS_JSON.read_text()))}
 <script src="../assets/games/engine.js"></script>
 <script src="../assets/games/play.js"></script>
+<script type="module" src="../assets/games/room.js"></script>
 <script src="../assets/site.js"></script>
 </body>
 </html>
