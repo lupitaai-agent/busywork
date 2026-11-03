@@ -62,7 +62,12 @@ async function start() {
   stage.innerHTML = '<div class="room-bg" aria-hidden="true"></div><canvas class="room-gl" aria-hidden="true"></canvas>';
   wrap.before(stage);
   const bg = stage.querySelector('.room-bg'), canvas = stage.querySelector('.room-gl');
-  bg.style.backgroundImage = `url(${new URL(`../parlour/room-${game}-1920.jpg`, import.meta.url)})`;
+  // the room in this season, like the Parlour itself (place.js): Brazil's seasons are the other way round
+  const asked = (location.search.match(/[?&]season=(spring|summer|autumn|winter)\b/) || [])[1];
+  const north = ['winter', 'winter', 'spring', 'spring', 'spring', 'summer', 'summer', 'summer', 'autumn', 'autumn', 'autumn', 'winter'][new Date().getMonth()];
+  const season = asked || ((document.documentElement.lang || '').toLowerCase() === 'pt-br' ? { spring: 'autumn', summer: 'winter', autumn: 'spring', winter: 'summer' }[north] : north);
+  const part = (room.seasons || []).includes(season) ? '-' + season : '';
+  bg.style.backgroundImage = `url(${new URL(`../parlour/room-${game}${part}-1920.jpg`, import.meta.url)})`;
 
   // ---------- the scene, through the room's own camera ----------
   const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });

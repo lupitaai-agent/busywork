@@ -231,7 +231,12 @@
       "intensity": 0.1
      }
     }
-   }
+   },
+   "seasons": [
+    "spring",
+    "autumn",
+    "winter"
+   ]
   },
   {
    "id": "bench",
@@ -446,7 +451,12 @@
       "intensity": 0.1
      }
     }
-   }
+   },
+   "seasons": [
+    "spring",
+    "autumn",
+    "winter"
+   ]
   },
   {
    "id": "counter",
@@ -661,7 +671,12 @@
       "intensity": 0.1
      }
     }
-   }
+   },
+   "seasons": [
+    "spring",
+    "autumn",
+    "winter"
+   ]
   },
   {
    "id": "office",
@@ -876,7 +891,12 @@
       "intensity": 0.1
      }
     }
-   }
+   },
+   "seasons": [
+    "spring",
+    "autumn",
+    "winter"
+   ]
   },
   {
    "id": "desk",
@@ -1082,7 +1102,12 @@
       "intensity": 0.1
      }
     }
-   }
+   },
+   "seasons": [
+    "spring",
+    "autumn",
+    "winter"
+   ]
   },
   {
    "id": "stock",
@@ -1288,7 +1313,12 @@
       "intensity": 0.1
      }
     }
-   }
+   },
+   "seasons": [
+    "spring",
+    "autumn",
+    "winter"
+   ]
   },
   {
    "id": "yard",
@@ -1521,7 +1551,12 @@
       "intensity": 0.1
      }
     }
-   }
+   },
+   "seasons": [
+    "spring",
+    "autumn",
+    "winter"
+   ]
   },
   {
    "id": "window",
@@ -1763,7 +1798,12 @@
       "intensity": 0.1
      }
     }
-   }
+   },
+   "seasons": [
+    "spring",
+    "autumn",
+    "winter"
+   ]
   }
  ]
 }

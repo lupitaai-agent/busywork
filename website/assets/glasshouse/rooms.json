@@ -204,7 +204,12 @@
       "intensity": 0.1
      }
     }
-   }
+   },
+   "seasons": [
+    "spring",
+    "autumn",
+    "winter"
+   ]
   },
   {
    "id": "roots",
@@ -410,7 +415,12 @@
       "intensity": 0.1
      }
     }
-   }
+   },
+   "seasons": [
+    "spring",
+    "autumn",
+    "winter"
+   ]
   },
   {
    "id": "potting",
@@ -643,7 +653,12 @@
       "intensity": 0.1
      }
     }
-   }
+   },
+   "seasons": [
+    "spring",
+    "autumn",
+    "winter"
+   ]
   },
   {
    "id": "trellis",
@@ -885,7 +900,12 @@
       "intensity": 0.1
      }
     }
-   }
+   },
+   "seasons": [
+    "spring",
+    "autumn",
+    "winter"
+   ]
   },
   {
    "id": "lookout",
@@ -1118,7 +1138,12 @@
       "intensity": 0.1
      }
     }
-   }
+   },
+   "seasons": [
+    "spring",
+    "autumn",
+    "winter"
+   ]
   },
   {
    "id": "print",
@@ -1333,7 +1358,12 @@
       "intensity": 0.1
      }
     }
-   }
+   },
+   "seasons": [
+    "spring",
+    "autumn",
+    "winter"
+   ]
   },
   {
    "id": "bridge",
@@ -1539,7 +1569,12 @@
       "intensity": 0.1
      }
     }
-   }
+   },
+   "seasons": [
+    "spring",
+    "autumn",
+    "winter"
+   ]
   },
   {
    "id": "roof",
@@ -1745,7 +1780,12 @@
       "intensity": 0.1
      }
     }
-   }
+   },
+   "seasons": [
+    "spring",
+    "autumn",
+    "winter"
+   ]
   }
  ]
 }

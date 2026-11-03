@@ -204,7 +204,12 @@
       "intensity": 0.1
      }
     }
-   }
+   },
+   "seasons": [
+    "spring",
+    "autumn",
+    "winter"
+   ]
   },
   {
    "id": "papers",
@@ -410,7 +415,12 @@
       "intensity": 0.1
      }
     }
-   }
+   },
+   "seasons": [
+    "spring",
+    "autumn",
+    "winter"
+   ]
   },
   {
    "id": "contracts",
@@ -616,7 +626,12 @@
       "intensity": 0.1
      }
     }
-   }
+   },
+   "seasons": [
+    "spring",
+    "autumn",
+    "winter"
+   ]
   },
   {
    "id": "upkeep",
@@ -831,7 +846,12 @@
       "intensity": 0.1
      }
     }
-   }
+   },
+   "seasons": [
+    "spring",
+    "autumn",
+    "winter"
+   ]
   },
   {
    "id": "inventory",
@@ -1046,7 +1066,12 @@
       "intensity": 0.1
      }
     }
-   }
+   },
+   "seasons": [
+    "spring",
+    "autumn",
+    "winter"
+   ]
   },
   {
    "id": "letters",
@@ -1252,7 +1277,12 @@
       "intensity": 0.1
      }
     }
-   }
+   },
+   "seasons": [
+    "spring",
+    "autumn",
+    "winter"
+   ]
   },
   {
    "id": "moving",
@@ -1458,7 +1488,12 @@
       "intensity": 0.1
      }
     }
-   }
+   },
+   "seasons": [
+    "spring",
+    "autumn",
+    "winter"
+   ]
   },
   {
    "id": "binder",
@@ -1664,7 +1699,12 @@
       "intensity": 0.1
      }
     }
-   }
+   },
+   "seasons": [
+    "spring",
+    "autumn",
+    "winter"
+   ]
   }
  ]
 }

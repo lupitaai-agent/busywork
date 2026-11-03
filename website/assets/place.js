@@ -48,8 +48,14 @@ async function start(house) {
   const wide = () => innerWidth * Math.min(devicePixelRatio || 1, 2) > 1400;
   const hour = new Date().getHours(), tod = hour >= 5 && hour < 11 ? 'morning' : hour >= 11 && hour < 17 ? 'day' : 'evening';
   const timeOf = (id) => (roomData[id] && roomData[id].times && roomData[id].times.includes(tod) && tod !== 'day' ? '-' + tod : '');
+  // The season, by the date (Brazil's are the other way round); summer is the rooms as they always were. ?season=winter shows one.
+  const asked = (location.search.match(/[?&]season=(spring|summer|autumn|winter)\b/) || [])[1];
+  const north = ['winter', 'winter', 'spring', 'spring', 'spring', 'summer', 'summer', 'summer', 'autumn', 'autumn', 'autumn', 'winter'][new Date().getMonth()];
+  const flip = { spring: 'autumn', summer: 'winter', autumn: 'spring', winter: 'summer' };
+  const season = asked || ((document.documentElement.lang || '').toLowerCase() === 'pt-br' ? flip[north] : north);
+  const seasonOf = (id) => (roomData[id] && roomData[id].seasons && roomData[id].seasons.includes(season) ? '-' + season : '');
   const base = (id) => (roomData[id] && roomData[id].base) || house.dataset.housePlates;
-  const src = (id) => `${base(id)}room-${id}${timeOf(id)}-${wide() ? 1920 : 1280}.jpg`;
+  const src = (id) => `${base(id)}room-${id}${seasonOf(id)}${timeOf(id)}-${wide() ? 1920 : 1280}.jpg`;
   const depthSrc = (id) => `${base(id)}room-${id}-depth.png`;
   const ready = {};
   const preload = (id) => ready[id] || (ready[id] = new Promise((ok) => { const i = new Image(); i.onload = i.onerror = ok; i.src = src(id); }));

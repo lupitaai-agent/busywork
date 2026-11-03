@@ -73,6 +73,11 @@
       ]
      ]
     }
+   ],
+   "seasons": [
+    "spring",
+    "autumn",
+    "winter"
    ]
   },
   {
@@ -148,6 +153,11 @@
       ]
      ]
     }
+   ],
+   "seasons": [
+    "spring",
+    "autumn",
+    "winter"
    ]
   },
   {
@@ -223,6 +233,11 @@
       ]
      ]
     }
+   ],
+   "seasons": [
+    "spring",
+    "autumn",
+    "winter"
    ]
   },
   {
@@ -298,6 +313,11 @@
       ]
      ]
     }
+   ],
+   "seasons": [
+    "spring",
+    "autumn",
+    "winter"
    ]
   },
   {
@@ -373,6 +393,11 @@
       ]
      ]
     }
+   ],
+   "seasons": [
+    "spring",
+    "autumn",
+    "winter"
    ]
   }
  ]

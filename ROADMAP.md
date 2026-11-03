@@ -46,22 +46,15 @@
   next to English, for the website, the games and every free tool, with local rules per country
   (`i18n/`, `app/shared/i18n.js`). The experts answer in the chosen language.
 
-## Next up
+- The big update (2026-11-03, release 0.9.5): every screen in six languages, Olaf, Ivy and Juno included
+  (busywork-olaf i18n/experts.py); the puzzles in their room (website/assets/games/room.js, a live three.js board
+  in the Puzzle Parlour's frame); a short Unreal film opening every place, by time of day and per language where a
+  sign has words (busy-studio render_loops.sh, loops_web.py; social copies in Busy HQ/releases/social); all four
+  seasons for the street and every room, picked by the date and flipped for Brazil (render_places.sh with
+  BUSY_SEASON, seasons_web.py); the website's signs painted into the films in each language.
+  Not yet: seasons in the apps' own room pictures and in the experts' rooms; films for the apps.
 
-### The next big update (decided 2026-11-02)
-Build all five first, in this order, then push and release them together as one update:
-1. **Finish the translations.** The experts' own screens (Olaf, Ivy, Juno, about 820 pieces of text, part
-   of it AI tool descriptions that are never shown) and the demo sentences built from parts ("4.5 h of 20 h",
-   "Average of your last 1 review", "Head of operations at Fietsplan").
-2. **The puzzles in 3D.** The Puzzle Parlour stays an Unreal render; the puzzle becomes a live three.js
-   object on its table, placed with the room's Unreal camera and lit like the room. Start with Stars (a
-   wooden board with brass stars), then Six, Duo and Trail. The flat board stays the default, with
-   "Play at the table"; a solve sets off a small moment in the room. Same puzzle logic.
-3. **Video loops.** Short rendered loops per place and time of day, for the site's first screen and for
-   social posts in each language.
-4. **Seasonal rooms.** All four seasons (spring, summer, autumn, winter) for Busy Street itself and for
-   every room, picked by the date.
-5. **Signs in each language.** The signs and posters painted into the renders, rendered per language.
+## Next up
 
 ### 0. The places and the characters (built 2026-11-01, not pushed yet)
 All six characters come from Meshy and go out together. Done, waiting for the push:
