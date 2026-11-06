@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Busy Street: Tuck's Errand</title>
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://busy.com.ai/games/tucks-errand.html">
+<script>window.SNIP_EDITION = 'web'; window.SNIP_ASSETS = '../../assets/'; window.SNIP_PAGE = '../tucks-errand.html';</script>
+<link rel="stylesheet" href="game.css">
+</head>
+<body>
+<main class="stage" data-stage>
+  <canvas data-gl aria-label="The game"></canvas>
+  <div class="film" data-film aria-hidden="true"></div>
+  <header class="hud">
+    <b data-where></b>
+    <span class="dots" data-dots></span>
+    <span class="team" data-team hidden></span>
+    <span class="tries" data-tries></span>
+    <button class="ask" data-mute>♪ Sound on</button>
+    <button class="ask" data-ask aria-label="How to play">? How to play</button>
+  </header>
+  <p class="lesson" data-lesson hidden></p>
+  <p class="prompt" data-prompt hidden></p>
+  <p class="say" data-say hidden></p>
+  <nav class="bar" data-bar aria-label="What you can do">
+    <span class="group" data-do="walk"><button data-key="ArrowLeft" aria-label="Walk left"><kbd>←</kbd></button><button data-key="ArrowRight" aria-label="Walk right"><kbd>→</kbd></button><small>Walk</small></span>
+    <button class="group" data-do="run" data-key="Shift"><kbd>Shift</kbd><small>Run</small></button>
+    <button class="group" data-do="hop" data-key=" "><kbd data-label="hopkey">Space</kbd><small data-label="hop">Hop</small></button>
+    <button class="group" data-do="hide" data-key="ArrowDown"><kbd>↓</kbd><small data-label="hide">Hide</small></button>
+    <button class="group" data-do="use" data-key="e"><kbd>E</kbd><small data-label="use">Use</small></button>
+    <button class="group" data-do="hit" data-key="f" hidden><kbd>F</kbd><small>Hit</small></button>
+    <button class="group" data-do="throw" data-key="t" hidden><kbd>T</kbd><small>Throw</small></button>
+    <button class="group" data-do="switch" data-key="Tab" hidden><kbd>Tab</kbd><small data-label="switch">Swap</small></button>
+    <button class="group" data-do="call" data-key="q" hidden><kbd>Q</kbd><small data-label="call">Call</small></button>
+  </nav>
+  <section class="card" data-card>
+    <h1>Busy Street: Tuck's Errand</h1>
+    <p class="lead">The Red Tape has crept over Busy Street, and everyone it catches turns into a tangled, snarling version of themselves.</p>
+    <p data-intro>Cut them loose and they are your friends again.</p>
+    <div class="pitch" data-pitch hidden></div>
+    <a class="go" data-get hidden>Download the full game, free</a>
+    <div class="levels" data-levels></div>
+    <p class="small" data-note>Loading the Workshop…</p>
+  </section>
+  <section class="help" data-help hidden>
+    <div class="box">
+      <h2>How to play</h2>
+      <dl>
+        <dt><kbd>←</kbd> <kbd>→</kbd> Walk</dt><dd>Hold to walk. Leave a room on the right, once the way is free.</dd>
+        <dt><kbd>Shift</kbd> Run</dt><dd>Hold it while you walk. Faster, for when someone has just looked away.</dd>
+        <dt><kbd>Space</kbd> Hop</dt><dd>Over crates and low things. Works while you walk.</dd>
+        <dt><kbd>↓</kbd> Hide</dt><dd>Only on a <b>glowing spot</b> on the floor. You duck behind what is there and nobody can see you. Press <kbd>↑</kbd> or an arrow to come out.</dd>
+        <dt><kbd>E</kbd> Use</dt><dd>Does what the button says right now: pick up, snip, work a knot, cut someone loose. When it is dim, there is nothing to use here.</dd>
+        <dt><kbd>F</kbd> Hit</dt><dd>Only with a hammer, so only Rivet: crates, snarls and posts.</dd>
+        <dt><kbd>↑</kbd> Climb</dt><dd>At a rope or ladder, once it is there. Vines are only for Pim. <kbd>↓</kbd> takes you down again.</dd>
+        <dt><kbd>Tab</kbd> Swap</dt><dd>When there are two of you, swap who you are. Nobody can do everything. The other one stays where you left them, which you sometimes need.</dd>
+        <dt><kbd>Q</kbd> Call someone</dt><dd>Two of you fit on screen. Whoever you are now goes, and the next one comes in. The danger waits until they're here.</dd>
+        <dt><kbd>T</kbd> Throw</dt><dd>Carrying a pot or a key? Hold <kbd>T</kbd>, move the spot with <kbd>←</kbd> <kbd>→</kbd>, and let go. Rivet can lift a friend with <kbd>E</kbd> and throw them too.</dd>
+        <dt>Hop, and hop again</dt><dd>Tuck and Zip can hop up to a shelf's edge and pull themselves up. Zip and Pim can flip in the air and reach pipes. Zip and Ivy can catch ropes. On a rope, <kbd>←</kbd> <kbd>→</kbd> swings and <kbd>Space</kbd> lets go.</dd>
+        <dt><kbd>↓</kbd> Roll</dt><dd>While you walk: Tuck and Zip get under low tape.</dd>
+        <dt><kbd>1</kbd> to <kbd>6</kbd></dt><dd>With three or more of you, go straight to someone: the numbers are at the top of the screen.</dd>
+        <dt>Olaf and Juno</dt><dd>Olaf's <kbd>E</kbd> reads the room: he shows what nobody else can see. Juno's <kbd>E</kbd> sends an official a letter, and an official has to stop and read it.</dd>
+        <dt>The red light</dt><dd>What a tangled figure can see. Stay out of it, or hide until it has gone past.</dd>
+        <dt>Caught?</dt><dd>You start that room again, straight away. Nothing is lost.</dd>
+      </dl>
+      <p class="tip">The bar at the bottom always shows what you can do: bright means now.</p>
+      <button class="go" data-hclose>Back to the game</button>
+    </div>
+  </section>
+  <section class="cinema" data-cinema hidden>
+    <video data-cvideo playsinline muted></video>
+    <p class="cline" data-cline hidden></p>
+    <button class="ask cskip" data-cskip>Skip</button>
+  </section>
+  <section class="puzzle talk" data-talk hidden>
+    <div class="box">
+      <h2 data-tname></h2>
+      <p class="tsay" data-tsay></p>
+      <div class="answers" data-answers></div>
+      <p class="treply" data-treply hidden></p>
+      <button class="back" data-tback>Not yet</button>
+    </div>
+  </section>
+  <section class="puzzle" data-puzzle hidden>
+    <div class="box">
+      <h2 data-ptitle></h2>
+      <p data-prule></p>
+      <p class="psay" data-psay hidden></p>
+      <div class="grid" data-grid></div>
+      <button class="back" data-pback>Not yet</button>
+    </div>
+  </section>
+</main>
+<script src="../../app/shared/vendor/three-busy.js"></script>
+<script src="../../app/shared/scene.js"></script>
+<script src="../../assets/games/engine.js"></script>
+<script src="plate.js"></script>
+<script src="lines.js"></script>
+<script src="levels.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

@@ -1125,7 +1125,8 @@ GAMES_FAQ = [
 
 
 def games_hub() -> str:
-    cards = "".join(f'<a class="card game-card reveal pop" href="{g["id"]}.html" style="--c:var(--{g["color"]})"><span class="em">{g["emoji"]}</span><h2>{e(g["name"])}</h2>'
+    cards = """<a class="card game-card reveal pop" href="tucks-errand.html" style="--c:var(--sun)"><span class="em">✂️</span><h2>Tuck's Errand</h2><p>Our free puzzle adventure: six levels, six friends to cut loose from the Red Tape.</p><span class="go">Play Tuck's Errand →</span></a>"""
+    cards += "".join(f'<a class="card game-card reveal pop" href="{g["id"]}.html" style="--c:var(--{g["color"]})"><span class="em">{g["emoji"]}</span><h2>{e(g["name"])}</h2>'
                     f'<p>{e(g["lead"])}</p><p class="status" data-status="{g["id"]}">🗓️ Today\'s puzzle is waiting<br>🏁 {GAME_LEVELS:,} levels to play</p><span class="go">Play {e(g["name"])} →</span></a>' for g in GAMES)
     faq = "".join(f"<details><summary>{e(q)}</summary><p>{e(a)}</p></details>" for q, a in GAMES_FAQ)
     ld = jsonld({"@context": "https://schema.org", "@type": "FAQPage",
@@ -1868,14 +1869,77 @@ def street_html() -> str:
                       decals=STREET_DECALS, root="")
 
 
+TUCK_FAQ = [
+    ("Is it free?", "Yes. You can play all six levels in your browser, or download the game for Mac and Windows. Both are free, with no account and no adverts."),
+    ("What is better in the download?", "Every level opens and ends with a film, it plays full screen, and everything is on your computer, so it needs no internet."),
+    ("Is there any AI in it?", "No. Everything the figures say was written by hand and is picked by simple rules. What you do in the game isn't sent anywhere."),
+    ("What language is it in?", "English, for now. The rest of Busy speaks six languages, and the game will follow."),
+    ("Can I play it on a phone?", "Not yet. You need a keyboard, on a Mac or a Windows PC."),
+]
+
+
+def tuck_page() -> str:
+    """The game's own page: the trailer, the download first, the browser next to it."""
+    faq = "".join(f"<details><summary>{e(q)}</summary><p>{e(a)}</p></details>" for q, a in TUCK_FAQ)
+    ld = jsonld({"@context": "https://schema.org", "@type": "FAQPage",
+                 "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in TUCK_FAQ]})
+    desc = "A free puzzle adventure on Busy Street. Tuck only went out to get a stamp back. Six levels, six friends to cut loose, for Mac, Windows or your browser."
+    extra = ld + '<link rel="stylesheet" href="../assets/games/games.css">'
+    return f"""{head("Busy Street: Tuck's Errand · A free game", desc, "games/tucks-errand.html", "../", extra, image="og-games.png")}
+<body class="site app-sun">
+{nav("../", explore("../"))}
+<main id="main">
+  <div class="wrap">
+  <section class="section"><div class="center">
+    <p class="kicker">A free game from Busy</p>
+    <h1 class="big">Busy Street: Tuck's Errand</h1>
+    <p class="lead">The Red Tape has crept over Busy Street, and everyone it catches turns into a tangled, snarling version of themselves. Tuck only went out to get a stamp back.</p>
+    <video src="../games/tucks-errand/assets/trailer.mp4" poster="../games/tucks-errand/assets/pitch/poster.jpg" autoplay muted loop playsinline style="width:100%;max-width:900px;border-radius:16px;margin:18px auto;display:block"></video>
+  </div></section>
+  <section class="section" id="get"><div class="center">
+    <h2 class="big">Ready to download</h2>
+    <p class="lead">The full game, with a film at the start and end of every level. It plays without the internet.</p>
+    {app_download("Tucks-Errand", "Tuck's Errand")}
+    <p style="margin-top:18px"><a class="btn" href="../games/tucks-errand/index.html">Or play in your browser</a></p>
+  </div></section>
+  <section class="section"><div class="center"><h2 class="big">What you do</h2></div>
+    <ul class="get-list" style="max-width:640px;margin:0 auto">
+      <li>Free six friends, one level at a time, and each one joins you</li>
+      <li>Swap between two figures on screen, and call in the others when you need them</li>
+      <li>Throw pots, keys and each other, climb, swing, roll and walk the tightrope</li>
+      <li>Hide from inspectors, and answer the ones you can't hide from</li>
+      <li>Work the knots: logic puzzles from Busy's daily games</li>
+    </ul></section>
+  <section class="section"><div class="center"><h2 class="big">Browser or download</h2></div>
+    <div class="cmp" style="max-width:640px;margin:0 auto"><table><thead><tr><th></th><th>In your browser</th><th>Free download</th></tr></thead><tbody>
+      <tr><td>All six levels</td><td>✓</td><td>✓</td></tr>
+      <tr><td>Films</td><td>Level 1</td><td>Every level, start and end</td></tr>
+      <tr><td>Plays without the internet</td><td>No</td><td>✓</td></tr>
+      <tr><td>Install</td><td>Nothing to install</td><td>A one-time download</td></tr>
+    </tbody></table></div></section>
+  <section class="section" id="faq"><div class="center"><h2 class="big">Questions</h2></div><div class="faq">{faq}</div></section>
+  </div>
+</main>
+{footer("../", json.loads(TOOLS_JSON.read_text()))}
+<script src="../assets/site.js"></script>
+</body>
+</html>
+"""
+
+
 def build_games() -> list:
     out = SITE / "games"
     out.mkdir(exist_ok=True)
     (out / "index.html").write_text(games_hub())
+    # Tuck's Errand: game/ holds the web edition (busy-game/publish.py writes it)
+    if (ROOT / "game").is_dir():
+        shutil.rmtree(out / "tucks-errand", ignore_errors=True)
+        shutil.copytree(ROOT / "game", out / "tucks-errand")
+        (out / "tucks-errand.html").write_text(tuck_page())
     for g in GAMES:
         (out / f'{g["id"]}.html').write_text(game_page(g))
     print(f"website/games: {len(GAMES)} games + hub, {GAME_LEVELS:,} levels each")
-    return ["games/index.html"] + [f'games/{g["id"]}.html' for g in GAMES]
+    return ["games/index.html"] + (["games/tucks-errand.html"] if (ROOT / "game").is_dir() else []) + [f'games/{g["id"]}.html' for g in GAMES]
 
 
 def build_pages() -> None:
@@ -2355,7 +2419,8 @@ def site_counter() -> None:
     text = re.sub(r"<!-- counting -->.*?<!-- /counting -->", lambda m: f"<!-- counting -->{section}<!-- /counting -->", text, flags=re.S)
     privacy.write_text(text)
     tag = f"""<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{{"token": "{e(CF_ANALYTICS_TOKEN)}"}}'></script>""" if CF_ANALYTICS_TOKEN else ""
-    for f in site_pages():  # some pages are hand-written and keep what an earlier build added: take the old tag out first
+    game = SITE / "games" / "tucks-errand" / "index.html"
+    for f in site_pages() + ([game] if game.exists() else []):  # some pages are hand-written and keep what an earlier build added: take the old tag out first
         t = re.sub(r"""<script defer src="https://static\.cloudflareinsights\.com/beacon\.min\.js"[^>]*></script>""", "", f.read_text())
         f.write_text(t.replace("</head>", tag + "</head>", 1) if tag else t)
 

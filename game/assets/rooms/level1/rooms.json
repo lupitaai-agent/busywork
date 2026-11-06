@@ -1,0 +1,734 @@
+{
+ "rooms": [
+  {
+   "id": "front",
+   "name": "Outside the Workshop",
+   "camera": {
+    "position": [
+     0.0,
+     1.65,
+     7.6
+    ],
+    "target": [
+     0.0,
+     1.25,
+     0.0
+    ],
+    "hfov": 39.5978,
+    "aspect": 1.7777777777777777
+   },
+   "walk": {
+    "from": [
+     -1.85,
+     0.0,
+     -0.1
+    ],
+    "to": [
+     1.85,
+     0.0,
+     -0.1
+    ],
+    "stand": [
+     1.6,
+     0.0,
+     -0.1
+    ]
+   },
+   "tuckHeight": 1.0,
+   "times": [
+    "evening"
+   ],
+   "light": {
+    "evening": {
+     "lights": [
+      {
+       "kind": "point",
+       "at": [
+        0.0,
+        2.8,
+        -0.3
+       ],
+       "color": "#FFC98A",
+       "cd": 7.2,
+       "radius": 9.0
+      },
+      {
+       "kind": "rect",
+       "at": [
+        -2.25,
+        2.0,
+        0.0
+       ],
+       "color": "#5A68B8",
+       "cd": 2.64,
+       "to": [
+        0.0,
+        0.6,
+        -0.6
+       ]
+      },
+      {
+       "kind": "rect",
+       "at": [
+        3.65,
+        2.6,
+        3.0
+       ],
+       "color": "#7FE0FF",
+       "cd": 8.1,
+       "to": [
+        0.0,
+        0.6,
+        -0.8
+       ]
+      },
+      {
+       "kind": "point",
+       "at": [
+        -2.15,
+        2.35,
+        -1.5
+       ],
+       "color": "#FFC98A",
+       "cd": 14.4,
+       "radius": 4.2
+      },
+      {
+       "kind": "point",
+       "at": [
+        1.9,
+        1.5,
+        -1.5
+       ],
+       "color": "#FFB46A",
+       "cd": 12.6,
+       "radius": 4.2
+      },
+      {
+       "kind": "point",
+       "at": [
+        3.4,
+        1.7,
+        -0.7
+       ],
+       "color": "#9FE0D8",
+       "cd": 10.8,
+       "radius": 4.2
+      },
+      {
+       "kind": "point",
+       "at": [
+        -0.6,
+        2.5,
+        1.2
+       ],
+       "color": "#C8B8D8",
+       "cd": 6.3,
+       "radius": 8.0
+      }
+     ],
+     "sky": {
+      "color": "#8A78C0",
+      "intensity": 0.1
+     }
+    }
+   },
+   "depth": {
+    "near": 5.78,
+    "far": 9.956
+   },
+   "loops": [
+    "evening"
+   ]
+  },
+  {
+   "id": "bench",
+   "name": "The workbench",
+   "camera": {
+    "position": [
+     24.0,
+     1.65,
+     7.6
+    ],
+    "target": [
+     24.0,
+     1.25,
+     0.0
+    ],
+    "hfov": 39.5978,
+    "aspect": 1.7777777777777777
+   },
+   "walk": {
+    "from": [
+     22.15,
+     0.0,
+     -0.1
+    ],
+    "to": [
+     25.85,
+     0.0,
+     -0.1
+    ],
+    "stand": [
+     25.6,
+     0.0,
+     -0.1
+    ]
+   },
+   "tuckHeight": 1.0,
+   "times": [
+    "day"
+   ],
+   "light": {
+    "day": {
+     "lights": [
+      {
+       "kind": "point",
+       "at": [
+        24.0,
+        2.8,
+        -0.3
+       ],
+       "color": "#FFD6A0",
+       "cd": 8.0,
+       "radius": 9.0
+      },
+      {
+       "kind": "rect",
+       "at": [
+        21.75,
+        2.0,
+        0.0
+       ],
+       "color": "#CFE2FF",
+       "cd": 22.0,
+       "to": [
+        24.0,
+        0.6,
+        -0.6
+       ]
+      },
+      {
+       "kind": "rect",
+       "at": [
+        27.65,
+        2.6,
+        3.0
+       ],
+       "color": "#7FE0FF",
+       "cd": 18.0,
+       "to": [
+        24.0,
+        0.6,
+        -0.8
+       ]
+      },
+      {
+       "kind": "point",
+       "at": [
+        24.2,
+        2.28,
+        -0.4
+       ],
+       "color": "#FFC98A",
+       "cd": 42.0,
+       "radius": 6.2
+      },
+      {
+       "kind": "point",
+       "at": [
+        27.3,
+        1.7,
+        -1.2
+       ],
+       "color": "#FF9A6B",
+       "cd": 10.0,
+       "radius": 4.0
+      },
+      {
+       "kind": "point",
+       "at": [
+        20.7,
+        1.7,
+        -1.2
+       ],
+       "color": "#7F9AB8",
+       "cd": 7.0,
+       "radius": 4.0
+      }
+     ],
+     "sky": {
+      "color": "#FFE2CC",
+      "intensity": 0.35
+     }
+    }
+   },
+   "depth": {
+    "near": 5.416,
+    "far": 9.907
+   },
+   "loops": [
+    "day"
+   ]
+  },
+  {
+   "id": "counter",
+   "name": "The counter",
+   "camera": {
+    "position": [
+     48.0,
+     1.65,
+     7.6
+    ],
+    "target": [
+     48.0,
+     1.25,
+     0.0
+    ],
+    "hfov": 39.5978,
+    "aspect": 1.7777777777777777
+   },
+   "walk": {
+    "from": [
+     46.15,
+     0.0,
+     -0.1
+    ],
+    "to": [
+     49.85,
+     0.0,
+     -0.1
+    ],
+    "stand": [
+     49.6,
+     0.0,
+     -0.1
+    ]
+   },
+   "tuckHeight": 1.0,
+   "times": [
+    "day"
+   ],
+   "light": {
+    "day": {
+     "lights": [
+      {
+       "kind": "point",
+       "at": [
+        48.0,
+        2.8,
+        -0.3
+       ],
+       "color": "#FFD29A",
+       "cd": 5.0,
+       "radius": 9.0
+      },
+      {
+       "kind": "rect",
+       "at": [
+        45.75,
+        2.0,
+        0.0
+       ],
+       "color": "#CFE2FF",
+       "cd": 22.0,
+       "to": [
+        48.0,
+        0.6,
+        -0.6
+       ]
+      },
+      {
+       "kind": "rect",
+       "at": [
+        51.65,
+        2.6,
+        3.0
+       ],
+       "color": "#7FE0FF",
+       "cd": 18.0,
+       "to": [
+        48.0,
+        0.6,
+        -0.8
+       ]
+      },
+      {
+       "kind": "point",
+       "at": [
+        46.8,
+        2.8,
+        -0.6
+       ],
+       "color": "#FFD29A",
+       "cd": 5.5,
+       "radius": 6.0
+      },
+      {
+       "kind": "point",
+       "at": [
+        49.2,
+        2.8,
+        -0.6
+       ],
+       "color": "#FFD29A",
+       "cd": 5.5,
+       "radius": 6.0
+      },
+      {
+       "kind": "point",
+       "at": [
+        51.3,
+        1.7,
+        -1.2
+       ],
+       "color": "#7F9AB8",
+       "cd": 8.0,
+       "radius": 4.0
+      },
+      {
+       "kind": "point",
+       "at": [
+        44.7,
+        1.7,
+        -1.2
+       ],
+       "color": "#7FE0D0",
+       "cd": 8.0,
+       "radius": 4.0
+      }
+     ],
+     "sky": {
+      "color": "#FFE2CC",
+      "intensity": 0.35
+     }
+    }
+   },
+   "depth": {
+    "near": 6.343,
+    "far": 9.907
+   },
+   "loops": [
+    "day"
+   ]
+  },
+  {
+   "id": "stock",
+   "name": "The stockroom",
+   "camera": {
+    "position": [
+     72.0,
+     1.65,
+     7.6
+    ],
+    "target": [
+     72.0,
+     1.25,
+     0.0
+    ],
+    "hfov": 39.5978,
+    "aspect": 1.7777777777777777
+   },
+   "walk": {
+    "from": [
+     70.15,
+     0.0,
+     -0.1
+    ],
+    "to": [
+     73.85,
+     0.0,
+     -0.1
+    ],
+    "stand": [
+     73.6,
+     0.0,
+     -0.1
+    ]
+   },
+   "tuckHeight": 1.0,
+   "times": [
+    "day",
+    "dark"
+   ],
+   "light": {
+    "day": {
+     "lights": [
+      {
+       "kind": "point",
+       "at": [
+        72.0,
+        2.8,
+        -0.3
+       ],
+       "color": "#FFE2B8",
+       "cd": 34.0,
+       "radius": 9.0
+      },
+      {
+       "kind": "rect",
+       "at": [
+        69.75,
+        2.0,
+        0.0
+       ],
+       "color": "#CFE2FF",
+       "cd": 22.0,
+       "to": [
+        72.0,
+        0.6,
+        -0.6
+       ]
+      },
+      {
+       "kind": "rect",
+       "at": [
+        75.65,
+        2.6,
+        3.0
+       ],
+       "color": "#7FE0FF",
+       "cd": 18.0,
+       "to": [
+        72.0,
+        0.6,
+        -0.8
+       ]
+      },
+      {
+       "kind": "point",
+       "at": [
+        75.3,
+        1.7,
+        -1.2
+       ],
+       "color": "#FFD29A",
+       "cd": 8.0,
+       "radius": 4.0
+      },
+      {
+       "kind": "point",
+       "at": [
+        68.7,
+        1.7,
+        -1.2
+       ],
+       "color": "#FF9A6B",
+       "cd": 8.0,
+       "radius": 4.0
+      }
+     ],
+     "sky": {
+      "color": "#FFE2CC",
+      "intensity": 0.35
+     }
+    },
+    "dark": {
+     "lights": [
+      {
+       "kind": "point",
+       "at": [
+        72.0,
+        2.8,
+        -0.3
+       ],
+       "color": "#FFE2B8",
+       "cd": 0.68,
+       "radius": 9.0
+      },
+      {
+       "kind": "rect",
+       "at": [
+        69.75,
+        2.0,
+        0.0
+       ],
+       "color": "#7080D0",
+       "cd": 4.84,
+       "to": [
+        72.0,
+        0.6,
+        -0.6
+       ]
+      },
+      {
+       "kind": "rect",
+       "at": [
+        75.65,
+        2.6,
+        3.0
+       ],
+       "color": "#7FE0FF",
+       "cd": 9.0,
+       "to": [
+        72.0,
+        0.6,
+        -0.8
+       ]
+      },
+      {
+       "kind": "point",
+       "at": [
+        75.3,
+        1.7,
+        -1.2
+       ],
+       "color": "#FFD29A",
+       "cd": 0.4,
+       "radius": 4.0
+      },
+      {
+       "kind": "point",
+       "at": [
+        68.7,
+        1.7,
+        -1.2
+       ],
+       "color": "#FF9A6B",
+       "cd": 0.4,
+       "radius": 4.0
+      }
+     ],
+     "sky": {
+      "color": "#8A78C0",
+      "intensity": 0.06
+     }
+    }
+   },
+   "depth": {
+    "near": 6.343,
+    "far": 9.907
+   }
+  },
+  {
+   "id": "yard",
+   "name": "The yard",
+   "camera": {
+    "position": [
+     96.0,
+     1.65,
+     7.6
+    ],
+    "target": [
+     96.0,
+     1.25,
+     0.0
+    ],
+    "hfov": 39.5978,
+    "aspect": 1.7777777777777777
+   },
+   "walk": {
+    "from": [
+     94.15,
+     0.0,
+     -0.1
+    ],
+    "to": [
+     97.85,
+     0.0,
+     -0.1
+    ],
+    "stand": [
+     97.6,
+     0.0,
+     -0.1
+    ]
+   },
+   "tuckHeight": 1.0,
+   "times": [
+    "evening"
+   ],
+   "light": {
+    "evening": {
+     "lights": [
+      {
+       "kind": "point",
+       "at": [
+        96.0,
+        2.8,
+        -0.3
+       ],
+       "color": "#FFC98A",
+       "cd": 7.2,
+       "radius": 9.0
+      },
+      {
+       "kind": "rect",
+       "at": [
+        93.75,
+        2.0,
+        0.0
+       ],
+       "color": "#5A68B8",
+       "cd": 2.64,
+       "to": [
+        96.0,
+        0.6,
+        -0.6
+       ]
+      },
+      {
+       "kind": "rect",
+       "at": [
+        99.65,
+        2.6,
+        3.0
+       ],
+       "color": "#7FE0FF",
+       "cd": 8.1,
+       "to": [
+        96.0,
+        0.6,
+        -0.8
+       ]
+      },
+      {
+       "kind": "point",
+       "at": [
+        95.4,
+        2.28,
+        -1.95
+       ],
+       "color": "#FFC98A",
+       "cd": 9.0,
+       "radius": 4.2
+      },
+      {
+       "kind": "point",
+       "at": [
+        92.6,
+        3.0,
+        2.0
+       ],
+       "color": "#FF9A5A",
+       "cd": 21.6,
+       "radius": 13.0
+      },
+      {
+       "kind": "point",
+       "at": [
+        98.0,
+        2.6,
+        1.5
+       ],
+       "color": "#C8B8D8",
+       "cd": 7.2,
+       "radius": 8.0
+      }
+     ],
+     "sky": {
+      "color": "#8A78C0",
+      "intensity": 0.1
+     }
+    }
+   },
+   "depth": {
+    "near": 5.587,
+    "far": 16.791
+   },
+   "loops": [
+    "evening"
+   ]
+  }
+ ]
+}

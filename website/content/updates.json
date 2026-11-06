@@ -1,6 +1,7 @@
 {
  "about": "What changed in Busy, newest first. build.py makes the What's new page (updates.html) and the RSS feed (feed.xml) from it. Add each release here when it goes out.",
  "updates": [
+  {"version": "0.9.6", "date": "2026-11-06", "title": "A new free game: Busy Street: Tuck's Errand", "items": ["Tuck only went out to get a stamp back. Six levels, six friends to cut loose from the Red Tape.", "Play it in your browser, or download it for Mac and Windows with a film at the start and end of every level.", "The AI experts are coming later, so the site no longer shows prices for them."]},
   {"version": "0.9.5", "date": "2026-11-03", "title": "Puzzles in their room, and every screen in your language",
    "items": ["Play the puzzles in their room: on each game, tap In the room for a real wooden board in the Puzzle Parlour.",
              "Every place opens with a short film, and follows the seasons: spring, summer, autumn and winter.",

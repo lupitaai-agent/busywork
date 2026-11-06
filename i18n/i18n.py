@@ -239,6 +239,8 @@ def site_pages() -> list:
     site = ROOT / "website"
     pages = []
     for p in sorted(site.rglob("*.html")):
+        if "tucks-errand/" in p.as_posix():  # the game itself is in English for now
+            continue
         rel = p.relative_to(site).as_posix()
         if rel.split("/")[0] in ("app", "content", "_archive", "tools") or rel.split("/")[0] in LANGS:
             continue
