@@ -71,8 +71,6 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
-        with:
-          timeout: 1800000  # the site is big now: the default 10 minutes ran out on 2026-11-06
 
   # Tells Bing and the other IndexNow search engines which pages changed, once they are live.
   announce:
