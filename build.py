@@ -373,7 +373,7 @@ def scenes() -> dict:
     return {sid: block.replace('class="scene"', 'class="scene on"', 1) for block, sid in found}
 
 
-OLAF_PRICE = "€149 once · checkout opens soon"
+OLAF_PRICE = "Coming later"  # nothing is on sale until there is a company (owner, 2026-11-06). Prices go back with checkout
 # Where "Get Olaf" goes once a payment provider is set up (it delivers the paid download and the
 # licence key). Empty until then: the page shows the waitlist instead.
 OLAF_CHECKOUT_URL = os.environ.get("OLAF_CHECKOUT_URL", "")
@@ -381,6 +381,7 @@ OLAF_CHECKOUT_URL = os.environ.get("OLAF_CHECKOUT_URL", "")
 # service that accepts a normal form POST and answers JSON). Set both in the GitHub repository:
 # Settings → Secrets and variables → Actions → Variables.
 WAITLIST_ENDPOINT = os.environ.get("WAITLIST_ENDPOINT", "")
+CF_ANALYTICS_TOKEN = os.environ.get("CF_ANALYTICS_TOKEN", "")  # see site_counter
 WAITLIST_PROVIDER = os.environ.get("WAITLIST_PROVIDER") or "MailerLite"
 # Busy Growth has its own list (a second MailerLite form), so Olaf's list stays Olaf's.
 GROWTH_WAITLIST_ENDPOINT = os.environ.get("GROWTH_WAITLIST_ENDPOINT", "")
@@ -395,7 +396,7 @@ def waitlist_form(where: str, endpoint: str = None, consent: str = None, button:
     box is MailerLite's Name field). It confirms each address by email
     (double opt-in, set in MailerLite); Formspree takes plain names and a hidden spam trap."""
     endpoint = WAITLIST_ENDPOINT if endpoint is None else endpoint
-    consent = consent or "Email me when Olaf can be bought, at the early-access price. Nothing else, and I can unsubscribe any time."
+    consent = consent or "Email me when Olaf is ready. Nothing else, and I can unsubscribe any time."
     ml = WAITLIST_PROVIDER.lower() == "mailerlite"
     email, business = ("fields[email]", "fields[name]") if ml else ("email", "business")
     extra = ('<input type="hidden" name="ml-submit" value="1"><input type="hidden" name="anticsrf" value="true">' if ml
@@ -446,7 +447,7 @@ def paths_block(prefix: str) -> str:
             <li><b>One plan for both</b>: every marketing action is a task on your team's Project Board</li>
             <li><b>Remembers everything</b>, researches the web and reads your sales numbers for a monthly review</li>
           </ul>
-          <p class="price"><b>€149</b> <small>once, plus your own Claude usage · checkout opens soon</small></p>
+          <p class="price"><b>Coming later</b> <small>runs on your own Claude usage</small></p>
           <div class="row-flex"><a class="btn btn-big btn-primary" href="{prefix}business/olaf.html#get">🧭 Get on the list</a><a class="btn btn-big" href="{prefix}business/olaf.html">Meet Olaf</a><a class="btn btn-big" href="{prefix}app/apps/olaf/index.html">Try the demo</a></div>
           <p class="fine">Already using the Studio? Olaf starts from your brand profile.</p>
         </article>
@@ -467,7 +468,7 @@ def paths_block(prefix: str) -> str:
             <tr><td>Project planning</td><td>Project Planner: timeline, workload, updates you send</td><td>Olaf writes the plan, checks in weekly, re-plans and drafts updates</td></tr>
             <tr><td>Marketing actions as tasks on your Project Board</td><td>✓</td><td>✓</td></tr>
             <tr><td>Your data</td><td>Your folder, never sent to us</td><td>Your folder, never sent to us</td></tr>
-            <tr><td>Price</td><td>€0</td><td>€149 once, plus Claude usage</td></tr>
+            <tr><td>Price</td><td>€0</td><td>Coming later, plus your own Claude usage</td></tr>
           </tbody>
         </table>
       </div>
@@ -931,7 +932,7 @@ OLAF_PROJECT_FEATS = [
     ("📣", "Updates and notes, done", "Updates your client reads, a brief for a freelancer, and meeting notes turned into tasks and decisions."),
 ]
 OLAF_FAQ = [("Is Olaf a person?", "No. Olaf is an AI expert for marketing and projects, running on Claude, Anthropic's AI. It follows proven marketing science, explains its reasoning in plain words, checks its writing, and never invents facts, reviews or numbers. You approve everything before it goes out."),
-       ("What does it cost?", "Olaf is €149 once for your business; checkout opens soon, and the waitlist on this page gets the early-access price. On top of that you pay Anthropic directly for the AI you use, with your own Claude key. You see the cost of every conversation, and you set a monthly limit and a limit per conversation."),
+       ("What does it cost?", "Olaf isn't on sale yet, so there is nothing to pay today. Join the list on this page and you hear first. When it opens, you also pay Anthropic directly for the AI you use, with your own Claude key. You see the cost of every conversation, and you set a monthly limit and a limit per conversation."),
        ("What does the AI cost to run?", "You pay Anthropic directly, on your own Claude key, for what Olaf uses. In our own tests with Claude Sonnet: a weekly check-in cost about $0.10 to $0.15, making a full plan about $0.25 to $0.30, and writing a month of posts about $0.15. You see the cost of every conversation and set a monthly limit."),
        ("Do I need the Marketing Studio first?", "No. If you have filled in the Studio's brand profile, Olaf starts from it. If not, Olaf's onboarding asks the questions itself, one at a time."),
        ("Where is my data?", "In your own business folder. Your Claude key stays in your browser and is only sent to Anthropic. Web pages are fetched by Anthropic's own tools, never through us. We have no server that sees your business."),
@@ -1026,16 +1027,16 @@ def olaf_page(tools: list) -> str:
         <tr><td>Does the work</td><td>✓ Drafts it all; you approve</td><td>You copy, paste and fix</td><td>✓</td></tr>
         <tr><td>Reads your real sales numbers</td><td>✓ From your Busy invoices</td><td>Only what you paste</td><td>Only what you share</td></tr>
         <tr><td>Your data</td><td>Stays on your computer</td><td>In a chat history</td><td>With the agency</td></tr>
-        <tr><td>Cost</td><td>€149 once, plus a few cents of AI per session</td><td>A monthly subscription, plus your time</td><td>A monthly retainer</td></tr>
+        <tr><td>Cost</td><td>Coming later, plus a few cents of AI per session</td><td>A monthly subscription, plus your time</td><td>A monthly retainer</td></tr>
       </tbody></table></div>
   </div></section>
   <section class="section" id="get"><div class="wrap">
     <div class="card get-olaf reveal">
       <span class="e">🧭</span>
       <div><h2>Get Olaf</h2>
-        <p>Olaf is a one-time purchase: <b>€149</b> for your business, plus your own Claude usage.</p>
+        <p>Olaf isn't on sale yet. It will run on your own Claude usage.</p>
         <ul class="get-list"><li>Olaf: the growth coach, setup, dashboard, insights and content calendar</li><li>52 marketing skills, all built on proven marketing science</li><li>The full Busy toolbox in the same download</li><li>Every update, no subscription</li></ul>
-        {f'<a class="btn btn-big btn-primary" href="{e(OLAF_CHECKOUT_URL)}">Buy Olaf · €149</a>' if OLAF_CHECKOUT_URL else '<p><b>Checkout opens soon.</b> Leave your email and you are first in line, at the early-access price.</p>' + waitlist_form("olaf-page")}
+        {f'<a class="btn btn-big btn-primary" href="{e(OLAF_CHECKOUT_URL)}">Buy Olaf · €149</a>' if OLAF_CHECKOUT_URL else '<p><b>Coming later.</b> Leave your email and you hear first.</p>' + waitlist_form("olaf-page")}
         <p class="faint" style="font-size:.88rem;margin-top:8px">The free Busy download never contains Olaf. The demo shows an example business; Olaf's work and the AI run only in the paid version.</p></div>
     </div>
   </div></section>
@@ -1208,7 +1209,7 @@ def growth_page(tools: list) -> str:
         signup = '<p class="lead">The list opens soon. Meanwhile, keep your brain busy with <a href="../games/index.html">today\'s puzzles</a>.</p>'
     ivy = f"""<section class="section" id="ivy"><div class="wrap">
     <div class="card ivy-card reveal"><img src="../assets/ivy-mark.svg" alt="" width="96" height="96">
-      <div><p class="kicker">Ivy by Busy · €30 once{"" if IVY_CHECKOUT_URL else " · coming soon"}</p><h2>Your AI coach for professional growth</h2>
+      <div><p class="kicker">Ivy by Busy{" · €30 once" if IVY_CHECKOUT_URL else " · coming later"}</p><h2>Your AI coach for professional growth</h2>
       <p>Ivy turns what you learn into skills and wins, those into a stronger CV, and helps with every application and interview. Learn it, prove it, land it. Ivy never invents experience: every line comes with its proof.</p>
       {f'<p style="margin-top:12px"><a class="btn btn-primary" href="{e(IVY_CHECKOUT_URL)}">Get Ivy · €30</a> <a class="btn" href="../claude-key.html">How Ivy connects to Claude</a></p>' if IVY_CHECKOUT_URL else '<p style="margin-top:12px"><a href="../claude-key.html">How Ivy will connect to Claude →</a></p>'}</div></div>
   </div></section>"""
@@ -1361,9 +1362,9 @@ HOUSE_STEPS = [
 
 
 EXPERTS = {  # the paid AI experts upstairs: their room and model (busy-studio), size next to Tuck, page and price
-    "olaf": {"name": "Olaf", "size": 1.45, "page": "olaf.html", "price": lambda: OLAF_PRICE.split(" ·")[0]},
-    "ivy": {"name": "Ivy", "size": 1.28, "page": "#ivy", "price": lambda: "€30 once"},  # "coming soon" stays in the expert's own section
-    "juno": {"name": "Juno", "size": 1.05, "page": "#juno", "price": lambda: f"{JUNO_PRICE} once"},
+    "olaf": {"name": "Olaf", "size": 1.45, "page": "olaf.html", "price": lambda: "Coming later"},
+    "ivy": {"name": "Ivy", "size": 1.28, "page": "#ivy", "price": lambda: "Coming later"},
+    "juno": {"name": "Juno", "size": 1.05, "page": "#juno", "price": lambda: "Coming later"},
 }
 
 
@@ -1376,7 +1377,7 @@ def expert_intro(expert: str, guide: str, guide_pic: str, tour: str, prefix: str
         <a class="btn btn-primary" href="{tour}">👀 See {x["name"]} at work</a></figure>
       <div class="expert-duo">
         <div class="card"><img src="{guide_pic}" alt="" loading="lazy"><div><b>{guide} · free</b><small>Your guide downstairs: shows you every tool. Scripted, no AI.</small></div></div>
-        <div class="card"><img src="{prefix}assets/experts/{expert}-hello.png" alt="" loading="lazy"><div><b>{x["name"]} · paid</b><small>The AI expert upstairs, on your own Claude key. {e(x["price"]())}.</small></div></div>
+        <div class="card"><img src="{prefix}assets/experts/{expert}-hello.png" alt="" loading="lazy"><div><b>{x["name"]}</b><small>The AI expert upstairs, on your own Claude key. {e(x["price"]())}.</small></div></div>
       </div>
     </div>"""
 
@@ -1384,7 +1385,7 @@ def expert_intro(expert: str, guide: str, guide_pic: str, tour: str, prefix: str
 def expert_card(s: dict) -> str:
     """The last room of a tour: upstairs, the paid expert at work (scripted here: no AI on the website)."""
     x = EXPERTS[s["expert"]]
-    return (f'<span class="chip chip-grape">Paid · AI expert · {e(x["price"]())}</span><h2>{e(s["h"])}</h2><p>{e(s["p"])}</p>'
+    return (f'<span class="chip chip-grape">AI expert · {e(x["price"]())}</span><h2>{e(s["h"])}</h2><p>{e(s["p"])}</p>'
             f'<p class="house-task">👉 {e(s["task"])}</p><div class="house-result" data-result hidden></div>'
             f'<p class="house-try"><a href="{x["page"]}">Meet {x["name"]} →</a></p>')
 
@@ -1508,7 +1509,7 @@ def home_page(tools: list) -> str:
            if JUNO_CHECKOUT_URL else '<p style="margin-top:12px"><a href="../claude-key.html">How Juno will connect to Claude →</a></p>')
     juno = f"""<section class="section" id="juno"><div class="wrap">
     <div class="card ivy-card juno-card reveal"><img src="../assets/juno-mark.svg" alt="" width="96" height="96">
-      <div><p class="kicker">Juno by Busy · {JUNO_PRICE} once{"" if JUNO_CHECKOUT_URL else " · coming soon"}</p><h2>Your AI expert for household paperwork</h2>
+      <div><p class="kicker">Juno by Busy{f" · {JUNO_PRICE} once" if JUNO_CHECKOUT_URL else " · coming later"}</p><h2>Your AI expert for household paperwork</h2>
       <p>Attach the letter you've been avoiding and Juno tells you what it means and what to do by when, with the reply already drafted. It reads your contracts and policies, says when to keep, switch or cancel, sorts a pile of scans, helps with a claim or a move, and sends you a short briefing each month. It works on your own folder and never gives legal advice: it tells you when to ask a professional.</p>
       <ul class="get-list" style="margin-top:12px"><li>Explains letters, bills and decisions, and spots scams</li><li>Writes cancellations, complaints, claims and objections in the recipient's language</li><li>Keeps every renewal, expiry and upkeep date in view</li><li>Paid once, on your own Claude key: a typical conversation costs a few cents</li></ul>
       {buy}</div></div>
@@ -1816,11 +1817,11 @@ def street_steps() -> list:
          "acts": [("shop", "", "The Workshop: Busy Business.", "", "to:shop"), ("glass", "", "The Glasshouse: Busy Growth.", "", "to:glass"),
                   ("house", "", "Tuck's house: Busy Home.", "", "to:house"), ("kiosk", "", "The puzzle kiosk: Busy Games.", "", "to:kiosk"),
                   ("olaf", "", "Someone's working late at the Workshop…",
-                   '<img class="expert-shot" src="assets/experts/olaf-card.jpg" alt="Olaf in his study above the Workshop" loading="lazy"><b>💜 Olaf works upstairs</b><span>Your AI expert for marketing and projects · €149 once</span><a class="btn" href="business/olaf.html">Meet Olaf →</a>', ""),
+                   '<img class="expert-shot" src="assets/experts/olaf-card.jpg" alt="Olaf in his study above the Workshop" loading="lazy"><b>💜 Olaf works upstairs</b><span>Your AI expert for marketing and projects · coming later</span><a class="btn" href="business/olaf.html">Meet Olaf →</a>', ""),
                   ("ivy", "", "A green light at the top of the Glasshouse…",
-                   f'<img class="expert-shot" src="assets/experts/ivy-card.jpg" alt="Ivy at the top of the Glasshouse" loading="lazy"><b>🌿 Ivy works at the top</b><span>Your AI career coach · €30 once{soon(IVY_CHECKOUT_URL)}</span>{ivy}', ""),
+                   f'<img class="expert-shot" src="assets/experts/ivy-card.jpg" alt="Ivy at the top of the Glasshouse" loading="lazy"><b>🌿 Ivy works at the top</b><span>Your AI career coach · coming later</span>{ivy}', ""),
                   ("juno", "", "A light in Tuck's gable…",
-                   f'<img class="expert-shot" src="assets/experts/juno-card.jpg" alt="Juno in the gable room of Tuck\'s house" loading="lazy"><b>🧡 Juno works in the attic</b><span>Your AI expert for household paperwork · {JUNO_PRICE} once{soon(JUNO_CHECKOUT_URL)}</span>{juno}', "")]},
+                   f'<img class="expert-shot" src="assets/experts/juno-card.jpg" alt="Juno in the gable room of Tuck\'s house" loading="lazy"><b>🧡 Juno works in the attic</b><span>Your AI expert for household paperwork · coming later</span>{juno}', "")]},
         {"id": "shop", "title": "The Workshop · Busy Business", "kicker": "Busy Business", "h": "Free tools for small businesses",
          "p": "Invoices and quotes, hours, receipts, money, clients, projects, stock and a marketing studio: 13 tools for freelancers, makers and small studios.",
          "task": "Pull up the shutter.", "say": "The Workshop. Somebody's still working…",
@@ -2086,7 +2087,7 @@ def write_llms(tools: list) -> None:
     lines = [f"# Busy", "", f"> {ENTITY}", "",
              f"Busy, {DESCRIPTOR}, lives at {b}. It was called Busywork until October 2026. It is not related to BUSY accounting software (busy.in).", "",
              "Key facts:",
-             f"- Price: every suite's tools are free, with no account and no subscription. Olaf (Busy Business) is {olaf_price} for one business; Ivy (Busy Growth, coming soon) is €30 once. Both run on the owner's own Claude usage.",
+             f"- Price: every suite's tools are free, with no account and no subscription. The AI experts (Olaf, Ivy and Juno) are coming later, and will run on the owner's own Claude usage.",
              "- Data: saved as files in a folder the owner chooses on their own computer (it can sit in Google Drive, Dropbox, OneDrive or iCloud Drive). Nothing is sent to Busy. The games keep progress in the browser.",
              "- Works in: a free app per suite for Mac and Windows (beta), Busy Games included; or, without installing, Chrome and Edge from a downloaded folder (also on ChromeOS and Linux). The games run in any modern browser.",
              "- AI: none in the free tools. Olaf, Ivy and Juno run on Claude with the owner's own API key; requests go from the browser to Anthropic only.",
@@ -2102,18 +2103,18 @@ def write_llms(tools: list) -> None:
     lines += [f"- [{g['name']}]({b}/games/{g['id']}.html): {g['desc']}" for g in GAMES]
     if GROWTH_LIVE:
         lines += ["", "## Busy Growth: free tools to grow your career", "",
-                  f"- [Busy Growth]({b}/growth/index.html): {len(GROWTH_TOOLS)} free tools: a library of what you read and learn, skills, wins, a learning plan, a job tracker, a CV builder, interview stories, contacts and a weekly review. Ivy, an AI coach for professional growth (€30 once), is coming soon.",
+                  f"- [Busy Growth]({b}/growth/index.html): {len(GROWTH_TOOLS)} free tools: a library of what you read and learn, skills, wins, a learning plan, a job tracker, a CV builder, interview stories, contacts and a weekly review. Ivy, an AI coach for professional growth, is coming later.",
                   f"- [Download Busy Growth]({b}/growth/index.html#get): the free Busy Growth app for Mac and Windows (beta), or a zip for the browser."]
         lines += [f"- [{t['name']}]({b}/growth/{t['id']}.html): {t['description']}" for t in suite_tools("growth")]
-        lines += [f"- [Ivy, the AI coach for professional growth]({b}/growth/index.html#ivy): learn it, prove it, land it; never invents experience. €30 once, on the owner's own Claude key."]
+        lines += [f"- [Ivy, the AI coach for professional growth]({b}/growth/index.html#ivy): learn it, prove it, land it; never invents experience. Coming later, on the owner's own Claude key."]
     else:
         lines += ["", "## Busy Growth: free tools to grow your career (coming soon)", "",
-                  f"- [Busy Growth]({b}/growth/index.html): a library of what you read and learn, skills, wins, a learning plan, a job tracker and a CV builder, plus Ivy, an AI coach for professional growth (€30 once). Not released yet."]
+                  f"- [Busy Growth]({b}/growth/index.html): a library of what you read and learn, skills, wins, a learning plan, a job tracker and a CV builder, plus Ivy, an AI coach for professional growth. Not released yet."]
     lines += (["", "## Busy Home: free tools for household paperwork", "",
-               f"- [Busy Home]({b}/home/index.html): {len(HOME_TOOLS)} free tools: documents that warn before they expire, contracts with the last day to cancel, home upkeep, a home inventory with an insurance claim pack, letters, a moving planner and a Just in Case binder. Juno, an AI expert for household paperwork ({JUNO_PRICE} once), is coming soon.",
+               f"- [Busy Home]({b}/home/index.html): {len(HOME_TOOLS)} free tools: documents that warn before they expire, contracts with the last day to cancel, home upkeep, a home inventory with an insurance claim pack, letters, a moving planner and a Just in Case binder. Juno, an AI expert for household paperwork, is coming later.",
                f"- [Download Busy Home]({b}/home/index.html#get): the free Busy Home app for Mac and Windows (beta), or a zip for the browser."]
               + [f"- [{t['name']}]({b}/home/{t['id']}.html): {t['description']}" for t in suite_tools("home")]
-              + [f"- [Juno, the AI expert for household paperwork]({b}/home/index.html#juno): explains letters, writes the replies and keeps the household ahead. {JUNO_PRICE} once, on the owner's own Claude key."]
+              + [f"- [Juno, the AI expert for household paperwork]({b}/home/index.html#juno): explains letters, writes the replies and keeps the household ahead. Coming later, on the owner's own Claude key."]
               if HOME_LIVE else ["", "## Busy Home: free tools for household paperwork (coming soon)", "",
                f"- [Busy Home]({b}/home/index.html): documents, contracts with the last day to cancel, upkeep, a home inventory, letters, moving and a Just in Case binder. Not released yet."])
     lines += [
@@ -2134,14 +2135,14 @@ def write_llms(tools: list) -> None:
             "4. Busy also keeps a daily backup in that folder. There is no account and no server: nothing is sent to us.",
             "", "## Editions", "",
             f"- Free app (Mac and Windows, beta) and free download: all {len(tools)} tools, the Marketing Studio included. No AI, no account, no subscription.",
-            f"- Paid edition: the same tools plus Olaf, the AI expert for marketing and projects. {OLAF_PRICE}.",
+            f"- Coming later: the same tools plus Olaf, the AI expert for marketing and projects.",
             f"- Website demo: every tool filled with a pretend design studio, at {b}/app/index.html. Nothing is kept after the tab closes.", ""]
     for t in tools:
         full += [f"## {t['name']}", "", f"{t['h1']} {t['lead']}", "", f"Page: {b}/business/{t['id']}.html", "", "What it does:"]
         full += [f"- {f[1]}: {f[2]}" for f in t["features"]]
         full += ["", "Questions:"] + [f"- {q} {a}" for q, a in t["faq"]] + [""]
     full += ["## Olaf, the AI expert for marketing and projects (paid edition of Busy Business)", "",
-             f"Page: {b}/business/olaf.html. Price: {OLAF_PRICE}.", "", "Marketing:"]
+             f"Page: {b}/business/olaf.html. {OLAF_PRICE}.", "", "Marketing:"]
     full += [f"- {f[1]}: {f[2]}" for f in OLAF_FEATS] + ["", "Projects:"] + [f"- {f[1]}: {f[2]}" for f in OLAF_PROJECT_FEATS]
     full += ["", "Questions:"] + [f"- {q} {a}" for q, a in OLAF_FAQ]
     full += ["", "# Busy Games: free daily brain games", "", f"Page: {b}/games/index.html. Four logic puzzles that run in the browser, a new one every day and {GAME_LEVELS:,} levels each. Progress stays in the browser; no account.", ""]
@@ -2151,11 +2152,11 @@ def write_llms(tools: list) -> None:
     full += (["", "# Busy Growth: free tools to grow your career", "", f"Page: {b}/growth/index.html. Free, as its own app for Mac and Windows ({b}/growth/index.html#get) or a zip for the browser ({b}/downloads/busy-growth.zip), with a demo at {b}/app/growth.html. The tools:", ""]
              if GROWTH_LIVE else ["", "# Busy Growth: free tools to grow your career (coming soon)", "", f"Page: {b}/growth/index.html. Not released yet. Planned tools:", ""])
     full += [f"- {n}: {d}" for _, n, d in GROWTH_TOOLS]
-    full += ["", "Ivy by Busy, the AI coach for professional growth, will be the paid part: €30 once, on the owner's own Claude usage. Ivy never invents experience: every CV line comes with its proof."]
+    full += ["", "Ivy by Busy, the AI coach for professional growth, is coming later, on the owner's own Claude usage. Ivy never invents experience: every CV line comes with its proof."]
     full += (["", "# Busy Home: free tools for household paperwork", "", f"Page: {b}/home/index.html. Free, as its own app for Mac and Windows ({b}/home/index.html#get) or a zip for the browser ({b}/downloads/busy-home.zip), with a demo at {b}/app/home.html. The tools:", ""]
              if HOME_LIVE else ["", "# Busy Home: free tools for household paperwork (coming soon)", "", f"Page: {b}/home/index.html. Not released yet. Planned tools:", ""])
     full += [f"- {n}: {d}" for _, n, d in HOME_TOOLS]
-    full += ["", f"Juno by Busy, the AI expert for household paperwork, is the paid part: {JUNO_PRICE} once, on the owner's own Claude usage. It explains letters, reads contracts and policies, writes replies and keeps renewals in view. It never gives legal advice.",
+    full += ["", f"Juno by Busy, the AI expert for household paperwork, is coming later, on the owner's own Claude usage. It explains letters, reads contracts and policies, writes replies and keeps renewals in view. It never gives legal advice.",
              "", "# Privacy in short", "",
              "The tools never send us anything. Business data stays in the owner's folder; the games keep progress in the browser. The waitlists keep an email address in MailerLite, only to say when Olaf or Busy Growth can be had. Olaf's requests go from the owner's browser to Anthropic with the owner's own key.",
              f"Full text: {b}/privacy.html", ""]
@@ -2220,7 +2221,7 @@ def about_page(tools: list) -> str:
     facts = [("What it is", ENTITY),
              ("The suites", f"Busy Business: {len(tools)} free tools for small businesses and freelancers. Busy Games: four free daily logic puzzles with {GAME_LEVELS:,} levels each. Busy Growth: " + (f"{len(GROWTH_TOOLS)} free tools to grow your career." if GROWTH_LIVE else "free tools to grow your career, coming soon.")),
              ("Who it is for", "People who would rather spend their time on what matters: small business owners and freelancers, anyone who likes a daily puzzle, and " + ("" if GROWTH_LIVE else "soon ") + "anyone growing their career."),
-             ("What it costs", f"Every suite's tools are free. The AI experts are paid once: Olaf for Busy Business is {olaf_price}, Ivy for Busy Growth will be €30. Both run on the owner's own Claude usage."),
+             ("What it costs", f"Every suite's tools are free. The AI experts are coming later, and will run on the owner's own Claude usage."),
              ("Where the data lives", "In a folder the owner chooses on their own computer, as plain files. There is no account and no server, so nothing is sent to us. The games keep your streak in your browser."),
              ("What it runs on", "The business tools run in Chrome and Edge on Windows, macOS and ChromeOS, from a downloaded folder; nothing is installed. The games run in any modern browser."),
              ("How the marketing tools work", "Busy Business's Marketing Studio and Olaf are built on proven marketing science: reach more buyers, be the business people think of in the moments they need you, and be easy to find and buy from."),
@@ -2341,6 +2342,22 @@ def apply_site_url() -> None:
         text = f.read_text()
         if "https://busywork.example" in text:
             f.write_text(text.replace("https://busywork.example", SITE_URL))
+
+
+def site_counter() -> None:
+    """Counts visits with Cloudflare Web Analytics when CF_ANALYTICS_TOKEN is set (a GitHub variable; the token is public, it only says which site is counted).
+    No cookies, website pages only, never under app/. The numbers are in the owner's Cloudflare account; nothing shows on the site. Without it, nothing is added."""
+    privacy = SITE / "privacy.html"
+    text = privacy.read_text()
+    section = """<h2 id="counting">Counting visits</h2>
+  <p>We count visits to this website with Cloudflare Web Analytics, so we can see which pages are useful. It sets no cookies and doesn't follow you to other sites, and we only see totals. It runs on the website's pages, never inside the tools.</p>
+  """ if CF_ANALYTICS_TOKEN else ""
+    text = re.sub(r"<!-- counting -->.*?<!-- /counting -->", lambda m: f"<!-- counting -->{section}<!-- /counting -->", text, flags=re.S)
+    privacy.write_text(text)
+    tag = f"""<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{{"token": "{e(CF_ANALYTICS_TOKEN)}"}}'></script>""" if CF_ANALYTICS_TOKEN else ""
+    for f in site_pages():  # some pages are hand-written and keep what an earlier build added: take the old tag out first
+        t = re.sub(r"""<script defer src="https://static\.cloudflareinsights\.com/beacon\.min\.js"[^>]*></script>""", "", f.read_text())
+        f.write_text(t.replace("</head>", tag + "</head>", 1) if tag else t)
 
 
 def site_csp() -> None:
@@ -2477,6 +2494,7 @@ def main() -> None:
     apply_site_url()
     image_metadata()
     site_seo()
+    site_counter()
     site_csp()
     translate_site()
     leak_check()

@@ -82,7 +82,7 @@
         <div class="start-steps">${steps.map(([ok, e, t, sub, go], i) => `<${typeof go === 'string' && !ok ? `a href="${go}"` : 'button type="button"'} class="step ${ok ? 'ok' : ''}" data-step="${i}"><span class="tick">${ok ? '✓' : e}</span><span><b>${t}</b><small>${sub}</small></span></${typeof go === 'string' && !ok ? 'a' : 'button'}>`).join('')}</div>
       </section>` : ''}
       <div class="home-row">
-        <section class="card demo" data-olaf-up hidden><span class="emo">🧭</span><div><b>Get more done with Olaf</b><small>Olaf, our AI expert for marketing and projects, plans your marketing, runs your projects with you and does the work. Paid edition, €149 once.</small></div>
+        <section class="card demo" data-olaf-up hidden><span class="emo">🧭</span><div><b>Get more done with Olaf</b><small>Olaf, our AI expert for marketing and projects, plans your marketing, runs your projects with you and does the work. Coming later.</small></div>
           <a class="btn btn-primary" data-olaf-go>Register your interest</a></section>
         ${recent.length ? `<section class="card recent"><b>🕒 Recently changed</b>${recent.map(([at, e, l, href]) => `<a href="${href}"><span>${e}</span><span class="t">${esc(l)}</span><small>${BW.fmtDate(at.slice(0, 10), { day: 'numeric', month: 'short' })}</small></a>`).join('')}</section>` : ''}
       </div>
