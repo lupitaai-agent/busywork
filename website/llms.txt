@@ -34,6 +34,7 @@ Key facts:
 ## Busy Games: free daily brain games
 
 - [Busy Games](https://busywork.example/games/index.html): four free logic puzzles in the browser or as a free app for Mac and Windows (beta), a new one every day and 10,000 levels each. No account.
+- [Busy Street: Tuck's Errand](https://busywork.example/games/tucks-errand.html): Busy's free puzzle adventure, in the browser or as a free app for Mac and Windows (beta). Six levels, six friends to cut loose from the Red Tape; the download has a film at the start and end of every level. No AI, no account. In English for now.
 - [Stars](https://busywork.example/games/stars.html): Stars, a free Star Battle logic puzzle: one star per row, column and colour patch. A new puzzle every day and 10,000 levels. No account.
 - [Duo](https://busywork.example/games/duo.html): Duo, a free Takuzu (Binairo) logic puzzle with suns and grapes: half and half, never three in a row. A new puzzle every day and 10,000 levels.
 - [Trail](https://busywork.example/games/trail.html): Trail, a free path puzzle: draw one line through every cell, passing the numbers in order. A new puzzle every day and 10,000 levels. No account.

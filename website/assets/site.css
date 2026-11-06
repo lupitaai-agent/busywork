@@ -590,3 +590,14 @@ a.card.feat .go { display: inline-block; margin-top: 8px; font-weight: 800; font
 .house-film { position: absolute; max-width: none; z-index: 2; pointer-events: none; transition: opacity .6s ease; background: transparent; }
 .house-film.gone { opacity: 0; }
 .house.intro .house-decals, .house.intro [data-house-spots], .house.intro [data-tuck-bubble] { opacity: 0; transition: opacity .4s; }
+
+/* The game on the homepage */
+.game-band { padding-top: 34px; padding-bottom: 8px; }
+.game-band-in { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 28px; align-items: center; padding: 22px; border-radius: 22px; background: #1E1B2E; color: #FBF7EE; border: 3px solid var(--ink, #1E1B2E); box-shadow: 6px 6px 0 var(--sun, #FFC93C); }
+.game-band video { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 14px; background: #111; display: block; }
+.game-band-text { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+.game-band-text h2 { margin: 0; font-size: clamp(1.7rem, 3.2vw, 2.6rem); line-height: 1.08; color: #FFC93C; }
+.game-band-text p { margin: 0; color: #FBF7EE; }
+.game-band-text .faint { color: #FBF7EE; opacity: .75; }
+@media (max-width: 800px) { .game-band-in { grid-template-columns: 1fr; gap: 16px; padding: 14px; } }
+@media (pointer: coarse) { .only-keyboard { display: none; } }

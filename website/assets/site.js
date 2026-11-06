@@ -102,6 +102,16 @@
   })();
 
   // ---------- reveal on scroll ----------
+  // A video that only loads and plays while it is on screen, and never for people who asked for less motion
+  const seen = document.querySelectorAll('video[data-seen-src]');
+  if (seen.length && 'IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const vio = new IntersectionObserver((es) => es.forEach((en) => {
+      const v = en.target;
+      if (en.isIntersecting) { if (!v.src) v.src = v.dataset.seenSrc; v.play().catch(() => {}); } else if (v.src) v.pause();
+    }), { threshold: 0.25 });
+    seen.forEach((v) => vio.observe(v));
+  } else seen.forEach((v) => { v.controls = true; v.preload = 'metadata'; v.src = v.dataset.seenSrc; });
+
   const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('shown'); io.unobserve(e.target); } }), { threshold: .15 });
   $$('.reveal').forEach((el) => io.observe(el));
 

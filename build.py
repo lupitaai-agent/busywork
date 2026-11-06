@@ -638,7 +638,7 @@ def footer(prefix: str, tools: list) -> str:
   <div><span class="brandmark"><span class="blob">✦</span>Busy</span><p class="faint">Make your paperwork fun again.<br>Free, private tools for work and life.</p>
     <ul><li><a href="{prefix}about.html">About Busy</a></li><li><a href="{prefix}updates.html">What's new</a></li><li><a href="{prefix}press.html">Press</a></li><li><a href="{prefix}privacy.html">Privacy</a></li><li><a href="{prefix}terms.html">Terms</a></li></ul><!--langs--></div>
   <div><b>💼 Busy Business</b><ul>{biz}<li><a href="{prefix}business/tools.html">All {len(tools)} tools</a></li><li><a href="{prefix}business/olaf.html">🧭 Olaf by Busy</a></li></ul>
-    <p style="margin-top:22px"><b>🧩 Busy Games</b></p><ul>{games}<li><a href="{prefix}games/index.html">All games</a></li></ul></div>
+    <p style="margin-top:22px"><b>🧩 Busy Games</b></p><ul><li><a href="{prefix}games/tucks-errand.html">Tuck's Errand</a></li>{games}<li><a href="{prefix}games/index.html">All games</a></li></ul></div>
   <div><b>🌱 Busy Growth</b><ul>{suite("growth", "growth", GROWTH_LIVE, f'<li><a href="{prefix}growth/index.html#ivy">🌿 Ivy by Busy</a></li>')}</ul>
     <p style="margin-top:22px"><b>🏡 Busy Home</b></p><ul>{suite("house", "home", HOME_LIVE, f'<li><a href="{prefix}home/index.html#juno">🏡 Juno by Busy</a></li>')}</ul></div>
 </div></footer>"""
@@ -678,6 +678,8 @@ def head(title: str, desc: str, path: str, prefix: str, extra: str = "", image: 
 IMAGES = {
     "assets/og-busy.png": ("Busy: free, private tools for work and life",
                            "Busy share image: free, private tools for work and life, with suites for business, daily brain games and career growth."),
+    "assets/og-tucks-errand.png": ("Busy Street: Tuck's Errand, a free game",
+                                   "Share image of the game Busy Street: Tuck's Errand: Tuck, Rivet and Zip at the foot of the Glasshouse."),
     "assets/og-games.png": ("Busy Games: free daily puzzles",
                             "Busy Games share image: a new puzzle every day, free and without an account, at the puzzle kiosk on Busy Street."),
     "assets/og-olaf.png": ("Olaf by Busy: AI expert for marketing and projects",
@@ -1842,7 +1844,7 @@ def street_steps() -> list:
          "p": f"Stars, Duo, Trail and Six: four new puzzles every day, the same for everyone, and {GAME_LEVELS:,} levels each when you want more.",
          "task": "Tap the board.", "say": "The puzzle kiosk. Today's four are up.",
          "acts": [("board", "", "Today's four. Gentle on Monday, hardest at the weekend.",
-                   '<b>🧩 Today\'s puzzles</b><span>Stars · Duo · Trail · Six</span><a class="btn btn-primary" href="games/index.html">Play today\'s puzzles →</a>', "enter")]},
+                   '<b>🧩 Today\'s puzzles</b><span>Stars · Duo · Trail · Six</span><a class="btn btn-primary" href="games/index.html">Play today\'s puzzles →</a><a class="btn" href="games/tucks-errand.html">✂️ Tuck\'s Errand, our free game</a>', "enter")]},
     ]
 
 
@@ -1855,7 +1857,7 @@ def street_card(s: dict) -> str:
     if s["id"] == "wide":
         what = ("your business, your career, your home and your coffee break" if GROWTH_LIVE and HOME_LIVE
                 else "your business and your coffee break, and soon your career")
-        return ('<span class="chip chip-sun">Free · private · no account</span>'
+        return ('<span class="chip chip-sun">Free · private · no account</span> <a class="chip chip-grape" href="#tucks-errand">🎮 New: our free game</a>'
                 '<h1>Make your <span class="swap" data-swap=\'["paperwork","job search","coffee break","invoices","learning","timesheets"]\'><span>paperwork</span></span> fun again.</h1>'
                 f'<p>Free, private tools for {what}. Everything stays in your own folder; nothing is sent to us.</p>'
                 '<p class="house-task">👉 Tap a building to look inside, or a lit window upstairs.</p>'
@@ -1878,14 +1880,29 @@ TUCK_FAQ = [
 ]
 
 
+def tuck_video(lang: str = "en") -> dict:
+    """The trailer, for search engines: on the game's page and in the video sitemap."""
+    tr = (lambda t: t) if lang == "en" else (lambda t: I18N.translate_text(t, lang))
+    return {"@context": "https://schema.org", "@type": "VideoObject", "name": "Busy Street: Tuck's Errand: trailer",
+            "description": tr("A short trailer for the free game Busy Street: Tuck's Errand: six friends, the Red Tape and a stamp that is overdue."),
+            "thumbnailUrl": f"{SITE_URL}/games/tucks-errand/assets/pitch/poster.jpg", "uploadDate": "2026-11-06", "duration": "PT33S",
+            "contentUrl": f"{SITE_URL}/games/tucks-errand/assets/trailer.mp4", "isFamilyFriendly": True, "inLanguage": "en"}
+
+
 def tuck_page() -> str:
     """The game's own page: the trailer, the download first, the browser next to it."""
     faq = "".join(f"<details><summary>{e(q)}</summary><p>{e(a)}</p></details>" for q, a in TUCK_FAQ)
     ld = jsonld({"@context": "https://schema.org", "@type": "FAQPage",
                  "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in TUCK_FAQ]})
     desc = "A free puzzle adventure on Busy Street. Tuck only went out to get a stamp back. Six levels, six friends to cut loose, for Mac, Windows or your browser."
-    extra = ld + '<link rel="stylesheet" href="../assets/games/games.css">'
-    return f"""{head("Busy Street: Tuck's Errand · A free game", desc, "games/tucks-errand.html", "../", extra, image="og-games.png")}
+    game = {"@context": "https://schema.org", "@type": "VideoGame", "name": "Busy Street: Tuck's Errand", "description": desc, "url": f"{SITE_URL}/games/tucks-errand.html",
+            "image": f"{SITE_URL}/assets/og-tucks-errand.png", "genre": ["Puzzle", "Adventure", "Platformer"], "gamePlatform": ["Web browser", "macOS", "Windows"],
+            "applicationCategory": "GameApplication", "operatingSystem": "macOS 13 or newer, Windows 10 or 11, or a web browser", "playMode": "SinglePlayer",
+            "numberOfPlayers": {"@type": "QuantitativeValue", "value": 1}, "inLanguage": "en", "isFamilyFriendly": True, "publisher": {"@type": "Organization", "name": "Busy", "url": f"{SITE_URL}/"},
+            "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR", "availability": "https://schema.org/InStock"},
+            "downloadUrl": [f"{APP_RELEASE}Busy-Tucks-Errand-Beta-Mac.dmg", f"{APP_RELEASE}Busy-Tucks-Errand-Beta-Windows.exe"], "trailer": tuck_video()}
+    extra = ld + jsonld(game) + '<link rel="stylesheet" href="../assets/games/games.css">'
+    return f"""{head("Busy Street: Tuck's Errand · A free game", desc, "games/tucks-errand.html", "../", extra, image="og-tucks-errand.png")}
 <body class="site app-sun">
 {nav("../", explore("../"))}
 <main id="main">
@@ -1894,7 +1911,7 @@ def tuck_page() -> str:
     <p class="kicker">A free game from Busy</p>
     <h1 class="big">Busy Street: Tuck's Errand</h1>
     <p class="lead">The Red Tape has crept over Busy Street, and everyone it catches turns into a tangled, snarling version of themselves. Tuck only went out to get a stamp back.</p>
-    <video src="../games/tucks-errand/assets/trailer.mp4" poster="../games/tucks-errand/assets/pitch/poster.jpg" autoplay muted loop playsinline style="width:100%;max-width:900px;border-radius:16px;margin:18px auto;display:block"></video>
+    <video data-seen-src="/games/tucks-errand/assets/trailer.mp4" poster="../games/tucks-errand/assets/pitch/poster.jpg" muted loop playsinline preload="none" aria-label="Trailer for the game" style="width:100%;max-width:900px;border-radius:16px;margin:18px auto;display:block"></video>
   </div></section>
   <section class="section" id="get"><div class="center">
     <h2 class="big">Ready to download</h2>
@@ -2164,6 +2181,7 @@ def write_llms(tools: list) -> None:
               f"- [All business tools]({b}/business/tools.html): what each tool does.",
               "", "## Busy Games: free daily brain games", "",
               f"- [Busy Games]({b}/games/index.html): four free logic puzzles in the browser or as a free app for Mac and Windows (beta), a new one every day and {GAME_LEVELS:,} levels each. No account."]
+    lines += [f"- [Busy Street: Tuck's Errand]({b}/games/tucks-errand.html): Busy's free puzzle adventure, in the browser or as a free app for Mac and Windows (beta). Six levels, six friends to cut loose from the Red Tape; the download has a film at the start and end of every level. No AI, no account. In English for now."]
     lines += [f"- [{g['name']}]({b}/games/{g['id']}.html): {g['desc']}" for g in GAMES]
     if GROWTH_LIVE:
         lines += ["", "## Busy Growth: free tools to grow your career", "",
@@ -2209,6 +2227,7 @@ def write_llms(tools: list) -> None:
              f"Page: {b}/business/olaf.html. {OLAF_PRICE}.", "", "Marketing:"]
     full += [f"- {f[1]}: {f[2]}" for f in OLAF_FEATS] + ["", "Projects:"] + [f"- {f[1]}: {f[2]}" for f in OLAF_PROJECT_FEATS]
     full += ["", "Questions:"] + [f"- {q} {a}" for q, a in OLAF_FAQ]
+    full += ["", "# Busy Street: Tuck's Errand: a free game", "", f"Page: {b}/games/tucks-errand.html. A puzzle adventure on Busy Street: the Red Tape has crept over the street, and Tuck only went out to get a stamp back. Six levels and six friends to cut loose. You swap between two figures on screen, call in the others, throw pots, keys and each other, climb, swing and roll, hide from inspectors and solve logic puzzles. Free, in the browser or as a download for Mac and Windows (beta); the download has a film at the start and end of every level and plays without the internet. No AI and no account. In English for now."]
     full += ["", "# Busy Games: free daily brain games", "", f"Page: {b}/games/index.html. Four logic puzzles that run in the browser, a new one every day and {GAME_LEVELS:,} levels each. Progress stays in the browser; no account.", ""]
     for g in GAMES:
         full += [f"## {g['name']} ({g['classic']})", "", g["about"], f"Page: {b}/games/{g['id']}.html", "", "Rules:"] + [f"- {r}" for r in g["rules"]] + [""]
@@ -2534,13 +2553,13 @@ def translate_site() -> None:
 def video_sitemap(path: str, lang: str) -> str:
     """The place's film on this page, for the video sitemap (Google's video results)."""
     place = PAGE_FILM.get(path)
-    v = film_of(place, lang) if place else None
+    v = tuck_video(lang) if path == "games/tucks-errand.html" else film_of(place, lang) if place else None
     if not v:
         return ""
     x = lambda s: html.escape(s, quote=True)
     return (f"<video:video><video:thumbnail_loc>{x(v['thumbnailUrl'])}</video:thumbnail_loc><video:title>{x(v['name'])}</video:title>"
             f"<video:description>{x(v['description'])}</video:description><video:content_loc>{x(v['contentUrl'])}</video:content_loc>"
-            f"<video:duration>8</video:duration><video:family_friendly>yes</video:family_friendly></video:video>")
+            f"<video:duration>{re.sub(r'[^0-9]', '', v['duration'])}</video:duration><video:family_friendly>yes</video:family_friendly></video:video>")
 
 
 def main() -> None:

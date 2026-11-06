@@ -303,6 +303,10 @@ Questions:
 - Which computers does it work on? Any computer with Chrome or Edge, Mac or Windows. Busy keeps your business as files in a folder, and Safari and Firefox cannot save to folders yet.
 - Is Olaf in the free download? No. The free download has every Busy tool and the Marketing Studio. Olaf comes in its own download when you buy it, with Busy included. The demo on this site shows what it looks like with an example business.
 
+# Busy Street: Tuck's Errand: a free game
+
+Page: https://busywork.example/games/tucks-errand.html. A puzzle adventure on Busy Street: the Red Tape has crept over the street, and Tuck only went out to get a stamp back. Six levels and six friends to cut loose. You swap between two figures on screen, call in the others, throw pots, keys and each other, climb, swing and roll, hide from inspectors and solve logic puzzles. Free, in the browser or as a download for Mac and Windows (beta); the download has a film at the start and end of every level and plays without the internet. No AI and no account. In English for now.
+
 # Busy Games: free daily brain games
 
 Page: https://busywork.example/games/index.html. Four logic puzzles that run in the browser, a new one every day and 10,000 levels each. Progress stays in the browser; no account.
