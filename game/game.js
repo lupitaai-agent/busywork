@@ -5,12 +5,14 @@
    lines.js and picked by rules. Tools are separate things a figure picks up and holds, never part of its model. No AI, nothing sent anywhere. */
 (async function () {
   'use strict';
+  if (window.SNIP_I18N) await window.SNIP_I18N.ready;  // other languages swap the words before anything reads them
   const { THREE, GLTFLoader } = window.BusyThree, S = window.BusyScene, G = window.BusyGames;
   const ASSETS = window.SNIP_ASSETS || '../small-business-tools/website/assets/';  // publish.py sets this for the website and the app
   const $ = (q) => document.querySelector(q);
   const stage = $('[data-stage]'), film = $('[data-film]'), promptEl = $('[data-prompt]'), sayEl = $('[data-say]'), lessonEl = $('[data-lesson]');
   const LEVELS = window.SNIP_LEVELS, LINES = window.SNIP_LINES;
-  const EDITION = location.search.includes('web') ? 'web' : (window.SNIP_EDITION || 'download');  // the web build sets this to 'web'; ?web shows it here
+  let paid = null;  // the paid edition's extra layer (ai/paid.js); the free game never loads it
+  const EDITION = location.search.includes('web') ? 'web' : location.search.includes('paid') ? 'paid' : (window.SNIP_EDITION || 'download');  // the web build sets this to 'web'; ?web shows it here
 
   // Each figure has only the moves its levels need. Who can do what is here too.
   const FIGURES = {
@@ -44,7 +46,7 @@
   const world = new THREE.Scene(), cam = new THREE.PerspectiveCamera(30, 16 / 9, 0.1, 60), plate = window.SnipPlate(THREE);
   const roomCache = {}, FLAT = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
   const OWN_ROOMS = ['level1'];  // rooms made for the game, in the game's own folder; the others are the website's
-  const roomBase = (place) => (OWN_ROOMS.includes(place) ? `assets/rooms/${place}/` : `${ASSETS}${place}/`);
+  const roomBase = (place) => (paid && paid.roomBase(place)) || (OWN_ROOMS.includes(place) ? `assets/rooms/${place}/` : `${ASSETS}${place}/`);
   async function roomsOf(place) {
     if (!roomCache[place]) roomCache[place] = Object.fromEntries((await fetch(`${roomBase(place)}rooms.json`).then((r) => r.json())).rooms.map((r) => [r.id, r]));
     return roomCache[place];
@@ -258,6 +260,7 @@
   const keys = new Set(), pressed = new Set();
   const down = (k) => { if (!keys.has(k)) pressed.add(k); keys.add(k); };
   addEventListener('keydown', (e) => {
+    if (e.target && e.target.matches && e.target.matches('input, textarea')) return;  // typing to someone isn't playing
     if ([' ', 'Tab', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) e.preventDefault();
     if (e.repeat) return;
     if (e.key === 'h' || e.key === '?') toggleHelp();
@@ -486,6 +489,7 @@
     sayEl.hidden = true; sayT = 0; quiet = 0.5;
     game.still = 0; game.hiddenFor = 0; game.closeDone = false; game.mutter = 3 + Math.random() * 2;
     setTimeout(() => speak(silent ? game.retryWith || 'retry' : 'enter_' + (sc.say || sc.room), { force: true }), silent ? 450 : 650);
+    if (paid) paid.enterRoom(sc, game.level, game);
   }
 
   async function addThing(t) {
@@ -750,7 +754,7 @@
         const m = new THREE.Mesh(new THREE.PlaneGeometry(2, 0.75), new THREE.MeshBasicMaterial({ color: 0xff3a24, transparent: true, opacity: 0.32, depthWrite: false, toneMapped: false }));
         m.rotation.x = -Math.PI / 2; addAt(m, t.from, 0.016, -0.1);
         game.sight = m;
-        game.guard = { who: w, key: t.who, x: t.from, dir: 1, wait: 0, seen: 0, awake: false, wake: t.wake || 1, speed: t.speed || 1.05, pause: t.pause || 1.3, see: t.see || 2.1, read: 0, left: t.left === undefined ? -2.3 : t.left, right: t.right === undefined ? 2.3 : t.right };
+        game.guard = { who: w, key: t.who, x: t.from, dir: 1, wait: 0, seen: 0, awake: false, wake: t.wake || 1, speed: (t.speed || 1.05) * (paid ? paid.guardPace() : 1), pause: t.pause || 1.3, see: t.see || 2.1, read: 0, left: t.left === undefined ? -2.3 : t.left, right: t.right === undefined ? 2.3 : t.right };
         if (t.dir) { game.guard.dir = t.dir; w.holder.rotation.y = t.dir * Math.PI / 2; }
         break;
       }
@@ -1255,6 +1259,8 @@
   // ---------- being caught ----------
   function caught(kind, victim) {
     if (game.frozen || game.grace > 0) return;
+    if (paid && paid.spare(kind)) return;
+    if (paid) paid.caught(kind);
     game.frozen = true; game.tries++;
     facts.here++;
     const a = victim || hero();
@@ -1426,6 +1432,7 @@
     $('[data-tname]').textContent = b.name || FIGURES[b.key].name;
     $('[data-tsay]').textContent = q.q;
     $('[data-treply]').hidden = true;
+    if (paid && q.scene && paid.answerBox(b, q, list)) { el.hidden = false; game.talking = b; return; }
     list.replaceChildren(...q.a.map((text, k) => {
       const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'answer'; btn.textContent = `${k + 1}. ${text}`;
       btn.onclick = () => answer(b, k);
@@ -1534,9 +1541,11 @@
     c.querySelector('h1').textContent = lv.ending ? lv.ending.title : `${FIGURES[lv.frees].name} is free!`;
     c.querySelector('.lead').textContent = `${lv.title}: done${game.tries ? `, in ${game.tries + 1} tries` : ', first time'}.`;
     $('[data-intro]').textContent = lv.next;
-    $('[data-note]').textContent = '';
+    { const pickLang = $('[data-lang]'); if (pickLang && window.SNIP_I18N) { pickLang.value = window.SNIP_I18N.lang; pickLang.onchange = () => window.SNIP_I18N.setLang(pickLang.value); pickLang.onkeydown = (e) => e.stopPropagation(); } }
+  $('[data-note]').textContent = '';
     pitch(game.level);
     menu(LEVELS[game.level + 1] && !LEVELS[game.level + 1].hidden ? game.level + 1 : null);
+    if (paid) { paid.endCard(lv, c, game.level); menu(LEVELS[game.level + 1] && !LEVELS[game.level + 1].hidden ? game.level + 1 : null); }
     c.hidden = false;
   }
 
@@ -1552,7 +1561,8 @@
     if (!text) { promptEl.hidden = true; return; }
     const v = new THREE.Vector3(ox + x, y, -0.1).project(cam);
     Object.assign(promptEl.style, { left: ((v.x + 1) / 2 * 100) + '%', top: ((1 - v.y) / 2 * 100) + '%' });
-    promptEl.textContent = text; promptEl.hidden = false;
+    if (text !== promptEl.dataset.raw) { promptEl.dataset.raw = text; promptEl.textContent = text.replace(/^(\S+ {2})?(.+)$/, (m, key, label) => (key || '') + (window.SNIP_I18N ? window.SNIP_I18N.t(label) : label)); }
+    promptEl.hidden = false;
   }
   function limit(a, nx) {  // what's in the way, walking right
     const c = game.crate;
@@ -1577,6 +1587,7 @@
   }
   // What E does here, for whoever you are. If it's somebody else's job, it says so.
   function useHere(a) {
+    if (paid) { const sp = paid.spotHere(a); if (sp) return sp; }
     if (a.carry && a.carry.friend) return { label: `Put ${FIGURES[a.carry.friend.key].name} down`, at: a.x, run: () => dropFriend(a) };
     if (FIGURES[a.key].can.includes('reveal') && game.secrets.some((x) => !x.shown)) return { label: 'Read the room', at: a.x, run: () => readRoom(a) };  // Olaf reads first, always
     const pimDown = game.boss && game.boss.kind === 'beam' && game.boss.mode !== 'walk';  // nothing left to throw at: the next step is what shows
@@ -1700,6 +1711,7 @@
     if (a.busy > 0) a.busy -= dt;
     a.noGrab = Math.max(0, (a.noGrab || 0) - dt);
     const tied = a.fly || a.rope || a.pull || a.aim || a.roll > 0 || game.throwing;
+    if (paid && hit('c') && !tied && !a.lifted) { paid.talkKey(); return; }
     if (team.filter((t) => !t.off).length > 1 && hit('Tab') && !a.hidden && !tied) {
       dropFriend(a);
       do active = (active + 1) % team.length; while (team[active].off);
@@ -1819,11 +1831,11 @@
       if (free && climbHere === 'up' && hit('ArrowUp', 'w')) { a.climb = cl; sfx('pick'); speak('climb_start', { chance: 0.4 }); }
       else if (free && climbHere === 'down' && hit('ArrowDown', 's')) { a.climb = cl; }
       else if (free && climbHere === 'no' && hit('ArrowUp', 'w')) speak('cant_climb', { force: true });
-      else if (free && a.roll <= 0 && hit(' ', 'ArrowUp', 'w') && a.y <= g + 0.001) { a.vy = 3.9; act(who, can.includes('vault') && game.crate && Math.abs(a.x - game.crate.x) < 0.9 ? ['Vault', 'Hop'] : ['Hop'], 1); sfx('hop'); speak('hop', { chance: 0.35 }); }
+      else if (free && a.roll <= 0 && hit(' ', 'ArrowUp', 'w') && a.y <= g + 0.001) { a.vy = 3.9 * (game.hopBoost || 1); act(who, can.includes('vault') && game.crate && Math.abs(a.x - game.crate.x) < 0.9 ? ['Vault', 'Hop'] : ['Hop'], 1); sfx('hop'); speak('hop', { chance: 0.35 }); }
       else if (free && hit(' ') && a.y > g + 0.05 && can.includes('flip') && !a.flipped) { a.flipped = true; a.vy = 3.6; act(who, ['Backflip', 'Hop'], 1); sfx('hop'); speak(LINES['flip_' + a.key] ? 'flip_' + a.key : 'flip', { chance: 0.3 }); }
       if (free && a.roll <= 0 && moveOK('roll') && dirn && can.includes('roll') && !inZone() && a.y <= g + 0.001 && hit('ArrowDown', 's')) { a.roll = 0.62; act(who, ['Roll', 'Slide', 'Crouch'], 1); sfx('hop'); speak('roll', { chance: 0.35 }); }
       if (free && held('t') && throwable(a)) { startAim(a); bar(null); return; }
-      if (free && can.includes('hide') && inZone() && hit('ArrowDown', 's')) { a.hidden = true; facts.hidTimes++; game.hiddenFor = 0; sfx('hide'); speak(game.boss ? 'hide_van' : 'hide', { force: true }); }
+      if (free && can.includes('hide') && inZone() && hit('ArrowDown', 's')) { a.hidden = true; facts.hidTimes++; if (paid) paid.hid(); game.hiddenFor = 0; sfx('hide'); speak(game.boss ? 'hide_van' : 'hide', { force: true }); }
       if (free && can.includes('hit') && a.tool === 'hammer' && hit('f')) swing();
       use = useHere(a);
       if (use && use.run && free && hit('e', 'Enter')) use.run();
@@ -1835,7 +1847,8 @@
     if (game.still > 9) { speak('idle'); game.still = 0; }
     game.runFor = moving && held('Shift') ? (game.runFor || 0) + dt : 0;
     if (game.runFor > 1) { speak('run', { chance: 0.25 }); game.runFor = -6; }
-    if (a.x >= 2.6 && !a.carry?.friend && canLeave() && game.at < LEVELS[game.level].screens.length - 1) { enter(game.at + 1); return; }
+    if (paid && a.x <= -2.59 && held('ArrowLeft', 'a') && paid.goBack()) return;
+    if (a.x >= 2.6 && !a.carry?.friend && canLeave() && (!paid || paid.mayLeave()) && game.at < LEVELS[game.level].screens.length - 1) { enter(game.at + 1); return; }
     if (a.x > 2.6) a.x = 2.6;
     const hint = a.hidden ? 'Hidden' : use ? (use.label ? 'E  ' + use.label : use.hint) : climbHere === 'up' ? '↑  Climb' : climbHere === 'down' ? '↓  Climb down' : climbHere === 'no' ? 'Only Pim climbs that' : inZone() && can.includes('hide') ? '↓  Hide here' : game.hide && !(game.boss && game.boss.freed) ? 'Hiding spot' : '';
     const downB = game.boss && game.boss.kind === 'beam' && game.boss.mode === 'dizzy' && !use;
@@ -1879,7 +1892,7 @@
         return;
       }
       a.who.holder.position.set(ox + a.x, a.y, a.z);
-      if (k !== active && ['Walk', 'Run', 'Push', 'Carry', 'Tightrope'].includes(a.who.playing)) act(a.who, ['Idle']);
+      if (k !== active && !a.ordered && ['Walk', 'Run', 'Push', 'Carry', 'Tightrope'].includes(a.who.playing)) act(a.who, ['Idle']);
     });
   }
 
@@ -1912,7 +1925,7 @@
         if (game.alarm > 0) {  // the pigeons told on you: straight for you, fast
           game.alarm -= dt; g.dir = Math.sign(hero().x - g.x) || g.dir;
           g.x += g.dir * 2.5 * dt;
-        } else g.x += g.dir * g.speed * dt;
+        } else { g.x += g.dir * g.speed * dt; if (paid) paid.guardWalk(g); }
         if (g.x > g.right) { g.x = g.right; g.wait = g.pause; } else if (g.x < g.left) { g.x = g.left; g.wait = g.pause; }
       }
     }
@@ -1962,6 +1975,7 @@
   }
 
   function moveFalls(dt) {
+    if (game.fallsSlow) dt *= game.fallsSlow;
     const T = 2.9;
     if (game.beam && game.boss && game.boss.mode === 'walk') {  // up on the beam, dropping paper where the team stands
       game.dropT -= dt;
@@ -2120,7 +2134,7 @@
       if (!b.roared) { b.roared = true; speak('rivet_roar', { force: true }); }
       if (b.t <= 0) { b.mode = 'charge'; b.roared = false; sfx('charge'); const m = act(who, ['Charge', 'Walk']); if (m === 'Walk') who.actions.Walk.timeScale = 2.5; }
     } else if (b.mode === 'charge') {
-      b.x += b.dir * 3.6 * dt;
+      b.x += b.dir * (b.fast ? 4.3 : 3.6) * dt;
       if (Math.abs(b.x) >= 2.25) {
         b.x = Math.sign(b.x) * 2.25; b.mode = 'dizzy'; b.t = 6; sfx('thud'); act(who, ['Stumble', 'Idle']);
         speak('rivet_dizzy', { force: true }); setTimeout(() => speak('rivet_now', { force: true }), 2300);
@@ -2293,6 +2307,7 @@
       if (!game.frozen) moveFalls(dt);
       if (!game.frozen) moveBoss(dt);
       if (!game.frozen) moveWorld(dt);
+      if (!game.frozen && paid) paid.tick(dt);
       const l = screen().lessons[game.lesson];
       if (!game.frozen && l && l.back && l.back(api)) { game.lesson--; showLesson(); }
       else if (!game.frozen && l && l.done && l.done(api)) { game.lesson++; showLesson(); }
@@ -2324,7 +2339,8 @@
         if (l) { line.innerHTML = `<b>${l.who}</b>`; line.append(l.text); }
       };
       v.src = f.src; el.hidden = false;
-      v.play().catch(end);
+      v.muted = !soundOn;  // the worlds' films have a sound of their room; the rest are silent
+      v.play().catch(() => { v.muted = true; v.play().catch(end); });
     });
   }
 
@@ -2344,6 +2360,7 @@
     $('[data-card]').hidden = true;
     await playFilm(lv.opening);
     game.started = true;
+    if (paid) await paid.levelStart(n);
     await enter(0);
   }
 
@@ -2355,11 +2372,15 @@
       b.type = 'button'; b.className = 'go level' + (k === highlight ? ' next' : '');
       b.textContent = `${k + 1}. ${lv.title}${done.includes(lv.id) ? ' ✓' : ''}`;
       b.onclick = () => { ear(); startLevel(k); };
+      if (paid && paid.locked(k, paid.file.d.levels)) { b.disabled = true; b.classList.add('lockedlevel'); b.title = 'Opens when you finish the level before it'; }
       return b;
     }));
   }
 
   // ---------- begin ----------
+  if (EDITION === 'paid') { paid = await (await import('./ai/paid.js')).start({ $, sfx, levels: LEVELS, game, facts, act, answer, FIGURES, LINES, team, hero, actor, faceTo, enter, lift, dropFriend, swing, releaseThrow, useHere, screen, limit, near, makeSpot, endCard, knockDown, caught, THREE, held, hit, playFilm, get ox() { return ox; }, get things() { return things; },
+    say: (k, text) => { sayWho = k; sayEl.innerHTML = `<b>${FIGURES[k] ? FIGURES[k].name : k}</b>`; sayEl.append(text); sayEl.classList.remove('tangled', 'shout'); sayEl.hidden = false; sayT = Math.max(2.6, Math.min(6.5, text.length * 0.07)); },
+    as: (a, fn) => { const was = active; active = team.indexOf(a); try { return fn(); } finally { active = was; } } }); window.snipPaid = paid; }
   await showRoom('level1', 'front', 'evening');
   film.classList.add('clear');
   crateModel = (await loader.loadAsync('assets/crate/wooden_crate_02_1k.gltf')).scene;

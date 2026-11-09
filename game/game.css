@@ -87,13 +87,13 @@ kbd { display: inline-block; min-width: 1.5em; padding: .08em .35em; border-radi
 .bar [hidden] { display: none; }
 
 .talk .box { max-width: 560px; }
-.tsay { font-weight: 850; color: #A81F12; font-size: 1.05em; margin: .3em 0 .7em; }
+.tsay { font-weight: 850; color: #FFB4A5; font-size: 1.05em; margin: .3em 0 .7em; }
 .answers { display: grid; gap: 8px; margin-bottom: .6em; }
 .answer { all: unset; cursor: pointer; padding: .6em .9em; border-radius: 12px; background: #FBF7EE; color: #1E1B2E; border: 2px solid #1E1B2E; font-weight: 700; line-height: 1.25; }
 .answer:hover, .answer:focus-visible { background: #FFC93C; }
 .answer:disabled { opacity: .5; cursor: default; }
-.treply { font-weight: 700; color: #1B6B3A; margin: .2em 0 .5em; }
-.treply.no { color: #A81F12; }
+.treply { font-weight: 700; color: #8FE8AC; margin: .2em 0 .5em; }
+.treply.no { color: #FF9C8A; }
 
 /* The films */
 .cinema { position: absolute; inset: 0; z-index: 30; background: #000; display: grid; place-items: center; }

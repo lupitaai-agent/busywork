@@ -299,10 +299,10 @@ window.SNIP_LEVELS = [
           { html: 'The wall is open. Walk out on the right', teach: 'walk' },
         ] },
       { room: 'olaf', place: 'experts', title: 'The study', things: [{ t: 'talker', who: 'olaf', x: 1.0, puzzle: 'stars', level: 4, questions: [
-            { q: 'YOU HAVE COME TO COLLECT A LOST STAMP. WHO SIGNS FOR IT?', a: ['Whoever finds it', 'The one who lost it', 'You do, Olaf'], right: 1, yes: 'CORRECT. DISAPPOINTINGLY.', wrong: 'INCORRECT. IT WAS ON THE NOTE. I WROTE THE NOTE. I WRITE ALL THE NOTES.' },
-            { q: 'FORM ELEVEN. HOW MANY COPIES?', a: ['One, and it is lost', 'Eleven, obviously', 'Three: you, me and the cat'], right: 2, yes: 'THE CAT THANKS YOU. THE CAT HAS NOT READ IT.', wrong: 'NO. ASK THE CAT. THE CAT KNOWS.' },
-            { q: 'WHAT MAY BE KEPT ON THE SECOND SHELF?', a: ['The cat', 'Nothing at all', 'The whole of the backlog'], right: 0, yes: 'WELL. YOU HAVE READ EVERYTHING. NOBODY READS EVERYTHING. ONLY ME.', wrong: 'INCORRECT. CHECK THE SHELF. THE CAT WILL NOT MIND. IT WILL MIND.' },
-            { q: 'THEN ONE LAST QUESTION. WHO SENT YOU? THERE IS NO FORM FOR THIS.', a: ['The town council', 'Nobody. We came because you stopped answering', 'It is in the post'], right: 1, yes: 'Oh. Nobody sent you. You just came.', wrong: 'NOT ON ANY LIST. TRY AGAIN. PLEASE. PLEASE TRY AGAIN.' },
+            { q: 'YOU HAVE COME TO COLLECT A LOST STAMP. WHO SIGNS FOR IT?', scene: 'olaf_stamp', a: ['Whoever finds it', 'The one who lost it', 'You do, Olaf'], right: 1, yes: 'CORRECT. DISAPPOINTINGLY.', wrong: 'INCORRECT. IT WAS ON THE NOTE. I WROTE THE NOTE. I WRITE ALL THE NOTES.' },
+            { q: 'FORM ELEVEN. HOW MANY COPIES?', scene: 'olaf_copies', a: ['One, and it is lost', 'Eleven, obviously', 'Three: you, me and the cat'], right: 2, yes: 'THE CAT THANKS YOU. THE CAT HAS NOT READ IT.', wrong: 'NO. ASK THE CAT. THE CAT KNOWS.' },
+            { q: 'WHAT MAY BE KEPT ON THE SECOND SHELF?', scene: 'olaf_shelf', a: ['The cat', 'Nothing at all', 'The whole of the backlog'], right: 0, yes: 'WELL. YOU HAVE READ EVERYTHING. NOBODY READS EVERYTHING. ONLY ME.', wrong: 'INCORRECT. CHECK THE SHELF. THE CAT WILL NOT MIND. IT WILL MIND.' },
+            { q: 'THEN ONE LAST QUESTION. WHO SENT YOU? THERE IS NO FORM FOR THIS.', scene: 'olaf_sent', a: ['The town council', 'Nobody. We came because you stopped answering', 'It is in the post'], right: 1, yes: 'Oh. Nobody sent you. You just came.', wrong: 'NOT ON ANY LIST. TRY AGAIN. PLEASE. PLEASE TRY AGAIN.' },
           ] }],
         lessons: [
           { html: 'Olaf doesn\'t chase anyone. He asks. Walk up to him and press <kbd>E</kbd>, and use what you read', teach: 'use', done: (g) => g.talked() },
@@ -330,9 +330,9 @@ window.SNIP_LEVELS = [
     screens: [
       { room: 'door', title: 'Tuck\'s front door', things: [
           { t: 'form', x: -0.2, name: 'Your own letterbox', questions: [
-            { q: 'FORM ONE. NAME OF THE PERSON WISHING TO ENTER THEIR OWN HOME.', a: ['Tuck', 'As above', 'The occupant'], right: 1, yes: 'ACCEPTED. NEXT.', wrong: 'REJECTED. PLEASE SEE THE SMALL PRINT. YOU WILL NEED SOMEONE WHO READS.' },
-            { q: 'ADDRESS OF THE SAID HOME.', a: ['As above', 'This one. Right here', 'Busy Street'], right: 0, yes: 'ACCEPTED. NEARLY THERE, AS FAR AS YOU KNOW.', wrong: 'REJECTED. THE SMALL PRINT WAS VERY CLEAR. IT WAS ALSO VERY SMALL.' },
-            { q: 'REASON FOR WANTING TO COME IN.', a: ['I live here', 'It is raining', 'As above'], right: 2, yes: 'PERFECTLY IN ORDER. WIPE YOUR FEET. THE TAPE HAS ONLY JUST BEEN DONE.', wrong: 'REJECTED. THAT IS NOT A REASON. THAT IS A FACT.' },
+            { q: 'FORM ONE. NAME OF THE PERSON WISHING TO ENTER THEIR OWN HOME.', scene: 'house_form1', a: ['Tuck', 'As above', 'The occupant'], right: 1, yes: 'ACCEPTED. NEXT.', wrong: 'REJECTED. PLEASE SEE THE SMALL PRINT. YOU WILL NEED SOMEONE WHO READS.' },
+            { q: 'ADDRESS OF THE SAID HOME.', scene: 'house_form2', a: ['As above', 'This one. Right here', 'Busy Street'], right: 0, yes: 'ACCEPTED. NEARLY THERE, AS FAR AS YOU KNOW.', wrong: 'REJECTED. THE SMALL PRINT WAS VERY CLEAR. IT WAS ALSO VERY SMALL.' },
+            { q: 'REASON FOR WANTING TO COME IN.', scene: 'house_form3', a: ['I live here', 'It is raining', 'As above'], right: 2, yes: 'PERFECTLY IN ORDER. WIPE YOUR FEET. THE TAPE HAS ONLY JUST BEEN DONE.', wrong: 'REJECTED. THAT IS NOT A REASON. THAT IS A FACT.' },
           ] },
           { t: 'note', x: -1.35, id: 'small', hidden: true, text: 'The small print: every question on this form is to be answered "As above". Yes, the first one too.' },
           { t: 'gate', x: 2.1, lock: 'form' },
@@ -389,9 +389,9 @@ window.SNIP_LEVELS = [
           { t: 'letters', who: 'juno', x: 1.8, puzzle: 'duo', level: 4,
             pages: ['Dear Tuck. There is tape in your house, and I am so sorry about the curtains.', 'It comes from under the puzzle kiosk, on the Street. Bring everyone. Bring scissors.', 'P.S. Whatever I say next, I do not mean it. Keep reading. Love, Juno.'],
             questions: [
-              { q: 'DEAR OCCUPANT. WHAT DOES YOUR LETTER SAY IS IN THE HOUSE?', a: ['A final demand', 'Tape, and she is sorry about the curtains', 'Nothing. All is in order'], right: 1, yes: 'THE CURTAINS. I DID MEAN TO SAY ABOUT THE CURTAINS.', wrong: 'NOT AS PER MY LETTER. READ IT AGAIN, DEAR OCCUPANT.' },
-              { q: 'AND WHERE DOES THE TAPE COME FROM? QUOTE YOUR REFERENCE.', a: ['Head office', 'It is in the post', 'Under the puzzle kiosk'], right: 2, yes: 'THE KIOSK. YES. IT IS COLD DOWN THERE. WHY DO I KNOW THAT?', wrong: 'THAT IS NOT WHAT I WROTE. I AM ALMOST SURE I WROTE SOMETHING.' },
-              { q: 'ONE MORE THING, AS PER MY LAST. WHAT DOES THE P.S. SAY?', a: ['Whatever she says next, she does not mean it', 'Yours faithfully', 'Please find enclosed'], right: 0, yes: 'Oh. I wrote that. That was me. Hello, Tuck.', wrong: 'NO. THERE WAS MORE. PLEASE. THERE WAS MORE TO IT THAN THAT.' },
+              { q: 'DEAR OCCUPANT. WHAT DOES YOUR LETTER SAY IS IN THE HOUSE?', scene: 'juno_q1', a: ['A final demand', 'Tape, and she is sorry about the curtains', 'Nothing. All is in order'], right: 1, yes: 'THE CURTAINS. I DID MEAN TO SAY ABOUT THE CURTAINS.', wrong: 'NOT AS PER MY LETTER. READ IT AGAIN, DEAR OCCUPANT.' },
+              { q: 'AND WHERE DOES THE TAPE COME FROM? QUOTE YOUR REFERENCE.', scene: 'juno_q2', a: ['Head office', 'It is in the post', 'Under the puzzle kiosk'], right: 2, yes: 'THE KIOSK. YES. IT IS COLD DOWN THERE. WHY DO I KNOW THAT?', wrong: 'THAT IS NOT WHAT I WROTE. I AM ALMOST SURE I WROTE SOMETHING.' },
+              { q: 'ONE MORE THING, AS PER MY LAST. WHAT DOES THE P.S. SAY?', scene: 'juno_q3', a: ['Whatever she says next, she does not mean it', 'Yours faithfully', 'Please find enclosed'], right: 0, yes: 'Oh. I wrote that. That was me. Hello, Tuck.', wrong: 'NO. THERE WAS MORE. PLEASE. THERE WAS MORE TO IT THAN THAT.' },
             ] },
         ],
         lessons: [

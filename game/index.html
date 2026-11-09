@@ -27,9 +27,9 @@
     <button class="ask" data-mute>♪ Sound on</button>
     <button class="ask" data-ask aria-label="How to play">? How to play</button>
   </header>
-  <p class="lesson" data-lesson hidden></p>
+  <p class="lesson" data-lesson role="status" hidden></p>
   <p class="prompt" data-prompt hidden></p>
-  <p class="say" data-say hidden></p>
+  <p class="say" data-say aria-live="polite" hidden></p>
   <nav class="bar" data-bar aria-label="What you can do">
     <span class="group" data-do="walk"><button data-key="ArrowLeft" aria-label="Walk left"><kbd>←</kbd></button><button data-key="ArrowRight" aria-label="Walk right"><kbd>→</kbd></button><small>Walk</small></span>
     <button class="group" data-do="run" data-key="Shift"><kbd>Shift</kbd><small>Run</small></button>
@@ -53,6 +53,7 @@
   <section class="help" data-help hidden>
     <div class="box">
       <h2>How to play</h2>
+      <p class="langs"><label><span data-lang-label>Language</span> <select data-lang><option value="en">English</option><option value="nl">Nederlands</option><option value="de">Deutsch</option><option value="es">Español</option><option value="it">Italiano</option><option value="pt-br">Português (Brasil)</option></select></label></p>
       <dl>
         <dt><kbd>←</kbd> <kbd>→</kbd> Walk</dt><dd>Hold to walk. Leave a room on the right, once the way is free.</dd>
         <dt><kbd>Shift</kbd> Run</dt><dd>Hold it while you walk. Faster, for when someone has just looked away.</dd>
@@ -80,7 +81,7 @@
     <p class="cline" data-cline hidden></p>
     <button class="ask cskip" data-cskip>Skip</button>
   </section>
-  <section class="puzzle talk" data-talk hidden>
+  <section class="puzzle talk" data-talk role="dialog" aria-modal="true" aria-label="Talking" hidden>
     <div class="box">
       <h2 data-tname></h2>
       <p class="tsay" data-tsay></p>
@@ -105,6 +106,7 @@
 <script src="plate.js"></script>
 <script src="lines.js"></script>
 <script src="levels.js"></script>
+<script src="i18n.js"></script>
 <script src="game.js"></script>
 </body>
 </html>
