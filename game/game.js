@@ -798,6 +798,17 @@
         game.animals.push({ mesh: m, phase: Math.random() * 6, x: t.x });
         break;
       }
+      case 'extra': {  // somebody who is simply there: a figure standing in the room, doing one thing over and over. tangled: wound in tape until freeExtra(who)
+        const w = await figure(t.who);
+        w.holder.visible = true;
+        w.holder.position.set(ox + t.x, t.y || 0, t.z === undefined ? -0.45 : t.z);
+        w.holder.rotation.set(0, t.face === 'left' ? -Math.PI / 2 : t.face === 'front' ? 0 : Math.PI / 2, 0);
+        act(w, t.clips || ['Idle']);
+        if (t.tangled) w.tape = tangle(w, t.tangled === true ? 5 : t.tangled);
+        if (game.extrasAt !== game.at) { game.extras = {}; game.extrasAt = game.at; }
+        game.extras[t.who] = { who: w, x: t.x };
+        break;
+      }
       case 'form': {  // a letterbox that wants a form filled in. The answers are in the small print
         const post = await model(prop('sign')), env = await model(prop('letter'));
         if (post) addAt(placed(post, 0.95), t.x, 0, -0.55);
@@ -2378,7 +2389,7 @@
   }
 
   // ---------- begin ----------
-  if (EDITION === 'paid') { paid = await (await import('./ai/paid.js')).start({ $, sfx, levels: LEVELS, game, facts, act, answer, FIGURES, LINES, team, hero, actor, faceTo, enter, lift, dropFriend, swing, releaseThrow, useHere, screen, limit, near, makeSpot, endCard, knockDown, caught, THREE, held, hit, playFilm, get ox() { return ox; }, get things() { return things; },
+  if (EDITION === 'paid') { paid = await (await import('./ai/paid.js')).start({ $, sfx, levels: LEVELS, game, facts, act, answer, FIGURES, LINES, team, hero, actor, faceTo, enter, lift, dropFriend, swing, releaseThrow, useHere, screen, limit, near, makeSpot, endCard, knockDown, caught, THREE, held, hit, playFilm, freeExtra: (key, clips) => { const e = game.extras && game.extras[key]; if (!e) return; if (e.who.tape && e.who.tape.length) { untangle(e.who.tape, true); e.who.tape = []; } act(e.who, clips || ['Cheer', 'Victory', 'Idle']); }, get ox() { return ox; }, get things() { return things; },
     say: (k, text) => { sayWho = k; sayEl.innerHTML = `<b>${FIGURES[k] ? FIGURES[k].name : k}</b>`; sayEl.append(text); sayEl.classList.remove('tangled', 'shout'); sayEl.hidden = false; sayT = Math.max(2.6, Math.min(6.5, text.length * 0.07)); },
     as: (a, fn) => { const was = active; active = team.indexOf(a); try { return fn(); } finally { active = was; } } }); window.snipPaid = paid; }
   await showRoom('level1', 'front', 'evening');
