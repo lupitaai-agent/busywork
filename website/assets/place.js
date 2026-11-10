@@ -35,7 +35,7 @@ async function start(house) {
   const shown = new Set([...house.querySelectorAll('template[data-decal][data-shown]')].map((t) => t.dataset.decal));
   const brand = { color: house.dataset.brandColor || '#FFC93C', font: '' };
   const steps = [...document.querySelectorAll('[data-room]')].map((a) => ({
-    id: a.dataset.room, plate: a.dataset.plate || a.dataset.room, html: a.querySelector('[data-card]').innerHTML, el: a,
+    id: a.dataset.room, plate: a.dataset.plate || a.dataset.room, html: a.querySelector('[data-card]').innerHTML || card.innerHTML, el: a,  // the first room's words are on the page already
     say: a.dataset.say, move: a.dataset.move, acts: [...a.querySelectorAll('[data-act]')].map((t) => ({ id: t.dataset.act, move: t.dataset.move, say: t.dataset.say, then: t.dataset.then, html: t.innerHTML })),
   }));
   const data = await (await fetch(house.dataset.houseRooms)).json();

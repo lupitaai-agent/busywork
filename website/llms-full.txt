@@ -1,6 +1,6 @@
 # Busy: the full picture
 
-Busy makes free, private tools for work and life, in suites: Busy Business (thirteen tools for small businesses and freelancers: invoices and quotes, time, receipts, money, clients, projects, documents, a brand kit, subscriptions, trips, stock and a marketing studio), Busy Growth (free tools to grow your career: a library, skills, wins, a job tracker, a CV and LinkedIn builder and more), Busy Home (free tools for household paperwork: documents with expiry reminders, contracts with the last day to cancel, upkeep, a home inventory, letters, moving and a Just in Case binder) and Busy Games (free daily brain games). Each suite is a free app for Mac and Windows, or runs in the browser, and keeps everything in the owner's own folder, with no account and no subscription. Each suite can have a paid AI expert: Olaf for business, Ivy for professional growth, Juno for household paperwork.
+Busy makes free, private tools for work and life, in suites: Busy Business (thirteen tools for small businesses and freelancers to grow and run the business: a marketing studio with a brand profile and a year plan, a brand kit, projects, invoices and quotes, time, receipts, money, clients, documents, subscriptions, trips and stock), Busy Growth (free tools to grow your career: a library, skills, wins, a job tracker, a CV and LinkedIn builder and more), Busy Home (free tools for household paperwork: documents with expiry reminders, contracts with the last day to cancel, upkeep, a home inventory, letters, moving and a Just in Case binder) and Busy Games (free daily brain games). Each suite is a free app for Mac and Windows, or runs in the browser, and keeps everything in the owner's own folder, with no account and no subscription. Each suite can have a paid AI expert: Olaf for business, Ivy for professional growth, Juno for household paperwork.
 
 Website: https://busywork.example/
 
@@ -8,7 +8,7 @@ Busy at busy.com.ai: free, private tools for work and life, formerly called Busy
 
 # Busy Business: free tools for small businesses
 
-Page: https://busywork.example/business/index.html
+Page: https://busywork.example/business/
 
 ## How it works
 
@@ -305,11 +305,11 @@ Questions:
 
 # Busy Street: Tuck's Errand: a free game
 
-Page: https://busywork.example/games/tucks-errand.html. A puzzle adventure on Busy Street: the Red Tape has crept over the street, and Tuck only went out to get a stamp back. Six levels and six friends to cut loose. You swap between two figures on screen, call in the others, throw pots, keys and each other, climb, swing and roll, hide from inspectors and solve logic puzzles. Free, in the browser or as a download for Mac and Windows (beta); the download has a film at the start and end of every level and plays without the internet. No AI and no account. In English for now.
+Page: https://busywork.example/games/tucks-errand.html. A puzzle adventure on Busy Street: the Red Tape has crept over the street, and Tuck only went out to get a stamp back. Six levels and six friends to cut loose. You swap between two figures on screen, call in the others, throw pots, keys and each other, climb, swing and roll, hide from inspectors and solve logic puzzles. Free, in the browser or as a download for Mac and Windows (beta); the download has a film at the start and end of every level and plays without the internet. No AI and no account. In six languages.
 
 # Busy Games: free daily brain games
 
-Page: https://busywork.example/games/index.html. Four logic puzzles that run in the browser, a new one every day and 10,000 levels each. Progress stays in the browser; no account.
+Page: https://busywork.example/games/. Four logic puzzles that run in the browser, a new one every day and 10,000 levels each. Progress stays in the browser; no account.
 
 ## Stars (Star Battle)
 
@@ -362,7 +362,7 @@ Questions:
 
 # Busy Growth: free tools to grow your career
 
-Page: https://busywork.example/growth/index.html. Free, as its own app for Mac and Windows (https://busywork.example/growth/index.html#get) or a zip for the browser (https://busywork.example/downloads/busy-growth.zip), with a demo at https://busywork.example/app/growth.html. The tools:
+Page: https://busywork.example/growth/. Free, as its own app for Mac and Windows (https://busywork.example/growth/#get) or a zip for the browser (https://busywork.example/downloads/busy-growth.zip), with a demo at https://busywork.example/app/growth.html. The tools:
 
 - Library: Files, links and notes from everything you read and learn, tagged and searchable.
 - Learning planner: Courses, books and projects with goals, dates and hours a week.
@@ -378,7 +378,7 @@ Ivy by Busy, the AI coach for professional growth, is coming later, on the owner
 
 # Busy Home: free tools for household paperwork
 
-Page: https://busywork.example/home/index.html. Free, as its own app for Mac and Windows (https://busywork.example/home/index.html#get) or a zip for the browser (https://busywork.example/downloads/busy-home.zip), with a demo at https://busywork.example/app/home.html. The tools:
+Page: https://busywork.example/home/. Free, as its own app for Mac and Windows (https://busywork.example/home/#get) or a zip for the browser (https://busywork.example/downloads/busy-home.zip), with a demo at https://busywork.example/app/home.html. The tools:
 
 - Paper Trail: Passports, policies, contracts and warranties in one place, searchable down to the words inside a PDF, with a nudge before anything expires.
 - Contracts & Renewals: Insurance, energy, phone, the gym: what each costs a month and the last day to cancel before it renews by itself.

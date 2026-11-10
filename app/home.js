@@ -6,16 +6,17 @@
 
   BW.boot({ onReady: render, onChange: render });
 
+  // The three things Busy Business is for, in this order: grow the brand, deliver the projects, run the money and admin.
   const GROUPS = [
-    ['💶 Get paid', ['invoices', 'time', 'clients']],
-    ['🧮 Keep track', ['expenses', 'money', 'subscriptions', 'trips']],
-    ['🗂️ Get organised', ['projects', 'board', 'docs', 'stock', 'brand']],
-    ['📣 Grow', ['marketing', 'olaf']],
+    ['📣 Grow', 'Your brand and your marketing', ['marketing', 'brand', 'olaf']],
+    ['🗓️ Deliver', 'Your projects, from brief to done', ['projects', 'board']],
+    ['💶 Run', 'Get paid', ['invoices', 'time', 'clients', 'docs']],
+    ['🧮 Run', 'Keep track', ['expenses', 'money', 'subscriptions', 'trips', 'stock']],
   ];
 
   async function render() {
     const s = BW.settings;
-    const [invoices, time, stock, subs, tasks, clients, expenses, docs] = await Promise.all(['invoices', 'time', 'stock', 'subscriptions', 'tasks', 'clients', 'expenses', 'documents'].map((n) => BW.store.all(n)));
+    const [invoices, time, stock, subs, tasks, clients, expenses, docs, brandProfile, mktPlan] = await Promise.all(['invoices', 'time', 'stock', 'subscriptions', 'tasks', 'clients', 'expenses', 'documents', 'mktprofile', 'mktplan'].map((n) => BW.store.all(n)));
     const h = new Date().getHours();
     const hello = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
     const name = (s.ownerName || '').split(' ')[0];
@@ -28,7 +29,13 @@
     const renewing = subs.filter((x) => x.status !== 'cancelled' && x.nextDate && x.nextDate >= today && x.nextDate <= BW.addDays(today, 7));
     const todo = tasks.filter((t) => t.status !== 'done');
     const dueSoon = todo.filter((t) => t.due && t.due <= BW.addDays(today, 2));
+    // The brand comes first: how many of the next twelve months have marketing planned (the Marketing Studio's own count).
+    const month0 = today.slice(0, 7) + '-01', year = Array.from({ length: 12 }, (_, i) => BW.addPeriod(month0, 'month', i).slice(0, 7));
+    const planned = year.filter((m) => mktPlan.some((a) => (a.month || '').slice(0, 7) === m || (a.months || []).includes(m))).length;
+    const hasBrand = brandProfile.length > 0 || mktPlan.length > 0;
     const glance = [
+      hasBrand ? ['pink', '📣', 'Your brand', `${planned}/12`, 'months with marketing planned', 'marketing']
+        : ['pink', '📣', 'Your brand', 'Start here', 'Who buys from you, and when? Ten minutes.', 'marketing', 'word'],
       out.length && ['sun', '⏳', 'Waiting to come in', BW.money(sum(out)), `${out.length} open invoice${out.length === 1 ? '' : 's'}${late.length ? `, ${late.length} overdue` : ''}`, 'invoices'],
       running && ['mint', '⏱️', 'Timer running', 'Since ' + new Date(running.start).toLocaleTimeString(BW.locale(), { hour: '2-digit', minute: '2-digit' }), running.desc || 'Working on something great', 'time'],
       dueSoon.length && ['teal', '🗂️', 'Due in the next 2 days', String(dueSoon.length), dueSoon.slice(0, 2).map((t) => t.title).join(', '), 'board'],
@@ -47,6 +54,7 @@
     const byId = Object.fromEntries(BW.apps.map((a) => [a.id, a]));
     // Getting started: ticks itself off as people use the tools (the Stripe / Notion onboarding pattern).
     const steps = [
+      [hasBrand, '📣', 'Describe your brand', 'Who buys from you, and when', 'apps/marketing/index.html#tab/profile'],
       [!!s.iban, '🏦', 'Add your bank details', 'So invoices tell clients where to pay', () => BW.openSettings()],
       [clients.length > 0, '📇', 'Add your first client', 'Or import the list you already have', 'apps/clients/index.html#new'],
       [invoices.some((i) => i.status !== 'draft'), '🧾', 'Send your first invoice', 'It takes about a minute', 'apps/invoices/index.html#new/invoice'],
@@ -73,10 +81,10 @@
       ${BW.placeBanner(say)}
       <section class="home-hero">
         <div><h1>${hello}${name ? ', ' + esc(name) : ''} <span class="hand">👋</span></h1>
-          <p class="lead">${glance.length ? 'Here’s what needs you today.' : BW.brand.tagline + ' What are we ticking off today?'}</p></div>
+          <p class="lead">${glance.length > 1 ? 'Here’s what needs you today.' : BW.brand.tagline + ' What are we ticking off today?'}</p></div>
       </section>
-      ${glance.length ? `<section class="stats glance rise">${glance.map(([c, e, k, v, sub, app]) => `
-        <a class="card stat" style="--tint:var(--${c})" href="apps/${app}/index.html"><div class="k">${e} ${k}</div><div class="v">${esc(v)}</div><div class="s">${esc(sub)}</div></a>`).join('')}</section>` : ''}
+      ${glance.length ? `<section class="stats glance rise">${glance.map(([c, e, k, v, sub, app, word]) => `
+        <a class="card stat" style="--tint:var(--${c})" href="apps/${app}/index.html"><div class="k">${e} ${k}</div><div class="v${word ? ' word' : ''}">${esc(v)}</div><div class="s">${esc(sub)}</div></a>`).join('')}</section>` : ''}
       ${!hidden && doneN < steps.length ? `<section class="card start rise">
         <div class="start-head"><div><h2>🚀 Getting started</h2><small>${doneN} of ${steps.length} done</small></div><div class="bar"><i style="width:${doneN / steps.length * 100}%"></i></div><button class="link" data-hide>Hide</button></div>
         <div class="start-steps">${steps.map(([ok, e, t, sub, go], i) => `<${typeof go === 'string' && !ok ? `a href="${go}"` : 'button type="button"'} class="step ${ok ? 'ok' : ''}" data-step="${i}"><span class="tick">${ok ? '✓' : e}</span><span><b>${t}</b><small>${sub}</small></span></${typeof go === 'string' && !ok ? 'a' : 'button'}>`).join('')}</div>
@@ -87,7 +95,7 @@
         ${recent.length ? `<section class="card recent"><b>🕒 Recently changed</b>${recent.map(([at, e, l, href]) => `<a href="${href}"><span>${e}</span><span class="t">${esc(l)}</span><small>${BW.fmtDate(at.slice(0, 10), { day: 'numeric', month: 'short' })}</small></a>`).join('')}</section>` : ''}
       </div>
       <p class="tip">💡 Press <kbd>${/Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl'} K</kbd> anywhere to find a client, an invoice or a tool. Press <kbd>?</kbd> for every shortcut.</p>
-      ${GROUPS.map(([title, ids]) => `<div class="section-h"><h2>${title}</h2></div><div class="tiles rise">${ids.map((id) => tile(byId[id])).join('')}</div>`).join('')}
+      ${GROUPS.map(([title, sub, ids]) => `<div class="section-h"><h2>${title}</h2><small class="faint">${sub}</small></div><div class="tiles rise">${ids.map((id) => tile(byId[id])).join('')}</div>`).join('')}
       <div class="section-h"><h2>🛠️ On the workbench</h2><small class="faint">Coming to your folder soon</small></div>
       <div class="tiles rise">${soon.map(tile).join('')}</div>
       <div class="card home-foot"><span class="emo">🔒</span><div><b>Your business, your files.</b><br><small>Everything is saved in <b>${esc(BW.store.where)}</b>. No account, no server, nothing sent to us.</small></div></div>`;

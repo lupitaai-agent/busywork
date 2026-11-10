@@ -1,6 +1,6 @@
 # Busy
 
-> Busy makes free, private tools for work and life, in suites: Busy Business (thirteen tools for small businesses and freelancers: invoices and quotes, time, receipts, money, clients, projects, documents, a brand kit, subscriptions, trips, stock and a marketing studio), Busy Growth (free tools to grow your career: a library, skills, wins, a job tracker, a CV and LinkedIn builder and more), Busy Home (free tools for household paperwork: documents with expiry reminders, contracts with the last day to cancel, upkeep, a home inventory, letters, moving and a Just in Case binder) and Busy Games (free daily brain games). Each suite is a free app for Mac and Windows, or runs in the browser, and keeps everything in the owner's own folder, with no account and no subscription. Each suite can have a paid AI expert: Olaf for business, Ivy for professional growth, Juno for household paperwork.
+> Busy makes free, private tools for work and life, in suites: Busy Business (thirteen tools for small businesses and freelancers to grow and run the business: a marketing studio with a brand profile and a year plan, a brand kit, projects, invoices and quotes, time, receipts, money, clients, documents, subscriptions, trips and stock), Busy Growth (free tools to grow your career: a library, skills, wins, a job tracker, a CV and LinkedIn builder and more), Busy Home (free tools for household paperwork: documents with expiry reminders, contracts with the last day to cancel, upkeep, a home inventory, letters, moving and a Just in Case binder) and Busy Games (free daily brain games). Each suite is a free app for Mac and Windows, or runs in the browser, and keeps everything in the owner's own folder, with no account and no subscription. Each suite can have a paid AI expert: Olaf for business, Ivy for professional growth, Juno for household paperwork.
 
 Busy, free, private tools for work and life, lives at https://busywork.example. It was called Busywork until October 2026. It is not related to BUSY accounting software (busy.in).
 
@@ -13,7 +13,7 @@ Key facts:
 
 ## Busy Business: free tools for small businesses
 
-- [Busy Business](https://busywork.example/business/index.html): 13 free tools for small businesses and freelancers, and how they work together.
+- [Busy Business](https://busywork.example/business/): 13 free tools for small businesses and freelancers, for three jobs: growing the brand (a marketing studio and a brand kit), delivering projects, and running the money and admin.
 - [Invoices & Quotes](https://busywork.example/business/invoices.html): Make professional invoices and quotes in a minute. VAT, numbering, PDF, scan-to-pay QR code, reminders and recurring invoices. Free, private, no account.
 - [Client Book](https://busywork.example/business/clients.html): Keep every client in one friendly place: contact details, payment terms, rates, notes and invoice history. Import from Excel or Google Sheets. Free and private.
 - [Time Tracker](https://busywork.example/business/time.html): Track hours with one button and turn them into an invoice in one click. Billable rates per client, rounding, a weekly timesheet. Free and private.
@@ -33,8 +33,8 @@ Key facts:
 
 ## Busy Games: free daily brain games
 
-- [Busy Games](https://busywork.example/games/index.html): four free logic puzzles in the browser or as a free app for Mac and Windows (beta), a new one every day and 10,000 levels each. No account.
-- [Busy Street: Tuck's Errand](https://busywork.example/games/tucks-errand.html): Busy's free puzzle adventure, in the browser or as a free app for Mac and Windows (beta). Six levels, six friends to cut loose from the Red Tape; the download has a film at the start and end of every level. No AI, no account. In English for now.
+- [Busy Games](https://busywork.example/games/): four free logic puzzles in the browser or as a free app for Mac and Windows (beta), a new one every day and 10,000 levels each. No account.
+- [Busy Street: Tuck's Errand](https://busywork.example/games/tucks-errand.html): Busy's free puzzle adventure, in the browser or as a free app for Mac and Windows (beta). Six levels, six friends to cut loose from the Red Tape; the download has a film at the start and end of every level. No AI, no account. In six languages.
 - [Stars](https://busywork.example/games/stars.html): Stars, a free Star Battle logic puzzle: one star per row, column and colour patch. A new puzzle every day and 10,000 levels. No account.
 - [Duo](https://busywork.example/games/duo.html): Duo, a free Takuzu (Binairo) logic puzzle with suns and grapes: half and half, never three in a row. A new puzzle every day and 10,000 levels.
 - [Trail](https://busywork.example/games/trail.html): Trail, a free path puzzle: draw one line through every cell, passing the numbers in order. A new puzzle every day and 10,000 levels. No account.
@@ -42,8 +42,8 @@ Key facts:
 
 ## Busy Growth: free tools to grow your career
 
-- [Busy Growth](https://busywork.example/growth/index.html): 9 free tools: a library of what you read and learn, skills, wins, a learning plan, a job tracker, a CV builder, interview stories, contacts and a weekly review. Ivy, an AI coach for professional growth, is coming later.
-- [Download Busy Growth](https://busywork.example/growth/index.html#get): the free Busy Growth app for Mac and Windows (beta), or a zip for the browser.
+- [Busy Growth](https://busywork.example/growth/): 9 free tools: a library of what you read and learn, skills, wins, a learning plan, a job tracker, a CV builder, interview stories, contacts and a weekly review. Ivy, an AI coach for professional growth, is coming later.
+- [Download Busy Growth](https://busywork.example/growth/#get): the free Busy Growth app for Mac and Windows (beta), or a zip for the browser.
 - [Library](https://busywork.example/growth/library.html): Files, links and notes from everything you read and learn, tagged by topic and skill, and searchable down to the words inside a PDF. Free, private.
 - [Learning Planner](https://busywork.example/growth/learning.html): Plan courses, books, videos and projects with goals, dates and the hours a week you can give them, and see when you'll be done. Free, private.
 - [Skills Map](https://busywork.example/growth/skills.html): What you can do, how well, where you want to be, and the proof behind each skill: what you saved, learned and achieved. The biggest gaps come first. Free.
@@ -53,12 +53,12 @@ Key facts:
 - [Interview Story Bank](https://busywork.example/growth/stories.html): Your best stories in the STAR shape (situation, task, action, result), grown from your wins and linked to the skills they prove. Practise for interviews. Free.
 - [Contacts](https://busywork.example/growth/contacts.html): The people who help your career: who they are, how you know them, when you last talked and when to catch up again. LinkedIn connections included. Free.
 - [Weekly Review](https://busywork.example/growth/review.html): Ten minutes on Friday: what moved, what was hard, what's next. The numbers come from your other tools, and next week starts by ticking off this week's plan. Free.
-- [Ivy, the AI coach for professional growth](https://busywork.example/growth/index.html#ivy): learn it, prove it, land it; never invents experience. Coming later, on the owner's own Claude key.
+- [Ivy, the AI coach for professional growth](https://busywork.example/growth/#ivy): learn it, prove it, land it; never invents experience. Coming later, on the owner's own Claude key.
 
 ## Busy Home: free tools for household paperwork
 
-- [Busy Home](https://busywork.example/home/index.html): 7 free tools: documents that warn before they expire, contracts with the last day to cancel, home upkeep, a home inventory with an insurance claim pack, letters, a moving planner and a Just in Case binder. Juno, an AI expert for household paperwork, is coming later.
-- [Download Busy Home](https://busywork.example/home/index.html#get): the free Busy Home app for Mac and Windows (beta), or a zip for the browser.
+- [Busy Home](https://busywork.example/home/): 7 free tools: documents that warn before they expire, contracts with the last day to cancel, home upkeep, a home inventory with an insurance claim pack, letters, a moving planner and a Just in Case binder. Juno, an AI expert for household paperwork, is coming later.
+- [Download Busy Home](https://busywork.example/home/#get): the free Busy Home app for Mac and Windows (beta), or a zip for the browser.
 - [Paper Trail](https://busywork.example/home/papers.html): Passports, policies, contracts and warranties in one place, searchable down to the words inside a PDF, with a nudge before anything expires. Free, private.
 - [Contracts & Renewals](https://busywork.example/home/contracts.html): Insurance, energy, phone, the gym: what each costs a month and the last day to cancel before it renews by itself. A free reminder, private.
 - [Home Upkeep](https://busywork.example/home/upkeep.html): The boiler service, smoke alarms, gutters: when each is due, when it was done, by whom and for how much. A free home maintenance planner, private.
@@ -66,7 +66,7 @@ Key facts:
 - [Letters](https://busywork.example/home/letters.html): Cancel a contract, complain, claim, object or ask for your data: letters with your details, the company and the dates already filled in. Free.
 - [Moving Planner](https://busywork.example/home/moving.html): A moving checklist worked back from moving day, and everyone to tell, with your contracts already on the list. Change-of-address letters in one click. Free.
 - [Just in Case](https://busywork.example/home/binder.html): Everything your family would need if something happened to you: people to call, where things are, accounts, wishes. One PDF to keep with the will. Free.
-- [Juno, the AI expert for household paperwork](https://busywork.example/home/index.html#juno): explains letters, writes the replies and keeps the household ahead. Coming later, on the owner's own Claude key.
+- [Juno, the AI expert for household paperwork](https://busywork.example/home/#juno): explains letters, writes the replies and keeps the household ahead. Coming later, on the owner's own Claude key.
 
 ## About
 

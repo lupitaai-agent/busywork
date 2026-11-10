@@ -1449,8 +1449,9 @@ def film_of(place: str, lang: str = "en"):
 
 
 def film_ld(place: str, root: str) -> str:
-    v = film_of(place)
-    return jsonld(v) if v else ""
+    """Nothing: a room's loop moves behind the page's words, and a search engine only lists a video that is what the
+    page is about. film_of() stays for the day each suite has a real film on a page of its own."""
+    return ""
 
 
 def place_loops(place: str) -> str:
@@ -1474,7 +1475,7 @@ def place_html(place: str, steps: list, card, label: str, model: str = "", next_
     rooms = "".join(
         f'<article data-room="{s["id"]}" data-plate="{s.get("plate", s["id"])}" data-title="{e(s["title"])}" data-say="{e(s["say"])}"'
         f'{(" data-move=" + chr(34) + s["move"] + chr(34)) if s.get("move") else ""} hidden>'
-        f'<template data-card>{card(s)}</template>'
+        f'<template data-card>{"" if s is steps[0] else card(s)}</template>'
         + "".join(f'<template data-act="{a}" data-move="{m}" data-say="{e(say)}"{(" data-then=" + chr(34) + then + chr(34)) if then else ""}>{html}</template>'
                   for a, m, say, html, then in s["acts"])
         + "</article>" for s in steps)
@@ -1645,6 +1646,9 @@ WORKSHOP_STEPS = [
                "<span class=\"faint\">An example. Olaf works from your own business, with your own Claude key.</span>", "")]},
     {"id": "end", "plate": "front", "title": "Take the workshop home", "say": "That's the workshop! Take it home: free, for Mac and Windows.", "acts": []},
 ]
+# The order of the tour is the order of what Busy Business is for: grow the brand (the sign, the shop window, Olaf
+# upstairs), deliver the work (the workbench), run the money and admin (the counter and the rooms behind it).
+WORKSHOP_STEPS = [next(s for s in WORKSHOP_STEPS if s["id"] == i) for i in ("front", "window", "upstairs", "bench", "counter", "office", "desk", "stock", "yard", "end")]
 WORKSHOP_DECALS = {"sign": ("Studio Noor", False), "van": ("Studio Noor", True),
                    "poster": ("<b>Now open</b><span>Café Morgenrood</span><span>A new sign by Studio Noor</span>", False)}
 
@@ -1655,7 +1659,7 @@ def workshop_card(s: dict) -> str:
         return expert_card(s)
     if s["id"] == "front":
         return ('<span class="chip chip-sun">Free · no account · Mac and Windows</span><h1>Busy Business 🛠️</h1>'
-                f'<p>Free tools for freelancers, makers and small studios: invoices, hours, receipts, projects, stock and marketing. Everything in your own folder. Walk round the workshop to see how.</p>'
+                f'<p>Free tools to grow and run a small business: a brand and a marketing plan, your projects, and the invoices, hours and receipts. Everything in your own folder. Walk round the workshop to see how.</p>'
                 '<p class="house-task">👉 Tap the blank sign above the door.</p><div class="house-result" data-result hidden></div>'
                 '<div class="row-flex"><button type="button" class="btn btn-primary" data-house-next>Skip to the workshop →</button><a class="btn" href="download.html">⬇️ Download free</a><a class="btn" href="../app/index.html">👀 See the demo</a></div>')
     if s["id"] == "end":
@@ -2022,8 +2026,8 @@ def build_pages() -> None:
 # One definition of Busy, used in the structured data, the About page, llms.txt and the web
 # manifest, so every place describes the same thing in the same words.
 ENTITY = ("Busy makes free, private tools for work and life, in suites: Busy Business (thirteen tools for small businesses and "
-          "freelancers: invoices and quotes, time, receipts, money, clients, projects, documents, a brand kit, subscriptions, trips, stock "
-          "and a marketing studio), Busy Growth (" + ("free tools to grow your career: a library, skills, wins, a job tracker, a CV and LinkedIn builder and more" if GROWTH_LIVE else "tools to grow your career, coming soon") + "), "
+          "freelancers to grow and run the business: a marketing studio with a brand profile and a year plan, a brand kit, projects, "
+          "invoices and quotes, time, receipts, money, clients, documents, subscriptions, trips and stock), Busy Growth (" + ("free tools to grow your career: a library, skills, wins, a job tracker, a CV and LinkedIn builder and more" if GROWTH_LIVE else "tools to grow your career, coming soon") + "), "
           "Busy Home (" + ("free tools for household paperwork: documents with expiry reminders, contracts with the last day to cancel, upkeep, a home inventory, letters, moving and a Just in Case binder" if HOME_LIVE else "tools for household paperwork, coming soon") + ") "
           "and Busy Games (free daily brain games). Each suite is a free app for Mac and Windows, or runs in the browser, and keeps everything in the "
           "owner's own folder, with no account and no subscription. Each suite can have a paid AI expert: Olaf for business, Ivy for "
@@ -2114,6 +2118,8 @@ def site_seo() -> None:
             t, n = re.subn(r'(<meta property="og:image:height" content="630">)', rf'\1<meta property="og:image:alt" content="{alt}">', t, count=1)
             if not n:
                 t = re.sub(r'(<meta property="og:image" content="[^"]*">)', rf'\1<meta property="og:image:alt" content="{alt}">', t, count=1)
+        if 'property="og:url"' not in t:
+            t = t.replace('<meta name="theme-color"', f'<meta property="og:url" content="{SITE_URL}/{rel}">\n<meta name="theme-color"', 1)
         if "og:locale" not in t:
             t = t.replace('<meta name="theme-color"', '<meta property="og:locale" content="en_GB">\n<meta name="theme-color"', 1)
         if "application/rss+xml" not in t:  # What's new, for feed readers
@@ -2174,14 +2180,14 @@ def write_llms(tools: list) -> None:
              "- AI: none in the free tools. Olaf, Ivy and Juno run on Claude with the owner's own API key; requests go from the browser to Anthropic only.",
              "- Languages: English, Dutch, German, Spanish, Italian and Brazilian Portuguese (the website under /nl/, /de/, /es/, /it/ and /pt-br/; the apps follow the computer's language). Invoices, quotes and letters can be made in any of them.",
              "", "## Busy Business: free tools for small businesses", "",
-             f"- [Busy Business]({b}/business/index.html): {len(tools)} free tools for small businesses and freelancers, and how they work together."]
+             f"- [Busy Business]({b}/business/index.html): {len(tools)} free tools for small businesses and freelancers, for three jobs: growing the brand (a marketing studio and a brand kit), delivering projects, and running the money and admin."]
     lines += [f"- [{t['name']}]({b}/business/{t['id']}.html): {t['description']}" for t in tools]
     lines += [f"- [Olaf, the AI expert for marketing and projects]({b}/business/olaf.html): a 90-day marketing plan, project plans, a weekly check-in and the work done with the owner, on proven marketing science. {olaf_price}.",
               f"- [Download Busy Business]({b}/business/download.html): the free Busy Business app for Mac and Windows (beta); no AI, nothing sent anywhere. A zip for the browser is there too.",
               f"- [All business tools]({b}/business/tools.html): what each tool does.",
               "", "## Busy Games: free daily brain games", "",
               f"- [Busy Games]({b}/games/index.html): four free logic puzzles in the browser or as a free app for Mac and Windows (beta), a new one every day and {GAME_LEVELS:,} levels each. No account."]
-    lines += [f"- [Busy Street: Tuck's Errand]({b}/games/tucks-errand.html): Busy's free puzzle adventure, in the browser or as a free app for Mac and Windows (beta). Six levels, six friends to cut loose from the Red Tape; the download has a film at the start and end of every level. No AI, no account. In English for now."]
+    lines += [f"- [Busy Street: Tuck's Errand]({b}/games/tucks-errand.html): Busy's free puzzle adventure, in the browser or as a free app for Mac and Windows (beta). Six levels, six friends to cut loose from the Red Tape; the download has a film at the start and end of every level. No AI, no account. In six languages."]
     lines += [f"- [{g['name']}]({b}/games/{g['id']}.html): {g['desc']}" for g in GAMES]
     if GROWTH_LIVE:
         lines += ["", "## Busy Growth: free tools to grow your career", "",
@@ -2227,7 +2233,7 @@ def write_llms(tools: list) -> None:
              f"Page: {b}/business/olaf.html. {OLAF_PRICE}.", "", "Marketing:"]
     full += [f"- {f[1]}: {f[2]}" for f in OLAF_FEATS] + ["", "Projects:"] + [f"- {f[1]}: {f[2]}" for f in OLAF_PROJECT_FEATS]
     full += ["", "Questions:"] + [f"- {q} {a}" for q, a in OLAF_FAQ]
-    full += ["", "# Busy Street: Tuck's Errand: a free game", "", f"Page: {b}/games/tucks-errand.html. A puzzle adventure on Busy Street: the Red Tape has crept over the street, and Tuck only went out to get a stamp back. Six levels and six friends to cut loose. You swap between two figures on screen, call in the others, throw pots, keys and each other, climb, swing and roll, hide from inspectors and solve logic puzzles. Free, in the browser or as a download for Mac and Windows (beta); the download has a film at the start and end of every level and plays without the internet. No AI and no account. In English for now."]
+    full += ["", "# Busy Street: Tuck's Errand: a free game", "", f"Page: {b}/games/tucks-errand.html. A puzzle adventure on Busy Street: the Red Tape has crept over the street, and Tuck only went out to get a stamp back. Six levels and six friends to cut loose. You swap between two figures on screen, call in the others, throw pots, keys and each other, climb, swing and roll, hide from inspectors and solve logic puzzles. Free, in the browser or as a download for Mac and Windows (beta); the download has a film at the start and end of every level and plays without the internet. No AI and no account. In six languages."]
     full += ["", "# Busy Games: free daily brain games", "", f"Page: {b}/games/index.html. Four logic puzzles that run in the browser, a new one every day and {GAME_LEVELS:,} levels each. Progress stays in the browser; no account.", ""]
     for g in GAMES:
         full += [f"## {g['name']} ({g['classic']})", "", g["about"], f"Page: {b}/games/{g['id']}.html", "", "Rules:"] + [f"- {r}" for r in g["rules"]] + [""]
@@ -2310,7 +2316,7 @@ def about_page(tools: list) -> str:
              ("How the marketing tools work", "Busy Business's Marketing Studio and Olaf are built on proven marketing science: reach more buyers, be the business people think of in the moments they need you, and be easy to find and buy from."),
              ("Languages", "English, Dutch, German, Spanish, Italian and Brazilian Portuguese. Invoices, quotes and letters can be made in any of them."),
              ("The name", f"Busy, {DESCRIPTOR}, at busy.com.ai. Called Busywork until October 2026. Not related to BUSY accounting software.")]
-    desc = "What Busy is: free, private tools for work and life, in suites for business, " + ("career growth and brain games" if GROWTH_LIVE else "brain games and soon career growth") + ". Your files stay yours."
+    desc = "What Busy is: free, private tools for work and life, in suites for business, household paperwork, " + ("career growth and brain games" if GROWTH_LIVE else "brain games and soon career growth") + ". Your files stay yours."
     return f"""{head("About Busy: free, private tools for work and life", desc, "about.html", "")}
 <body class="site app-sun">
 {nav("", explore(""))}
@@ -2339,7 +2345,7 @@ def updates_page(tools: list) -> str:
     items = "".join(f'<article class="update" id="v{u["version"]}"><p class="update-when"><b>Busy {e(u["version"])}</b> · <time datetime="{u["date"]}">{e(u["date"])}</time></p>'
                     f'<h2>{e(u["title"])}</h2><ul>{"".join(f"<li>{e(i)}</li>" for i in u["items"])}</ul></article>' for u in ups)
     desc = "What's new in Busy: every release of the free apps and the website, newest first."
-    return f"""{head("What's new · Busy", desc, "updates.html", "")}
+    return f"""{head("What's new in Busy: every update", desc, "updates.html", "")}
 <body class="site app-sun">
 {nav("", explore(""))}
 <main class="page">
@@ -2392,7 +2398,7 @@ def press_page(tools: list) -> str:
     short = "Busy makes free, private tools for work and life. Everything stays in your own folder: no account, no subscription."
     grid = lambda items, kind="": '<div class="press-grid">' + "".join(asset(it[0], it[1], it[2] if len(it) > 2 else kind, it[3] if len(it) > 3 else "") for it in items) + "</div>"
     desc = "Press and partners: what Busy is in a few lines, with its logos, characters, pictures and films to download."
-    return f"""{head("Press · Busy", desc, "press.html", "")}
+    return f"""{head("Press kit: logos, pictures and films · Busy", desc, "press.html", "")}
 <body class="site app-sun">
 {nav("", explore(""))}
 <main class="page">
@@ -2481,15 +2487,57 @@ LANG_REDIRECT = ("<script>(function(){try{if(/bot|crawl|spider|slurp|preview/i.t
                  "var a=document.querySelector('link[rel=alternate][hreflang=\"'+(k==='pt-br'?'pt-BR':k)+'\"]');if(a&&k!=='en')location.replace(a.href+location.hash);}catch(e){}})();</script>")
 
 
+HUBS = "business|growth|home|games"
+
+
+def hub_addresses() -> None:
+    """A suite's front page has one address, its folder (/business/), not two (/business/index.html as well): in the
+    pages' own links, the canonical and sharing addresses, the structured data, the sitemap and llms.txt. Runs
+    before the translations are made, so every language gets the same."""
+    absolute = re.compile(re.escape(SITE_URL) + rf"/((?:{HUBS})/)index\.html")
+    link = re.compile(rf'href="((?:/|(?:\.\./)*)(?:(?:{HUBS})/)?)index\.html(#[^"]*)?"')  # relative, or from the root as on the 404 page
+    for f in site_pages():
+        t = f.read_text()
+        new = absolute.sub(lambda m: f"{SITE_URL}/{m.group(1)}", t)
+        new = link.sub(lambda m: f'href="{(m.group(1) or "./") + (m.group(2) or "")}"', new)
+        if new != t:
+            f.write_text(new)
+    for name in ("sitemap.xml", "llms.txt", "llms-full.txt", "feed.xml"):
+        f = SITE / name
+        if f.exists():
+            t = f.read_text()
+            new = absolute.sub(lambda m: f"{SITE_URL}/{m.group(1)}", t)
+            if new != t:
+                f.write_text(new)
+
+
+def short_description(text: str, limit: int = 160) -> str:
+    """A description that fits a search result: whole sentences up to the limit, or whole words and an ellipsis."""
+    if len(text) <= limit:
+        return text
+    cut = text[:limit + 1]
+    stops = [m.end() for m in re.finditer(r"[.!?](?= )", cut) if m.end() <= limit]
+    if stops and stops[-1] >= 80:
+        return text[:stops[-1]]
+    return cut[:limit - 1].rsplit(" ", 1)[0].rstrip(",;:") + "…"
+
+
+def short_title(text: str, limit: int = 60) -> str:
+    """A tool page's title ends with its suite's name; where that makes it too long for a search result, with Busy alone."""
+    return re.sub(r" · Busy (Growth|Home)$", " · Busy", text) if len(text) > limit else text
+
+
 def lang_links(rel: str, here: str) -> tuple:
     """(hreflang tags, the footer's language links) for one page, seen from the version in language `here`."""
+    rel = rel[:-len("index.html")] if rel.endswith("/index.html") else rel  # a suite's front page is its folder
     url = lambda lang: f"{SITE_URL}/" + ("" if lang == "en" else lang + "/") + ("" if rel == "index.html" else rel)
     tags = "".join(f'<link rel="alternate" hreflang="{"en" if l == "en" else I18N.HTML_LANG[l]}" href="{url(l)}">' for l in LANG_LABEL)
     tags += f'<link rel="alternate" hreflang="x-default" href="{url("en")}">'
     depth = rel.count("/") + (0 if here == "en" else 1)
     up = "../" * depth
     current = ' aria-current="true"'
-    links = "".join(f'<a href="{up}{"" if l == "en" else l + "/"}{rel}" data-lang="{l}" hreflang="{"en" if l == "en" else I18N.HTML_LANG[l]}"{current if l == here else ""}>{LANG_LABEL[l]}</a>'
+    page = "" if rel == "index.html" else rel
+    links = "".join(f'<a href="{(up + ("" if l == "en" else l + "/") + page) or "./"}" data-lang="{l}" hreflang="{"en" if l == "en" else I18N.HTML_LANG[l]}"{current if l == here else ""}>{LANG_LABEL[l]}</a>'
                     for l in LANG_LABEL)
     return tags, f'<nav class="langs" aria-label="Language">🌐 {links}</nav>'
 
@@ -2506,7 +2554,8 @@ def translate_site() -> None:
         english[rel] = re.sub(r"\n?" + re.escape(LANG_REDIRECT), "", t)
     for rel, text in english.items():
         tags, langs = lang_links(rel, "en")
-        en = text.replace("<!--langs-->", langs)
+        en = re.sub(r"<title>(.*?)</title>", lambda m: "<title>" + html.escape(short_title(html.unescape(m.group(1))), quote=False) + "</title>", text.replace("<!--langs-->", langs), count=1, flags=re.S)
+        en = re.sub(r'(<meta name="description" content=")([^"]*)(")', lambda m: m.group(1) + html.escape(short_description(html.unescape(m.group(2))), quote=True) + m.group(3), en, count=1)
         if rel != "404.html":
             en = re.sub(r'(<link rel="canonical"[^>]*>)', lambda m: m.group(1) + "\n" + tags + "\n" + LANG_REDIRECT, en, count=1)
         (SITE / rel).write_text(en)
@@ -2516,6 +2565,8 @@ def translate_site() -> None:
             # the share image in this language (tools/share_images.py), where there is one
             out = re.sub(r"/assets/(street|parlour)/loop-day\.mp4", lambda m: f"/assets/{m.group(1)}/loop-day-{lang}.mp4" if (SITE / "assets" / m.group(1) / f"loop-day-{lang}.mp4").exists() else m.group(0), out)
             out = re.sub(r"/assets/(og-[a-z]+)\.png", lambda m: f"/assets/{m.group(1)}-{lang}.png" if (SITE / "assets" / f"{m.group(1)}-{lang}.png").exists() else m.group(0), out)
+            out = re.sub(r'(<meta name="description" content=")([^"]*)(")', lambda m: m.group(1) + html.escape(short_description(html.unescape(m.group(2))), quote=True) + m.group(3), out, count=1)
+            out = re.sub(r"<title>(.*?)</title>", lambda m: "<title>" + html.escape(short_title(html.unescape(m.group(1))), quote=False) + "</title>", out, count=1, flags=re.S)
             if rel != "404.html":
                 out = re.sub(r'(<link rel="canonical"[^>]*>)', lambda m: m.group(1) + "\n" + tags_l, out, count=1)
             # the moving parts (the guides' lines from scripts, the games) translate in the browser
@@ -2553,7 +2604,7 @@ def translate_site() -> None:
 def video_sitemap(path: str, lang: str) -> str:
     """The place's film on this page, for the video sitemap (Google's video results)."""
     place = PAGE_FILM.get(path)
-    v = tuck_video(lang) if path == "games/tucks-errand.html" else film_of(place, lang) if place else None
+    v = tuck_video(lang) if path == "games/tucks-errand.html" else None  # the rooms' loops are not films: see film_ld
     if not v:
         return ""
     x = lambda s: html.escape(s, quote=True)
@@ -2580,6 +2631,7 @@ def main() -> None:
     site_seo()
     site_counter()
     site_csp()
+    hub_addresses()
     translate_site()
     leak_check()
 

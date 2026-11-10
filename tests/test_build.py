@@ -398,7 +398,9 @@ class Visibility(unittest.TestCase):
         t = (self.SITE / "llms.txt").read_text()
         self.assertTrue(t.startswith("# Busy\n\n> "), "H1, then a blockquote summary")
         for url in re.findall(r"\]\((https?://[^)]+)\)", t):
-            path = re.sub(r"^https?://[^/]+/", "", url)
+            path = re.sub(r"^https?://[^/]+/", "", url).split("#")[0]
+            self.assertNotRegex(path, r"/index\.html$", "a suite's front page is linked as its folder")
+            path += "index.html" if path.endswith("/") else ""  # a suite's front page: /business/
             self.assertTrue((self.SITE / path).is_file(), f"llms.txt links to missing {path}")
         full = (self.SITE / "llms-full.txt").read_text()
         for tool in json.loads((self.SITE / "content" / "tools.json").read_text()):
@@ -432,8 +434,9 @@ class Visibility(unittest.TestCase):
         for g in ["index"] + [x["id"] for x in build.GAMES]:
             page = self.SITE / "games" / f"{g}.html"
             t = page.read_text()
-            self.assertIn(f"/games/{g}.html", sm)
-            self.assertIn(f"/games/{g}.html", llms)
+            address = "/games/" if g == "index" else f"/games/{g}.html"  # the hub's one address is its folder
+            self.assertIn(f"{address}<", sm)
+            self.assertIn(f"{address})", llms)
             self.assertIn("../assets/games/engine.js", t)
             self.assertIn("../assets/games/play.js", t)
             self.assertNotIn("data-ad=", t, "no ads inside the games")
@@ -444,9 +447,9 @@ class Visibility(unittest.TestCase):
         home = (self.SITE / "index.html").read_text()
         self.assertIn('id="games-today"', home, "the homepage has a brain games section")
         for g in ["index"] + [x["id"] for x in build.GAMES]:
-            self.assertIn(f'href="games/{g}.html"', home)
+            self.assertIn('href="games/"' if g == "index" else f'href="games/{g}.html"', home)
         for p in build.site_pages():
-            self.assertRegex(p.read_text(), r'href="(\.\./|/)?games/index\.html">🧩 Games</a>', f"{p.name} links to the games")
+            self.assertRegex(p.read_text(), r'href="((\.\./|/)?games/|\./)">🧩 Games</a>', f"{p.name} links to the games")
 
     def test_suites_old_addresses_forward_and_the_sitemap_lists_only_real_pages(self):
         """Busy is one brand with suites. The business pages moved to /business/ in October 2026;
@@ -463,11 +466,12 @@ class Visibility(unittest.TestCase):
         sm = (self.SITE / "sitemap.xml").read_text()
         for rel in old:
             self.assertNotIn(f"<loc>{build.SITE_URL}/{rel}<", sm, f"the sitemap lists the forward {rel}")
-        for rel in ["business/index.html", "business/tools.html", "business/olaf.html", "business/download.html", "growth/index.html", "games/index.html"]:
+        for rel in ["business/", "business/tools.html", "business/olaf.html", "business/download.html", "growth/", "games/"]:
             self.assertIn(f"/{rel}<", sm)
+        self.assertNotRegex(sm, r"/index\.html<", "a suite's front page has one address, its folder")
         home = (self.SITE / "index.html").read_text()
         self.assertIn('id="suites"', home)
-        for rel in ["business/index.html", "games/index.html", "growth/index.html", "business/olaf.html"]:
+        for rel in ["business/", "games/", "growth/", "business/olaf.html"]:
             self.assertIn(f'href="{rel}"', home)
         for p in build.site_pages():
             t = p.read_text()

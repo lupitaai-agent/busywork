@@ -301,12 +301,15 @@ def load(lang: str) -> tuple:
         if re.search(r"\{\d+\}", k):
             if re.sub(r"\{\d+\}", "", k).strip():
                 rx = "^" + re.sub(r"\\\{(\d+)\\\}", r"(?P<p\1>.+?)", re.escape(k)) + "$"
-                patterns.append((re.compile(rx, re.S), v))
+                patterns.append((re.compile(rx, re.S), v, [c for c in re.split(r"\{\d+\}", k) if c]))
         else:
             exact[k] = v
     patterns.sort(key=lambda p: -len(p[0].pattern))  # the most specific first
     _cache[lang] = (exact, patterns, set())
     return _cache[lang]
+
+
+_untranslated = set()  # (language, text) that had no exact translation the first time it was looked up
 
 
 def translate_text(s: str, lang: str) -> str:
@@ -318,13 +321,25 @@ def translate_text(s: str, lang: str) -> str:
     exact, patterns, missing = load(lang)
     if key in exact:
         return lead + exact[key] + trail
-    for rx, v in patterns:
+    if (lang, key) in _untranslated:  # tried before: the patterns are slow on a long sentence, and a page repeats
+        return s
+    for rx, v, fixed in patterns:
+        # the pattern's own words have to be in the text, in order: a quick look that saves the slow match on long sentences
+        at = 0
+        for c in fixed:
+            at = key.find(c, at)
+            if at < 0:
+                break
+            at += len(c)
+        if at < 0:
+            continue
         m = rx.match(key)
         if m:
             out = v
             for name, val in m.groupdict().items():
                 out = out.replace("{" + name[1:] + "}", exact.get(norm(val), val))
             return lead + out + trail
+    _untranslated.add((lang, key))  # no pattern fits either
     if is_text(key) and not re.fullmatch(r"[\w./-]+/", key):  # a folder path stays as it is
         missing.add(key)
     return s
@@ -355,7 +370,7 @@ def translate_html(text: str, lang: str, rel: str, pages: set, site_url: str) ->
             p = u[1:].split("#")[0].split("?")[0]
             return f"/{lang}{u}" if (p in pages or p == "" or p + "index.html" in pages) else u
         target = posixpath.normpath(posixpath.join(here, u.split("#")[0].split("?")[0])) if u.split("#")[0] else rel
-        if target in pages or target + "/index.html" in pages or (u.split("#")[0] == "" ):
+        if target in pages or target == "." or target + "/index.html" in pages or (u.split("#")[0] == "" ):
             return u  # a page: the same page in this language, one folder down as well
         return "../" + u
 

@@ -601,3 +601,8 @@ a.card.feat .go { display: inline-block; margin-top: 8px; font-weight: 800; font
 .game-band-text .faint { color: #FBF7EE; opacity: .75; }
 @media (max-width: 800px) { .game-band-in { grid-template-columns: 1fr; gap: 16px; padding: 14px; } }
 @media (pointer: coarse) { .only-keyboard { display: none; } }
+
+/* The three jobs of Busy Business (business/index.html#core): three cards, each with its free part and what the paid AI expert will add. */
+#core .feats { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+#core .feat p + p { margin-top: 10px; }
+#core .feat a.more { font-weight: 800; color: var(--ink); }
