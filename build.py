@@ -2118,8 +2118,8 @@ def site_seo() -> None:
             t, n = re.subn(r'(<meta property="og:image:height" content="630">)', rf'\1<meta property="og:image:alt" content="{alt}">', t, count=1)
             if not n:
                 t = re.sub(r'(<meta property="og:image" content="[^"]*">)', rf'\1<meta property="og:image:alt" content="{alt}">', t, count=1)
-        if 'property="og:url"' not in t:
-            t = t.replace('<meta name="theme-color"', f'<meta property="og:url" content="{SITE_URL}/{rel}">\n<meta name="theme-color"', 1)
+        if 'property="og:url"' not in t:  # the address a shared link shows: the canonical one
+            t = re.sub(r'(<meta property="og:title"[^>]*>)', lambda m: m.group(1) + f'<meta property="og:url" content="{SITE_URL}/{rel}">', t, count=1)
         if "og:locale" not in t:
             t = t.replace('<meta name="theme-color"', '<meta property="og:locale" content="en_GB">\n<meta name="theme-color"', 1)
         if "application/rss+xml" not in t:  # What's new, for feed readers

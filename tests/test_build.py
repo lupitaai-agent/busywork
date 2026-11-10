@@ -381,6 +381,7 @@ class Visibility(unittest.TestCase):
             self.assertLessEqual(len(html.unescape(title)), 60, f"{p.name} title")
             self.assertLessEqual(len(html.unescape(desc)), 160, f"{p.name} description")
             self.assertIn('rel="canonical"', t, p.name)
+            self.assertIn('property="og:url"', t, f"{p.name} has a sharing address")
             self.assertIn("og:image:alt", t, p.name)
             self.assertNotIn("/app/shared/icons/", t, f"{p.name} points crawlers at icons robots.txt blocks")
             ids = set()
