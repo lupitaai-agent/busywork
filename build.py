@@ -1258,7 +1258,7 @@ def growth_page(tools: list) -> str:
 <main id="main">
   {place_html("glasshouse", GLASSHOUSE_STEPS, glasshouse_card, "The Glasshouse: a tour of Busy Growth", next_label="Up a floor ↑", decals=GLASSHOUSE_DECALS,
              model="../assets/pim/pim.glb", height=1.25, expert="ivy")}
-  <section class="section"><div class="wrap">{expert_intro("ivy", "Pim", "../app/shared/places/glasshouse/pim-hello.png", "#upstairs")}</div></section>
+  <section class="section"><div class="wrap">{expert_intro("ivy", "Pim", "../app/shared/places/glasshouse/pim-hello.png", "#upstairs", free_line=True)}</div></section>
   <section class="section" id="tools"><div class="wrap">
     <div class="center reveal"><h2 class="big">{len(GROWTH_TOOLS)} tools that work together</h2><p class="lead">A gap in your skills becomes a plan, the plan becomes a win, the win becomes a CV line and an interview story.</p></div>
     <div class="feats">{feats}</div>
@@ -1371,7 +1371,10 @@ EXPERTS = {  # the paid AI experts upstairs: their room and model (busy-studio),
 }
 
 
-def expert_intro(expert: str, guide: str, guide_pic: str, tour: str, prefix: str = "../") -> str:
+FREE_AND_PAID = "The tools are free and stay free: no account, no AI. A paid version with an AI expert is coming, and that is what will keep Busy going."
+
+
+def expert_intro(expert: str, guide: str, guide_pic: str, tour: str, prefix: str = "../", free_line: bool = False) -> str:
     """An expert on their page: in their room upstairs (rendered in the Busy Studio), a way to watch them at work in
     the tour's last room, and the guide next to them: the guide is free and scripted, the expert is paid AI."""
     x = EXPERTS[expert]
@@ -1382,7 +1385,7 @@ def expert_intro(expert: str, guide: str, guide_pic: str, tour: str, prefix: str
         <div class="card"><img src="{guide_pic}" alt="" loading="lazy"><div><b>{guide} · free</b><small>Your guide downstairs: shows you every tool. Scripted, no AI.</small></div></div>
         <div class="card"><img src="{prefix}assets/experts/{expert}-hello.png" alt="" loading="lazy"><div><b>{x["name"]}</b><small>The AI expert upstairs, on your own Claude key. {e(x["price"]())}.</small></div></div>
       </div>
-    </div>"""
+    </div>{f'<p class="center lead reveal" style="margin-top:26px">{FREE_AND_PAID}</p>' if free_line else ""}"""
 
 
 def expert_card(s: dict) -> str:
@@ -1548,7 +1551,7 @@ def home_page(tools: list) -> str:
 {nav("../", ("⬇️ Download free", "#get") if HOME_LIVE else explore("../"))}
 <main id="main">
   {top}
-  {'<section class="section"><div class="wrap">' + expert_intro("juno", "Tuck", "../app/shared/places/house/tuck-hello.png", "#upstairs") + "</div></section>" if HOME_LIVE else ""}
+  {'<section class="section"><div class="wrap">' + expert_intro("juno", "Tuck", "../app/shared/places/house/tuck-hello.png", "#upstairs", free_line=True) + "</div></section>" if HOME_LIVE else ""}
   <section class="section" id="tools"><div class="wrap">
     <div class="center reveal"><h2 class="big">{len(HOME_TOOLS)} tools that work together</h2><p class="lead">A contract knows its cancellation letter, the move knows your contracts, and the Just in Case binder knows where every document is.{' <a href="../app/home.html">Try them all in the demo →</a>' if HOME_LIVE else ''}</p></div>
     <div class="feats">{feats}</div>
@@ -2187,7 +2190,7 @@ def write_llms(tools: list) -> None:
               f"- [All business tools]({b}/business/tools.html): what each tool does.",
               "", "## Busy Games: free daily brain games", "",
               f"- [Busy Games]({b}/games/index.html): four free logic puzzles in the browser or as a free app for Mac and Windows (beta), a new one every day and {GAME_LEVELS:,} levels each. No account."]
-    lines += [f"- [Busy Street: Tuck's Errand]({b}/games/tucks-errand.html): Busy's free puzzle adventure, in the browser or as a free app for Mac and Windows (beta). Six levels, six friends to cut loose from the Red Tape; the download has a film at the start and end of every level. No AI, no account. In six languages."]
+    lines += [f"- [Busy Street: Tuck's Errand]({b}/games/tucks-errand.html): Busy's free puzzle adventure, in the browser or as a free app for Mac and Windows (beta). Six levels, six friends to cut loose from the Red Tape; the download has a film at the start and end of every level. No AI, no account. In six languages in the browser; the app is in English for now."]
     lines += [f"- [{g['name']}]({b}/games/{g['id']}.html): {g['desc']}" for g in GAMES]
     if GROWTH_LIVE:
         lines += ["", "## Busy Growth: free tools to grow your career", "",
@@ -2233,7 +2236,7 @@ def write_llms(tools: list) -> None:
              f"Page: {b}/business/olaf.html. {OLAF_PRICE}.", "", "Marketing:"]
     full += [f"- {f[1]}: {f[2]}" for f in OLAF_FEATS] + ["", "Projects:"] + [f"- {f[1]}: {f[2]}" for f in OLAF_PROJECT_FEATS]
     full += ["", "Questions:"] + [f"- {q} {a}" for q, a in OLAF_FAQ]
-    full += ["", "# Busy Street: Tuck's Errand: a free game", "", f"Page: {b}/games/tucks-errand.html. A puzzle adventure on Busy Street: the Red Tape has crept over the street, and Tuck only went out to get a stamp back. Six levels and six friends to cut loose. You swap between two figures on screen, call in the others, throw pots, keys and each other, climb, swing and roll, hide from inspectors and solve logic puzzles. Free, in the browser or as a download for Mac and Windows (beta); the download has a film at the start and end of every level and plays without the internet. No AI and no account. In six languages."]
+    full += ["", "# Busy Street: Tuck's Errand: a free game", "", f"Page: {b}/games/tucks-errand.html. A puzzle adventure on Busy Street: the Red Tape has crept over the street, and Tuck only went out to get a stamp back. Six levels and six friends to cut loose. You swap between two figures on screen, call in the others, throw pots, keys and each other, climb, swing and roll, hide from inspectors and solve logic puzzles. Free, in the browser or as a download for Mac and Windows (beta); the download has a film at the start and end of every level and plays without the internet. No AI and no account. In six languages in the browser; the app is in English for now."]
     full += ["", "# Busy Games: free daily brain games", "", f"Page: {b}/games/index.html. Four logic puzzles that run in the browser, a new one every day and {GAME_LEVELS:,} levels each. Progress stays in the browser; no account.", ""]
     for g in GAMES:
         full += [f"## {g['name']} ({g['classic']})", "", g["about"], f"Page: {b}/games/{g['id']}.html", "", "Rules:"] + [f"- {r}" for r in g["rules"]] + [""]

@@ -84,7 +84,7 @@
           <p class="lead">${glance.length > 1 ? 'Here’s what needs you today.' : BW.brand.tagline + ' What are we ticking off today?'}</p></div>
       </section>
       ${glance.length ? `<section class="stats glance rise">${glance.map(([c, e, k, v, sub, app, word]) => `
-        <a class="card stat" style="--tint:var(--${c})" href="apps/${app}/index.html"><div class="k">${e} ${k}</div><div class="v${word ? ' word' : ''}">${esc(v)}</div><div class="s">${esc(sub)}</div></a>`).join('')}</section>` : ''}
+        <a class="card stat" style="--tint:var(--${c})" href="apps/${app}/index.html"${app === 'marketing' ? ' data-brand' : ''}><div class="k">${e} ${k}</div><div class="v${word ? ' word' : ''}">${esc(v)}</div><div class="s">${esc(sub)}</div></a>`).join('')}</section>` : ''}
       ${!hidden && doneN < steps.length ? `<section class="card start rise">
         <div class="start-head"><div><h2>🚀 Getting started</h2><small>${doneN} of ${steps.length} done</small></div><div class="bar"><i style="width:${doneN / steps.length * 100}%"></i></div><button class="link" data-hide>Hide</button></div>
         <div class="start-steps">${steps.map(([ok, e, t, sub, go], i) => `<${typeof go === 'string' && !ok ? `a href="${go}"` : 'button type="button"'} class="step ${ok ? 'ok' : ''}" data-step="${i}"><span class="tick">${ok ? '✓' : e}</span><span><b>${t}</b><small>${sub}</small></span></${typeof go === 'string' && !ok ? 'a' : 'button'}>`).join('')}</div>
@@ -111,6 +111,9 @@
       else { go.href = BW.olafPage() + '#get'; go.target = '_blank'; go.rel = 'noopener'; }
       up.hidden = false;
     });
+    // With Olaf installed (the paid app), the brand card opens Olaf: he keeps the plan and does the work with you.
+    const bc = $('[data-brand]', main);
+    if (bc) BW.entitlements.edition('olaf').then((ed) => { if (ed === 'full') bc.href = 'apps/olaf/index.html'; });
     if (ot) BW.entitlements.edition('olaf').then((ed) => {
       if (ed === 'full') { ot.querySelector('[data-addon-chip]').remove(); return; }
       if (ed === 'locked') { ot.querySelector('[data-addon-chip]').textContent = 'Add your licence'; return; }

@@ -1,6 +1,11 @@
 {
  "about": "What changed in Busy, newest first. build.py makes the What's new page (updates.html) and the RSS feed (feed.xml) from it. Add each release here when it goes out.",
  "updates": [
+  {"version": "0.9.7", "date": "2026-11-10", "title": "Busy Business starts with your brand",
+   "items": ["Busy Business opens on your brand: a brand card first, then your tools in three groups: Grow, Deliver and Run.",
+             "In Busy Home's Just in Case binder, a contract or a document now opens in its own tool when you click it.",
+             "Safer apps: a file Busy opens for you is only ever a document or a picture, and two windows can't trip over the same file.",
+             "The website says plainly what is free and what will be paid: the tools stay free, and a paid version with an AI expert is coming."]},
   {"version": "0.9.6", "date": "2026-11-06", "title": "A new free game: Busy Street: Tuck's Errand", "items": ["Tuck only went out to get a stamp back. Six levels, six friends to cut loose from the Red Tape.", "Play it in your browser, or download it for Mac and Windows with a film at the start and end of every level.", "The AI experts are coming later, so the site no longer shows prices for them."]},
   {"version": "0.9.5", "date": "2026-11-03", "title": "Puzzles in their room, and every screen in your language",
    "items": ["Play the puzzles in their room: on each game, tap In the room for a real wooden board in the Puzzle Parlour.",

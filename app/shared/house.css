@@ -75,7 +75,7 @@
 .binder-sec { padding: 16px 18px; margin-bottom: 14px; }
 .binder-sec h2 { font-size: 1.1rem; margin: 0; }
 .binder-sec .hint { color: var(--ink-2); font-size: .9rem; margin: 2px 0 10px; }
-.binder-entry { border-top: 2px dashed var(--hair); padding: 10px 0; cursor: pointer; }
+.binder-entry { display: block; border-top: 2px dashed var(--hair); padding: 10px 0; cursor: pointer; color: inherit; text-decoration: none; }  /* your own notes open here; a contract or a document opens in its own tool */
 .binder-entry:first-of-type { border-top: 0; }
 .binder-entry b { display: block; }
 .binder-entry p { margin: 2px 0 0; color: var(--ink-2); white-space: pre-wrap; }

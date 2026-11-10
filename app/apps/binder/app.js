@@ -37,9 +37,9 @@
           ${mine.map((e) => `<div class="binder-entry" data-id="${e.id}" tabindex="0"><b>${esc(e.title || 'Untitled')}</b>${e.text ? `<p>${esc(e.text)}</p>` : ''}</div>`).join('') || '<small class="faint">Nothing yet.</small>'}</section>`;
       }).join('')}
       <section class="card binder-sec rise"><h2>🔁 Contracts</h2><p class="hint">From Contracts &amp; Renewals: what to keep, transfer or cancel.</p>
-        ${live().map((c) => `<div class="binder-entry" data-contract="${c.id}"><b>${esc(c.name || c.provider || 'Contract')}</b><p>${esc([c.provider, c.reference && 'ref. ' + c.reference, c.phone].filter(Boolean).join(' · '))}</p></div>`).join('') || '<small class="faint">Add contracts in Contracts &amp; Renewals and they show here.</small>'}</section>
+        ${live().map((c) => `<a class="binder-entry" href="../contracts/index.html#open/${c.id}"><b>${esc(c.name || c.provider || 'Contract')}</b><p>${esc([c.provider, c.reference && 'ref. ' + c.reference, c.phone].filter(Boolean).join(' · '))}</p></a>`).join('') || '<small class="faint">Add contracts in Contracts &amp; Renewals and they show here.</small>'}</section>
       <section class="card binder-sec rise"><h2>🗂️ Documents</h2><p class="hint">From Paper Trail, with where each original is.</p>
-        ${current().map((p) => `<div class="binder-entry" data-paper="${p.id}"><b>${esc(p.title || 'Document')}</b><p>${esc([p.person, p.where ? '📍 ' + p.where : 'Where the original is: not filled in'].filter(Boolean).join(' · '))}</p></div>`).join('') || '<small class="faint">Add documents in Paper Trail and they show here.</small>'}</section>
+        ${current().map((p) => `<a class="binder-entry" href="../papers/index.html#open/${p.id}"><b>${esc(p.title || 'Document')}</b><p>${esc([p.person, p.where ? '📍 ' + p.where : 'Where the original is: not filled in'].filter(Boolean).join(' · '))}</p></a>`).join('') || '<small class="faint">Add documents in Paper Trail and they show here.</small>'}</section>
       <div style="height:40px"></div>`;
     $$('[data-add]', main).forEach((b) => b.onclick = () => edit({ section: b.dataset.add }));
     $$('.binder-entry[data-id]', main).forEach((el) => { el.onclick = () => edit(entries.find((e) => e.id === el.dataset.id)); el.onkeydown = (e) => { if (e.key === 'Enter') el.onclick(); }; });
