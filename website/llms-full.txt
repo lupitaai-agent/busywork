@@ -1,6 +1,6 @@
 # Busy: the full picture
 
-Busy makes free, private tools for work and life, in suites: Busy Business (thirteen tools for small businesses and freelancers to grow and run the business: a marketing studio with a brand profile and a year plan, a brand kit, projects, invoices and quotes, time, receipts, money, clients, documents, subscriptions, trips and stock), Busy Growth (free tools to grow your career: a library, skills, wins, a job tracker, a CV and LinkedIn builder and more), Busy Home (free tools for household paperwork: documents with expiry reminders, contracts with the last day to cancel, upkeep, a home inventory, letters, moving and a Just in Case binder) and Busy Games (free daily brain games). Each suite is a free app for Mac and Windows, or runs in the browser, and keeps everything in the owner's own folder, with no account and no subscription. Each suite can have a paid AI expert: Olaf for business, Ivy for professional growth, Juno for household paperwork.
+Busy makes free, private tools for work and life, in suites: Busy Business (thirteen tools for small businesses and freelancers to grow and run the business: a marketing studio with a brand profile and a year plan, a brand kit, projects, invoices and quotes, time, receipts, money, clients, documents, subscriptions, trips and stock), Busy Growth (free tools to grow your career: a library, skills, wins, a job tracker, a CV and LinkedIn builder and more), Busy Home (free tools for household paperwork: documents with expiry reminders, contracts with the last day to cancel, upkeep, a home inventory, letters, moving and a Just in Case binder) and Busy Games (free daily brain games). Each suite is a free app for Mac and Windows, or runs in the browser, and keeps everything in the owner's own folder, with no account and no subscription. Each suite also comes as a paid app with an AI expert inside, bought once on itch.io: Olaf for business, Ivy for professional growth, Juno for household paperwork. Busy also makes the game Busy Street.
 
 Website: https://busywork.example/
 
@@ -20,7 +20,7 @@ Page: https://busywork.example/business/
 ## Editions
 
 - Free app (Mac and Windows, beta) and free download: all 13 tools, the Marketing Studio included. No AI, no account, no subscription.
-- Coming later: the same tools plus Olaf, the AI expert for marketing and projects.
+- Busy Business with Olaf ($7.99 once on itch.io, https://busyai.itch.io/busy-business): the same tools plus Olaf, the AI expert for marketing and projects, on the owner's own Claude key.
 - Website demo: every tool filled with a pretend design studio, at https://busywork.example/app/index.html. Nothing is kept after the tab closes.
 
 ## Invoices & Quotes
@@ -277,7 +277,7 @@ Questions:
 
 ## Olaf, the AI expert for marketing and projects (paid edition of Busy Business)
 
-Page: https://busywork.example/business/olaf.html. Coming later.
+Page: https://busywork.example/business/olaf.html. $7.99 once.
 
 Marketing:
 - Looks at where you stand: Reads your brand profile, your website and your reviews, and tells you plainly what is working and what is missing.
@@ -295,7 +295,7 @@ Projects:
 
 Questions:
 - Is Olaf a person? No. Olaf is an AI expert for marketing and projects, running on Claude, Anthropic's AI. It follows proven marketing science, explains its reasoning in plain words, checks its writing, and never invents facts, reviews or numbers. You approve everything before it goes out.
-- What does it cost? Olaf isn't on sale yet, so there is nothing to pay today. Join the list on this page and you hear first. When it opens, you also pay Anthropic directly for the AI you use, with your own Claude key. You see the cost of every conversation, and you set a monthly limit and a limit per conversation.
+- What does it cost? Olaf comes inside Busy Business with Olaf: $7.99 once on itch.io, an introductory price. You also pay Anthropic directly for the AI you use, with your own Claude key. You see the cost of every conversation, and you set a monthly limit and a limit per conversation.
 - What does the AI cost to run? You pay Anthropic directly, on your own Claude key, for what Olaf uses. In our own tests with Claude Sonnet: a weekly check-in cost about $0.10 to $0.15, making a full plan about $0.25 to $0.30, and writing a month of posts about $0.15. You see the cost of every conversation and set a monthly limit.
 - Do I need the Marketing Studio first? No. If you have filled in the Studio's brand profile, Olaf starts from it. If not, Olaf's onboarding asks the questions itself, one at a time.
 - Where is my data? In your own business folder. Your Claude key stays in your browser and is only sent to Anthropic. Web pages are fetched by Anthropic's own tools, never through us. We have no server that sees your business.
@@ -374,7 +374,7 @@ Page: https://busywork.example/growth/. Free, as its own app for Mac and Windows
 - Contacts: The people in your corner, your LinkedIn connections included, with a reminder when it's time to catch up.
 - Weekly review: Ten minutes on Friday: what moved, what was hard, what's next.
 
-Ivy by Busy, the AI coach for professional growth, is coming later, on the owner's own Claude usage. Ivy never invents experience: every CV line comes with its proof.
+Ivy by Busy, the AI coach for professional growth, comes in Busy Growth with Ivy ($1.49 once on itch.io, https://busyai.itch.io/busy-growth), on the owner's own Claude usage. Ivy never invents experience: every CV line comes with its proof.
 
 # Busy Home: free tools for household paperwork
 
@@ -388,7 +388,7 @@ Page: https://busywork.example/home/. Free, as its own app for Mac and Windows (
 - Moving Planner: A checklist worked back from moving day, and everyone to tell, with your contracts already on the list.
 - Just in Case: Everything your family would need if something happened to you: people to call, where things are, wishes. One PDF.
 
-Juno by Busy, the AI expert for household paperwork, is coming later, on the owner's own Claude usage. It explains letters, reads contracts and policies, writes replies and keeps renewals in view. It never gives legal advice.
+Juno by Busy, the AI expert for household paperwork, comes in Busy Home with Juno ($1.49 once on itch.io, https://busyai.itch.io/busy-home), on the owner's own Claude usage. It explains letters, reads contracts and policies, writes replies and keeps renewals in view. It never gives legal advice.
 
 # Privacy in short
 

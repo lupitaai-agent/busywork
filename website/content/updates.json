@@ -1,6 +1,12 @@
 {
  "about": "What changed in Busy, newest first. build.py makes the What's new page (updates.html) and the RSS feed (feed.xml) from it. Add each release here when it goes out.",
  "updates": [
+  {"version": "1.0", "date": "2026-11-12", "title": "Olaf, Ivy and Juno are here, and so is the whole of Busy Street",
+   "items": ["Each suite now also comes as a paid app with its AI expert inside: Busy Business with Olaf, Busy Growth with Ivy and Busy Home with Juno. You buy one once, on itch.io, and the expert runs on your own Claude key.",
+             "The free tools stay free, with no AI and no account. Nothing about them has changed.",
+             "Busy Street: Tuck's Errand has a full edition with 15 levels: the street and nine worlds. Busy Street 3D is out for Mac.",
+             "The paid apps and both games are in English, Dutch, German, Spanish, Italian and Brazilian Portuguese.",
+             "The website has a new page, Free and paid, and a short film of every app."]},
   {"version": "0.9.7", "date": "2026-11-10", "title": "Busy Business starts with your brand",
    "items": ["Busy Business opens on your brand: a brand card first, then your tools in three groups: Grow, Deliver and Run.",
              "In Busy Home's Just in Case binder, a contract or a document now opens in its own tool when you click it.",

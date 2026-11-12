@@ -250,7 +250,8 @@ class GrowthLaunch(unittest.TestCase):
         self.assertIn('href="../app/growth.html"', page)
         self.assertNotIn("(soon)", page)
         self.assertEqual(page.split("<main")[1].split("</main>")[0].lower().count("coming soon"), 0, "the tools are here; only Ivy comes later")
-        self.assertIn("Ivy by Busy · coming later", page)
+        self.assertIn('href="https://busyai.itch.io/busy-growth" target="_blank" rel="noopener"', page, "Ivy is bought on her own itch.io page, in a new tab")
+        self.assertNotIn("coming later", page)
         self.assertEqual(len(build.GROWTH_TOOLS), len(build.GROWTH_APPS), "one line on the page for every tool")
 
     def test_every_website_tool_page_is_the_demo(self):
@@ -324,15 +325,8 @@ class HomeLaunch(unittest.TestCase):
         self.assertIn('href="../downloads/busy-home.zip"', page)
         self.assertIn('href="../app/home.html"', page)
         self.assertEqual(len(build.HOME_TOOLS), len(build.HOUSE_APPS), "one line on the page for every tool")
-        self.assertIn("Juno by Busy · coming later", page)
-        self.assertNotIn("Get Juno", page, "no buy button without a checkout")
-        saved, build.JUNO_CHECKOUT_URL = build.JUNO_CHECKOUT_URL, "https://example.com/juno"
-        try:
-            sell = build.home_page(tools)
-        finally:
-            build.JUNO_CHECKOUT_URL = saved
-        self.assertIn('href="https://example.com/juno">Get Juno · €30</a>', sell)
-        self.assertNotIn("coming soon", sell.split('id="juno"')[1].split("</section>")[0])
+        self.assertIn('href="https://busyai.itch.io/busy-home" target="_blank" rel="noopener"', page, "Juno is bought on her own itch.io page, in a new tab")
+        self.assertNotIn("coming later", page)
         build.HOME_LIVE = False
         soon = build.home_page(tools)
         self.assertNotIn("busy-home.zip", soon)

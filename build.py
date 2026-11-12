@@ -373,10 +373,7 @@ def scenes() -> dict:
     return {sid: block.replace('class="scene"', 'class="scene on"', 1) for block, sid in found}
 
 
-OLAF_PRICE = "Coming later"  # nothing is on sale until there is a company (owner, 2026-11-06). Prices go back with checkout
-# Where "Get Olaf" goes once a payment provider is set up (it delivers the paid download and the
-# licence key). Empty until then: the page shows the waitlist instead.
-OLAF_CHECKOUT_URL = os.environ.get("OLAF_CHECKOUT_URL", "")
+OLAF_PRICE = "$7.99 once"  # Busy Business with Olaf on itch.io (owner, 2026-11-12); the same figure as PRODUCTS["olaf"]
 # The Olaf waitlist. The site has no server, so the form posts to a form service (Formspree or any
 # service that accepts a normal form POST and answers JSON). Set both in the GitHub repository:
 # Settings → Secrets and variables → Actions → Variables.
@@ -385,9 +382,39 @@ CF_ANALYTICS_TOKEN = os.environ.get("CF_ANALYTICS_TOKEN", "")  # see site_counte
 WAITLIST_PROVIDER = os.environ.get("WAITLIST_PROVIDER") or "MailerLite"
 # Busy Growth has its own list (a second MailerLite form), so Olaf's list stays Olaf's.
 GROWTH_WAITLIST_ENDPOINT = os.environ.get("GROWTH_WAITLIST_ENDPOINT", "")
-JUNO_CHECKOUT_URL = os.environ.get("JUNO_CHECKOUT_URL", "")  # Juno's checkout page; empty means "coming soon"
-JUNO_PRICE = "€30"
-IVY_CHECKOUT_URL = os.environ.get("IVY_CHECKOUT_URL", "")  # Ivy's checkout page, once it exists; empty means "coming soon"  # an empty GitHub variable means the default
+
+# What is for sale, and where (owner, 2026-11-12): the paid apps and the games are sold on itch.io, in dollars, at
+# introductory prices. Every button, price, table and the search data read from this one table. A link always goes
+# to the product's own page, never to the profile, and always opens in a new tab (itch_button).
+ITCH = "https://busyai.itch.io/"
+PRODUCTS = {
+    "olaf": {"name": "Busy Business with Olaf", "who": "Olaf", "suite": "Busy Business", "url": ITCH + "busy-business", "price": "$7.99", "amount": "7.99",
+             "film": "busy-business", "runs": "Mac and Windows", "adds": "Olaf, your AI expert for marketing and projects"},
+    "ivy": {"name": "Busy Growth with Ivy", "who": "Ivy", "suite": "Busy Growth", "url": ITCH + "busy-growth", "price": "$1.49", "amount": "1.49",
+            "film": "busy-growth", "runs": "Mac and Windows", "adds": "Ivy, your AI coach for professional growth"},
+    "juno": {"name": "Busy Home with Juno", "who": "Juno", "suite": "Busy Home", "url": ITCH + "busy-home", "price": "$1.49", "amount": "1.49",
+             "film": "busy-home", "runs": "Mac and Windows", "adds": "Juno, your AI expert for household paperwork"},
+    "tuck": {"name": "Busy Street: Tuck's Errand", "who": "", "suite": "Busy Games", "url": ITCH + "tucks-errand", "price": "$1.99", "amount": "1.99",
+             "film": "tucks-errand", "runs": "Mac and Windows", "adds": "all 15 levels: the street and nine worlds"},
+    "street3d": {"name": "Busy Street 3D", "who": "", "suite": "Busy Games", "url": ITCH + "busy-street-3d", "price": "$3.99", "amount": "3.99",
+                 "film": "busy-street-3d", "runs": "Mac (Apple silicon)", "adds": "23 levels in 3D, eight worlds"},
+}
+
+FROM_PRICE = "$" + min(PRODUCTS[k]["amount"] for k in ("olaf", "ivy", "juno"))  # the cheapest app with an expert: "from $1.49"
+
+
+def itch_button(key: str, label: str = None, big: bool = False, primary: bool = True) -> str:
+    """The way to buy: the product's own page on itch.io, in a new tab, with where it goes and what it costs."""
+    x = PRODUCTS[key]
+    cls = "btn" + (" btn-big" if big else "") + (" btn-primary" if primary else "") + " out"
+    return f'<a class="{cls}" href="{e(x["url"])}" target="_blank" rel="noopener">{e(label or "Get it on itch.io")} · {x["price"]} <span aria-hidden="true">↗</span></a>'
+
+
+def film(key: str, prefix: str = "../", label: str = None) -> str:
+    """A product's short film: our own file, nothing loads until the visitor presses play (the site sends nothing anywhere)."""
+    x = PRODUCTS[key]
+    return (f'<figure class="film reveal"><video controls playsinline preload="none" poster="{prefix}assets/films/{x["film"]}.jpg" '
+            f'src="{prefix}assets/films/{x["film"]}.mp4" aria-label="{e(label or x["name"])}: a short film"></video></figure>')
 
 
 def waitlist_form(where: str, endpoint: str = None, consent: str = None, button: str = "🧭 Put me on the list", who: str = None) -> str:
@@ -431,7 +458,7 @@ def paths_block(prefix: str) -> str:
             <li>You decide what to work on, and when</li>
             <li>No account and no AI: everything stays in your own folder</li>
           </ul>
-          <p class="price"><b>€0</b> <small>forever</small></p>
+          <p class="price"><b>Free</b> <small>forever</small></p>
           <a class="btn btn-big" href="{prefix}business/download.html">⬇️ Download free</a>
         </article>
         <article class="card path featured reveal pop" style="transition-delay:.1s">
@@ -447,8 +474,8 @@ def paths_block(prefix: str) -> str:
             <li><b>One plan for both</b>: every marketing action is a task on your team's Project Board</li>
             <li><b>Remembers everything</b>, researches the web and reads your sales numbers for a monthly review</li>
           </ul>
-          <p class="price"><b>Coming later</b> <small>runs on your own Claude usage</small></p>
-          <div class="row-flex"><a class="btn btn-big btn-primary" href="{prefix}business/olaf.html#get">🧭 Get on the list</a><a class="btn btn-big" href="{prefix}business/olaf.html">Meet Olaf</a><a class="btn btn-big" href="{prefix}app/apps/olaf/index.html">Try the demo</a></div>
+          <p class="price"><b>{PRODUCTS["olaf"]["price"]}</b> <small>once, plus your own Claude usage</small></p>
+          <div class="row-flex">{itch_button("olaf", big=True)}<a class="btn btn-big" href="{prefix}business/olaf.html">Meet Olaf</a><a class="btn btn-big" href="{prefix}app/apps/olaf/index.html">Try the demo</a></div>
           <p class="fine">Already using the Studio? Olaf starts from your brand profile.</p>
         </article>
       </div>
@@ -468,7 +495,7 @@ def paths_block(prefix: str) -> str:
             <tr><td>Project planning</td><td>Project Planner: timeline, workload, updates you send</td><td>Olaf writes the plan, checks in weekly, re-plans and drafts updates</td></tr>
             <tr><td>Marketing actions as tasks on your Project Board</td><td>✓</td><td>✓</td></tr>
             <tr><td>Your data</td><td>Your folder, never sent to us</td><td>Your folder, never sent to us</td></tr>
-            <tr><td>Price</td><td>€0</td><td>Coming later, plus your own Claude usage</td></tr>
+            <tr><td>Price</td><td>Free</td><td>{PRODUCTS["olaf"]["price"]} once on itch.io, plus your own Claude usage</td></tr>
           </tbody>
         </table>
       </div>
@@ -608,7 +635,7 @@ def nav_header(prefix: str, cta: tuple = None) -> str:
     label, href = cta or ("⬇️ Download free", f"{prefix}business/download.html")
     return f"""<header class="nav"><div class="wrap">
   <a class="brandmark" href="{prefix}index.html"><span class="blob">✦</span><span class="word">Busy</span></a>
-  <nav class="links" aria-label="Main"><a href="{prefix}business/index.html">💼 Business</a><a href="{prefix}growth/index.html">🌱 Growth</a><a href="{prefix}home/index.html">🏡 Home</a><a href="{prefix}games/index.html">🧩 Games</a><a href="{prefix}about.html">About</a><a href="{prefix}privacy.html">Privacy</a></nav>
+  <nav class="links" aria-label="Main"><a href="{prefix}business/index.html">💼 Business</a><a href="{prefix}growth/index.html">🌱 Growth</a><a href="{prefix}home/index.html">🏡 Home</a><a href="{prefix}games/index.html">🧩 Games</a><a href="{prefix}pricing.html">Free and paid</a><a href="{prefix}about.html">About</a></nav>
   <a class="btn btn-primary" href="{href}">{label}</a>
 </div></header>"""
 
@@ -636,11 +663,11 @@ def footer(prefix: str, tools: list) -> str:
         return f'{picks}<li><a href="{prefix}{folder}/index.html#tools">All {len(ts)} tools</a></li>{expert}'
     return f"""<footer class="footer sitemap"><div class="wrap">
   <div><span class="brandmark"><span class="blob">✦</span>Busy</span><p class="faint">Make your paperwork fun again.<br>Free, private tools for work and life.</p>
-    <ul><li><a href="{prefix}about.html">About Busy</a></li><li><a href="{prefix}updates.html">What's new</a></li><li><a href="{prefix}press.html">Press</a></li><li><a href="{prefix}privacy.html">Privacy</a></li><li><a href="{prefix}terms.html">Terms</a></li></ul><!--langs--></div>
-  <div><b>💼 Busy Business</b><ul>{biz}<li><a href="{prefix}business/tools.html">All {len(tools)} tools</a></li><li><a href="{prefix}business/olaf.html">🧭 Olaf by Busy</a></li></ul>
-    <p style="margin-top:22px"><b>🧩 Busy Games</b></p><ul><li><a href="{prefix}games/tucks-errand.html">Tuck's Errand</a></li>{games}<li><a href="{prefix}games/index.html">All games</a></li></ul></div>
-  <div><b>🌱 Busy Growth</b><ul>{suite("growth", "growth", GROWTH_LIVE, f'<li><a href="{prefix}growth/index.html#ivy">🌿 Ivy by Busy</a></li>')}</ul>
-    <p style="margin-top:22px"><b>🏡 Busy Home</b></p><ul>{suite("house", "home", HOME_LIVE, f'<li><a href="{prefix}home/index.html#juno">🏡 Juno by Busy</a></li>')}</ul></div>
+    <ul><li><a href="{prefix}about.html">About Busy</a></li><li><a href="{prefix}pricing.html">Free and paid</a></li><li><a href="{prefix}updates.html">What's new</a></li><li><a href="{prefix}press.html">Press</a></li><li><a href="{prefix}privacy.html">Privacy</a></li><li><a href="{prefix}terms.html">Terms</a></li></ul><!--langs--></div>
+  <div><b>💼 Busy Business</b><ul>{biz}<li><a href="{prefix}business/tools.html">All {len(tools)} tools</a></li><li><a href="{prefix}business/olaf.html">🧭 Olaf by Busy</a></li><li><a href="{PRODUCTS["olaf"]["url"]}" target="_blank" rel="noopener">With Olaf · {PRODUCTS["olaf"]["price"]} ↗</a></li></ul>
+    <p style="margin-top:22px"><b>🧩 Busy Games</b></p><ul><li><a href="{prefix}games/tucks-errand.html">Tuck's Errand</a></li>{games}<li><a href="{prefix}games/index.html">All games</a></li><li><a href="{PRODUCTS["tuck"]["url"]}" target="_blank" rel="noopener">Tuck's Errand, the full game · {PRODUCTS["tuck"]["price"]} ↗</a></li><li><a href="{PRODUCTS["street3d"]["url"]}" target="_blank" rel="noopener">Busy Street 3D · {PRODUCTS["street3d"]["price"]} ↗</a></li></ul></div>
+  <div><b>🌱 Busy Growth</b><ul>{suite("growth", "growth", GROWTH_LIVE, f'<li><a href="{prefix}growth/index.html#ivy">🌿 Ivy by Busy</a></li><li><a href="{PRODUCTS["ivy"]["url"]}" target="_blank" rel="noopener">With Ivy · {PRODUCTS["ivy"]["price"]} ↗</a></li>')}</ul>
+    <p style="margin-top:22px"><b>🏡 Busy Home</b></p><ul>{suite("house", "home", HOME_LIVE, f'<li><a href="{prefix}home/index.html#juno">🏡 Juno by Busy</a></li><li><a href="{PRODUCTS["juno"]["url"]}" target="_blank" rel="noopener">With Juno · {PRODUCTS["juno"]["price"]} ↗</a></li>')}</ul></div>
 </div></footer>"""
 
 
@@ -917,7 +944,7 @@ def suite_ld(folder: str, desc: str) -> str:
             + jsonld({"@context": "https://schema.org", "@type": "SoftwareApplication", "name": f'{ex["name"]} by Busy', "applicationCategory": x["category"],
                       "operatingSystem": "macOS, Windows, ChromeOS (in Chrome or Edge)", "url": f'{SITE_URL}/{folder}/index.html{ex["page"]}',
                       "description": f'The paid AI expert in {x["name"]}, on the owner’s own Claude key.',
-                      "offers": {"@type": "Offer", "price": "30", "priceCurrency": "EUR"}}))
+                      "offers": {"@type": "Offer", "price": PRODUCTS[x["expert"]]["amount"], "priceCurrency": "USD", "url": PRODUCTS[x["expert"]]["url"]}}))
 
 
 # What Olaf does and the questions people ask, used on the Olaf page and in llms-full.txt.
@@ -934,7 +961,7 @@ OLAF_PROJECT_FEATS = [
     ("📣", "Updates and notes, done", "Updates your client reads, a brief for a freelancer, and meeting notes turned into tasks and decisions."),
 ]
 OLAF_FAQ = [("Is Olaf a person?", "No. Olaf is an AI expert for marketing and projects, running on Claude, Anthropic's AI. It follows proven marketing science, explains its reasoning in plain words, checks its writing, and never invents facts, reviews or numbers. You approve everything before it goes out."),
-       ("What does it cost?", "Olaf isn't on sale yet, so there is nothing to pay today. Join the list on this page and you hear first. When it opens, you also pay Anthropic directly for the AI you use, with your own Claude key. You see the cost of every conversation, and you set a monthly limit and a limit per conversation."),
+       ("What does it cost?", f"Olaf comes inside {PRODUCTS['olaf']['name']}: {PRODUCTS['olaf']['price']} once on itch.io, an introductory price. You also pay Anthropic directly for the AI you use, with your own Claude key. You see the cost of every conversation, and you set a monthly limit and a limit per conversation."),
        ("What does the AI cost to run?", "You pay Anthropic directly, on your own Claude key, for what Olaf uses. In our own tests with Claude Sonnet: a weekly check-in cost about $0.10 to $0.15, making a full plan about $0.25 to $0.30, and writing a month of posts about $0.15. You see the cost of every conversation and set a monthly limit."),
        ("Do I need the Marketing Studio first?", "No. If you have filled in the Studio's brand profile, Olaf starts from it. If not, Olaf's onboarding asks the questions itself, one at a time."),
        ("Where is my data?", "In your own business folder. Your Claude key stays in your browser and is only sent to Anthropic. Web pages are fetched by Anthropic's own tools, never through us. We have no server that sees your business."),
@@ -972,7 +999,7 @@ def olaf_page(tools: list) -> str:
     ld = jsonld({"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Olaf by Busy", "applicationCategory": "BusinessApplication",
                  "operatingSystem": "Windows, macOS, ChromeOS (in Chrome or Edge)", "url": f"{SITE_URL}/olaf.html",
                  "description": "An AI expert for marketing and projects for small businesses: a 90-day marketing plan, project plans, a weekly check-in and the work done with you, built on proven marketing science.",
-                 "offers": {"@type": "Offer", "price": "149", "priceCurrency": "EUR"}}) + jsonld({
+                 "offers": {"@type": "Offer", "price": PRODUCTS["olaf"]["amount"], "priceCurrency": "USD", "url": PRODUCTS["olaf"]["url"]}}) + jsonld({
         "@context": "https://schema.org", "@type": "FAQPage",
         "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in faq]})
     return f"""{head("Olaf: an AI expert for marketing and projects · Busy", "Olaf plans your marketing and your projects, checks in every week and does the work with you. Built on proven marketing science. Runs on your own Claude key.", "business/olaf.html", "", ld, image="og-olaf.png")}
@@ -1029,16 +1056,16 @@ def olaf_page(tools: list) -> str:
         <tr><td>Does the work</td><td>✓ Drafts it all; you approve</td><td>You copy, paste and fix</td><td>✓</td></tr>
         <tr><td>Reads your real sales numbers</td><td>✓ From your Busy invoices</td><td>Only what you paste</td><td>Only what you share</td></tr>
         <tr><td>Your data</td><td>Stays on your computer</td><td>In a chat history</td><td>With the agency</td></tr>
-        <tr><td>Cost</td><td>Coming later, plus a few cents of AI per session</td><td>A monthly subscription, plus your time</td><td>A monthly retainer</td></tr>
+        <tr><td>Cost</td><td>{PRODUCTS["olaf"]["price"]} once, plus a few cents of AI per session</td><td>A monthly subscription, plus your time</td><td>A monthly retainer</td></tr>
       </tbody></table></div>
   </div></section>
   <section class="section" id="get"><div class="wrap">
     <div class="card get-olaf reveal">
       <span class="e">🧭</span>
       <div><h2>Get Olaf</h2>
-        <p>Olaf isn't on sale yet. It will run on your own Claude usage.</p>
+        <p>Olaf comes inside <b>{PRODUCTS["olaf"]["name"]}</b>, sold on itch.io for {PRODUCTS["olaf"]["price"]} once: an introductory price. He runs on your own Claude usage.</p>
         <ul class="get-list"><li>Olaf: the growth coach, setup, dashboard, insights and content calendar</li><li>52 marketing skills, all built on proven marketing science</li><li>The full Busy toolbox in the same download</li><li>Every update, no subscription</li></ul>
-        {f'<a class="btn btn-big btn-primary" href="{e(OLAF_CHECKOUT_URL)}">Buy Olaf · €149</a>' if OLAF_CHECKOUT_URL else '<p><b>Coming later.</b> Leave your email and you hear first.</p>' + waitlist_form("olaf-page")}
+        <div class="row-flex">{itch_button("olaf", big=True)}<a class="btn btn-big" href="claude-key.html">How Olaf connects to Claude</a></div>
         <p class="faint" style="font-size:.88rem;margin-top:8px">The free Busy download never contains Olaf. The demo shows an example business; Olaf's work and the AI run only in the paid version.</p></div>
     </div>
   </div></section>
@@ -1141,7 +1168,9 @@ def games_hub() -> str:
 <main id="main">
   {place_html("parlour", PARLOUR_STEPS, parlour_card, "The Puzzle Parlour: a tour of Busy Games", decals=PARLOUR_DECALS)}
   <div class="wrap">
+  {street_block("../", wrap=False)}
   <div class="game-cards" id="games">{cards}</div>
+  <figure class="film reveal"><video controls playsinline preload="none" poster="../assets/films/busy-games.jpg" src="../assets/films/busy-games.mp4" aria-label="The brain games: a short film"></video><figcaption class="faint center">The four brain games in 24 seconds. Free, a new puzzle every day.</figcaption></figure>
   <section class="section" id="get-app"><div class="center reveal"><h2 class="big">Play without a browser</h2>
     <p class="lead">Busy Games as a free app on your computer: the same puzzles, your streak kept, and it works offline.</p>
     {app_download("Games", "Busy Games")}</div></section>
@@ -1212,9 +1241,10 @@ def growth_page(tools: list) -> str:
         signup = '<p class="lead">The list opens soon. Meanwhile, keep your brain busy with <a href="../games/index.html">today\'s puzzles</a>.</p>'
     ivy = f"""<section class="section" id="ivy"><div class="wrap">
     <div class="card ivy-card reveal"><img src="../assets/ivy-mark.svg" alt="" width="96" height="96">
-      <div><p class="kicker">Ivy by Busy{" · €30 once" if IVY_CHECKOUT_URL else " · coming later"}</p><h2>Your AI coach for professional growth</h2>
+      <div><p class="kicker">Ivy by Busy · {PRODUCTS["ivy"]["price"]} once</p><h2>Your AI coach for professional growth</h2>
       <p>Ivy turns what you learn into skills and wins, those into a stronger CV, and helps with every application and interview. Learn it, prove it, land it. Ivy never invents experience: every line comes with its proof.</p>
-      {f'<p style="margin-top:12px"><a class="btn btn-primary" href="{e(IVY_CHECKOUT_URL)}">Get Ivy · €30</a> <a class="btn" href="../claude-key.html">How Ivy connects to Claude</a></p>' if IVY_CHECKOUT_URL else '<p style="margin-top:12px"><a href="../claude-key.html">How Ivy will connect to Claude →</a></p>'}</div></div>
+      <p class="row-flex" style="margin-top:14px">{itch_button("ivy", "Get Busy Growth with Ivy")} <a class="btn" href="../claude-key.html">How Ivy connects to Claude</a></p>
+      {film("ivy")}</div></div>
   </div></section>"""
     if not GROWTH_LIVE:
         desc = "Busy Growth, coming soon: free tools to grow your career. A library of what you learn, skills, wins, job tracker and CV builder, plus Ivy, an AI coach."
@@ -1272,7 +1302,8 @@ def growth_page(tools: list) -> str:
     <div class="center reveal"><h2 class="big">Get Busy Growth</h2><p class="lead">Free, the whole set. No account, no subscription, nothing sent to us.</p></div>
     <div class="feats">{how}</div>
     <div class="center" style="margin-top:22px">{app_download("Growth", "Busy Growth")}
-      <p class="faint" style="margin-top:10px">Can’t install apps? <a href="../downloads/busy-growth.zip" download>Use the browser version (zip)</a> in Chrome or Edge.</p></div>
+      <p class="faint" style="margin-top:10px">Can’t install apps? <a href="../downloads/busy-growth.zip" download>Use the browser version (zip)</a> in Chrome or Edge.</p>
+      <p class="faint" style="margin-top:10px">Want the expert too? <a class="out" href="{PRODUCTS["ivy"]["url"]}" target="_blank" rel="noopener">{PRODUCTS["ivy"]["name"]} · {PRODUCTS["ivy"]["price"]} <span aria-hidden="true">↗</span></a></p></div>
   </div></section>
   {ivy}
   {f'''<section class="section"><div class="wrap center">
@@ -1365,16 +1396,16 @@ HOUSE_STEPS = [
 
 
 EXPERTS = {  # the paid AI experts upstairs: their room and model (busy-studio), size next to Tuck, page and price
-    "olaf": {"name": "Olaf", "size": 1.45, "page": "olaf.html", "price": lambda: "Coming later"},
-    "ivy": {"name": "Ivy", "size": 1.28, "page": "#ivy", "price": lambda: "Coming later"},
-    "juno": {"name": "Juno", "size": 1.05, "page": "#juno", "price": lambda: "Coming later"},
+    "olaf": {"name": "Olaf", "size": 1.45, "page": "olaf.html", "price": lambda: PRODUCTS["olaf"]["price"] + " once"},
+    "ivy": {"name": "Ivy", "size": 1.28, "page": "#ivy", "price": lambda: PRODUCTS["ivy"]["price"] + " once"},
+    "juno": {"name": "Juno", "size": 1.05, "page": "#juno", "price": lambda: PRODUCTS["juno"]["price"] + " once"},
 }
 
 
-FREE_AND_PAID = "The tools are free and stay free: no account, no AI. A paid version with an AI expert is coming, and that is what will keep Busy going."
+FREE_AND_PAID = "The tools are free and stay free: no account, no AI. The paid version adds an AI expert for a few dollars, once, and that is what keeps Busy going."
 
 
-def expert_intro(expert: str, guide: str, guide_pic: str, tour: str, prefix: str = "../", free_line: bool = False) -> str:
+def expert_intro(expert: str, guide: str, guide_pic: str, tour: str, prefix: str = "../", free_line: bool = False, free: str = "#get") -> str:
     """An expert on their page: in their room upstairs (rendered in the Busy Studio), a way to watch them at work in
     the tour's last room, and the guide next to them: the guide is free and scripted, the expert is paid AI."""
     x = EXPERTS[expert]
@@ -1385,7 +1416,125 @@ def expert_intro(expert: str, guide: str, guide_pic: str, tour: str, prefix: str
         <div class="card"><img src="{guide_pic}" alt="" loading="lazy"><div><b>{guide} · free</b><small>Your guide downstairs: shows you every tool. Scripted, no AI.</small></div></div>
         <div class="card"><img src="{prefix}assets/experts/{expert}-hello.png" alt="" loading="lazy"><div><b>{x["name"]}</b><small>The AI expert upstairs, on your own Claude key. {e(x["price"]())}.</small></div></div>
       </div>
-    </div>{f'<p class="center lead reveal" style="margin-top:26px">{FREE_AND_PAID}</p>' if free_line else ""}"""
+    </div>
+    <p class="two-doors reveal"><a class="btn btn-big" href="{free}">⬇️ Download free</a>{itch_button(expert, "Get it with " + x["name"], big=True)}</p>{f'<p class="center lead reveal" style="margin-top:26px">{FREE_AND_PAID}</p>' if free_line else ""}"""
+
+
+# ---------- what is for sale, shown the same way everywhere ----------
+def film_video(key: str, prefix: str) -> str:
+    x = PRODUCTS[key]
+    return (f'<video controls playsinline preload="none" poster="{prefix}assets/films/{x["film"]}.jpg" src="{prefix}assets/films/{x["film"]}.mp4" '
+            f'aria-label="{e(x["name"])}: a short film"></video>')
+
+
+def films_block(prefix: str) -> str:
+    """The home page's films: the three apps at work, each with its two doors (free, and with its expert)."""
+    rows = (("olaf", "business/download.html", "Brand strategy, marketing and projects, on top of the tools that run the shop."),
+            ("ivy", "growth/index.html#get", "Your skills, wins, CV and job hunt in one place."),
+            ("juno", "home/index.html#get", "Contracts, papers, upkeep and letters, kept an eye on."))
+    cards = "".join(f'<article class="card film-card reveal pop">{film_video(k, prefix)}<h3>{e(PRODUCTS[k]["suite"])}</h3><p>{e(line)}</p>'
+                    f'<div class="row-flex"><a class="btn" href="{prefix}{free}">⬇️ Download free</a>{itch_button(k, "With " + PRODUCTS[k]["who"])}</div></article>' for k, free, line in rows)
+    return f"""<section class="section film-band" id="films"><div class="wrap">
+    <div class="center reveal"><h2 class="big">See Busy at work</h2><p class="lead">Half a minute each. Every app is free to download. Add its AI expert for a few dollars, once.</p></div>
+    <div class="film-row">{cards}</div>
+  </div></section>"""
+
+
+def offer_rows(tools: list, prefix: str) -> str:
+    rows = [("💼 Busy Business", f"{len(tools)} tools, no AI", "The same app with Olaf, your AI expert for marketing and projects", "olaf"),
+            ("🌱 Busy Growth", f"{len(GROWTH_TOOLS)} tools, no AI", "The same app with Ivy, your AI coach for professional growth", "ivy"),
+            ("🏡 Busy Home", f"{len(HOME_TOOLS)} tools, no AI", "The same app with Juno, your AI expert for household paperwork", "juno"),
+            ("✂️ Busy Street: Tuck's Errand", "Six levels, in your browser or as a download", "All 15 levels: the street and nine worlds", "tuck"),
+            ("🏙️ Busy Street 3D", "", "23 levels in 3D, for Mac with Apple silicon", "street3d"),
+            ("🧩 Brain games", "Stars, Duo, Trail and Six: a new puzzle every day", "", "")]
+    return "".join(f'<tr><td><b>{e(a)}</b></td><td>{e(b) or "–"}</td><td>{e(c) or "–"}</td><td>{itch_button(k, "itch.io", primary=False) if k else "Free"}</td></tr>' for a, b, c, k in rows)
+
+
+def offer_block(tools: list, prefix: str) -> str:
+    """The home page's small table: what is free, what the paid edition adds, what it costs."""
+    return f"""<section class="section" id="offer"><div class="wrap">
+    <div class="center reveal"><h2 class="big">Free, or with an expert</h2><p class="lead">{FREE_AND_PAID}</p></div>
+    <div class="cmp offer reveal" role="region" aria-label="Free and paid editions" tabindex="0"><table>
+      <thead><tr><th></th><th>Free</th><th>Paid, once</th><th></th></tr></thead><tbody>{offer_rows(tools, prefix)}</tbody></table></div>
+    <p class="center" style="margin-top:18px"><a class="btn" href="{prefix}pricing.html">How free and paid work →</a></p>
+  </div></section>"""
+
+
+def street_block(prefix: str, wrap: bool = True) -> str:
+    """Busy Street, the game: free to try, cheap to own. On the home page and at the top of Busy Games."""
+    inner = f"""<div class="center reveal"><h2 class="big">Busy Street, the game</h2><p class="lead">The Red Tape has crept over Busy Street, and Tuck only went out to get a stamp back. Play six levels free. Then go on: nine worlds in 2D, and the whole street in 3D.</p></div>
+    <div class="film-row two">
+      <article class="card film-card reveal pop">{film_video("tuck", prefix)}<h3>Busy Street: Tuck's Errand</h3><p>A puzzle platformer. Six levels are free; the full game has 15, in six languages, for Mac and Windows.</p>
+        <div class="row-flex"><a class="btn" href="{prefix}games/tucks-errand.html">▶ Play six levels free</a>{itch_button("tuck", "The full game")}</div></article>
+      <article class="card film-card reveal pop">{film_video("street3d", prefix)}<h3>Busy Street 3D</h3><p>A puzzle adventure: 23 levels and eight worlds, in six languages. For Mac with Apple silicon. No sound yet.</p>
+        <div class="row-flex">{itch_button("street3d", "Get it")}</div></article>
+    </div>"""
+    return f'<section class="section" id="busy-street">{"<div class=wrap>" if wrap else ""}{inner}{"</div>" if wrap else ""}</section>'
+
+
+def sync_home_prices() -> None:
+    """The hand-written home page names the experts' prices in six places: the build writes them from PRODUCTS."""
+    page = SITE / "index.html"
+    text = page.read_text()
+    low = min(float(PRODUCTS[k]["amount"]) for k in ("olaf", "ivy", "juno"))
+    for k in ("olaf", "ivy", "juno"):
+        who, price = PRODUCTS[k]["who"], PRODUCTS[k]["price"]
+        text, n1 = re.subn(rf'(<span class="expert-chip {k}"><img [^>]*>)[^<]*</span>', rf"\g<1>With {who} · {price}</span>", text)
+        text, n2 = re.subn(rf'(<span class="expert-chip {k}">)(?!<img)[^<]*</span>', rf'\g<1>{PRODUCTS[k]["name"]} · {price}</span>', text)
+        if not (n1 and n2):
+            raise SystemExit(f"website/index.html lost {who}'s price chips")
+    page.write_text(text)
+
+
+PRICING_FAQ = [
+    ("Do the free tools stay free?", "Yes. Every tool in every suite is free, with no account, no trial and no time limit. They have no AI in them."),
+    ("What exactly do I buy?", "The same app with its AI expert inside: Olaf in Busy Business, Ivy in Busy Growth, Juno in Busy Home. You pay once and keep it. Updates are free."),
+    ("Why do I need a Claude key?", "The expert is Claude, made by Anthropic. It runs on your own key, so your questions go straight from your computer to Anthropic and never to us. You pay Anthropic for what you use: a typical conversation costs a few cents. The app walks you through getting a key in about five minutes."),
+    ("Why itch.io?", "itch.io takes the payment and hands you the download, so we never see your card. The buttons on this site open the product's own page there in a new tab."),
+    ("Are these the final prices?", "They are introductory prices. If they change, people who already bought keep what they have."),
+    ("Which languages?", "English, Dutch, German, Spanish, Italian and Brazilian Portuguese: the apps, the experts' own screens and both games."),
+    ("Mac or Windows?", "The three apps and Tuck's Errand run on Mac and Windows. Busy Street 3D is for Mac with Apple silicon. The apps are not signed yet, so your computer warns you the first time you open one."),
+]
+
+
+def pricing_page(tools: list) -> str:
+    """Free and paid: the one page that explains what is free, what is paid, what it costs and where to buy it."""
+    desc = "What Busy costs: the tools are free and stay free. Each suite also comes with an AI expert, paid once on itch.io. Prices, what you get and how the Claude key works."
+    faq = "".join(f"<details><summary>{e(q)}</summary><p>{e(a)}</p></details>" for q, a in PRICING_FAQ)
+    ld = jsonld({"@context": "https://schema.org", "@type": "FAQPage",
+                 "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in PRICING_FAQ]})
+    return f"""{head("Free and paid: what Busy costs", desc, "pricing.html", "", ld)}
+<body class="site app-sun">
+{nav("", explore(""))}
+<main id="main">
+  <section class="section"><div class="wrap">
+    <div class="center reveal"><p class="kicker">Free and paid</p><h1 class="big">The tools are free. Add an AI expert for the price of a coffee.</h1>
+      <p class="lead">{FREE_AND_PAID}</p></div>
+    <div class="cmp offer reveal" role="region" aria-label="Free and paid editions" tabindex="0" style="margin-top:28px"><table>
+      <thead><tr><th></th><th>Free</th><th>Paid, once</th><th></th></tr></thead><tbody>{offer_rows(tools, "")}</tbody></table></div>
+    <p class="center faint" style="margin-top:12px">Prices in US dollars, charged by itch.io. Introductory prices.</p>
+  </div></section>
+  <section class="section"><div class="wrap">
+    <div class="paths">
+      <article class="card path reveal pop"><span class="chip chip-mint">Free</span><span class="e">🧰</span><h3>The tools</h3>
+        <ul><li>Every tool in Busy Business, Busy Growth and Busy Home</li><li>The four daily brain games, and six levels of Tuck's Errand</li><li>No account, no AI, no trial: free forever</li><li>Everything is saved in a folder on your own computer</li></ul>
+        <p class="price"><b>Free</b> <small>forever</small></p>
+        <div class="row-flex"><a class="btn btn-big" href="business/download.html">⬇️ Business</a><a class="btn btn-big" href="growth/index.html#get">⬇️ Growth</a><a class="btn btn-big" href="home/index.html#get">⬇️ Home</a></div></article>
+      <article class="card path featured reveal pop" style="transition-delay:.1s"><span class="chip chip-sun">Most help</span><span class="e">🧭</span><h3>The same app, with its AI expert</h3>
+        <ul><li><b>Olaf</b> builds your brand strategy and marketing with you, and does the work</li><li><b>Ivy</b> coaches your career from what you have really done</li><li><b>Juno</b> reads the letters and contracts and writes the replies</li><li>Paid once on itch.io; updates are free</li><li>Runs on your own Claude key: you pay Anthropic for what you use, a few cents a conversation</li></ul>
+        <p class="price"><b>From {PRODUCTS["ivy"]["price"]}</b> <small>once</small></p>
+        <div class="row-flex">{itch_button("olaf", "Business with Olaf", big=True)}{itch_button("ivy", "Growth with Ivy", big=True)}{itch_button("juno", "Home with Juno", big=True)}</div>
+        <p class="fine"><a href="claude-key.html">How the Claude key works →</a></p></article>
+    </div>
+  </div></section>
+  {street_block("")}
+  <section class="section" id="faq"><div class="wrap"><div class="center reveal"><h2 class="big">Questions</h2></div><div class="faq reveal">{faq}</div></div></section>
+</main>
+{footer("", tools)}
+<script src="assets/site.js"></script>
+</body>
+</html>
+"""
 
 
 def expert_card(s: dict) -> str:
@@ -1512,11 +1661,10 @@ def tool_cards(rows: list, folder: str, live: bool) -> str:
 
 def home_page(tools: list) -> str:
     feats = tool_cards(HOME_TOOLS, "home", HOME_LIVE)
-    buy = (f'<p style="margin-top:14px"><a class="btn btn-primary" href="{e(JUNO_CHECKOUT_URL)}">Get Juno · {JUNO_PRICE}</a> <a class="btn" href="../claude-key.html">How Juno connects to Claude</a></p>'
-           if JUNO_CHECKOUT_URL else '<p style="margin-top:12px"><a href="../claude-key.html">How Juno will connect to Claude →</a></p>')
+    buy = f'<p class="row-flex" style="margin-top:14px">{itch_button("juno", "Get Busy Home with Juno")} <a class="btn" href="../claude-key.html">How Juno connects to Claude</a></p>{film("juno")}'
     juno = f"""<section class="section" id="juno"><div class="wrap">
     <div class="card ivy-card juno-card reveal"><img src="../assets/juno-mark.svg" alt="" width="96" height="96">
-      <div><p class="kicker">Juno by Busy{f" · {JUNO_PRICE} once" if JUNO_CHECKOUT_URL else " · coming later"}</p><h2>Your AI expert for household paperwork</h2>
+      <div><p class="kicker">Juno by Busy · {PRODUCTS["juno"]["price"]} once</p><h2>Your AI expert for household paperwork</h2>
       <p>Attach the letter you've been avoiding and Juno tells you what it means and what to do by when, with the reply already drafted. It reads your contracts and policies, says when to keep, switch or cancel, sorts a pile of scans, helps with a claim or a move, and sends you a short briefing each month. It works on your own folder and never gives legal advice: it tells you when to ask a professional.</p>
       <ul class="get-list" style="margin-top:12px"><li>Explains letters, bills and decisions, and spots scams</li><li>Writes cancellations, complaints, claims and objections in the recipient's language</li><li>Keeps every renewal, expiry and upkeep date in view</li><li>Paid once, on your own Claude key: a typical conversation costs a few cents</li></ul>
       {buy}</div></div>
@@ -1530,7 +1678,8 @@ def home_page(tools: list) -> str:
     <div class="center reveal"><h2 class="big">Get Busy Home</h2><p class="lead">Free, the whole set. No account, no subscription, nothing sent to us.</p></div>
     <div class="feats">{how}</div>
     <div class="center" style="margin-top:22px">{app_download("Home", "Busy Home")}
-      <p class="faint" style="margin-top:10px">Can’t install apps? <a href="../downloads/busy-home.zip" download>Use the browser version (zip)</a> in Chrome or Edge.</p></div>
+      <p class="faint" style="margin-top:10px">Can’t install apps? <a href="../downloads/busy-home.zip" download>Use the browser version (zip)</a> in Chrome or Edge.</p>
+      <p class="faint" style="margin-top:10px">Want the expert too? <a class="out" href="{PRODUCTS["juno"]["url"]}" target="_blank" rel="noopener">{PRODUCTS["juno"]["name"]} · {PRODUCTS["juno"]["price"]} <span aria-hidden="true">↗</span></a></p></div>
   </div></section>""" if HOME_LIVE else """<section class="section" id="get"><div class="wrap center">
     <h2 class="big">On its way</h2><p class="lead">Busy Home is nearly ready. Meanwhile, keep your brain busy with <a href="../games/index.html">today's puzzles</a>.</p></div></section>"""
     title = "Busy Home: free tools for your household paperwork" + ("" if HOME_LIVE else " (soon)")
@@ -1821,17 +1970,16 @@ def parlour_card(s: dict) -> str:
 def street_steps() -> list:
     ivy = f'<a class="btn" href="growth/index.html#ivy">Meet Ivy →</a>'
     juno = f'<a class="btn" href="home/index.html#juno">Meet Juno →</a>'
-    soon = lambda url: "" if url else " · coming soon"
     return [
         {"id": "wide", "title": "Busy Street", "say": "",
          "acts": [("shop", "", "The Workshop: Busy Business.", "", "to:shop"), ("glass", "", "The Glasshouse: Busy Growth.", "", "to:glass"),
                   ("house", "", "Tuck's house: Busy Home.", "", "to:house"), ("kiosk", "", "The puzzle kiosk: Busy Games.", "", "to:kiosk"),
                   ("olaf", "", "Someone's working late at the Workshop…",
-                   '<img class="expert-shot" src="assets/experts/olaf-card.jpg" alt="Olaf in his study above the Workshop" loading="lazy"><b>💜 Olaf works upstairs</b><span>Your AI expert for marketing and projects · coming later</span><a class="btn" href="business/olaf.html">Meet Olaf →</a>', ""),
+                   '<img class="expert-shot" src="assets/experts/olaf-card.jpg" alt="Olaf in his study above the Workshop" loading="lazy"><b>💜 Olaf works upstairs</b><span>Your AI expert for marketing and projects · ' + PRODUCTS["olaf"]["price"] + '</span><a class="btn" href="business/olaf.html">Meet Olaf →</a>', ""),
                   ("ivy", "", "A green light at the top of the Glasshouse…",
-                   f'<img class="expert-shot" src="assets/experts/ivy-card.jpg" alt="Ivy at the top of the Glasshouse" loading="lazy"><b>🌿 Ivy works at the top</b><span>Your AI career coach · coming later</span>{ivy}', ""),
+                   f'<img class="expert-shot" src="assets/experts/ivy-card.jpg" alt="Ivy at the top of the Glasshouse" loading="lazy"><b>🌿 Ivy works at the top</b><span>Your AI career coach · {PRODUCTS["ivy"]["price"]}</span>{ivy}', ""),
                   ("juno", "", "A light in Tuck's gable…",
-                   f'<img class="expert-shot" src="assets/experts/juno-card.jpg" alt="Juno in the gable room of Tuck\'s house" loading="lazy"><b>🧡 Juno works in the attic</b><span>Your AI expert for household paperwork · coming later</span>{juno}', "")]},
+                   f'<img class="expert-shot" src="assets/experts/juno-card.jpg" alt="Juno in the gable room of Tuck\'s house" loading="lazy"><b>🧡 Juno works in the attic</b><span>Your AI expert for household paperwork · {PRODUCTS["juno"]["price"]}</span>{juno}', "")]},
         {"id": "shop", "title": "The Workshop · Busy Business", "kicker": "Busy Business", "h": "Free tools for small businesses",
          "p": "Invoices and quotes, hours, receipts, money, clients, projects, stock and a marketing studio: 13 tools for freelancers, makers and small studios.",
          "task": "Pull up the shutter.", "say": "The Workshop. Somebody's still working…",
@@ -1864,9 +2012,10 @@ def street_card(s: dict) -> str:
     if s["id"] == "wide":
         what = ("your business, your career, your home and your coffee break" if GROWTH_LIVE and HOME_LIVE
                 else "your business and your coffee break, and soon your career")
-        return ('<span class="chip chip-sun">Free · private · no account</span> <a class="chip chip-grape" href="#tucks-errand">🎮 New: our free game</a>'
+        return ('<span class="chip chip-sun">Free · private · no account</span> <a class="chip chip-grape" href="#experts">✨ New: Olaf, Ivy and Juno are here</a>'
                 '<h1>Make your <span class="swap" data-swap=\'["paperwork","job search","coffee break","invoices","learning","timesheets"]\'><span>paperwork</span></span> fun again.</h1>'
                 f'<p>Free, private tools for {what}. Everything stays in your own folder; nothing is sent to us.</p>'
+                f'<p class="row-flex"><a class="btn btn-primary" href="#suites">🧰 Explore free tools</a><a class="btn" href="#offer">With AI, from {FROM_PRICE}</a></p>'
                 '<p class="house-task">👉 Tap a building to look inside, or a lit window upstairs.</p>'
                 '<div class="house-result" data-result hidden></div>')
     return (f'<p class="kicker">{e(s["kicker"])}</p><h2>{e(s["h"])}</h2><p>{e(s["p"])}</p><p class="house-task">👉 {e(s["task"])}</p>'
@@ -1941,6 +2090,9 @@ def tuck_page() -> str:
       <tr><td>Plays without the internet</td><td>No</td><td>✓</td></tr>
       <tr><td>Install</td><td>Nothing to install</td><td>A one-time download</td></tr>
     </tbody></table></div></section>
+  <section class="section" id="full"><div class="center"><h2 class="big">Six levels are free. The street goes on.</h2>
+    <p class="lead">The full game has 15 levels: the street, then nine worlds, from the Hidden Manor to the Passport Office. And the whole street exists in 3D.</p>
+    <p class="two-doors">{itch_button("tuck", "The full game", big=True)}{itch_button("street3d", "Busy Street 3D for Mac", big=True, primary=False)}</p></div></section>
   <section class="section" id="faq"><div class="center"><h2 class="big">Questions</h2></div><div class="faq">{faq}</div></section>
   </div>
 </main>
@@ -1977,9 +2129,14 @@ def build_pages() -> None:
     (business / "olaf.html").write_text(to_business(olaf_page(tools)))
     put_place(business / "index.html", workshop_html())
     # The free guide downstairs, the paid expert upstairs: right after the place, before the tools.
-    put_block(business / "index.html", "experts", '<section class="section"><div class="wrap">' + expert_intro("olaf", "Rivet", "../app/shared/places/workshop/rivet-hello.png", "#upstairs") + "</div></section>")
+    put_block(business / "index.html", "experts", '<section class="section"><div class="wrap">' + expert_intro("olaf", "Rivet", "../app/shared/places/workshop/rivet-hello.png", "#upstairs", free="download.html") + film("olaf") + "</div></section>")
     put_place(SITE / "index.html", street_html())
     (SITE / "about.html").write_text(about_page(tools))
+    (SITE / "pricing.html").write_text(pricing_page(tools))
+    put_block(SITE / "index.html", "films", films_block(""))
+    put_block(SITE / "index.html", "offer", offer_block(tools, ""))
+    put_block(SITE / "index.html", "street", street_block(""))
+    sync_home_prices()
     (SITE / "press.html").write_text(press_page(tools))
     (SITE / "updates.html").write_text(updates_page(tools))
     (SITE / "feed.xml").write_text(updates_feed())
@@ -2007,7 +2164,7 @@ def build_pages() -> None:
     (SITE / "olaf.html").write_text(forward_page("business/olaf.html", 0))
     (SITE / "download.html").write_text(forward_page("business/download.html", 0))
     sync_chrome(tools)
-    pages = (["", "about.html", "updates.html", "press.html", "claude-key.html", "privacy.html", "terms.html", "business/index.html", "business/tools.html", "business/download.html", "business/olaf.html"]
+    pages = (["", "about.html", "pricing.html", "updates.html", "press.html", "claude-key.html", "privacy.html", "terms.html", "business/index.html", "business/tools.html", "business/download.html", "business/olaf.html"]
              + [f'business/{t["id"]}.html' for t in tools] + game_pages + ["growth/index.html", "home/index.html"] + suite_pages)
     today = date.today().isoformat()
     (SITE / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
@@ -2033,8 +2190,8 @@ ENTITY = ("Busy makes free, private tools for work and life, in suites: Busy Bus
           "invoices and quotes, time, receipts, money, clients, documents, subscriptions, trips and stock), Busy Growth (" + ("free tools to grow your career: a library, skills, wins, a job tracker, a CV and LinkedIn builder and more" if GROWTH_LIVE else "tools to grow your career, coming soon") + "), "
           "Busy Home (" + ("free tools for household paperwork: documents with expiry reminders, contracts with the last day to cancel, upkeep, a home inventory, letters, moving and a Just in Case binder" if HOME_LIVE else "tools for household paperwork, coming soon") + ") "
           "and Busy Games (free daily brain games). Each suite is a free app for Mac and Windows, or runs in the browser, and keeps everything in the "
-          "owner's own folder, with no account and no subscription. Each suite can have a paid AI expert: Olaf for business, Ivy for "
-          "professional growth, Juno for household paperwork.")
+          "owner's own folder, with no account and no subscription. Each suite also comes as a paid app with an AI expert inside, bought "
+          "once on itch.io: Olaf for business, Ivy for professional growth, Juno for household paperwork. Busy also makes the game Busy Street.")
 ORG_ID, WEBSITE_ID = "#organization", "#website"
 SECTIONS = {"business/": ("Busy Business", "business/index.html"), "games/": ("Busy Games", "games/index.html"), "growth/": ("Busy Growth", "growth/index.html"), "home/": ("Busy Home", "home/index.html")}
 # The name is a common word, and another company sells accounting software as BUSY. These tell search
@@ -2148,7 +2305,7 @@ def site_seo() -> None:
                 if str(offer.get("price")) == "0":
                     obj["isAccessibleForFree"] = True
                 elif offer:
-                    offer["availability"] = "https://schema.org/InStock" if OLAF_CHECKOUT_URL else "https://schema.org/PreOrder"
+                    offer["availability"] = "https://schema.org/InStock"
                     name = str(obj.get("name", ""))
                     offer.setdefault("url", SITE_URL + ("/growth/index.html#ivy" if "Ivy" in name else "/home/index.html#juno" if "Juno" in name else "/business/olaf.html#get"))
             return jsonld(obj).rstrip("\n")
@@ -2177,7 +2334,7 @@ def write_llms(tools: list) -> None:
     lines = [f"# Busy", "", f"> {ENTITY}", "",
              f"Busy, {DESCRIPTOR}, lives at {b}. It was called Busywork until October 2026. It is not related to BUSY accounting software (busy.in).", "",
              "Key facts:",
-             f"- Price: every suite's tools are free, with no account and no subscription. The AI experts (Olaf, Ivy and Juno) are coming later, and will run on the owner's own Claude usage.",
+             f"- Price: every suite's tools are free, with no account and no subscription. Each suite also has a paid edition with an AI expert, sold once on itch.io at an introductory price: Busy Business with Olaf {PRODUCTS['olaf']['price']} ({PRODUCTS['olaf']['url']}), Busy Growth with Ivy {PRODUCTS['ivy']['price']} ({PRODUCTS['ivy']['url']}), Busy Home with Juno {PRODUCTS['juno']['price']} ({PRODUCTS['juno']['url']}). The experts run on the owner's own Claude usage. The games: Busy Street: Tuck's Errand {PRODUCTS['tuck']['price']} ({PRODUCTS['tuck']['url']}) and Busy Street 3D for Mac {PRODUCTS['street3d']['price']} ({PRODUCTS['street3d']['url']}).",
              "- Data: saved as files in a folder the owner chooses on their own computer (it can sit in Google Drive, Dropbox, OneDrive or iCloud Drive). Nothing is sent to Busy. The games keep progress in the browser.",
              "- Works in: a free app per suite for Mac and Windows (beta), Busy Games included; or, without installing, Chrome and Edge from a downloaded folder (also on ChromeOS and Linux). The games run in any modern browser.",
              "- AI: none in the free tools. Olaf, Ivy and Juno run on Claude with the owner's own API key; requests go from the browser to Anthropic only.",
@@ -2194,18 +2351,18 @@ def write_llms(tools: list) -> None:
     lines += [f"- [{g['name']}]({b}/games/{g['id']}.html): {g['desc']}" for g in GAMES]
     if GROWTH_LIVE:
         lines += ["", "## Busy Growth: free tools to grow your career", "",
-                  f"- [Busy Growth]({b}/growth/index.html): {len(GROWTH_TOOLS)} free tools: a library of what you read and learn, skills, wins, a learning plan, a job tracker, a CV builder, interview stories, contacts and a weekly review. Ivy, an AI coach for professional growth, is coming later.",
+                  f"- [Busy Growth]({b}/growth/index.html): {len(GROWTH_TOOLS)} free tools: a library of what you read and learn, skills, wins, a learning plan, a job tracker, a CV builder, interview stories, contacts and a weekly review. Ivy, an AI coach for professional growth, comes with the paid edition.",
                   f"- [Download Busy Growth]({b}/growth/index.html#get): the free Busy Growth app for Mac and Windows (beta), or a zip for the browser."]
         lines += [f"- [{t['name']}]({b}/growth/{t['id']}.html): {t['description']}" for t in suite_tools("growth")]
-        lines += [f"- [Ivy, the AI coach for professional growth]({b}/growth/index.html#ivy): learn it, prove it, land it; never invents experience. Coming later, on the owner's own Claude key."]
+        lines += [f"- [Ivy, the AI coach for professional growth]({b}/growth/index.html#ivy): learn it, prove it, land it; never invents experience. In Busy Growth with Ivy, {PRODUCTS['ivy']['price']} once on itch.io ({PRODUCTS['ivy']['url']}), on the owner's own Claude key."]
     else:
         lines += ["", "## Busy Growth: free tools to grow your career (coming soon)", "",
                   f"- [Busy Growth]({b}/growth/index.html): a library of what you read and learn, skills, wins, a learning plan, a job tracker and a CV builder, plus Ivy, an AI coach for professional growth. Not released yet."]
     lines += (["", "## Busy Home: free tools for household paperwork", "",
-               f"- [Busy Home]({b}/home/index.html): {len(HOME_TOOLS)} free tools: documents that warn before they expire, contracts with the last day to cancel, home upkeep, a home inventory with an insurance claim pack, letters, a moving planner and a Just in Case binder. Juno, an AI expert for household paperwork, is coming later.",
+               f"- [Busy Home]({b}/home/index.html): {len(HOME_TOOLS)} free tools: documents that warn before they expire, contracts with the last day to cancel, home upkeep, a home inventory with an insurance claim pack, letters, a moving planner and a Just in Case binder. Juno, an AI expert for household paperwork, comes with the paid edition.",
                f"- [Download Busy Home]({b}/home/index.html#get): the free Busy Home app for Mac and Windows (beta), or a zip for the browser."]
               + [f"- [{t['name']}]({b}/home/{t['id']}.html): {t['description']}" for t in suite_tools("home")]
-              + [f"- [Juno, the AI expert for household paperwork]({b}/home/index.html#juno): explains letters, writes the replies and keeps the household ahead. Coming later, on the owner's own Claude key."]
+              + [f"- [Juno, the AI expert for household paperwork]({b}/home/index.html#juno): explains letters, writes the replies and keeps the household ahead. In Busy Home with Juno, {PRODUCTS['juno']['price']} once on itch.io ({PRODUCTS['juno']['url']}), on the owner's own Claude key."]
               if HOME_LIVE else ["", "## Busy Home: free tools for household paperwork (coming soon)", "",
                f"- [Busy Home]({b}/home/index.html): documents, contracts with the last day to cancel, upkeep, a home inventory, letters, moving and a Just in Case binder. Not released yet."])
     lines += [
@@ -2226,7 +2383,7 @@ def write_llms(tools: list) -> None:
             "4. Busy also keeps a daily backup in that folder. There is no account and no server: nothing is sent to us.",
             "", "## Editions", "",
             f"- Free app (Mac and Windows, beta) and free download: all {len(tools)} tools, the Marketing Studio included. No AI, no account, no subscription.",
-            f"- Coming later: the same tools plus Olaf, the AI expert for marketing and projects.",
+            f"- Busy Business with Olaf ({PRODUCTS['olaf']['price']} once on itch.io, {PRODUCTS['olaf']['url']}): the same tools plus Olaf, the AI expert for marketing and projects, on the owner's own Claude key.",
             f"- Website demo: every tool filled with a pretend design studio, at {b}/app/index.html. Nothing is kept after the tab closes.", ""]
     for t in tools:
         full += [f"## {t['name']}", "", f"{t['h1']} {t['lead']}", "", f"Page: {b}/business/{t['id']}.html", "", "What it does:"]
@@ -2244,11 +2401,11 @@ def write_llms(tools: list) -> None:
     full += (["", "# Busy Growth: free tools to grow your career", "", f"Page: {b}/growth/index.html. Free, as its own app for Mac and Windows ({b}/growth/index.html#get) or a zip for the browser ({b}/downloads/busy-growth.zip), with a demo at {b}/app/growth.html. The tools:", ""]
              if GROWTH_LIVE else ["", "# Busy Growth: free tools to grow your career (coming soon)", "", f"Page: {b}/growth/index.html. Not released yet. Planned tools:", ""])
     full += [f"- {n}: {d}" for _, n, d in GROWTH_TOOLS]
-    full += ["", "Ivy by Busy, the AI coach for professional growth, is coming later, on the owner's own Claude usage. Ivy never invents experience: every CV line comes with its proof."]
+    full += ["", f"Ivy by Busy, the AI coach for professional growth, comes in Busy Growth with Ivy ({PRODUCTS['ivy']['price']} once on itch.io, {PRODUCTS['ivy']['url']}), on the owner's own Claude usage. Ivy never invents experience: every CV line comes with its proof."]
     full += (["", "# Busy Home: free tools for household paperwork", "", f"Page: {b}/home/index.html. Free, as its own app for Mac and Windows ({b}/home/index.html#get) or a zip for the browser ({b}/downloads/busy-home.zip), with a demo at {b}/app/home.html. The tools:", ""]
              if HOME_LIVE else ["", "# Busy Home: free tools for household paperwork (coming soon)", "", f"Page: {b}/home/index.html. Not released yet. Planned tools:", ""])
     full += [f"- {n}: {d}" for _, n, d in HOME_TOOLS]
-    full += ["", f"Juno by Busy, the AI expert for household paperwork, is coming later, on the owner's own Claude usage. It explains letters, reads contracts and policies, writes replies and keeps renewals in view. It never gives legal advice.",
+    full += ["", f"Juno by Busy, the AI expert for household paperwork, comes in Busy Home with Juno ({PRODUCTS['juno']['price']} once on itch.io, {PRODUCTS['juno']['url']}), on the owner's own Claude usage. It explains letters, reads contracts and policies, writes replies and keeps renewals in view. It never gives legal advice.",
              "", "# Privacy in short", "",
              "The tools never send us anything. Business data stays in the owner's folder; the games keep progress in the browser. The waitlists keep an email address in MailerLite, only to say when Olaf or Busy Growth can be had. Olaf's requests go from the owner's browser to Anthropic with the owner's own key.",
              f"Full text: {b}/privacy.html", ""]
@@ -2288,6 +2445,7 @@ def claude_key_page(tools: list) -> str:
 <main class="page">
   <h1 class="reveal">Connect Olaf, Ivy or Juno to Claude</h1>
   <p class="lead reveal">Olaf, Ivy and Juno think with Claude, the AI made by Anthropic, on your own account. You pay Anthropic directly for what you use, and your key never leaves your browser except to go to Anthropic. Setting it up takes about five minutes, once.</p>
+  <p class="reveal"><b>Just bought on itch.io?</b> Download your app from its itch.io page and open it. The first time you start, the expert asks for this key. This page shows how to get one.</p>
   <h2>You need</h2>
   <ul><li>An email address</li><li>A payment card</li><li>Five minutes</li></ul>
   <h2>The steps</h2>
@@ -2298,7 +2456,7 @@ def claude_key_page(tools: list) -> str:
   <div class="cmp" role="region" aria-label="What each model costs" tabindex="0"><table><thead><tr><th>Model</th><th>Read / write</th><th>A typical conversation</th></tr></thead><tbody>{costs}</tbody></table></div>
   <h2>Questions</h2>
   {"".join(f"<h3>{e(q)}</h3><p>{e(a)}</p>" for q, a in faq)}
-  <p style="margin-top:22px"><a class="btn btn-primary" href="business/olaf.html">🧭 Meet Olaf</a> <a class="btn" href="growth/index.html#ivy">🌿 Meet Ivy</a></p>
+  <p style="margin-top:22px"><a class="btn btn-primary" href="business/olaf.html">🧭 Meet Olaf</a> <a class="btn" href="growth/index.html#ivy">🌿 Meet Ivy</a> <a class="btn" href="home/index.html#juno">🏡 Meet Juno</a></p>
 </main>
 {footer("", tools)}
 <script src="assets/site.js"></script>
@@ -2313,7 +2471,7 @@ def about_page(tools: list) -> str:
     facts = [("What it is", ENTITY),
              ("The suites", f"Busy Business: {len(tools)} free tools for small businesses and freelancers. Busy Games: four free daily logic puzzles with {GAME_LEVELS:,} levels each. Busy Growth: " + (f"{len(GROWTH_TOOLS)} free tools to grow your career." if GROWTH_LIVE else "free tools to grow your career, coming soon.")),
              ("Who it is for", "People who would rather spend their time on what matters: small business owners and freelancers, anyone who likes a daily puzzle, and " + ("" if GROWTH_LIVE else "soon ") + "anyone growing their career."),
-             ("What it costs", f"Every suite's tools are free. The AI experts are coming later, and will run on the owner's own Claude usage."),
+             ("What it costs", f"Every suite's tools are free. A paid edition of each suite adds its AI expert, bought once on itch.io: Busy Business with Olaf {PRODUCTS['olaf']['price']}, Busy Growth with Ivy {PRODUCTS['ivy']['price']}, Busy Home with Juno {PRODUCTS['juno']['price']}. The experts run on the owner's own Claude usage."),
              ("Where the data lives", "In a folder the owner chooses on their own computer, as plain files. There is no account and no server, so nothing is sent to us. The games keep your streak in your browser."),
              ("What it runs on", "The business tools run in Chrome and Edge on Windows, macOS and ChromeOS, from a downloaded folder; nothing is installed. The games run in any modern browser."),
              ("How the marketing tools work", "Busy Business's Marketing Studio and Olaf are built on proven marketing science: reach more buyers, be the business people think of in the moments they need you, and be easy to find and buy from."),
@@ -2397,6 +2555,9 @@ def press_page(tools: list) -> str:
         for p in ("workshop", "glasshouse", "house", "parlour") if (SITE / "assets" / p / "rooms.json").exists()]
     films = [(f"assets/{p}/loop-day.mp4", FILM_TEXT[p][0], "MP4", f"assets/{p}/room-{json.loads((SITE / 'assets' / p / 'rooms.json').read_text())['rooms'][0]['id']}-1280.jpg")
              for p in ("street", "workshop", "glasshouse", "house", "parlour") if (SITE / "assets" / p / "loop-day.mp4").exists()]
+    trailers = [(f"assets/films/{x['film']}.mp4", x["name"], "MP4", f"assets/films/{x['film']}.jpg") for x in PRODUCTS.values()] \
+        + [("assets/films/busy-games.mp4", "Busy Games, the brain games", "MP4", "assets/films/busy-games.jpg")]
+    sold = "".join(f'<li><a class="out" href="{e(x["url"])}" target="_blank" rel="noopener">{e(x["name"])} · {x["price"]} <span aria-hidden="true">↗</span></a>: {e(x["runs"])}</li>' for x in PRODUCTS.values())
     shares = [(f"assets/{f}", IMAGES["assets/" + f][0]) for f in ("og-busy.png", "og-business.png", "og-games.png", "og-olaf.png", "og-ivy.png", "og-juno.png")]
     short = "Busy makes free, private tools for work and life. Everything stays in your own folder: no account, no subscription."
     grid = lambda items, kind="": '<div class="press-grid">' + "".join(asset(it[0], it[1], it[2] if len(it) > 2 else kind, it[3] if len(it) > 3 else "") for it in items) + "</div>"
@@ -2416,6 +2577,8 @@ def press_page(tools: list) -> str:
   <h2>The characters</h2><p>Rendered in the Busy Studio. Please keep them as they are: no new poses, words or colours.</p>{grid(people, "PNG")}
   <h2>The places</h2>{grid(places, "JPG, 1920 px")}
   <h2>Short films</h2><p>Eight seconds each, made to loop.</p>{grid(films, "MP4")}
+  <h2>Product films</h2><p>Half a minute to a minute each: the three apps with their experts, the two Busy Street games and the brain games.</p>{grid(trailers, "MP4")}
+  <h2>Where it is sold</h2><p>The tools and the brain games are free on this site. The paid apps and the Busy Street games are sold on itch.io, each on its own page, paid once:</p><ul>{sold}</ul>
   <h2>Share images</h2>{grid(shares, "PNG, 1200 × 630")}
 </main>
 {footer("", tools)}

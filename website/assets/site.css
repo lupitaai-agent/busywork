@@ -606,3 +606,24 @@ a.card.feat .go { display: inline-block; margin-top: 8px; font-weight: 800; font
 #core .feats { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
 #core .feat p + p { margin-top: 10px; }
 #core .feat a.more { font-weight: 800; color: var(--ink); }
+
+/* What is for sale (12 November 2026): buttons that leave for itch.io, the films, the two doors, the offer table */
+.out span { font-weight: 400; }
+.two-doors { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 22px; }
+.film { margin: 22px auto 0; max-width: 900px; }
+.film video, .film-card video { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 14px; background: #111; display: block; border: 3px solid var(--ink, #1E1B2E); }
+.film-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; margin-top: 28px; }
+.film-row.two { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 980px; margin-left: auto; margin-right: auto; }
+.film-card { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.film-card h3 { margin: 6px 0 0; }
+.film-card p { margin: 0; }
+.film-card .row-flex { margin-top: auto; gap: 10px; flex-wrap: wrap; }
+.offer table td:last-child { white-space: nowrap; }
+.house-card .row-flex { flex-wrap: wrap; margin-top: 10px; }
+@media (max-width: 900px) { .film-row, .film-row.two { grid-template-columns: 1fr; } }
+.film figcaption { margin-top: 8px; text-align: center; }
+.house-street .house-card .row-flex { gap: 8px; margin-top: 4px; }
+.house-street .house-card .row-flex .btn { padding: 7px 11px; font-size: .86rem; }
+/* the other languages need more words for the same headline: a size smaller, so the card and its two buttons fit a laptop screen */
+html:not([lang="en"]) .house-street .house-card h1 { font-size: clamp(1.8rem, 3.2vw, 2.5rem); }
+@media (min-width: 761px) { .house-street .house-card { max-height: calc(100% - 146px); } }
