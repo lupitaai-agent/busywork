@@ -92,11 +92,12 @@
     }
     return gltf;
   }
+  let figScale = 1;  // a level can stand everybody smaller (figures: 0.7): the cities' sets are photographed from further off
   async function figure(key) {
     if (figCache[key]) return figCache[key];
     const f = FIGURES[key], who = S.character(THREE, onTheSpot(await loader.loadAsync(f.glb)), LOOPS);
     for (const [n, k] of Object.entries(PACE)) if (who.actions[n]) who.actions[n].timeScale = k;
-    who.holder.scale.setScalar(f.size); who.holder.visible = false; world.add(who.holder);
+    who.holder.scale.setScalar(f.size * figScale); who.holder.visible = false; world.add(who.holder);
     who.key = key;
     figCache[key] = who;
     return who;
@@ -265,6 +266,7 @@
     if (e.repeat) return;
     if (e.key === 'h' || e.key === '?') toggleHelp();
     if (e.key === 'm') toggleSound();
+    if (e.key === 'j' && game.started && !game.frozen && !game.paused) showHint();
     if (game.talking && /^[1-4]$/.test(e.key)) { const q = game.talking.questions[game.talking.asked]; if (q && +e.key <= q.a.length) answer(game.talking, +e.key - 1); }
     down(e.key.length === 1 ? e.key.toLowerCase() : e.key);
   });
@@ -275,11 +277,41 @@
     ['pointerup', 'pointerleave', 'pointercancel'].forEach((n) => b.addEventListener(n, () => keys.delete(b.dataset.key)));
   });
   const held = (...k) => k.some((x) => keys.has(x)), hit = (...k) => k.some((x) => pressed.has(x));
+  // ---------- the hint (J): a label over everything in this room that can be used right now, saying whose job it is ----------
+  // It asks useHere() what it would offer at every step across the room, as whoever you are, on the floor and on every shelf.
+  let hintEls = [], hintT = 0;
+  function showHint() {
+    hintEls.forEach((e) => e.remove()); hintEls = [];
+    const me = hero(), seen = new Map(), floors = [0, ...new Set(game.ledges.map((l) => l.y))];
+    for (const y of floors) for (let x = -2.6; x <= 2.6; x += 0.1) {
+      const probe = Object.assign(Object.create(Object.getPrototypeOf(me)), me, { x, y });
+      let u = null; try { u = useHere(probe); } catch (e) { u = null; }
+      const text = u && (u.label || u.hint);
+      if (!text || text === 'Read the room' || /^Put .* down$/.test(text)) continue;
+      const at = u.at === undefined ? x : u.at, old = seen.get(text);
+      if (!old || Math.abs(x - at) < Math.abs(old.x - at)) seen.set(text, { x: at, y, text });
+    }
+    const tr = (t) => (window.SNIP_I18N ? window.SNIP_I18N.t(t) : t);
+    let n = 0;
+    for (const h of seen.values()) {
+      const v = new THREE.Vector3(ox + h.x, h.y + 1.75 + (n++ % 2) * 0.32, -0.1).project(cam), el = document.createElement('div');
+      el.className = 'hintchip'; el.textContent = tr(h.text);
+      Object.assign(el.style, { left: ((v.x + 1) / 2 * 100) + '%', top: ((1 - v.y) / 2 * 100) + '%' });
+      stage.append(el); hintEls.push(el);
+    }
+    if (!hintEls.length) {
+      const el = document.createElement('div'); el.className = 'hintchip none'; el.textContent = tr('Nothing to use in this room right now. Try someone else, or go on.');
+      Object.assign(el.style, { left: '50%', top: '34%' }); stage.append(el); hintEls.push(el);
+    }
+    lessonEl.classList.remove('pulse'); void lessonEl.offsetWidth; lessonEl.classList.add('pulse');
+    hintT = 6; sfx('pick');
+  }
   function toggleHelp(force) {
     const el = $('[data-help]'), open = force !== undefined ? force : el.hidden;
     el.hidden = !open; game.paused = open; keys.clear();
   }
   $('[data-ask]').onclick = () => toggleHelp(true);
+  { const hb = $('[data-hint]'); if (hb) hb.onclick = () => { if (game.started && !game.frozen && !game.paused) showHint(); }; }
   $('[data-hclose]').onclick = () => toggleHelp(false);
 
   // ---------- sound: made here, no files ----------
@@ -288,8 +320,21 @@
   function ear() {
     if (!ac && (window.AudioContext || window.webkitAudioContext)) { try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { ac = null; } }
     if (ac && ac.state === 'suspended') ac.resume();
+    if (tune && soundOn && tune.paused) tune.play().catch(() => {});
   }
   addEventListener('keydown', ear); addEventListener('pointerdown', ear);
+  // ---------- music: one theme per level, round and round (owner, 14 November 2026). The files are assets/music/<theme>.mp3.
+  // A level may name its own (music: 'europe'); the others take the four first themes in turn, so no two neighbours share one.
+  const THEMES = ['first1', 'first2', 'first3', 'first5'];
+  let tune = null, tuneName = '';
+  function music(n) {
+    const lv = LEVELS[n], name = (lv && lv.music) || THEMES[n % THEMES.length];
+    if (name !== tuneName) {
+      if (tune) tune.pause();
+      tune = new Audio(`assets/music/${name}.mp3`); tune.loop = true; tune.volume = 0.3; tuneName = name;
+    }
+    if (soundOn) tune.play().catch(() => { /* a browser waits for the first key or click: ear() starts it then */ });
+  }
   function tone(freq, dur, type = 'sine', vol = 0.12, slide = 0, when = 0) {
     if (!ac || !soundOn) return;
     const t = ac.currentTime + when, o = ac.createOscillator(), g = ac.createGain();
@@ -331,6 +376,7 @@
     soundOn = !soundOn;
     try { localStorage.setItem('snip.sound', soundOn ? 'on' : 'off'); } catch (e) { /* private window */ }
     $('[data-mute]').textContent = soundOn ? '♪ Sound on' : '♪ Sound off';
+    if (tune) { if (soundOn) tune.play().catch(() => {}); else tune.pause(); }
   }
   $('[data-mute]').textContent = soundOn ? '♪ Sound on' : '♪ Sound off';
   $('[data-mute]').onclick = toggleSound;
@@ -419,7 +465,7 @@
   function showLesson() {
     const l = screen().lessons[game.lesson];
     lessonEl.hidden = !l;
-    if (l) lessonEl.innerHTML = l.html;
+    if (l) { lessonEl.innerHTML = l.html; lessonEl.classList.toggle('long', l.html.length > 130); }
   }
   function hud() {
     $('[data-where]').textContent = screen().title;
@@ -468,7 +514,8 @@
     await showRoom(sc.place || lv.place, sc.room, sc.time);
     Object.assign(game, fresh(), { time: 0, lesson: 0, dropping: [] });  // lessons already done pass by themselves
     if (!silent) { facts.here = 0; facts.shown = false; facts.placed = new Set(); facts.kept = new Set(); facts.letters = 0; }  // a retry keeps what you got done in this room
-    for (const f of Object.values(figCache)) { f.holder.visible = false; f.holder.rotation.set(0, Math.PI / 2, 0); if (f.tape && f.tape.length) untangle(f.tape, false); }
+    figScale = lv.figures || 1;
+    for (const f of Object.values(figCache)) { f.holder.visible = false; f.holder.rotation.set(0, Math.PI / 2, 0); if (FIGURES[f.key]) f.holder.scale.setScalar(FIGURES[f.key].size * figScale); if (f.tape && f.tape.length) untangle(f.tape, false); }
     team.forEach((a, k) => {
       if (a.carry) { if (a.carry.mesh) a.who.holder.remove(a.carry.mesh); a.carry = null; }
       if (a.lampMesh) { a.lampMesh.removeFromParent(); a.lampMesh = null; }
@@ -2304,6 +2351,7 @@
   function tick(dt) {
     if (game.paused) { pressed.clear(); return; }
     if (sayT > 0) { sayT -= dt; if (sayT <= 0) sayEl.hidden = true; }
+    if (hintT > 0) { hintT -= dt; if (hintT <= 0) { hintEls.forEach((e) => e.remove()); hintEls = []; } }
     if (quiet > 0) quiet -= dt;
     placeBubble();
     if (!game.frozen && game.started) {
@@ -2359,6 +2407,7 @@
   async function startLevel(n) {
     team.forEach((a) => { if (a.carry && a.carry.mesh) a.who.holder.remove(a.carry.mesh); });  // nothing stays on anyone's head between levels
     game.level = n; game.tries = 0; active = 0; team.length = 0; game.run = (game.run || 0) + 1;
+    music(n);
     for (const f of Object.values(figCache)) f.holder.visible = false;
     const lv = LEVELS[n];
     for (const k of lv.team) {
@@ -2390,7 +2439,7 @@
 
   // ---------- begin ----------
   if (EDITION === 'paid') { paid = await (await import('./ai/paid.js')).start({ $, sfx, levels: LEVELS, game, facts, act, answer, FIGURES, LINES, team, hero, actor, faceTo, enter, lift, dropFriend, swing, releaseThrow, useHere, screen, limit, near, makeSpot, endCard, knockDown, caught, THREE, held, hit, playFilm, freeExtra: (key, clips) => { const e = game.extras && game.extras[key]; if (!e) return; if (e.who.tape && e.who.tape.length) { untangle(e.who.tape, true); e.who.tape = []; } act(e.who, clips || ['Cheer', 'Victory', 'Idle']); }, get ox() { return ox; }, get things() { return things; },
-    say: (k, text) => { sayWho = k; sayEl.innerHTML = `<b>${FIGURES[k] ? FIGURES[k].name : k}</b>`; sayEl.append(text); sayEl.classList.remove('tangled', 'shout'); sayEl.hidden = false; sayT = Math.max(2.6, Math.min(6.5, text.length * 0.07)); },
+    say: (k, text) => { sayWho = k; sayEl.innerHTML = `<b>${FIGURES[k] ? FIGURES[k].name : k}</b>`; sayEl.append(text); sayEl.classList.remove('tangled', 'shout'); sayEl.hidden = false; sayT = Math.max(2.6, Math.min(text.length > 120 ? 14 : 6.5, text.length * 0.062)); },
     as: (a, fn) => { const was = active; active = team.indexOf(a); try { return fn(); } finally { active = was; } } }); window.snipPaid = paid; }
   await showRoom('level1', 'front', 'evening');
   film.classList.add('clear');
@@ -2399,5 +2448,5 @@
   menu(0);
   { const get = $('[data-get]'); if (get && EDITION === 'web' && window.SNIP_PAGE) { get.href = window.SNIP_PAGE + '#get'; get.hidden = false; } }
   $('[data-note]').textContent = 'The game teaches you as you go. "? How to play" is always there.';
-  window.snip = { world, shot: () => { renderer.clear(); plate.render(renderer); renderer.render(world, cam); return canvas.toDataURL('image/jpeg', 0.82); }, noFilms: false, game, team, api, hero, enter, callIn, startLevel, LEVELS, keys, down, tick, figCache, plate };  // for checking
+  window.snip = { world, shot: () => { renderer.clear(); plate.render(renderer); renderer.render(world, cam); return canvas.toDataURL('image/jpeg', 0.82); }, noFilms: false, game, team, api, hero, enter, callIn, startLevel, LEVELS, keys, down, tick, figCache, plate, get tune() { return tune ? { name: tuneName, paused: tune.paused, loop: tune.loop, at: tune.currentTime, ready: tune.readyState } : null; } };  // for checking
 })().catch((e) => { document.querySelector('[data-note]').textContent = 'Could not start: ' + e.message; console.error(e); });

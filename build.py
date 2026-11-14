@@ -1460,15 +1460,22 @@ def offer_block(tools: list, prefix: str) -> str:
   </div></section>"""
 
 
+WRONG_YEAR = (("istanbul", "Istanbul, 1555"), ("amsterdam", "Amsterdam, 1637"), ("hanyang", "Hanyang, 1795"), ("deadwood", "Deadwood, 1876"), ("paris", "Paris, 1889"),
+              ("london", "London, 1908"), ("newyork", "New York, 1931"), ("berlin", "Berlin, 1989"), ("tokyo", "Tokyo, today"))   # the game's next nine levels: a picture each, from the game
+
+
 def street_block(prefix: str, wrap: bool = True) -> str:
     """Busy Street, the game: free to try, cheap to own. On the home page and at the top of Busy Games."""
     inner = f"""<div class="center reveal"><h2 class="big">Busy Street, the game</h2><p class="lead">The Red Tape has crept over Busy Street, and Tuck only went out to get a stamp back. Play six levels free. Then go on: nine worlds in 2D, and the whole street in 3D.</p></div>
     <div class="film-row two">
       <article class="card film-card reveal pop">{film_video("tuck", prefix)}<h3>Busy Street: Tuck's Errand</h3><p>A puzzle platformer. Six levels are free; the full game has 15, in six languages, for Mac and Windows.</p>
         <div class="row-flex"><a class="btn" href="{prefix}games/tucks-errand.html">▶ Play six levels free</a>{itch_button("tuck", "The full game")}</div></article>
-      <article class="card film-card reveal pop">{film_video("street3d", prefix)}<h3>Busy Street 3D</h3><p>A puzzle adventure: 23 levels and eight worlds, in six languages. For Mac with Apple silicon. No sound yet.</p>
+      <article class="card film-card reveal pop">{film_video("street3d", prefix)}<h3>Busy Street 3D</h3><p>A puzzle adventure: 23 levels and eight worlds, in six languages. For Mac with Apple silicon. Next: music, and nine cities.</p>
         <div class="row-flex">{itch_button("street3d", "Get it")}</div></article>
-    </div>"""
+    </div>
+    <div class="center reveal wrong-year"><p class="kicker">Coming next, in 2D and in 3D</p><h3 class="big">The Wrong Year</h3>
+      <p class="lead">The stamp came down on the wrong date, nine times. Nine cities to put right, from Istanbul in 1555 to Tokyo today, each with its own music.</p></div>
+    <div class="city-row reveal">{"".join(f'<figure><img src="{prefix}assets/films/wrong-year/{c}.jpg" alt="{e(n)}" loading="lazy" width="640" height="360"><figcaption>{e(n)}</figcaption></figure>' for c, n in WRONG_YEAR)}</div>"""
     return f'<section class="section" id="busy-street">{"<div class=wrap>" if wrap else ""}{inner}{"</div>" if wrap else ""}</section>'
 
 
@@ -2082,6 +2089,7 @@ def tuck_page() -> str:
       <li>Throw pots, keys and each other, climb, swing, roll and walk the tightrope</li>
       <li>Hide from inspectors, and answer the ones you can't hide from</li>
       <li>Work the knots: logic puzzles from Busy's daily games</li>
+      <li>Music on every level, and a hint whenever you are stuck: press J</li>
     </ul></section>
   <section class="section"><div class="center"><h2 class="big">Browser or download</h2></div>
     <div class="cmp" style="max-width:640px;margin:0 auto"><table><thead><tr><th></th><th>In your browser</th><th>Free download</th></tr></thead><tbody>

@@ -103,3 +103,14 @@ kbd { display: inline-block; min-width: 1.5em; padding: .08em .35em; border-radi
 .cline[hidden] { display: none; }
 .cline b { display: block; font-size: .72em; letter-spacing: .08em; text-transform: uppercase; color: #8A6A2A; }
 .cskip { position: absolute; right: 16px; top: 12px; }
+
+/* the hint (J): a label over each thing that can be used; and a lesson that is a paragraph, not a line */
+.hintchip { position: absolute; transform: translate(-50%, -100%); padding: .3em .7em; border-radius: 10px; background: #FBF7EE; color: #1E1B2E; border: 2px solid #1E1B2E; box-shadow: 2px 2px 0 #1E1B2E; font-weight: 750; font-size: clamp(10px, 1.25vw, 15px); white-space: nowrap; pointer-events: none; z-index: 3; animation: hintin .25s ease-out; }
+.hintchip::after { content: ''; position: absolute; left: 50%; top: 100%; margin-left: -6px; border: 6px solid transparent; border-top-color: #1E1B2E; }
+.hintchip.none { white-space: normal; max-width: 60%; text-align: center; }
+.hintchip.none::after { display: none; }
+@keyframes hintin { from { opacity: 0; transform: translate(-50%, -80%); } }
+.lesson.pulse { animation: lessonpulse .9s ease-out; }
+@keyframes lessonpulse { 30% { transform: translateX(-50%) scale(1.06); background: #FFE08A; } }
+.lesson.long { font-size: clamp(10px, 1.25vw, 15px); font-weight: 650; width: min(92%, 980px); line-height: 1.3; text-align: left; }
+@media (prefers-reduced-motion: reduce) { .hintchip, .lesson.pulse { animation: none; } }

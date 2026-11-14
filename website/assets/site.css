@@ -621,6 +621,15 @@ a.card.feat .go { display: inline-block; margin-top: 8px; font-weight: 800; font
 .offer table td:last-child { white-space: nowrap; }
 .house-card .row-flex { flex-wrap: wrap; margin-top: 10px; }
 @media (max-width: 900px) { .film-row, .film-row.two { grid-template-columns: 1fr; } }
+/* The Wrong Year: the game's next nine levels, a picture each */
+.wrong-year { margin-top: 44px; }
+.wrong-year h3.big { margin: 4px 0 8px; font-size: clamp(1.7rem, 3.4vw, 2.5rem); }
+.city-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; max-width: 980px; margin: 22px auto 0; }
+.city-row figure { margin: 0; position: relative; border-radius: 14px; overflow: hidden; border: 2px solid var(--ink); box-shadow: 3px 3px 0 var(--ink); background: var(--ink); }
+.city-row img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; }
+.city-row figcaption { position: absolute; left: 10px; bottom: 10px; padding: .2em .6em; border-radius: 8px; background: var(--sun); color: var(--ink); font-weight: 800; font-size: .92rem; }
+@media (max-width: 900px) { .city-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .city-row { grid-template-columns: 1fr; } }
 .film figcaption { margin-top: 8px; text-align: center; }
 .house-street .house-card .row-flex { gap: 8px; margin-top: 4px; }
 .house-street .house-card .row-flex .btn { padding: 7px 11px; font-size: .86rem; }
