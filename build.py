@@ -568,7 +568,6 @@ def site_pages(forwards: bool = False) -> list:
 # The hand-written homepage says "soon" about Busy Growth until it launches. Each pair is (soon, live);
 # the build writes whichever matches the switch, so turning it off again puts the old words back.
 HOMEPAGE_GROWTH = [
-    ("daily brain games and soon career growth", "career growth and daily brain games"),
     ("and soon Busy Growth for your career", "and Busy Growth for your career"),
     ("Busy Growth is coming soon.", "Start with Busy Growth."),
     ('<li>Job tracker, CV builder, interview stories</li>', '<li>Job tracker, CVs, stories and contacts</li>'),
@@ -1283,14 +1282,15 @@ def growth_page(tools: list) -> str:
 </body>
 </html>
 """
-    desc = f"Busy Growth: {len(GROWTH_TOOLS)} free tools to grow your career. A library of what you learn, skills, wins, a job tracker, CVs, interview stories and contacts. No account."
+    desc = (f"Know what you’re worth. Say it well. Busy Growth is a free personal growth tool for your next review, raise and job: {len(GROWTH_TOOLS)} tools for skills, wins, CVs and more. No account. "
+            f"With Ivy, your career coach, {PRODUCTS['ivy']['price']} once.")
     steps = [("⬇️", "Install Busy Growth", "The free app for Mac and Windows, in beta. No account, no AI."),
              ("🌱", "Open it", "It works offline, and nothing is sent anywhere."),
              ("📁", "Your own folder", "Your library, skills, wins and CVs are saved as plain files in Documents/Busy/Growth. Move it into Google Drive or Dropbox to sync it."),
              ("💼", "Start from LinkedIn", "Download your own data from LinkedIn and Busy fills in your jobs, education, skills and certificates in minutes.")]
     how = "".join(f'<div class="card feat reveal pop"><span class="fe">{em}</span><h3>{e(n)}</h3><p>{e(d)}</p></div>' for em, n, d in steps)
     extra = PLACE_HEAD.format(first="../assets/glasshouse/room-foot-1920.jpg")
-    return f"""{head("Busy Growth: free tools to grow your career", desc, "growth/index.html", "../", extra=extra + suite_ld("growth", desc), image="og-ivy.png")}
+    return f"""{head("Busy Growth: know what you’re worth, and say it well", desc, "growth/index.html", "../", extra=extra + suite_ld("growth", desc), image="og-ivy.png")}
 <body class="site app-mint">
 {nav("../", ("⬇️ Download free", "#get"))}
 <main id="main">
@@ -1697,8 +1697,9 @@ def home_page(tools: list) -> str:
       <p class="faint" style="margin-top:10px">Want the expert too? <a class="out" href="{PRODUCTS["juno"]["url"]}" target="_blank" rel="noopener">{PRODUCTS["juno"]["name"]} · {PRODUCTS["juno"]["price"]} <span aria-hidden="true">↗</span></a></p></div>
   </div></section>""" if HOME_LIVE else """<section class="section" id="get"><div class="wrap center">
     <h2 class="big">On its way</h2><p class="lead">Busy Home is nearly ready. Meanwhile, keep your brain busy with <a href="../games/index.html">today's puzzles</a>.</p></div></section>"""
-    title = "Busy Home: free tools for your household paperwork" + ("" if HOME_LIVE else " (soon)")
-    desc = (f"Busy Home: {len(HOME_TOOLS)} free tools for household paperwork. Documents that warn before they expire, contracts with the last day to cancel, upkeep, inventory, letters and moving. No account."
+    title = "Busy Home: get your evenings back from household paperwork" if HOME_LIVE else "Busy Home: free tools for your household paperwork (soon)"
+    desc = (f"Get your evenings back. Busy Home takes care of household paperwork: documents, contracts with the last day to cancel, upkeep and letters. {len(HOME_TOOLS)} free tools, no account. "
+            f"With Juno, your household assistant, {PRODUCTS['juno']['price']} once."
             if HOME_LIVE else "Busy Home, coming soon: free tools for household paperwork. Documents, contracts with the last day to cancel, upkeep, inventory, letters and moving.")
     three = ('<script type="importmap">{"imports":{"three":"../assets/vendor/three/build/three.module.min.js"}}</script>'
              '<link rel="preload" href="../assets/house/room-door-1920.jpg" as="image">') if HOME_LIVE else ""
