@@ -1,91 +1,77 @@
-/* The Busy Home home screen: what's coming up (last days to cancel, documents expiring, upkeep due,
-   warranties ending, the move), getting started, and every household tool. */
+/* Busy Home opens on This week: at most three things at home that need doing, each with one button, so ten
+   minutes are enough and the evening is free. Beside them: the tray (drop a letter, a contract or a receipt in)
+   and what is coming up. The tools are in the parts of the rail, never in a grid here. */
 (function () {
   'use strict';
-  const { $, $$, esc } = BW;
+  const { $, $$, esc, ui } = BW;
   const H = BW.house;
   const main = $('#main');
 
-  BW.boot({ onReady: render, onChange: render });
+  BW.boot({ part: 'today', onReady: render, onChange: render });
 
-  const GROUPS = [
-    ['🗂️ Keep it', ['papers', 'inventory']],
-    ['🔁 Stay on top', ['contracts', 'upkeep']],
-    ['✉️ Sort it', ['letters', 'moving']],
-    ['📕 Just in case', ['binder']],
-  ];
+  const HEAD = ['Nothing needs you this week. The evening is yours.', 'One thing this week. Then the evening is yours.', 'Two things this week. Then the evening is yours.', 'Ten minutes, three things. Then the evening is yours.'];
 
   async function render() {
-    const s = BW.settings;
-    const [papers, contracts, upkeep, inventory, moves, binder] = await Promise.all(['papers', 'contracts', 'upkeep', 'inventory', 'moves', 'binder'].map((n) => BW.store.all(n)));
-    const today = BW.today();
-    const h = new Date().getHours();
-    const hello = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
-    const name = (s.ownerName || '').split(' ')[0];
-    const coming = H.upcoming({ papers, contracts, upkeep, inventory, moves }, today, 60);
-    const decide = H.decisions(contracts, today, 60), expiring = H.expiring(papers, today);
-    const due = upkeep.filter((j) => H.jobState(j, today) !== 'ok');
-    const live = contracts.filter((c) => H.contractState(c, today) !== 'ended');
-    const move = moves.filter((m) => !m.finished && m.date && m.date >= today).sort((a, b) => a.date.localeCompare(b.date))[0];
-    const glance = [
-      move && ['teal', '🚚', 'Moving day', String(H.days(today, move.date)), `days to go${move.to ? ', to ' + move.to : ''}`, 'moving'],
-      ['tomato', '✂️', 'Decide soon', String(decide.length), decide[0] ? `${decide[0].contract.name || decide[0].contract.provider}: ${decide[0].kind === 'term' ? 'fixed term ends' : 'cancel by'} ${decide[0].left === 0 ? 'today' : BW.fmtDate(decide[0].by, { day: 'numeric', month: 'short' })}` : 'Nothing to decide in the next two months', 'contracts'],
-      ['sky', '🗂️', 'Expiring', String(expiring.length), expiring[0] ? `${expiring[0].paper.title}: ${H.when(expiring[0].left)}` : 'Every document is up to date', 'papers'],
-      ['sun', '🛠️', 'Upkeep due', String(due.length), due[0] ? due.map((j) => j.task).slice(0, 2).join(', ') : upkeep.length ? 'All on schedule' : 'Pick jobs from a ready-made list', 'upkeep'],
-      ['grape', '💶', 'Contracts a month', BW.money(H.totalMonthly(live, today)), `${live.length} contract${live.length === 1 ? '' : 's'}`, 'contracts'],
-    ].filter(Boolean);
-    // Tuck's line: the most pressing thing, or a welcome, or the all-clear.
-    // one sentence per case, so each can be said in another language
-    const decideLine = (d) => {
-      const name = d.contract.name || d.contract.provider, when = d.left === 0 ? BW.t('today') : BW.fmtDate(d.by, { day: 'numeric', month: 'long' });
-      return d.kind === 'term' ? `${name}: the fixed term ends ${when}. Keep it?` : `${name}: the last day to cancel is ${when}. Keep it?`;
-    };
-    const [say, mood] = !(papers.length + contracts.length + upkeep.length + inventory.length)
-      ? ["Hello, I'm Tuck! Start with your passport: I'll tell you four months before it expires.", 'hello']
-      : decide[0] ? [decideLine(decide[0]), 'point']
-        : expiring[0] ? [`${BW.t(expiring[0].paper.title)}: ${H.when(expiring[0].left)}. ${BW.t('Time to renew?')}`, 'point']
-          : due[0] ? [`Upkeep time: ${due[0].task}.`, 'point']
-            : move ? [`${H.days(today, move.date)} days to moving day. I'll keep the list.`, 'happy']
-              : ['All quiet at home. Nothing needs you today.', 'happy'];
-    const byId = Object.fromEntries(BW.apps.map((a) => [a.id, a]));
-    const steps = [
-      [papers.some((p) => p.kind === 'id'), '🪪', 'Add a passport or ID card', 'Busy warns you four months before it expires', 'apps/papers/index.html#new/id'],
-      [contracts.length > 0, '🔁', 'Add a contract', 'Insurance, energy, the gym: see the last day to cancel', 'apps/contracts/index.html#new'],
-      [upkeep.length > 0, '🛠️', 'Pick your upkeep jobs', 'From a ready-made list', 'apps/upkeep/index.html#starter'],
-      [inventory.length > 0, '🛋️', 'Add something you own', 'With a photo and the receipt', 'apps/inventory/index.html#new'],
-      [binder.length > 0, '📕', 'Start your Just in Case binder', 'Begin with the people to call', 'apps/binder/index.html#new/people'],
-      [BW.store.kind === 'folder', '📁', 'Keep it in a folder', 'Scans and photos are saved as files there', null],
-    ];
-    const doneN = steps.filter((x) => x[0]).length;
-    let hidden = false;
-    try { hidden = localStorage.getItem('bw.hideStart:house') === '1'; } catch (e) { /* private window */ }
-    const tile = (a) => a.ready
-      ? `<a class="tile" style="--c:var(--${a.color})" href="apps/${a.id}/index.html">${BW.roomPic(a.id)}<span class="icon">${a.emoji}</span><b>${a.name}</b><p>${a.tagline}</p><span class="go">Open <span>→</span></span></a>`
-      : `<div class="tile soon" style="--c:var(--${a.color})"><span class="chip chip-grape sticker">Soon</span>${BW.roomPic(a.id)}<span class="icon">${a.emoji}</span><b>${a.name}</b><p>${a.tagline}</p></div>`;
+    const s = BW.settings, today = BW.today();
+    const [papers, contracts, upkeep, inventory, moves] = await Promise.all(['papers', 'contracts', 'upkeep', 'inventory', 'moves'].map((n) => BW.store.all(n)));
+    const long = (d) => BW.fmtDate(d, { weekday: 'long', day: 'numeric', month: 'long' });
+    const needs = [], acts = [];
+    const add = (w, n, act) => { needs.push(Object.assign({ w }, n)); acts.push(act || {}); needs[needs.length - 1].act = acts.length - 1; };
 
-    main.innerHTML = `
-      ${BW.placeBanner(say, mood)}
-      <section class="home-hero">
-        <div><h1>${hello}${name ? ', ' + esc(name) : ''} <span class="hand">🏡</span></h1>
-          <p class="lead">${coming.length ? `${coming.length} thing${coming.length === 1 ? '' : 's'} to keep an eye on at home. Here’s what and when.` : 'Your household paperwork, under control.'}</p></div>
-      </section>
-      <section class="stats glance rise">${glance.map(([c, e, k, v, sub, app]) => `
-        <a class="card stat" style="--tint:var(--${c})" href="apps/${app}/index.html"><div class="k">${e} ${k}</div><div class="v ${/^[\d€$£.,\s-]/.test(v) ? '' : 'word'}">${esc(v)}</div><div class="s">${esc(sub)}</div></a>`).join('')}</section>
-      ${[['⚠️ Overdue', coming.filter((x) => x.left < 0), ' overdue'], ['📅 Coming up', coming.filter((x) => x.left >= 0), '']].filter(([, list]) => list.length).map(([title, list, cls]) => `
-      <section class="card attention rise${cls}" style="margin-top:6px"><h2>${title}</h2>${list.slice(0, 8).map((x) => `
-        <a href="apps/${x.app}/index.html#open/${x.id}"><span class="e">${x.emoji}</span><span class="main"><b>${esc(x.text)}</b><small>${BW.fmtDate(x.date, { weekday: 'short', day: 'numeric', month: 'long' })}, ${H.when(x.left)}</small></span></a>`).join('')}</section>`).join('')}
-      ${!hidden && doneN < steps.length ? `<section class="card start rise">
-        <div class="start-head"><div><h2>🚀 Getting started</h2><small>${doneN} of ${steps.length} done</small></div><div class="bar"><i style="width:${doneN / steps.length * 100}%"></i></div><button class="link" data-hide>Hide</button></div>
-        <div class="start-steps">${steps.map(([ok, e, t, sub, go], i) => `<${go && !ok ? `a href="${go}"` : 'button type="button"'} class="step ${ok ? 'ok' : ''}" data-step="${i}"><span class="tick">${ok ? '✓' : e}</span><span><b>${t}</b><small>${sub}</small></span></${go && !ok ? 'a' : 'button'}>`).join('')}</div>
-      </section>` : ''}
-      ${GROUPS.map(([title, ids]) => `<div class="section-h"><h2>${title}</h2></div><div class="tiles rise">${ids.map((id) => tile(byId[id])).join('')}</div>`).join('')}
-      <div class="section-h"><h2>🏡 ${byId.juno.ready ? 'Your expert' : 'Coming to Busy Home'}</h2><small class="faint">${byId.juno.ready ? 'On your own Claude key' : 'Free tools stay free; the AI comes with Juno'}</small></div>
-      <div class="tiles rise">${tile(byId.juno)}
-        <a class="tile" style="--c:var(--sky)" href="${BW.siteUrl}/games/index.html" target="_blank" rel="noopener"><span class="icon">🧩</span><b>Today’s brain break</b><p>Four free logic puzzles on busy.com.ai, a new one every day.</p><span class="go">Play <span>→</span></span></a></div>
-      <p class="tip">💡 Press <kbd>${/Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl'} K</kbd> anywhere to find a document, a contract or something you own.</p>
-      <div class="card home-foot"><span class="emo">🔒</span><div><b>Your home, your files.</b><br><small>Everything is saved in <b>${esc(BW.store.where)}</b>. Passports, policies and plans never leave it. No account, no server, nothing sent to us.</small></div></div>`;
-    const hide = $('[data-hide]', main);
-    if (hide) hide.onclick = () => { try { localStorage.setItem('bw.hideStart:house', '1'); } catch (e) { /* ignore */ } render(); };
-    $$('button[data-step]', main).forEach((b) => b.onclick = () => { if (!steps[Number(b.dataset.step)][0]) BW.toast('Use the 📁 button at the top to pick a folder', '📁'); });
+    // A contract that renews by itself: keep it, or cancel while it still can be.
+    H.decisions(contracts, today, 30).filter((d) => d.contract.keptFor !== d.by).forEach((d) => {
+      const c = d.contract, name = c.name || c.provider || 'A contract';
+      add(100 - d.left, { c: 'tomato', e: d.kind === 'term' ? '🔁' : '✂️', t: d.kind === 'term' ? `${name}: the fixed term ends. Stay or switch?` : `${name} renews by itself. Keep it?`,
+        s: `${BW.money(H.monthly(c))} ${BW.t('a month')} · ${BW.t(d.kind === 'term' ? 'the term ends on' : 'the last day to cancel is')} ${long(d.by)}`,
+        b: 'Cancel it', href: `apps/letters/index.html#new/cancel/${c.id}`, more: ['Keep', null] },
+      { more: async () => { await BW.store.put('contracts', Object.assign({}, c, { keptFor: d.by })); BW.toast(`${esc(name)}: kept. Busy asks again before the next renewal.`, '👍'); } });
+    });
+    upkeep.forEach((j) => {
+      const due = H.nextDue(j, today), left = H.days(today, due);
+      if (left > 7) return;
+      add(left < 0 ? 85 : 60 - left, { c: 'sun', e: '🛠️', t: j.task || 'Upkeep', s: `${H.area(j.area).replace(/^\S+\s/, '')} · ${left < 0 ? BW.t('was due') : BW.t('due')} ${H.when(left)}`, b: 'Done', more: ['Open', `apps/upkeep/index.html#open/${j.id}`] },
+        { main: async () => { await BW.store.put('upkeep', H.markDone(j, today)); BW.toast(`${esc(j.task || 'Upkeep')}: done.`, '✅'); } });
+    });
+    H.expiring(papers, today).filter((e) => e.left <= 60).forEach((e) => add(e.left < 0 ? 95 : 70 - e.left / 2, { c: 'sky', e: H.kind(e.paper.kind)[1],
+      t: e.left < 0 ? `${e.paper.title || 'A document'} has run out` : `${e.paper.title || 'A document'} runs out ${H.when(e.left)}`,
+      s: e.paper.kind === 'id' ? 'A new one takes a few weeks: book the appointment now' : 'Renew it, or mark it as replaced', b: 'Open it', href: `apps/papers/index.html#open/${e.paper.id}` }));
+    H.warrantyEnding(inventory, today, 30).forEach((x) => add(40, { c: 'grape', e: '🧾', t: `The warranty on ${x.name || 'something you own'} ends ${H.when(H.days(today, x.warrantyUntil))}`, s: 'If something is wrong with it, say so now', b: 'Open it', href: `apps/inventory/index.html#open/${x.id}` }));
+    const move = moves.filter((m) => !m.finished && m.date && m.date >= today).sort((a, b) => a.date.localeCompare(b.date))[0];
+    if (move) add(45, { c: 'teal', e: '🚚', t: `${H.days(today, move.date)} days to moving day`, s: 'The list of what to do, and who to tell', b: 'Open the plan', href: 'apps/moving/index.html' });
+    // A household that has only just started.
+    if (!(papers.length + contracts.length + upkeep.length + inventory.length)) {
+      add(30, { c: 'sky', e: '🪪', t: 'Add a passport or an ID card', s: 'Busy tells you four months before it runs out', b: 'Add it', href: 'apps/papers/index.html#new/id' });
+      add(29, { c: 'tomato', e: '🔁', t: 'Add a contract', s: 'Insurance, energy, the gym: see the last day to cancel', b: 'Add it', href: 'apps/contracts/index.html#new' });
+      add(28, { c: 'sun', e: '🛠️', t: 'Pick your upkeep jobs', s: 'From a ready-made list: the boiler, the smoke alarms, the gutters', b: 'Pick them', href: 'apps/upkeep/index.html#starter' });
+    }
+    needs.sort((a, b) => b.w - a.w);
+    const cards = await ui.yes();
+    const top = needs.slice(0, Math.max(0, 3 - Math.min(cards.n, 3)));
+    BW.partCount('today', top.length + cards.n);
+    const shown = new Set(top.map((n) => n.t));
+    const coming = H.upcoming({ papers, contracts, upkeep, inventory, moves }, today, 90).filter((x) => x.left >= 0 && !top.some((n) => n.t.includes(x.text.replace(/^(Last day to cancel|Fixed term ends:?) /, '').replace(/ (expires|expired)$/, '')))).slice(0, 5);
+    const live = contracts.filter((c) => H.contractState(c, today) !== 'ended');
+
+    const START = [['🪪', 'A document', 'apps/papers/index.html#new'], ['🔁', 'A contract', 'apps/contracts/index.html#new'], ['✉️', 'A letter', 'apps/letters/index.html'], ['🛋️', 'Something you own', 'apps/inventory/index.html#new']];
+    main.innerHTML = `<div class="today">
+      <div>
+        ${ui.hello(s.ownerName)}
+        <h1 class="big">${BW.t(HEAD[Math.min(top.length + cards.n, 3)])}</h1>
+        ${cards.html}
+        ${top.map((n, i) => ui.need(n, i)).join('')}
+        ${!top.length && !cards.n ? `<div class="card all-clear">${ui.guide('happy')}<div><b>${BW.t('All quiet at home.')}</b><br><span class="muted">${BW.t('Busy keeps watching the dates. Go and do something nice.')}</span></div></div>` : ''}
+        ${ui.k(BW.t('Add something')).replace('class="k"', 'class="k gap"')}
+        <div class="start-row">${START.map(([e, l, h]) => `<a class="btn" href="${h}">${e} ${BW.t(l)}</a>`).join('')}</div>
+      </div>
+      <aside class="side-col">
+        ${H.trayHtml()}
+        ${coming.length ? `<a class="card" href="home-dates.html" style="text-decoration:none;color:inherit">${ui.k(BW.t('Coming up'))}${coming.map((x) => ui.line(`${x.emoji} ${esc(BW.t(x.text))}`, BW.fmtDate(x.date, { day: 'numeric', month: 'short' }))).join('')}</a>` : ''}
+        ${live.length ? `<a class="card" href="apps/contracts/index.html" style="text-decoration:none;color:inherit">${ui.k(BW.t('What you pay for'))}${ui.line(`${live.length} ${BW.t(live.length === 1 ? 'contract' : 'contracts')}`, `${BW.money(H.totalMonthly(live, today))} ${BW.t('a month')}`)}</a>` : ''}
+      </aside></div>`;
+    ui.bindYes(main, render);
+    H.bindTray(main, render);
+    $$('[data-need]', main).forEach((b) => b.onclick = async () => { const a = acts[top[Number(b.dataset.need)].act]; if (a.main) { await a.main(); render(); } });
+    $$('[data-more]', main).forEach((b) => b.onclick = async () => { const a = acts[top[Number(b.dataset.more)].act]; if (a.more) { await a.more(); render(); } });
+    void shown;
   }
 })();

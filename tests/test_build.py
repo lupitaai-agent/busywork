@@ -168,6 +168,7 @@ class Editions(unittest.TestCase):
         names = z.namelist()
         self.assertNotIn("Busy/shared/ai.js", names)
         self.assertNotIn("Busy/shared/examples.js", names)
+        self.assertNotIn("Busy/shared/busy-example.js", names)
         self.assertFalse(any("/apps/olaf/" in n for n in names), "Olaf is not in the free download")
         banned = ["x-api-key", "Claude API key", "Connect AI", "AI settings", "Show me with example data", "Just try it out", "examples.load(", "data-key", "demo.js"]
         for n in names:
@@ -214,7 +215,7 @@ class GrowthLaunch(unittest.TestCase):
         self.assertIn("Busy Growth/growth.html", names)
         for a in build.GROWTH_APPS:
             self.assertIn(f"Busy Growth/apps/{a}/index.html", names)
-        for n in ("index.html", "home.js", "apps/invoices/index.html", "apps/olaf/index.html", "shared/ai.js", "shared/examples.js", "shared/growth-examples.js"):
+        for n in ("index.html", "home.js", "apps/invoices/index.html", "apps/olaf/index.html", "shared/ai.js", "shared/examples.js", "shared/busy-example.js", "shared/growth-examples.js"):
             self.assertNotIn(f"Busy Growth/{n}", names)
         self.assertFalse([n for n in names if n.startswith("Busy Growth/apps/") and n.split("/")[2] not in build.GROWTH_APPS], "only growth tools")
         for n in names:

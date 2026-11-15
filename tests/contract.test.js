@@ -42,6 +42,33 @@ test('the example business fits the schema', async () => {
   assert.deepEqual(problems, []);
 });
 
+test("Busy's own example fits the schema and points only at records that exist", async () => {
+  const { BW } = await busywork(['shared/schema.js', 'shared/busy-example.js']);
+  for (const [k, v] of Object.entries(BW.busyExample.settings)) BW.settings[k] = v;
+  assert.deepEqual([...BW.schema.check('settings', BW.settings)], []);
+  await BW.busyExample.load();
+  const all = {}, problems = [];
+  for (const n of await BW.store.collections()) {
+    all[n] = await BW.store.all(n);
+    for (const r of Array.isArray(all[n]) ? all[n] : [all[n]]) problems.push(...BW.schema.check(n, r));
+  }
+  assert.deepEqual(problems, []);
+  for (const [n, list] of Object.entries(all)) {
+    if (!Array.isArray(list)) continue;
+    for (const r of list) {
+      assert.equal(r.example, true, `${n}: every record of the example says it is one`);
+      for (const [k, t] of Object.entries(BW.schema.COLLECTIONS[n].fields)) {
+        if (!t.startsWith('ref:') || !r[k]) continue;
+        assert.ok((all[t.slice(4)] || []).some((x) => x.id === r[k]), `${n}.${k} points at a missing ${t.slice(4)} record`);
+      }
+    }
+  }
+  // The plan's buying moments are the profile's own, word for word, so the Studio can link them.
+  const [profile] = all.mktprofile, moments = profile.ceps.map((c) => c.text);
+  for (const a of all.mktplan) if (a.cep) assert.ok(moments.includes(a.cep), `plan action "${a.title}" names a moment the profile does not have`);
+  for (const p of all.mktcontent) if (p.cep) assert.ok(moments.includes(p.cep), `post "${p.title}" names a moment the profile does not have`);
+});
+
 test('the example business points only at records that exist, and can be removed again', async () => {
   const { BW } = await busywork(['shared/schema.js', 'shared/examples.js']);
   await BW.store.put('clients', { name: 'A real client' });

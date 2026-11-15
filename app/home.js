@@ -1,124 +1,101 @@
-/* The home screen: every tool, grouped, with what needs attention today. */
+/* Busy Business opens on Today: the three things that most need the owner, each with one button, and nothing
+   else. The brand, the year's marketing and the money stand beside it in three small cards. The tools are in the
+   three parts of the rail (Brand, Marketing, Operations), never in a grid here. */
 (function () {
   'use strict';
-  const { $, $$, esc } = BW;
+  const { $, $$, esc, ui } = BW;
   const main = $('#main');
 
-  BW.boot({ onReady: render, onChange: render });
+  BW.boot({ part: 'today', onReady: render, onChange: render });
 
-  // The three things Busy Business is for, in this order: grow the brand, deliver the projects, run the money and admin.
-  const GROUPS = [
-    ['📣 Grow', 'Your brand and your marketing', ['marketing', 'brand', 'olaf']],
-    ['🗓️ Deliver', 'Your projects, from brief to done', ['projects', 'board']],
-    ['💶 Run', 'Get paid', ['invoices', 'time', 'clients', 'docs']],
-    ['🧮 Run', 'Keep track', ['expenses', 'money', 'subscriptions', 'trips', 'stock']],
-  ];
+  const daysBetween = (a, b) => Math.round((new Date(b + 'T12:00:00') - new Date(a + 'T12:00:00')) / 864e5);
+  const many = (n, one, more) => (n === 1 ? one : more);
 
   async function render() {
-    const s = BW.settings;
-    const [invoices, time, stock, subs, tasks, clients, expenses, docs, brandProfile, mktPlan] = await Promise.all(['invoices', 'time', 'stock', 'subscriptions', 'tasks', 'clients', 'expenses', 'documents', 'mktprofile', 'mktplan'].map((n) => BW.store.all(n)));
-    const h = new Date().getHours();
-    const hello = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
-    const name = (s.ownerName || '').split(' ')[0];
-    const today = BW.today();
-    const out = invoices.filter((i) => i.kind === 'invoice' && i.status === 'sent' && BW.balanceOf(i) > 0);
-    const late = out.filter((i) => i.dueDate < today);
+    const s = BW.settings, today = BW.today();
+    const [invoices, time, stock, subs, tasks, clients, projects, profiles, plan, content, files] = await Promise.all(
+      ['invoices', 'time', 'stock', 'subscriptions', 'tasks', 'clients', 'projects', 'mktprofile', 'mktplan', 'mktcontent', 'olaf-files'].map((n) => BW.store.all(n)));
+    const sent = invoices.filter((i) => i.kind === 'invoice' && i.status === 'sent' && BW.balanceOf(i) > 0);
+    const late = sent.filter((i) => i.dueDate < today).sort((a, b) => a.dueDate.localeCompare(b.dueDate));
     const sum = (a) => a.reduce((t, i) => t + BW.balanceOf(i), 0);
-    const running = time.find((e) => e.start && !e.end);
-    const low = stock.filter((i) => BW.num(i.qty) <= BW.num(i.min));
-    const renewing = subs.filter((x) => x.status !== 'cancelled' && x.nextDate && x.nextDate >= today && x.nextDate <= BW.addDays(today, 7));
-    const todo = tasks.filter((t) => t.status !== 'done');
-    const dueSoon = todo.filter((t) => t.due && t.due <= BW.addDays(today, 2));
-    // The brand comes first: how many of the next twelve months have marketing planned (the Marketing Studio's own count).
+    const profile = profiles[0], M = BW.mkt;
+    const pct = profile && M ? M.completeness(profile) : 0;
     const month0 = today.slice(0, 7) + '-01', year = Array.from({ length: 12 }, (_, i) => BW.addPeriod(month0, 'month', i).slice(0, 7));
-    const planned = year.filter((m) => mktPlan.some((a) => (a.month || '').slice(0, 7) === m || (a.months || []).includes(m))).length;
-    const hasBrand = brandProfile.length > 0 || mktPlan.length > 0;
-    const glance = [
-      hasBrand ? ['pink', '📣', 'Your brand', `${planned}/12`, 'months with marketing planned', 'marketing']
-        : ['pink', '📣', 'Your brand', 'Start here', 'Who buys from you, and when? Ten minutes.', 'marketing', 'word'],
-      out.length && ['sun', '⏳', 'Waiting to come in', BW.money(sum(out)), `${out.length} open invoice${out.length === 1 ? '' : 's'}${late.length ? `, ${late.length} overdue` : ''}`, 'invoices'],
-      running && ['mint', '⏱️', 'Timer running', 'Since ' + new Date(running.start).toLocaleTimeString(BW.locale(), { hour: '2-digit', minute: '2-digit' }), running.desc || 'Working on something great', 'time'],
-      dueSoon.length && ['teal', '🗂️', 'Due in the next 2 days', String(dueSoon.length), dueSoon.slice(0, 2).map((t) => t.title).join(', '), 'board'],
-      low.length && ['tomato', '🚨', 'Running low', String(low.length), low.slice(0, 3).map((i) => i.name).join(', '), 'stock'],
-      renewing.length && ['grape', '🔁', 'Renewing this week', BW.money(renewing.reduce((a, x) => a + BW.num(x.amount), 0)), renewing.map((x) => x.name).join(', '), 'subscriptions'],
-    ].filter(Boolean);
-    // Rivet's line (the guide of the Workshop): the most pressing thing, or a welcome, or the all-clear.
-    const say = !(invoices.length + time.length + clients.length)
-      ? 'Welcome to the Workshop! Add your bank details, then send your first invoice.'
-      : late.length ? `${late.length} invoice${late.length === 1 ? ' is' : 's are'} overdue: ${BW.money(sum(late))}. A friendly reminder?`
-        : running ? `The timer's running${running.desc ? ': ' + running.desc : ''}.`
-          : dueSoon.length ? `${dueSoon[0].title} is due ${dueSoon[0].due <= today ? 'today' : 'soon'}.`
-            : low.length ? `Running low on ${low[0].name}. Time to order?`
-              : out.length ? `${BW.money(sum(out))} still to come in. Nothing overdue.`
-                : 'All caught up. Nice work!';
-    const byId = Object.fromEntries(BW.apps.map((a) => [a.id, a]));
-    // Getting started: ticks itself off as people use the tools (the Stripe / Notion onboarding pattern).
-    const steps = [
-      [hasBrand, '📣', 'Describe your brand', 'Who buys from you, and when', 'apps/marketing/index.html#tab/profile'],
-      [!!s.iban, '🏦', 'Add your bank details', 'So invoices tell clients where to pay', () => BW.openSettings()],
-      [clients.length > 0, '📇', 'Add your first client', 'Or import the list you already have', 'apps/clients/index.html#new'],
-      [invoices.some((i) => i.status !== 'draft'), '🧾', 'Send your first invoice', 'It takes about a minute', 'apps/invoices/index.html#new/invoice'],
-      [time.length > 0, '⏱️', 'Track some time', 'One button. Start, stop, done.', 'apps/time/index.html'],
-      [expenses.length > 0, '📸', 'Snap a receipt', 'Drop a photo or PDF, we file it', 'apps/expenses/index.html#new'],
-      [BW.store.kind === 'folder', '📁', 'Keep your work in a folder', 'Pick one inside Google Drive to sync it', null],
-    ];
-    const doneN = steps.filter((x) => x[0]).length;
-    let hidden = BW.store.kind === 'demo'; // the website demo: the pretend studio is already set up
-    try { hidden = hidden || localStorage.getItem('bw.hideStart') === '1'; } catch (e) { /* private window */ }
-    const recent = [].concat(
-      invoices.map((x) => [x.updatedAt, x.kind === 'quote' ? '💬' : '🧾', `${x.number} · ${x.client ? x.client.name : 'No client'}`, `apps/invoices/index.html#edit/${x.id}`]),
-      clients.map((x) => [x.updatedAt, '📇', x.name, `apps/clients/index.html#open/${x.id}`]),
-      tasks.map((x) => [x.updatedAt, '🗂️', x.title, `apps/board/index.html#open/${x.id}`]),
-      expenses.map((x) => [x.updatedAt, '📸', x.vendor || 'Expense', `apps/expenses/index.html#open/${x.id}`]),
-      docs.map((x) => [x.updatedAt, '📝', x.title || 'Document', `apps/docs/index.html#edit/${x.id}`]),
-    ).filter((x) => x[0]).sort((a, b) => b[0].localeCompare(a[0])).slice(0, 6);
-    const soon = BW.suiteApps().filter((a) => !a.ready);  // only this suite's: Ivy and Juno belong to Growth and Home
-    const tile = (a) => a.ready
-      ? `<a class="tile" style="--c:var(--${a.color})" href="apps/${a.id}/index.html" ${a.addon ? `data-addon="${a.id}"` : ''}>${a.addon ? '<span class="chip chip-sun sticker" data-addon-chip>Paid add-on</span>' : ''}${BW.roomPic(a.id)}<span class="icon">${a.emoji}</span><b>${a.name}</b><p>${a.tagline}</p><span class="go">Open <span>→</span></span></a>`
-      : `<div class="tile soon" style="--c:var(--${a.color})"><span class="chip chip-grape sticker">Soon</span>${BW.roomPic(a.id)}<span class="icon">${a.emoji}</span><b>${a.name}</b><p>${a.tagline}</p></div>`;
+    const inMonth = (m) => plan.filter((a) => (a.month || '').slice(0, 7) === m);
+    const planned = year.filter((m) => inMonth(m).length).length;
+    const who = (id) => (clients.find((c) => c.id === id) || {}).name || '';
+    const nameOf = (i) => (i.client && i.client.name) || who(i.clientId) || 'A client';
 
-    main.innerHTML = `
-      ${BW.placeBanner(say)}
-      <section class="home-hero">
-        <div><h1>${hello}${name ? ', ' + esc(name) : ''} <span class="hand">👋</span></h1>
-          <p class="lead">${glance.length > 1 ? 'Here’s what needs you today.' : BW.brand.tagline + ' What are we ticking off today?'}</p></div>
-      </section>
-      ${glance.length ? `<section class="stats glance rise">${glance.map(([c, e, k, v, sub, app, word]) => `
-        <a class="card stat" style="--tint:var(--${c})" href="apps/${app}/index.html"${app === 'marketing' ? ' data-brand' : ''}><div class="k">${e} ${k}</div><div class="v${word ? ' word' : ''}">${esc(v)}</div><div class="s">${esc(sub)}</div></a>`).join('')}</section>` : ''}
-      ${!hidden && doneN < steps.length ? `<section class="card start rise">
-        <div class="start-head"><div><h2>🚀 Getting started</h2><small>${doneN} of ${steps.length} done</small></div><div class="bar"><i style="width:${doneN / steps.length * 100}%"></i></div><button class="link" data-hide>Hide</button></div>
-        <div class="start-steps">${steps.map(([ok, e, t, sub, go], i) => `<${typeof go === 'string' && !ok ? `a href="${go}"` : 'button type="button"'} class="step ${ok ? 'ok' : ''}" data-step="${i}"><span class="tick">${ok ? '✓' : e}</span><span><b>${t}</b><small>${sub}</small></span></${typeof go === 'string' && !ok ? 'a' : 'button'}>`).join('')}</div>
-      </section>` : ''}
-      <div class="home-row">
-        <section class="card demo" data-olaf-up hidden><span class="emo">🧭</span><div><b>Get more done with Olaf</b><small>Olaf, our AI expert for marketing and projects, plans your marketing, runs your projects with you and does the work. Coming later.</small></div>
-          <a class="btn btn-primary" data-olaf-go>Register your interest</a></section>
-        ${recent.length ? `<section class="card recent"><b>🕒 Recently changed</b>${recent.map(([at, e, l, href]) => `<a href="${href}"><span>${e}</span><span class="t">${esc(l)}</span><small>${BW.fmtDate(at.slice(0, 10), { day: 'numeric', month: 'short' })}</small></a>`).join('')}</section>` : ''}
+    // Everything that could need the owner, heaviest first. The first three are today's; the next few are "later".
+    const needs = [];
+    const add = (w, n) => needs.push(Object.assign({ w }, n));
+    if (late.length === 1) { const i = late[0], d = daysBetween(i.dueDate, today);
+      add(100, { c: 'tomato', e: '🧾', t: d === 1 ? `${nameOf(i)} is a day late with ${BW.money(BW.balanceOf(i))}` : `${nameOf(i)} is ${d} days late with ${BW.money(BW.balanceOf(i))}`, s: 'Operations · a friendly reminder takes a minute', b: 'Send a reminder', href: `apps/invoices/index.html#edit/${i.id}` }); }
+    if (late.length > 1) add(100, { c: 'tomato', e: '🧾', t: `${late.length} invoices are late: ${BW.money(sum(late))}`, s: `Operations · the oldest is from ${nameOf(late[0])}`, b: 'Send reminders', href: 'apps/invoices/index.html' });
+    const open = tasks.filter((t) => t.status !== 'done' && t.due);
+    const dueNow = open.filter((t) => t.due <= today).sort((a, b) => a.due.localeCompare(b.due));
+    if (dueNow.length === 1) add(90, { c: 'teal', e: '🗂️', t: `"${dueNow[0].title}" ${dueNow[0].due < today ? 'was due ' + BW.fmtDate(dueNow[0].due, { weekday: 'long' }) : 'is due today'}`, s: 'Operations · on your project board', b: 'Open it', href: `apps/board/index.html#open/${dueNow[0].id}` });
+    if (dueNow.length > 1) add(90, { c: 'teal', e: '🗂️', t: `${dueNow.length} tasks are due`, s: `Operations · first: ${dueNow[0].title}`, b: 'Open the board', href: 'apps/board/index.html' });
+    const week = BW.addDays(today, 7);
+    const ready = content.filter((p) => p.status === 'ready' && p.date && p.date <= week).sort((a, b) => a.date.localeCompare(b.date))[0];
+    if (ready) add(80, { c: 'pink', e: '📣', t: `${BW.fmtDate(ready.date, { weekday: 'long' })}'s post is ready`, s: `Marketing · ${ready.channel || 'A post'}: ${ready.title}`, b: 'Read and post', href: 'apps/marketing/index.html#tab/content' });
+    const quote = invoices.filter((i) => i.kind === 'quote' && i.status === 'sent' && i.validUntil && i.validUntil >= today && i.validUntil <= week)[0];
+    if (quote) { const d = daysBetween(today, quote.validUntil); add(75, { c: 'sky', e: '💬', t: d === 1 ? `The quote for ${nameOf(quote)} runs out tomorrow` : `The quote for ${nameOf(quote)} runs out in ${d} days`, s: 'Operations · a short call often settles it', b: 'Open the quote', href: `apps/invoices/index.html#edit/${quote.id}` }); }
+    if (!profile || !profile.onboarded) add(profile ? 70 : 96, { c: 'sun', e: '🪧', t: 'Put your brand on one page', s: 'Brand · what you sell, when people need you, what makes you recognisable. Ten minutes.', b: 'Start', href: 'brand.html' });
+    else if (pct < 100) add(60, { c: 'sun', e: '🪧', t: `Your brand page is ${pct}% filled in`, s: 'Brand · a few answers are still missing', b: 'Finish it', href: 'brand.html' });
+    if (profile && !inMonth(year[0]).length) add(65, { c: 'pink', e: '🗓️', t: `Nothing is planned for ${BW.fmtDate(year[0] + '-01', { month: 'long' })}`, s: 'Marketing · buyers look every month', b: 'Plan something', href: 'apps/marketing/index.html#tab/plan' });
+    const drafts = invoices.filter((i) => i.kind === 'invoice' && i.status === 'draft');
+    if (drafts.length) add(55, { c: 'mint', e: '✉️', t: drafts.length === 1 ? `An invoice for ${nameOf(drafts[0])} is ready to send` : `${drafts.length} invoices are ready to send`, s: 'Operations · a draft earns nothing', b: 'Send it', href: drafts.length === 1 ? `apps/invoices/index.html#edit/${drafts[0].id}` : 'apps/invoices/index.html' });
+    const soon = open.filter((t) => t.due > today && t.due <= BW.addDays(today, 2));
+    if (soon.length) add(50, { c: 'teal', e: '🗂️', t: soon.length === 1 ? `"${soon[0].title}" is due ${BW.fmtDate(soon[0].due, { weekday: 'long' })}` : `${soon.length} tasks are due in the next two days`, s: 'Operations · on your project board', b: 'Open the board', href: 'apps/board/index.html' });
+    const low = stock.filter((i) => BW.num(i.qty) <= BW.num(i.min));
+    if (low.length) add(40, { c: 'tomato', e: '📦', t: `Running low: ${low.slice(0, 3).map((i) => i.name).join(', ')}`, s: 'Operations · time to order', b: 'Open stock', href: 'apps/stock/index.html' });
+    const renewing = subs.filter((x) => x.status !== 'cancelled' && x.nextDate && x.nextDate >= today && x.nextDate <= week);
+    renewing.forEach((x) => add(30, { c: 'grape', e: '🔁', t: `${x.name} renews on ${BW.fmtDate(x.nextDate, { weekday: 'long' })}`, s: 'Operations', amount: BW.money(BW.num(x.amount)), href: 'apps/subscriptions/index.html' }));
+    // A business that has only just started: the first steps, in the order that pays.
+    if (!invoices.length && !clients.length) {
+      if (!s.iban) add(58, { c: 'mint', e: '🏦', t: 'Add your bank details', s: 'Operations · so every invoice says where to pay', b: 'Add them', id: 'settings' });
+      add(57, { c: 'sky', e: '📇', t: 'Add your first client', s: 'Operations · or bring in the list you already have', b: 'Add a client', href: 'apps/clients/index.html#new' });
+      add(56, { c: 'tomato', e: '🧾', t: 'Send your first invoice', s: 'Operations · it takes about a minute', b: 'New invoice', href: 'apps/invoices/index.html#new/invoice' });
+    }
+    needs.sort((a, b) => b.w - a.w);
+    const cards = await ui.yes();
+    const top = needs.filter((n) => n.b).slice(0, Math.max(0, 3 - Math.min(cards.n, 3)));
+    const later = needs.filter((n) => !top.includes(n)).slice(0, 4);
+    BW.partCount('today', top.length + cards.n);
+
+    // The three small cards on the right.
+    const journey = (files.find((f) => f.path === 'memory/marketing-journey.md') || {}).content || '';
+    const stage = Number((journey.match(/\*\*Current stage:\*\*\s*(\d)/) || [])[1]) || 0;
+    const stageName = stage ? ((journey.match(new RegExp(`- \\[[ x]\\] ${stage}\\. (.+?)(?: \\(|$)`, 'm')) || [])[1] || '') : '';
+    const brandCard = stage ? `${ui.k(BW.t('Your brand'))}<h2>${BW.t('Step')} ${stage} ${BW.t('of')} 6: ${esc(BW.t(stageName))}</h2>${ui.dots(stage - 1, 6, true)}`
+      : profile ? `${ui.k(BW.t('Your brand'))}<h2>${pct === 100 ? BW.t('Your brand is on one page') : `${pct}% ${BW.t('of your brand page is filled in')}`}</h2>${ui.gauge(pct, 'sun')}`
+        : `${ui.k(BW.t('Your brand'))}<h2>${BW.t('Not written down yet')}</h2><p class="s">${BW.t('It is the most valuable thing your business owns.')}</p>`;
+    const cells = year.map((m, i) => ({ m, state: inMonth(m).length ? (inMonth(m).every((a) => a.status === 'done') && i === 0 ? 'done' : 'planned') : 'empty', title: inMonth(m).map((a) => a.title).join(' · ') }));
+    const paidNow = invoices.filter((i) => i.kind === 'invoice' && i.status === 'paid' && (i.paidAt || '').startsWith(today.slice(0, 7)));
+    const active = projects.filter((p) => (p.status || 'active') === 'active').length;
+
+    const START = [['🧾', 'Invoice', 'apps/invoices/index.html#new/invoice'], ['💬', 'Quote', 'apps/invoices/index.html#new/quote'], ['⏱️', 'Start the timer', 'apps/time/index.html'],
+      ['📸', 'Receipt', 'apps/expenses/index.html#new'], ['✍️', 'Post', 'apps/marketing/index.html#tab/content']];
+    main.innerHTML = `<div class="today">
+      <div>
+        ${ui.hello(s.ownerName)}
+        <h1 class="big">${BW.t(ui.headline(top.length + cards.n))}</h1>
+        ${cards.html}
+        ${top.map((n, i) => ui.need(n, i)).join('')}
+        ${!top.length && !cards.n ? `<div class="card all-clear">${ui.guide('happy')}<div><b>${BW.t('All caught up. Nice work!')}</b><br><span class="muted">${BW.t('Start something below, or enjoy the quiet.')}</span></div></div>` : ''}
+        ${later.length ? `${ui.k(BW.t('Later this week')).replace('class="k"', 'class="k gap"')}<div class="card flat lines">${later.map((n) => ui.line(`${n.e} ${esc(n.t)}`, n.amount || '', n.href)).join('')}</div>` : ''}
+        ${ui.k(BW.t('Start something')).replace('class="k"', 'class="k gap"')}
+        <div class="start-row">${START.map(([e, l, h]) => `<a class="btn" href="${h}">${e} ${l}</a>`).join('')}<button type="button" class="btn btn-ghost" data-more>${BW.t('More…')}</button></div>
       </div>
-      <p class="tip">💡 Press <kbd>${/Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl'} K</kbd> anywhere to find a client, an invoice or a tool. Press <kbd>?</kbd> for every shortcut.</p>
-      ${GROUPS.map(([title, sub, ids]) => `<div class="section-h"><h2>${title}</h2><small class="faint">${sub}</small></div><div class="tiles rise">${ids.map((id) => tile(byId[id])).join('')}</div>`).join('')}
-      <div class="section-h"><h2>🛠️ On the workbench</h2><small class="faint">Coming to your folder soon</small></div>
-      <div class="tiles rise">${soon.map(tile).join('')}</div>
-      <div class="card home-foot"><span class="emo">🔒</span><div><b>Your business, your files.</b><br><small>Everything is saved in <b>${esc(BW.store.where)}</b>. No account, no server, nothing sent to us.</small></div></div>`;
-    const hide = $('[data-hide]', main); if (hide) hide.onclick = () => { try { localStorage.setItem('bw.hideStart', '1'); } catch (e) { /* ignore */ } render(); };
-    $$('button[data-step]', main).forEach((b) => b.onclick = () => { const go = steps[Number(b.dataset.step)][4]; if (typeof go === 'function') go(); else if (!steps[Number(b.dataset.step)][0]) BW.toast('Use the 📁 button at the top to pick a folder', '📁'); });
-    // Olaf is only in the paid download: without it, the tile goes to the Olaf page.
-    const ot = $('[data-addon="olaf"]', main);
-    // Without Olaf, the home screen says where more help is: register interest, or see the demo.
-    BW.entitlements.edition('olaf').then((ed) => {
-      const up = $('[data-olaf-up]', main), go = up && $('[data-olaf-go]', up);
-      if (!up || ed === 'full' || ed === 'locked') return;
-      if (ed === 'demo') { go.href = 'apps/olaf/index.html'; go.textContent = 'See Olaf in action'; }
-      else { go.href = BW.olafPage() + '#get'; go.target = '_blank'; go.rel = 'noopener'; }
-      up.hidden = false;
-    });
-    // With Olaf installed (the paid app), the brand card opens Olaf: he keeps the plan and does the work with you.
-    const bc = $('[data-brand]', main);
-    if (bc) BW.entitlements.edition('olaf').then((ed) => { if (ed === 'full') bc.href = 'apps/olaf/index.html'; });
-    if (ot) BW.entitlements.edition('olaf').then((ed) => {
-      if (ed === 'full') { ot.querySelector('[data-addon-chip]').remove(); return; }
-      if (ed === 'locked') { ot.querySelector('[data-addon-chip]').textContent = 'Add your licence'; return; }
-      if (ed === 'demo') { ot.querySelector('[data-addon-chip]').textContent = 'Demo'; return; }
-      ot.href = BW.olafPage(); ot.target = '_blank'; ot.rel = 'noopener'; ot.querySelector('.go').innerHTML = 'See Olaf <span>→</span>';
-    });
+      <aside class="side-col">
+        <a class="card" href="brand.html" style="text-decoration:none;color:inherit">${brandCard}</a>
+        <a class="card" href="apps/marketing/index.html" style="text-decoration:none;color:inherit">${ui.k(BW.t("This year's marketing"))}${ui.year(cells)}<p class="s">${planned} ${BW.t('of 12 months have something planned.')}</p></a>
+        <a class="card lines-card" href="operations.html" style="text-decoration:none;color:inherit">${ui.k(BW.t('Money'))}
+          ${ui.line(BW.t('Still to come in'), BW.money(sum(sent)))}${ui.line(BW.t('Came in this month'), BW.money(paidNow.reduce((t, i) => t + BW.invoiceTotals(i).total, 0)))}${ui.line(BW.t('Jobs in progress'), String(active))}</a>
+      </aside></div>`;
+    ui.bindYes(main, render);
+    $$('[data-need]', main).forEach((b) => b.onclick = () => { if (top[Number(b.dataset.need)].id === 'settings') BW.openSettings(); });
+    $('[data-more]', main).onclick = () => BW.openPalette('new');
   }
 })();

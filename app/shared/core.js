@@ -9,7 +9,7 @@
   // The website. build.py puts the real address in the copies it publishes and zips.
   BW.siteUrl = 'https://busywork.example';
   // The release, shown in problem reports and written into the business folder (data/meta.json).
-  BW.version = '0.9.0';
+  BW.version = '2.0.0';
   // A shell around Busy (a desktop or phone app, a test, a hosted version) can set window.BW_HOST
   // before this file loads to bring its own storage driver, platform functions, AI transport or
   // entitlements. A plain browser tab sets nothing and gets the defaults below. See ARCHITECTURE.md.
@@ -80,6 +80,38 @@
     house: { dir: 'house', front: 'door', name: "Tuck's house", guide: { name: 'Tuck', poses: ['hello', 'point', 'happy'], model: 'tuck', size: 1 },
       rooms: { papers: 'papers', contracts: 'contracts', upkeep: 'upkeep', inventory: 'inventory', letters: 'letters', moving: 'moving', binder: 'binder' } },
   };
+  // The frame of version 2: every suite opens on what needs you (its home page), and has three or four parts in
+  // a rail on the left (tabs at the bottom on a phone). A part is one screen; the tools open from inside it.
+  // `tools` says which tools belong to a part, so the rail shows where you are while you work in one.
+  BW.PARTS = {
+    business: [
+      { id: 'today', emoji: '☀️', name: 'Today', href: 'index.html' },
+      { id: 'brand', emoji: '🪧', name: 'Brand', href: 'brand.html', tools: ['brand'] },
+      { id: 'marketing', emoji: '📣', name: 'Marketing', href: 'apps/marketing/index.html', tools: ['marketing'] },
+      { id: 'operations', emoji: '🧰', name: 'Operations', href: 'operations.html', tools: ['invoices', 'clients', 'time', 'expenses', 'money', 'projects', 'board', 'docs', 'subscriptions', 'trips', 'stock'] },
+    ],
+    growth: [
+      { id: 'today', emoji: '☀️', name: 'Today', href: 'growth.html' },
+      { id: 'worth', emoji: '📄', name: 'My worth', href: 'growth-worth.html', tools: ['skills', 'wins'] },
+      { id: 'grow', emoji: '🌱', name: 'Grow', href: 'growth-grow.html', tools: ['learning', 'library', 'review'] },
+      { id: 'sayit', emoji: '🗣️', name: 'Say it', href: 'growth-sayit.html', tools: ['cv', 'stories', 'jobs', 'contacts'] },
+    ],
+    house: [
+      { id: 'today', emoji: '☀️', name: 'This week', href: 'home.html' },
+      { id: 'tray', emoji: '📥', name: 'The tray', href: 'home-tray.html', tools: ['papers', 'inventory'] },
+      { id: 'dates', emoji: '🗓️', name: 'Dates', href: 'home-dates.html', tools: ['contracts', 'upkeep', 'moving'] },
+      { id: 'letters', emoji: '✉️', name: 'Letters', href: 'apps/letters/index.html', tools: ['letters'] },
+      { id: 'binder', emoji: '📕', name: 'Just in case', href: 'apps/binder/index.html', tools: ['binder'] },
+    ],
+  };
+  BW.parts = () => BW.PARTS[BW.suite] || [];
+  BW.partOf = (appId) => BW.parts().find((p) => (p.tools || []).includes(appId)) || null;
+  // Each suite's expert (the paid version), for the card at the foot of the rail.
+  BW.EXPERTS = {
+    business: { id: 'olaf', name: 'Olaf', role: 'Your brand consultant', free: 'He can do these for you.', page: '/business/olaf.html' },
+    growth: { id: 'ivy', name: 'Ivy', role: 'Your career coach', free: 'She finds the words for you.', page: '/growth/#ivy' },
+    house: { id: 'juno', name: 'Juno', role: 'Your household assistant', free: 'She reads the post for you.', page: '/home/#juno' },
+  };
   const tod = () => { const h = new Date().getHours(); return h >= 5 && h < 11 ? '-morning' : h >= 11 && h < 17 ? '' : '-evening'; };
   // The season as on the website's places (shared/scene.js, the same rule): '' in summer, else '-spring', '-autumn' or
   // '-winter'. Brazil's seasons are the other way round. ?season=winter to check.
@@ -99,7 +131,10 @@
     if (!p) return '';
     const name = (BW.settings && BW.settings.businessName) || '';
     const s = p.sign;  // the room sits in a 16:9 frame (.place-frame), so the sign is placed in shares of that
-    const sign = s && name ? `<span class="place-sign" style="left:${s.left}%;width:${s.width}%;top:${s.top}%;height:${s.height}%;--brand:${BW.esc(BW.settings.brandColor || '#FF6B4A')};--len:${Math.max(6, name.length)}"><b>${BW.esc(name)}</b></span>` : '';
+    // A light brand colour (a yellow, say) would vanish on the cream sign: those letters get an ink outline.
+    const hex = /^#([0-9a-f]{6})$/i.exec(BW.settings.brandColor || ''), rgb = hex ? [0, 2, 4].map((i) => parseInt(hex[1].slice(i, i + 2), 16)) : [0, 0, 0];
+    const pale = (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000 > 170;
+    const sign = s && name ? `<span class="place-sign${pale ? ' pale' : ''}" style="left:${s.left}%;width:${s.width}%;top:${s.top}%;height:${s.height}%;--brand:${BW.esc(BW.settings.brandColor || '#FF6B4A')};--len:${Math.max(6, name.length)}"><b>${BW.esc(name)}</b></span>` : '';
     const last = BW.lastTool();
     const back = last ? `<a class="resume" href="${BW.root}apps/${last.id}/index.html">↩ Back to ${last.emoji} ${BW.esc(last.name)}</a>` : '';
     const g = p.guide, pose = g && g.poses && (g.poses.includes(mood) ? mood : g.poses[0]);
@@ -518,6 +553,8 @@
   try { channel = new BroadcastChannel('busywork'); } catch (e) { /* older browser */ }
   const listeners = [];
   BW.onChange = (fn) => listeners.push(fn);
+  // An expert that prepared something (a card, a file) asks the page to draw itself again.
+  BW.refresh = (name = 'expert') => listeners.forEach((fn) => fn(name));
   // other tabs hear of a save through the channel; this page through 'bw:saved' (shared/roomlife.js listens)
   const notify = (name) => {
     if (channel) channel.postMessage({ name });
@@ -1654,30 +1691,84 @@
   };
   BW.loadScript = (src) => new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('Could not load ' + src)); document.body.append(s); });
 
-  function topbar(app) {
+  // The rail: the suite's name, Today and the parts, the search and "new", the expert's card, and at its foot
+  // the folder, the look and the details. On a narrow screen it is a slim bar on top with the parts as tabs below.
+  function topbar(app, part) {
     const theme = THEMES.find((t) => t[0] === (ls.get('bw.theme') || '')) || THEMES[0];
-    const bar = BW.html(`<header class="topbar" data-suite="${BW.suite}"><div class="wrap">
-      <a class="brandmark" href="${BW.root}${suite().home}" title="All tools"><span class="blob">✦</span><span class="word">${suite().name}</span></a>
-      ${app ? `<div class="crumb"><span class="slash">/</span><button type="button" class="switch-btn" data-switch aria-expanded="false" title="Go to another tool"><span>${app.emoji}</span><span class="app-name">${app.name}</span><span class="caret" aria-hidden="true">▾</span></button></div>` : ''}
+    const now = part || (app ? BW.partOf(app.id) : null) || BW.parts()[0];
+    BW.part = now ? now.id : '';
+    const bar = BW.html(`<header class="topbar rail" data-suite="${BW.suite}"><div class="wrap">
+      <a class="brandmark" href="${BW.root}${suite().home}" title="${suite().name}"><span class="blob">✦</span><span class="word">${suite().name}</span></a>
+      <nav class="parts" aria-label="${suite().name}">${BW.parts().map((p) => `<a class="part" href="${BW.root}${p.href}" data-part="${p.id}"${now && p.id === now.id ? ' aria-current="page"' : ''}><span class="pe" aria-hidden="true">${p.emoji}</span><span class="pn">${p.name}</span><small class="pc" data-count="${p.id}" hidden></small></a>`).join('')}</nav>
+      <div class="rail-tools">
+        <button class="part part-find search-btn" data-palette hidden title="Search everything (⌘K)"><span class="pe" aria-hidden="true">🔎</span><span class="pn lbl">Find anything</span><kbd class="lbl">⌘K</kbd></button>
+        <button class="btn btn-primary new-btn" data-new hidden title="Make something new"><span>＋</span><span class="lbl">New</span></button>
+      </div>
       <div class="spacer"></div>
-      <button class="btn btn-ghost search-btn" data-palette hidden title="Search everything (⌘K)"><span>🔍</span><span class="lbl">Search</span><kbd class="lbl">⌘K</kbd></button>
-      <button class="btn btn-primary new-btn" data-new hidden title="Make something new"><span>＋</span><span class="lbl">New</span></button>
-      <button class="icon-btn" data-theme-btn title="Light, dark or automatic">${theme[1]}</button>
-      <button class="btn btn-ghost store-chip" data-store hidden><span>📁</span><span class="lbl"></span></button>
-      <button class="btn settings-btn" data-settings hidden title="${suite().details}"><span class="emo">⚙️</span><span class="lbl">${suite().details}</span></button>
+      <div class="rail-helper" data-helper hidden></div>
+      <div class="rail-foot">
+        <button class="btn btn-ghost store-chip" data-store hidden><span>📁</span><span class="lbl"></span></button>
+        <button class="icon-btn" data-theme-btn title="Light, dark or automatic">${theme[1]}</button>
+        <button class="icon-btn settings-btn" data-settings hidden title="${suite().details}" aria-label="${suite().details}"><span class="emo">⚙️</span></button>
+      </div>
     </div></header>`);
     document.body.prepend(bar);
+    document.body.classList.add('has-rail');
+    // Notices (a read-only warning, the demo's bar) sit above the page, never inside the rail.
+    bar.after(BW.html('<div class="notices" data-notices></div>'));
     BW.$('[data-theme-btn]', bar).onclick = BW.cycleTheme;
-    if (app) switcher(bar, app);
+    if (app && !(now && !part && now.href === `apps/${app.id}/index.html`)) {
+      // A tool says which part it belongs to, and offers the other tools of that part.
+      const pagebar = BW.html(`<div class="pagebar"><div class="wrap">${now && now.id !== 'today' ? `<a class="back" href="${BW.root}${now.href}"><span aria-hidden="true">${now.emoji}</span> ${now.name}</a><span class="slash">/</span>` : ''}
+        <button type="button" class="switch-btn" data-switch aria-expanded="false" title="Go to another tool"><span>${app.emoji}</span><span class="app-name">${app.name}</span><span class="caret" aria-hidden="true">▾</span></button></div></div>`);
+      BW.$('[data-notices]').after(pagebar);
+      switcher(pagebar, app, now);
+    }
+    helper(bar);
     return bar;
+  }
+  BW.notices = () => BW.$('[data-notices]') || document.body;
+  // A number beside a part in the rail ("3" beside Today): the pages set it once they know.
+  BW.partCount = (id, n) => BW.$$(`[data-count="${id}"]`).forEach((el) => { el.textContent = n ? String(n) : ''; el.hidden = !n; });
+
+  // The card at the foot of the rail: the suite's expert. In the free app it says what the expert would do and where
+  // to see it; an edition that carries the expert (BW_HOST.helper, or the expert's own page being there) opens it.
+  async function helper(bar) {
+    const box = BW.$('[data-helper]', bar), x = BW.EXPERTS[BW.suite];
+    if (!box || !x) return;
+    let here = false;
+    try {
+      if (x.id === 'olaf') { const ed = await BW.entitlements.edition('olaf'); here = ed === 'full' || ed === 'locked' || ed === 'demo'; }
+      else here = !!(BW.apps.find((a) => a.id === x.id) || {}).ready;
+    } catch (e) { /* no expert in this edition */ }
+    const pic = here ? `${BW.root}apps/${x.id}/room/${x.id}-hello.png` : '';
+    box.innerHTML = `${pic ? `<img src="${pic}" alt="" data-pic>` : '<span class="he" aria-hidden="true">✦</span>'}<b>${x.name}</b><span>${BW.t(x.role)}. ${here ? '' : BW.t(x.free)}</span>
+      <a class="go" ${here ? `href="${BW.root}apps/${x.id}/index.html"` : `href="${BW.siteUrl}${x.page}" target="_blank" rel="noopener"`}>${here ? BW.t('Open') + ' ' + x.name : BW.t('See how')} →</a>`;
+    const img = BW.$('[data-pic]', box); if (img) img.onerror = () => img.remove();
+    box.hidden = false;
+    if (host.helper) { try { await host.helper(box, x); } catch (e) { console.info('The expert card stays as it is:', e && e.message); } }
+    if (BW.expertLink) BW.expertLink.paint();
+  }
+
+  // An edition that carries the expert also carries the expert's link to the person's own Claude (room/link.js):
+  // prepared work as cards on Today, and the card in the rail. The free apps have no such file and load nothing.
+  async function expertLink() {
+    const x = BW.EXPERTS[BW.suite];
+    if (!x || BW.expertLink) return;
+    try {
+      // (the website demo shows pretend cards for every expert: host.expertDemo)
+      const here = host.expertDemo || (x.id === 'olaf' ? ['full', 'demo'].includes(await BW.entitlements.edition('olaf')) : !!(BW.apps.find((a) => a.id === x.id) || {}).ready);
+      if (here) await BW.loadScript(`${BW.root}apps/${x.id}/room/link.js`);
+    } catch (e) { console.info('No link to Claude in this copy:', e && e.message); }
   }
 
   // The crumb opens the suite's other tools, each with its room, so moving between tools doesn't mean a trip home.
-  function switcher(bar, app) {
+  function switcher(bar, app, part) {
     const btn = BW.$('[data-switch]', bar);
-    const list = BW.suiteApps().filter((a) => a.ready && !a.addon);
+    const mine = part && part.tools ? part.tools : null;
+    const list = BW.suiteApps().filter((a) => a.ready && !a.addon && (!mine || mine.includes(a.id)));
     const menu = BW.html(`<nav class="switcher" aria-label="${suite().name} tools" hidden>
-      <a class="sw-home" href="${BW.root}${suite().home}">🏠 All of ${suite().name}</a>
+      ${part && part.id !== 'today' ? `<a class="sw-home" href="${BW.root}${part.href}">${part.emoji} ${part.name}</a>` : `<a class="sw-home" href="${BW.root}${suite().home}">☀️ ${suite().name}</a>`}
       ${list.map((a) => `<a href="${BW.root}apps/${a.id}/index.html"${a.id === app.id ? ' aria-current="page"' : ''}>${BW.roomPic(a.id)}<span class="sw-emo">${a.emoji}</span><span class="sw-txt"><b>${BW.esc(a.name)}</b><small>${BW.esc(a.tagline)}</small></span></a>`).join('')}</nav>`);
     bar.append(menu);
     const links = () => BW.$$('a', menu);
@@ -1720,15 +1811,16 @@
     } catch (e) { console.info('The room stays as rendered:', e && e.message); }
   }, 300);
   // Every page calls this once: draws the top bar, connects storage, runs first-time setup, then hands over.
-  BW.boot = async ({ app: appId, onReady, onChange } = {}) => {
+  BW.boot = async ({ app: appId, part: partId, onReady, onChange } = {}) => {
     BW.root = document.body.dataset.root || '';
     const app = BW.apps.find((a) => a.id === appId);
     BW.suite = document.body.dataset.suite || (app && app.suite) || 'business';
     if (BW.suite === 'business') BW.olafInstalled(); // early, so tip cards know whether Olaf is here
-    const bar = topbar(app);
+    const bar = topbar(app, BW.parts().find((p) => p.id === (partId || document.body.dataset.part || (location.search.match(/[?&]part=([a-z]+)/) || [])[1])));
     // A tool page opens with a band of the room it lives in; the home screen is called after the suite.
-    if (app && BW.roomOf(app.id)) bar.after(BW.html(`<div class="room-band" aria-hidden="true" style="background-image:url('${BW.roomOf(app.id)}')"></div>`));
-    if (app && LIVE_ROOMS.includes(app.id) && BW.roomOf(app.id)) roomLife(app.id, bar.nextElementSibling);
+    const band = app && BW.roomOf(app.id) ? BW.html(`<div class="room-band" aria-hidden="true" style="background-image:url('${BW.roomOf(app.id)}')"></div>`) : null;
+    if (band) (BW.$('.pagebar') || BW.notices()).after(band);
+    if (band && LIVE_ROOMS.includes(app.id)) roomLife(app.id, band);
     if (!app) document.title = suite().name;
     else try { localStorage.setItem(lastKey(), JSON.stringify({ id: app.id, at: Date.now() })); } catch (e) { /* private window */ }
     try {
@@ -1738,13 +1830,13 @@
       if (drv.kind === 'browser') {
         if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
         const warn = BW.html(`<div class="readonly-bar" role="status">⚠️ ${BW.t(`Your ${suite().noun} is saved only in this browser: clearing your browsing data would delete it.`)} ${BW.canUseFolders ? '<button class="link" data-move>Move it to a folder</button>' : '<button class="link" data-backup>Download a backup</button>'}</div>`);
-        bar.append(warn);
+        BW.notices().append(warn);
         const mv = BW.$('[data-move]', warn); if (mv) mv.onclick = moveToFolder;
         const bk = BW.$('[data-backup]', warn); if (bk) bk.onclick = backup;
       }
       if (data.status === 'newer') {
         readOnly = 'This business was last saved by a newer version of Busy, so this copy only shows it. Download the latest version of Busy to make changes.';
-        bar.append(BW.html(`<div class="readonly-bar" role="status">🔒 ${readOnly}</div>`));
+        BW.notices().append(BW.html(`<div class="readonly-bar" role="status">🔒 ${readOnly}</div>`));
       }
       BW.settings = await BW.store.settings();
       // Changes reach the page only once it has its settings: a change during start-up has nothing to redraw yet.
@@ -1763,8 +1855,11 @@
     const nb = BW.$('[data-new]', bar); nb.hidden = false; nb.onclick = () => BW.openPalette('new');
     if (/Mac|iPhone|iPad/.test(navigator.platform)) BW.$('kbd', pb).textContent = '⌘K'; else BW.$('kbd', pb).textContent = 'Ctrl K';
     try { await BW.runRecurring(); } catch (e) { console.warn('Recurring invoices skipped', e); }
+    // The expert's link normally arrives at once; a slow disk never keeps the page waiting for it.
+    await Promise.race([expertLink(), new Promise((ok) => setTimeout(ok, 1500))]);
     if (onReady) { try { await onReady(); } catch (e) { BW.error(e); } }
-    const ad = BW.adSlot(appId);
+    // The sponsor slot sits under a tool, never on Today or a part's own screen.
+    const ad = app ? BW.adSlot(appId) : null;
     if (ad) document.body.append(ad);
     autoBackup();
     installable();

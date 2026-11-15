@@ -12,6 +12,32 @@
 
   let files = new Map(); // path → record
 
+  // The daily operations as Olaf reads them: who owes what, what is ready to go out, where the hours went.
+  async function operations() {
+    const today = BW.today(), month = today.slice(0, 7);
+    const [invoices, clients, time, expenses] = await Promise.all(['invoices', 'clients', 'time', 'expenses'].map((n) => BW.store.all(n)));
+    const days = (a, b) => Math.round((new Date(b + 'T12:00:00') - new Date(a + 'T12:00:00')) / 864e5);
+    const name = (i) => (i.client && i.client.name) || (clients.find((c) => c.id === i.clientId) || {}).name || '';
+    const about = (i) => ((i.items || [])[0] || {}).desc || '';
+    const inv = invoices.filter((i) => i.kind === 'invoice');
+    const mins = (d) => { const m = String(d || '').match(/^(\d+):(\d\d)$/); return m ? Number(m[1]) * 60 + Number(m[2]) : Math.round(BW.num(d) * 60); };
+    const unbilled = {};
+    time.filter((t) => t.billable !== false && !t.invoiceId && t.clientId).forEach((t) => { unbilled[t.clientId] = (unbilled[t.clientId] || 0) + mins(t.dur); });
+    const open = {};
+    inv.filter((i) => i.status === 'sent').forEach((i) => { open[i.clientId] = (open[i.clientId] || 0) + BW.balanceOf(i); });
+    return {
+      today, currency: BW.settings.currency,
+      waitingForPayment: inv.filter((i) => i.status === 'sent' && BW.balanceOf(i) > 0).map((i) => ({ number: i.number, client: name(i), about: about(i), stillOpen: BW.balanceOf(i), due: i.dueDate, daysLate: Math.max(0, days(i.dueDate, today)), remindersSent: (i.reminders || []).map((r) => `${r.date} (${r.tone || 'friendly'})`) })),
+      draftsNotSent: inv.filter((i) => i.status === 'draft').map((i) => ({ number: i.number, client: name(i), about: about(i), total: BW.invoiceTotals(i).total })),
+      quotesOut: invoices.filter((i) => i.kind === 'quote' && i.status === 'sent').map((i) => ({ number: i.number, client: name(i), about: about(i), total: BW.invoiceTotals(i).total, validUntil: i.validUntil || '' })),
+      paidThisMonth: inv.flatMap((i) => BW.paymentsOf(i).filter((p) => (p.date || '').startsWith(month)).map((p) => ({ client: name(i), amount: BW.num(p.amount), date: p.date }))),
+      spentThisMonth: Math.round(expenses.filter((e) => (e.date || '').startsWith(month)).reduce((t, e) => t + BW.num(e.amount), 0) * 100) / 100,
+      hoursNotInvoiced: Object.entries(unbilled).filter(([, m]) => m > 0).map(([id, m]) => ({ client: (clients.find((c) => c.id === id) || {}).name || '', hours: Math.round(m / 6) / 10 })),
+      clients: clients.map((c) => ({ name: c.name, contact: c.contact || '', foundUsThrough: c.source || '', paysWithinDays: BW.num(c.paymentDays) || BW.num(BW.settings.paymentDays) || 14, stillOpen: Math.round((open[c.id] || 0) * 100) / 100 })),
+      note: invoices.length ? undefined : 'No invoices or quotes yet.',
+    };
+  }
+
   const ws = (BW.olafWs = {
     WRITABLE,
     async load() {
@@ -82,6 +108,8 @@
         input_schema: { type: 'object', properties: { path: { type: 'string', description: 'Folder, e.g. "memory/"' } }, required: ['path'] } },
       { name: 'read_file', description: 'Read a file from your workspace, e.g. "brand-documents/brand-voice.md" or "skills/content-writer/references/x.md".',
         input_schema: { type: 'object', properties: { path: { type: 'string' } }, required: ['path'] } },
+      { name: 'use_skill', description: 'Read the full instructions of one of your skills. Call it before you do a job that one of your skills covers, unless that skill is already in your instructions: the skill holds the steps, the tools to use and the limits. The answer also lists the skill\'s reference files, which you read with read_file when the skill points at them.',
+        input_schema: { type: 'object', properties: { skill: { type: 'string', description: 'The skill id, from the list in your instructions' } }, required: ['skill'] } },
       { name: 'write_file', description: 'Create or replace a file in brand-documents/, memory/, output/ or content-inbox/. Replaces the whole file, so read it first when you are extending it. Deliverables go in output/ with a descriptive name ending in .md.',
         input_schema: { type: 'object', properties: { path: { type: 'string' }, content: { type: 'string' } }, required: ['path', 'content'] } },
       { name: 'business_numbers', description: 'The owner\'s marketing numbers in one go, the same as their Insights page: new customers, active customers, revenue and spend per month from invoices and the plan; where new customers came from; cost per new customer; repeat share; the monthly numbers recorded on the dashboard; and the observations the dashboard shows. Use for check-ins and monthly reviews.',
@@ -130,6 +158,16 @@
       { name: 'project_log_add', description: 'Write to a project\'s log: a risk (likelihood and impact 1 to 3, a next step, an owner), a decision (what and why) or a weekly update (health and text). Pass the id of an existing risk to change it, for example to close it.',
         input_schema: { type: 'object', properties: { projectId: { type: 'string' }, kind: { type: 'string', enum: ['risk', 'decision', 'update'] }, id: { type: 'string', description: 'An existing entry to change' }, title: { type: 'string' }, text: { type: 'string' },
           likelihood: { type: 'number' }, impact: { type: 'number' }, next: { type: 'string' }, owner: { type: 'string' }, state: { type: 'string', enum: ['open', 'closed'] }, health: { type: 'string', enum: ['green', 'amber', 'red'] } }, required: ['projectId', 'kind'] } },
+      { name: 'operations_overview', description: 'The daily operations in one go: invoices waiting for payment (with days late and reminders sent), drafts not sent yet, quotes that are out, what was paid and spent this month, billable hours not on an invoice yet, and every client with what is still open. Read it before you say anything about money, a client or a quote.',
+        input_schema: { type: 'object', properties: {} } },
+      { name: 'invoice_get', description: 'One invoice or quote in full: its lines, dates, payments and reminders. Find it by its number (as in operations_overview) or its id.',
+        input_schema: { type: 'object', properties: { number: { type: 'string', description: 'The number, e.g. 2026-014, or the id' } }, required: ['number'] } },
+      { name: 'invoice_draft', description: 'Prepare an invoice or a quote as a draft for the owner to check and send from Invoices & Quotes. Never sends anything. The client must already be in the Client Book (use the exact name from operations_overview). Prices are without VAT; leave vat out to use the business\'s usual rate.',
+        input_schema: { type: 'object', properties: { kind: { type: 'string', enum: ['invoice', 'quote'] }, client: { type: 'string', description: 'Client name, exactly as in the Client Book' },
+          items: { type: 'array', items: { type: 'object', properties: { desc: { type: 'string' }, qty: { type: 'number' }, price: { type: 'number', description: 'Price for one, without VAT' }, vat: { type: 'number', description: 'VAT percentage' } }, required: ['desc', 'price'] } },
+          notes: { type: 'string', description: 'A line for the client at the foot of the document' } }, required: ['kind', 'client', 'items'] } },
+      { name: 'document_add', description: 'Save a letter, a payment reminder or a short message for a client in the Document Maker, ready for the owner to read and send. Never sends anything. For a reminder, name the invoice in the title.',
+        input_schema: { type: 'object', properties: { title: { type: 'string' }, body: { type: 'string', description: 'The whole text, in the client\'s language' }, client: { type: 'string', description: 'Client name, if it is for one' }, reminder: { type: 'boolean', description: 'True when this is a payment reminder' } }, required: ['title', 'body'] } },
       { name: 'check_voice', description: 'Check text before it goes to the owner as final copy: reports em dashes and stock AI words and phrases that make writing read as machine-made. Fix everything it reports.',
         input_schema: { type: 'object', properties: { text: { type: 'string' } }, required: ['text'] } },
     ],
@@ -137,6 +175,12 @@
       input = input || {};
       try {
         if (name === 'list_dir') { const l = ws.list(input.path || ''); return l.length ? l.join('\n') : '(empty)'; }
+        if (name === 'use_skill') {
+          const sk = LIB.skills.find((x) => x.id === input.skill);
+          if (!sk) return err(`There is no skill called ${input.skill}. Pick an id from the list in your instructions.`);
+          const refs = Object.keys(LIB.refs).filter((k) => k.startsWith('skills/' + sk.id + '/'));
+          return `## The skill: ${sk.id}\n\n${sk.description}\n\nFollow these instructions:\n\n${sk.body}` + (refs.length ? `\n\n## Reference files for this skill (read_file)\n\n${refs.join('\n')}` : '');
+        }
         if (name === 'read_file') {
           if (!READABLE.some((d) => norm(input.path || '').startsWith(d))) return err(`You can read ${READABLE.join(', ')}`);
           const c = ws.read(input.path || '');
@@ -148,6 +192,39 @@
           const d = await BW.mktInsights.load(), c = BW.mktInsights.compute(d);
           return JSON.stringify(Object.assign(BW.mktInsights.facts(c, d), { totalCustomersEver: c.customersEver, observations: BW.mktInsights.observations(d, c).map((o) => o.text),
             note: c.customersEver ? undefined : 'No sent invoices yet: ask the owner for their numbers instead.' }), null, 1);
+        }
+        if (name === 'operations_overview') return JSON.stringify(await operations(), null, 1);
+        if (name === 'invoice_get') {
+          const key = String(input.number || '').trim();
+          const i = (await BW.store.all('invoices')).find((x) => x.id === key || x.number === key);
+          if (!i) return err('No invoice or quote with that number. Use operations_overview to see them.');
+          const t = BW.invoiceTotals(i);
+          return JSON.stringify({ id: i.id, number: i.number, kind: i.kind, status: i.status, client: (i.client || {}).name || '', issued: i.issueDate, due: i.dueDate || '', validUntil: i.validUntil || '',
+            lines: (i.items || []).map((it) => ({ desc: it.desc, qty: BW.num(it.qty), price: BW.num(it.price), vat: BW.num(it.vat) })), subtotal: t.subtotal, vat: t.vatTotal, total: t.total, stillOpen: i.kind === 'invoice' ? BW.balanceOf(i) : undefined,
+            payments: BW.paymentsOf(i), reminders: i.reminders || [], notes: i.notes || '' }, null, 1);
+        }
+        if (name === 'invoice_draft') {
+          const kind = input.kind === 'quote' ? 'quote' : 'invoice';
+          const clients = await BW.store.all('clients'), want = String(input.client || '').trim().toLowerCase();
+          const c = clients.find((x) => (x.name || '').toLowerCase() === want) || clients.find((x) => want && (x.name || '').toLowerCase().includes(want));
+          if (!c) return err(`There is no client called "${input.client}". The Client Book has: ${clients.map((x) => x.name).join(', ') || 'nobody yet'}. Ask the owner to add them first.`);
+          const items = (Array.isArray(input.items) ? input.items : []).filter((it) => it && it.desc);
+          if (!items.length) return err('Give at least one line with a description and a price.');
+          const usual = BW.vatRates()[0] != null ? BW.vatRates()[0] : 0, all = await BW.store.all('invoices'), today = BW.today();
+          const rec = { kind, status: 'draft', currency: BW.settings.currency, clientId: c.id, lang: c.lang || '', notes: String(input.notes || ''), reverseCharge: false, issueDate: today,
+            client: Object.fromEntries(['name', 'contact', 'email', 'address', 'postcode', 'city', 'country', 'vat'].map((f) => [f, c[f] || ''])),
+            items: items.map((it) => ({ id: BW.uid(), desc: String(it.desc), qty: it.qty == null ? 1 : BW.num(it.qty), price: BW.num(it.price), vat: it.vat == null ? usual : BW.num(it.vat) })) };
+          if (kind === 'quote') rec.validUntil = BW.addDays(today, BW.num(BW.settings.quoteDays) || 30); else rec.dueDate = BW.addDays(today, BW.num(c.paymentDays) || BW.num(BW.settings.paymentDays) || 14);
+          rec.number = BW.nextNumber(all, kind, today.slice(0, 4));
+          const saved = await BW.store.put('invoices', rec);
+          return `A draft ${kind} ${saved.number} for ${c.name} is in Invoices & Quotes: ${BW.invoiceTotals(saved).total.toFixed(2)} ${BW.settings.currency} with VAT. The owner checks it and sends it.`;
+        }
+        if (name === 'document_add') {
+          if (!String(input.title || '').trim() || !String(input.body || '').trim()) return err('A document needs a title and a text.');
+          const clients = await BW.store.all('clients'), want = String(input.client || '').trim().toLowerCase();
+          const c = want ? clients.find((x) => (x.name || '').toLowerCase() === want) || clients.find((x) => (x.name || '').toLowerCase().includes(want)) : null;
+          const d = await BW.store.put('documents', { templateId: input.reminder ? 'reminder' : 'letter', clientId: c ? c.id : '', title: String(input.title).trim(), body: String(input.body) });
+          return `Saved "${d.title}" in the Document Maker${c ? ' for ' + c.name : ''}. The owner reads it and sends it.`;
         }
         if (name === 'check_voice') return voiceCheck(String(input.text || ''));
         if (name === 'content_list') { const l = (await BW.store.all('mktcontent')).filter((x) => !input.from || x.date >= input.from).sort((a, b) => a.date.localeCompare(b.date)); return l.length ? JSON.stringify(l.map(({ id, date, channel, title, text, status, cep, by }) => ({ id, date, channel, title, text, status, cep, by })), null, 1) : 'The content calendar is empty.'; }

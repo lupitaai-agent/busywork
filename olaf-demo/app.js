@@ -35,8 +35,8 @@
   });
 
   const skill = (id) => LIB.skills.find((s) => s.id === id);
-  const pretty = (id) => id.split('-').map((w) => w[0].toUpperCase() + w.slice(1)).join(' ').replace(/\bIcp\b/, 'ICP').replace(/\bSeo\b/, 'SEO').replace(/\bGeo\b/, 'GEO').replace(/\bPr\b/, 'PR').replace(/\bAb\b/, 'A/B');
-  const short = (s, n) => { s = String(s || ''); const cut = s.split(/(?<=\.)\s/)[0]; return (cut.length < n ? cut : s.slice(0, n).replace(/\s\S*$/, '') + '…'); };
+  const pretty = (id) => (id || 'ask-olaf').split('-').map((w) => w[0].toUpperCase() + w.slice(1)).join(' ').replace(/\bIcp\b/, 'ICP').replace(/\bSeo\b/, 'SEO').replace(/\bGeo\b/, 'GEO').replace(/\bPr\b/, 'PR').replace(/\bAb\b/, 'A/B');
+  const short = (s, n) => { s = String(s || '').replace(/[\u2e80-\u9fff\uff00-\uffef]+[^.]*$/, '').trim(); const cut = s.split(/(?<=\.)\s/)[0]; return (cut.length < n ? cut : s.slice(0, n).replace(/\s\S*$/, '') + '…'); };
 
   // ---------- frame ----------
   function render() {
@@ -301,7 +301,7 @@
 
   function ask() {
     const box = BW.html('<div><textarea class="in" data-q rows="4" placeholder="e.g. Should I start a loyalty card? Is TikTok worth it for a bike shop?"></textarea></div>');
-    BW.modal({ title: '🧭 Ask Olaf', body: box, actions: [{ label: 'Ask', kind: 'primary', onClick: () => { const q = $('[data-q]', box).value.trim(); if (q) start('marketing-journey', 'A question: ' + q); } }] });
+    BW.modal({ title: '🧭 Ask Olaf', body: box, actions: [{ label: 'Ask', kind: 'primary', onClick: () => { const q = $('[data-q]', box).value.trim(); if (q) start('', q); } }] });
     setTimeout(() => $('[data-q]', box).focus(), 50);
   }
 
@@ -310,13 +310,17 @@
     const s = skill(id);
     return s ? `<button class="card skill" data-skill="${s.id}"><span><b>${esc(pretty(s.id))}</b><small>${esc(short(s.description.replace(/^When (the|an?) (user|owner) wants to /i, 'For when you want to '), 130))}</small></span></button>` : '';
   }
+  // Groups a small-business owner rarely needs: kept, and folded away (the same test as in agent.js).
+  const SHELF = /website, search|launches, ads|numbers & upkeep/i;
   function viewSkills(v) {
     const q = query.toLowerCase(), groups = GROUPS;
     const match = (id) => { const s = skill(id); return s && (!q || (s.id + ' ' + s.description).toLowerCase().includes(q)); };
     v.innerHTML = `
       <div class="row-flex" style="margin-bottom:6px"><label class="search" style="flex:1;max-width:420px"><input class="in" type="search" data-q placeholder="Find a skill: reviews, Google, newsletter…" value="${esc(query)}" aria-label="Find a skill"></label>
         <small class="faint">${LIB.skills.length} skills, all on the marketing foundation</small></div>
-      <div class="skill-groups">${groups.map(([label, ids]) => { const l = ids.filter(match); return l.length ? `<h2>${label}</h2><div class="skill-grid">${l.map(skillCard).join('')}</div>` : ''; }).join('')}</div>
+      <div class="skill-groups">${groups.filter(([label]) => !SHELF.test(label)).map(([label, ids]) => { const l = ids.filter(match); return l.length ? `<h2>${label}</h2><div class="skill-grid">${l.map(skillCard).join('')}</div>` : ''; }).join('')}
+        ${(() => { const shelf = groups.filter(([label]) => SHELF.test(label)).map(([label, ids]) => [label, ids.filter(match)]).filter(([, l]) => l.length); const n = shelf.reduce((t, [, l]) => t + l.length, 0);
+          return n ? `<details class="skill-shelf"${q ? ' open' : ''}><summary><h2 style="display:inline">🧰 Specialist skills</h2> <small class="faint">${n} for bigger marketing jobs: search, ads, launches, numbers</small></summary>${shelf.map(([label, l]) => `<h3>${label}</h3><div class="skill-grid">${l.map(skillCard).join('')}</div>`).join('')}</details>` : ''; })()}</div>
       <div style="height:40px"></div>`;
     const qi = $('[data-q]', v);
     qi.oninput = BW.debounce(() => { query = qi.value; viewSkills(v); const n = $('[data-q]', v); n.focus(); n.setSelectionRange(n.value.length, n.value.length); }, 150);

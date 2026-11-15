@@ -1,37 +1,107 @@
 {
  "about": "What changed in Busy, newest first. build.py makes the What's new page (updates.html) and the RSS feed (feed.xml) from it. Add each release here when it goes out.",
  "updates": [
-  {"version": "1.0", "date": "2026-11-12", "title": "Olaf, Ivy and Juno are here, and so is the whole of Busy Street",
-   "items": ["Each suite now also comes as a paid app with its AI expert inside: Busy Business with Olaf, Busy Growth with Ivy and Busy Home with Juno. You buy one once, on itch.io, and the expert runs on your own Claude key.",
-             "The free tools stay free, with no AI and no account. Nothing about them has changed.",
-             "Busy Street: Tuck's Errand has a full edition with 15 levels: the street and nine worlds. Busy Street 3D is out for Mac.",
-             "The paid apps and both games are in English, Dutch, German, Spanish, Italian and Brazilian Portuguese.",
-             "The website has a new page, Free and paid, and a short film of every app."]},
-  {"version": "0.9.7", "date": "2026-11-10", "title": "Busy Business starts with your brand",
-   "items": ["Busy Business opens on your brand: a brand card first, then your tools in three groups: Grow, Deliver and Run.",
-             "In Busy Home's Just in Case binder, a contract or a document now opens in its own tool when you click it.",
-             "Safer apps: a file Busy opens for you is only ever a document or a picture, and two windows can't trip over the same file.",
-             "The website says plainly what is free and what will be paid: the tools stay free, and a paid version with an AI expert is coming."]},
-  {"version": "0.9.6", "date": "2026-11-06", "title": "A new free game: Busy Street: Tuck's Errand", "items": ["Tuck only went out to get a stamp back. Six levels, six friends to cut loose from the Red Tape.", "Play it in your browser, or download it for Mac and Windows with a film at the start and end of every level.", "The AI experts are coming later, so the site no longer shows prices for them."]},
-  {"version": "0.9.5", "date": "2026-11-03", "title": "Puzzles in their room, and every screen in your language",
-   "items": ["Play the puzzles in their room: on each game, tap In the room for a real wooden board in the Puzzle Parlour.",
-             "Every place opens with a short film, and follows the seasons: spring, summer, autumn and winter.",
-             "Rooms that follow your own work: boxes on the stock shelves, unpaid invoices in the pigeonholes, a leaf on the trellis for every skill, and a drawer label that glows before a document expires.",
-             "Every screen now speaks your language, Olaf, Ivy and Juno included."]},
-  {"version": "0.9.4", "date": "2026-11-02", "title": "Busy speaks your language",
-   "items": ["Busy now speaks Dutch, German, Spanish, Italian and Brazilian Portuguese as well as English.",
-             "Local rules for each country: the right currency and VAT rates, invoices and reminders in six languages, and letters that name your country's law."]},
-  {"version": "0.9.3", "date": "2026-11-01", "title": "Your guide is alive",
-   "items": ["Rivet, Pim and Tuck now stand in the room on your home screen, and turn their head to follow you.",
-             "The rooms follow the clock: in the morning, by day or in the evening, with the light to match."]},
-  {"version": "0.9.2", "date": "2026-11-01", "title": "A guide who says what needs you",
-   "items": ["Your guide says one line on the home screen about what needs you most, like the last day to cancel a contract or an overdue invoice.",
-             "The rooms look better, with proper objects: the van, the counter, the glasshouse door, the jar of wins."]},
-  {"version": "0.9.1", "date": "2026-10-31", "title": "Every app has its own place",
-   "items": ["Each app opens in its own place: the Workshop, the Glasshouse, Tuck's house and the Puzzle Parlour.",
-             "Every tool has its own room, and the top bar jumps straight to any other tool."]},
-  {"version": "0.9.0", "date": "2026-10-27", "title": "Busy as free apps for Mac and Windows",
-   "items": ["Busy Business, Busy Growth, Busy Home and Busy Games as free apps for Mac and Windows, one for each part of your life.",
-             "Your files stay in your own folder as plain files. No account, nothing sent to us."]}
+  {
+   "version": "2.0",
+   "date": "2026-11-15",
+   "title": "Busy with what matters: every app opens on what needs you today",
+   "items": [
+    "Each app now opens on Today: the three things that most need you, and nothing else. The tools sit behind a few clear parts: Brand, Marketing and Operations in Busy Business; My worth, Grow and Say it in Busy Growth; the tray, Dates, Letters and Just in case in Busy Home.",
+    "Busy Business has your brand on one page and a road for every job, from quote to paid. Busy Growth lays out your notes for a review, the case for a raise and your thirty seconds. Busy Home has a tray for the post and one list of every date at home.",
+    "The experts have a clearer job: Olaf, your brand consultant; Ivy, your career coach; Juno, your household assistant. Each prepares the work and waits for your yes.",
+    "New in the paid apps: the expert works on the Claude you already have. You add it to your own Claude app in three steps, with no key. A Claude API key still works.",
+    "Olaf can now read your invoices, quotes, clients and hours, and prepare a draft or a reminder for you to send.",
+    "The free tools stay free, with no AI and no account. Everything is in English, Dutch, German, Spanish, Italian and Brazilian Portuguese."
+   ]
+  },
+  {
+   "version": "1.0",
+   "date": "2026-11-12",
+   "title": "Olaf, Ivy and Juno are here, and so is the whole of Busy Street",
+   "items": [
+    "Each suite now also comes as a paid app with its AI expert inside: Busy Business with Olaf, Busy Growth with Ivy and Busy Home with Juno. You buy one once, on itch.io, and the expert runs on your own Claude key.",
+    "The free tools stay free, with no AI and no account. Nothing about them has changed.",
+    "Busy Street: Tuck's Errand has a full edition with 15 levels: the street and nine worlds. Busy Street 3D is out for Mac.",
+    "The paid apps and both games are in English, Dutch, German, Spanish, Italian and Brazilian Portuguese.",
+    "The website has a new page, Free and paid, and a short film of every app."
+   ]
+  },
+  {
+   "version": "0.9.7",
+   "date": "2026-11-10",
+   "title": "Busy Business starts with your brand",
+   "items": [
+    "Busy Business opens on your brand: a brand card first, then your tools in three groups: Grow, Deliver and Run.",
+    "In Busy Home's Just in Case binder, a contract or a document now opens in its own tool when you click it.",
+    "Safer apps: a file Busy opens for you is only ever a document or a picture, and two windows can't trip over the same file.",
+    "The website says plainly what is free and what will be paid: the tools stay free, and a paid version with an AI expert is coming."
+   ]
+  },
+  {
+   "version": "0.9.6",
+   "date": "2026-11-06",
+   "title": "A new free game: Busy Street: Tuck's Errand",
+   "items": [
+    "Tuck only went out to get a stamp back. Six levels, six friends to cut loose from the Red Tape.",
+    "Play it in your browser, or download it for Mac and Windows with a film at the start and end of every level.",
+    "The AI experts are coming later, so the site no longer shows prices for them."
+   ]
+  },
+  {
+   "version": "0.9.5",
+   "date": "2026-11-03",
+   "title": "Puzzles in their room, and every screen in your language",
+   "items": [
+    "Play the puzzles in their room: on each game, tap In the room for a real wooden board in the Puzzle Parlour.",
+    "Every place opens with a short film, and follows the seasons: spring, summer, autumn and winter.",
+    "Rooms that follow your own work: boxes on the stock shelves, unpaid invoices in the pigeonholes, a leaf on the trellis for every skill, and a drawer label that glows before a document expires.",
+    "Every screen now speaks your language, Olaf, Ivy and Juno included."
+   ]
+  },
+  {
+   "version": "0.9.4",
+   "date": "2026-11-02",
+   "title": "Busy speaks your language",
+   "items": [
+    "Busy now speaks Dutch, German, Spanish, Italian and Brazilian Portuguese as well as English.",
+    "Local rules for each country: the right currency and VAT rates, invoices and reminders in six languages, and letters that name your country's law."
+   ]
+  },
+  {
+   "version": "0.9.3",
+   "date": "2026-11-01",
+   "title": "Your guide is alive",
+   "items": [
+    "Rivet, Pim and Tuck now stand in the room on your home screen, and turn their head to follow you.",
+    "The rooms follow the clock: in the morning, by day or in the evening, with the light to match."
+   ]
+  },
+  {
+   "version": "0.9.2",
+   "date": "2026-11-01",
+   "title": "A guide who says what needs you",
+   "items": [
+    "Your guide says one line on the home screen about what needs you most, like the last day to cancel a contract or an overdue invoice.",
+    "The rooms look better, with proper objects: the van, the counter, the glasshouse door, the jar of wins."
+   ]
+  },
+  {
+   "version": "0.9.1",
+   "date": "2026-10-31",
+   "title": "Every app has its own place",
+   "items": [
+    "Each app opens in its own place: the Workshop, the Glasshouse, Tuck's house and the Puzzle Parlour.",
+    "Every tool has its own room, and the top bar jumps straight to any other tool."
+   ]
+  },
+  {
+   "version": "0.9.0",
+   "date": "2026-10-27",
+   "title": "Busy as free apps for Mac and Windows",
+   "items": [
+    "Busy Business, Busy Growth, Busy Home and Busy Games as free apps for Mac and Windows, one for each part of your life.",
+    "Your files stay in your own folder as plain files. No account, nothing sent to us."
+   ]
+  }
  ]
 }

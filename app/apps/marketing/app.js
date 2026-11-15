@@ -4,12 +4,12 @@
    you, so the owner always sees where more help is. */
 (function () {
   'use strict';
-  const { $, $$, esc } = BW;
+  const { $, $$, esc, ui } = BW;
   const M = BW.mkt, L = BW.mktLibrary;
   const main = $('#main');
   const GROUPS = [['strategy', '🧭 Strategy & research', ['strategy', 'research']], ['create', '✍️ Create', ['create']], ['reach', '📣 Reach & sell', ['reach']], ['search', '🔎 Search & website', ['search']], ['measure', '📊 Measure & improve', ['measure']]];
-  const TABS = [['home', '🏠 Overview'], ['insights', '📊 Insights'], ['plan', '🗓️ Plan'], ['content', '✍️ Content'], ['olaf', '🧭 What Olaf does'], ['profile', '🪪 Brand profile'], ['learn', '📚 Learn']];
-  let p = null, plan = [], waves = [], invoices = [], tab = 'home', query = '', olafEdition = null;
+  const TABS = [['home', '📣 This year'], ['content', '✍️ Posts'], ['plan', '🗓️ The plan'], ['insights', '📊 What works'], ['olaf', '🧭 What Olaf does'], ['profile', '🪧 Brand profile'], ['learn', '📚 Why it works']];
+  let p = null, plan = [], waves = [], invoices = [], content = [], clients = [], tab = 'home', query = '', olafEdition = null;
   let olafProfile = ''; // Olaf's growth profile, used when the Studio's own profile is still empty
 
   BW.boot({
@@ -27,7 +27,8 @@
 
   async function load() {
     if (BW.pm) await BW.pm.linkMarketing().catch((e) => console.warn('Marketing link skipped', e)); // actions and posts are tasks in the Project Planner too
-    const [prof, pl, wv, inv, of] = await Promise.all(['mktprofile', 'mktplan', 'mktwaves', 'invoices', 'olaf-files'].map((n) => BW.store.all(n)));
+    const [prof, pl, wv, inv, of, ct, cl] = await Promise.all(['mktprofile', 'mktplan', 'mktwaves', 'invoices', 'olaf-files', 'mktcontent', 'clients'].map((n) => BW.store.all(n)));
+    content = ct; clients = cl;
     const g = of.find((f) => f.path === 'brand-documents/brand-growth-profile.md');
     olafProfile = g && ((g.content.match(/\[FILL/g) || []).length < 8) ? g.content : '';
     p = Object.assign(M.blank(), prof[0] || {});
@@ -41,9 +42,7 @@
   // ---------- frame ----------
   function render() {
     main.innerHTML = `
-      <div class="page-head" style="padding-bottom:10px">
-        <div><h1><span class="title-emo">📣</span> Marketing Studio</h1><p class="lead">Do your own marketing: plan it, make it, measure it. Built on proven marketing science.</p></div>
-      </div>
+      <div class="part-head" style="padding-top:18px"><div><p class="hello">${BW.t('Marketing')}</p><h1 class="big">${esc(headline())}</h1></div></div>
       <div class="studio-tabs" role="tablist">${TABS.map(([k, l]) => `<button role="tab" data-tab="${k}" aria-selected="${tab === k}">${l}</button>`).join('')}</div>
       <div data-view></div>`;
     $$('[data-tab]', main).forEach((b) => b.onclick = () => { tab = b.dataset.tab; render(); });
@@ -71,31 +70,57 @@
     if (pres.gaps >= 3 && plan.length) next.push(['🕳️', `Fill ${pres.gaps} empty months`, 'Buyers enter the market all year. Stay visible.', () => { tab = 'plan'; render(); }]);
     next.push(['✍️', 'Plan your posts', 'A rhythm you can keep, linked to your buying moments.', () => { tab = 'content'; render(); }]);
     if (!waves.length || ageDays(waves[waves.length - 1].date) > 180) next.push(['🩺', 'Measure how often you come to mind', 'A short survey among local buyers, once or twice a year.', () => { tab = 'monitor'; render(); }]);
+    // The year: twelve cells, each with what is planned. This week: what is ready or due. What works: where
+    // this year's new customers came from.
+    const ms = months(), inMonth = (m) => plan.filter((a) => (a.month || '').slice(0, 7) === m || (a.months || []).includes(m));
+    const cells = ms.map((m, i) => { const a = inMonth(m); return { m, state: a.length ? (i === 0 && a.every((x) => x.status === 'done') ? 'done' : 'planned') : 'empty', note: a.length ? a.slice(0, 2).map((x) => x.title).join(' · ') + (a.length > 2 ? ` +${a.length - 2}` : '') : BW.t('Nothing yet') }; });
+    const today = BW.today(), weekEnd = BW.addDays(today, 7);
+    const posts = content.filter((x) => x.status !== 'posted' && x.date && x.date <= weekEnd).sort((a, b) => (a.date || '').localeCompare(b.date || '')).slice(0, 3);
+    const acts = inMonth(ms[0]).filter((a) => a.status !== 'done').slice(0, Math.max(0, 3 - posts.length));
+    const first = {};
+    invoices.filter((i) => i.kind === 'invoice' && i.status !== 'draft' && i.clientId).forEach((i) => { if (!first[i.clientId] || i.issueDate < first[i.clientId]) first[i.clientId] = i.issueDate; });
+    const fresh = Object.entries(first).filter(([, d]) => d.startsWith(today.slice(0, 4))).map(([id]) => clients.find((c) => c.id === id)).filter(Boolean);
+    const bySource = {};
+    fresh.forEach((c) => { const k = c.source || 'Not sure'; bySource[k] = (bySource[k] || 0) + 1; });
+    const sources = Object.entries(bySource).sort((a, b) => b[1] - a[1]).slice(0, 4), top = sources[0];
+    const COLOURS = ['mint', 'sky', 'sun', 'pink'];
+    const STATE = { idea: 'an idea, no words yet', draft: 'a draft', ready: 'ready' };
     v.innerHTML = `
-      ${!p.onboarded && olafProfile ? `<div class="idea rise" style="margin-bottom:18px"><span class="e">🧭</span><div><b>Your brand profile comes from Olaf.</b> You set up your marketing with Olaf, so the Studio uses that profile. You can also fill in the Studio's own profile under Brand profile.</div></div>` : ''}
-      <div class="grid-cards rise" style="margin-bottom:22px">
-        <div class="card pcard"><h3>🧭 Brand profile</h3><div class="meter"><i style="width:${pct}%"></i></div><p>${pct}% complete</p></div>
-        <div class="card pcard"><h3>🚪 Priority moments</h3>${pri.length ? `<div class="tagrow">${pri.map((c) => `<span class="tag star">${esc(c.text)}</span>`).join('')}</div>` : '<p>None starred yet.</p>'}</div>
-        <div class="card pcard"><h3>🎨 Always-use assets</h3>${keep.length ? `<div class="tagrow">${keep.map((a) => `<span class="tag">${esc(a.type)}: ${esc(a.name)}</span>`).join('')}</div>` : '<p>Choose 2 to 4 in your profile.</p>'}</div>
-        <div class="card pcard"><h3>🗓️ Presence</h3><p class="big-num">${pres.active}/12</p><p>months with marketing in the past and coming year view</p></div>
-        <div class="card pcard"><h3>🆕 New customers</h3><p class="big-num">${buyers.newThisYear}</p><p>this year, from your invoices. Growth comes from more buyers.</p></div>
+      ${!p.onboarded && olafProfile ? `<div class="idea rise" style="margin-bottom:18px"><span class="e">🧭</span><div><b>Your brand profile comes from Olaf.</b> You set up your marketing with Olaf, so the plan uses that profile.</div></div>` : ''}
+      <section class="card mk-year"><div class="row-flex"><h2>${BW.t('The year')}</h2><div class="spacer"></div><button class="btn" data-plan-add>＋ ${BW.t('Plan something')}</button></div>
+        ${ui.year(cells, true)}</section>
+      <div class="mk-two">
+        <section class="card"><h2>${BW.t('This week')}</h2>
+          ${posts.map((x) => `<div class="yes"><div><b>${esc(BW.fmtDate(x.date, { weekday: 'short' }))} · ${esc(x.title)}</b><span>${esc(x.channel || '')}${x.cep ? ` · ${BW.t('for')} "${esc(x.cep)}"` : ''} · ${esc(BW.t(STATE[x.status] || STATE.idea))}</span></div><button class="btn ${x.status === 'ready' ? 'btn-primary' : ''}" data-go-posts>${BW.t(x.status === 'ready' ? 'Read and post' : 'Write it')}</button></div>`).join('')}
+          ${acts.map((a) => `<div class="yes"><div><b>${esc(a.title)}</b><span>${esc(a.channel || '')} · ${BW.t('planned for this month')}</span></div><button class="btn" data-act-edit="${esc(a.id)}">${BW.t('Open')}</button></div>`).join('')}
+          ${!posts.length && !acts.length ? `<p class="muted">${BW.t('Nothing is due this week.')} <button class="link" data-go-posts>${BW.t('Plan a post')}</button></p>` : ''}</section>
+        <section class="card"><h2>${BW.t('What works')}</h2>
+          ${sources.length ? `<p class="muted" style="margin:2px 0 8px">${BW.t('Where this year’s new customers came from')}</p>${sources.map(([k, n], i) => `<div class="bars3"><span>${esc(BW.t(k))}</span>${ui.gauge(n / fresh.length * 100, COLOURS[i])}<b>${n}</b></div>`).join('')}
+            ${top && top[0] !== 'Not sure' ? `<p style="margin-top:10px">💡 ${top[1]} ${BW.t('of')} ${fresh.length} ${BW.t('came through')} <b>${esc(BW.t(top[0]).toLowerCase())}</b>.</p>` : ''}`
+    : `<p class="muted">${BW.t('When customers come in, this shows where they came from. Fill in “How did they find you?” for each client.')}</p>`}
+          <p style="margin-top:8px"><button class="link" data-go-works>${BW.t('See all the numbers')} →</button></p></section>
       </div>
-      <h2 style="margin-bottom:12px">👉 Next best steps</h2>
-      <div class="next rise">${next.slice(0, 6).map(([e, t, s], i) => `<button data-next="${i}"><span class="e">${e}</span><span><b>${t}</b><small>${s}</small></span></button>`).join('')}</div>
-      <h2 style="margin:28px 0 12px">📊 Your marketing dashboard</h2>
-      <div class="dash" data-dash><p class="faint">Loading…</p></div>
+      <h2 style="margin:26px 0 12px">👉 ${BW.t('Next best steps')}</h2>
+      <div class="next rise">${next.slice(0, 3).map(([e, t, s], i) => `<button data-next="${i}"><span class="e">${e}</span><span><b>${t}</b><small>${s}</small></span></button>`).join('')}</div>
       ${olafCard()}
       <div style="height:40px"></div>`;
+    $('[data-plan-add]', v).onclick = () => editActivity({ month: ms[0], status: 'planned' });
+    $$('.mk-year .year div', v).forEach((d, i) => { d.style.cursor = 'pointer'; d.onclick = () => { const a = inMonth(ms[i]); if (a.length === 1) editActivity(a[0]); else if (a.length) { tab = 'plan'; render(); } else editActivity({ month: ms[i], status: 'planned' }); }; });
+    $$('[data-go-posts]', v).forEach((b) => b.onclick = () => { tab = 'content'; render(); });
+    $$('[data-act-edit]', v).forEach((b) => b.onclick = () => editActivity(plan.find((a) => a.id === b.dataset.actEdit)));
+    $('[data-go-works]', v).onclick = () => { tab = 'insights'; render(); };
     $$('[data-next]', v).forEach((b) => b.onclick = () => next[Number(b.dataset.next)][3]());
-    const dash = $('[data-dash]', v);
-    BW.mktDash.load().then((d) => {
-      if (!dash.isConnected) return;
-      dash.innerHTML = BW.mktDash.planHtml(d, { planLink: '#tab/plan' }) + BW.mktDash.numbersHtml(d) + (olafEdition === 'full' ? BW.mktDash.workHtml(d, { olafLink: '../olaf/index.html' }) : '');
-      BW.mktDash.bind(dash, d, async () => { await load(); render(); });
-    }).catch(BW.error);
     bindOlaf(v);
   }
   const ageDays = (iso) => (Date.now() - Date.parse(iso)) / 864e5;
+  // The headline says the one thing that matters about the year ahead.
+  function headline() {
+    const other = { content: 'Your posts, week by week.', plan: 'The plan for the year.', insights: 'What works, in numbers.', monitor: 'What works, in numbers.', olaf: 'What Olaf can do for you.', skills: 'What Olaf can do for you.', profile: 'Your brand profile.', learn: 'Why it works.' };
+    if (tab !== 'home') return BW.t(other[tab] || 'Marketing');
+    const gaps = presence().gaps;
+    if (!plan.length) return BW.t('Be seen every month. Start with one thing.');
+    return gaps ? `${BW.t('Be seen every month.')} ${gaps} ${BW.t(gaps === 1 ? 'month is still empty.' : 'months are still empty.')}` : BW.t('Every month has something planned.');
+  }
 
   // ---------- what Olaf does: the playbooks, as Olaf's menu ----------
   // Where "Get Olaf" goes: Olaf itself when it is here (or the website demo), otherwise its page.

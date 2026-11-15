@@ -20,7 +20,7 @@ Page: https://busywork.example/business/
 ## Editions
 
 - Free app (Mac and Windows, beta) and free download: all 13 tools, the Marketing Studio included. No AI, no account, no subscription.
-- Busy Business with Olaf ($7.99 once on itch.io, https://busyai.itch.io/busy-business): the same tools plus Olaf, the AI expert for marketing and projects, on the owner's own Claude key.
+- Busy Business with Olaf ($7.99 once on itch.io, https://busyai.itch.io/busy-business): the same tools plus Olaf, the brand consultant, on the owner's own Claude.
 - Website demo: every tool filled with a pretend design studio, at https://busywork.example/app/index.html. Nothing is kept after the tab closes.
 
 ## Invoices & Quotes
@@ -270,12 +270,12 @@ What it does:
 Questions:
 - Is it really free? Yes. The Studio is part of the free Busy toolbox: no account, no subscription, no costs.
 - Do I need to know marketing? No. The Studio explains the why in plain words: the guide, the profile and the plan walk you through it. You stay in the driving seat.
-- What if I would rather be guided? Then Olaf is for you: our AI expert for marketing and projects, right inside Busy. It looks at your business, makes a 90-day plan, checks in every week and does the work each step needs, using the same marketing science. It starts from your Studio profile.
+- What if I would rather be guided? Then Olaf is for you: our AI brand consultant, right inside Busy. It looks at your business, makes a 90-day plan, checks in every week and does the work each step needs, using the same marketing science. It starts from your Studio profile.
 - Is there AI in the free Studio? No. The free Studio is do-it-yourself. The AI is Olaf, in the paid edition.
 - Is my data shared? No. Your brand profile, plan and numbers stay in your own folder. Nothing is sent to us.
 - Which marketing approach does it use? Proven brand growth science: mental and physical availability, buying moments and distinctive brand assets.
 
-## Olaf, the AI expert for marketing and projects (paid edition of Busy Business)
+## Olaf, the brand consultant (paid edition of Busy Business)
 
 Page: https://busywork.example/business/olaf.html. $7.99 once.
 
@@ -294,11 +294,11 @@ Projects:
 - Updates and notes, done: Updates your client reads, a brief for a freelancer, and meeting notes turned into tasks and decisions.
 
 Questions:
-- Is Olaf a person? No. Olaf is an AI expert for marketing and projects, running on Claude, Anthropic's AI. It follows proven marketing science, explains its reasoning in plain words, checks its writing, and never invents facts, reviews or numbers. You approve everything before it goes out.
-- What does it cost? Olaf comes inside Busy Business with Olaf: $7.99 once on itch.io, an introductory price. You also pay Anthropic directly for the AI you use, with your own Claude key. You see the cost of every conversation, and you set a monthly limit and a limit per conversation.
-- What does the AI cost to run? You pay Anthropic directly, on your own Claude key, for what Olaf uses. In our own tests with Claude Sonnet: a weekly check-in cost about $0.10 to $0.15, making a full plan about $0.25 to $0.30, and writing a month of posts about $0.15. You see the cost of every conversation and set a monthly limit.
+- Is Olaf a person? No. Olaf is an AI brand consultant, running on Claude, Anthropic's AI. It follows proven marketing science, explains its reasoning in plain words, checks its writing, and never invents facts, reviews or numbers. You approve everything before it goes out.
+- What does it cost? Olaf comes inside Busy Business with Olaf: $7.99 once on itch.io, an introductory price. Olaf works on the Claude you already have: you add him to your own Claude app in three steps, with no key and no second bill. A Claude API key works too; then you pay Anthropic for what you use.
+- What does the AI cost to run? In your own Claude app, Olaf works within the Claude plan you already pay for. With a Claude API key you pay Anthropic for what Olaf uses. In our own tests with a key and Claude Sonnet: a weekly check-in cost about $0.10 to $0.15, making a full plan about $0.25 to $0.30, and writing a month of posts about $0.15. With a key you see the cost of every conversation and set a monthly limit.
 - Do I need the Marketing Studio first? No. If you have filled in the Studio's brand profile, Olaf starts from it. If not, Olaf's onboarding asks the questions itself, one at a time.
-- Where is my data? In your own business folder. Your Claude key stays in your browser and is only sent to Anthropic. Web pages are fetched by Anthropic's own tools, never through us. We have no server that sees your business.
+- Where is my data? In your own business folder. Olaf's briefing and his prepared work are files in that folder too, read by your own Claude. What Claude reads goes to Anthropic, under your own account, and never to us. We have no server that sees your business.
 - Does Olaf post for me? No. Olaf writes and prepares; you post, send and publish. That keeps you in control of what goes out under your name.
 - Which computers does it work on? Any computer with Chrome or Edge, Mac or Windows. Busy keeps your business as files in a folder, and Safari and Firefox cannot save to folders yet.
 - Is Olaf in the free download? No. The free download has every Busy tool and the Marketing Studio. Olaf comes in its own download when you buy it, with Busy included. The demo on this site shows what it looks like with an example business.
@@ -374,7 +374,7 @@ Page: https://busywork.example/growth/. Free, as its own app for Mac and Windows
 - Contacts: The people in your corner, your LinkedIn connections included, with a reminder when it's time to catch up.
 - Weekly review: Ten minutes on Friday: what moved, what was hard, what's next.
 
-Ivy by Busy, the AI coach for professional growth, comes in Busy Growth with Ivy ($1.49 once on itch.io, https://busyai.itch.io/busy-growth), on the owner's own Claude usage. Ivy never invents experience: every CV line comes with its proof.
+Ivy by Busy, the career coach, comes in Busy Growth with Ivy ($1.49 once on itch.io, https://busyai.itch.io/busy-growth), on the owner's own Claude. Ivy never invents experience: every CV line comes with its proof.
 
 # Busy Home: free tools for household paperwork
 
@@ -388,9 +388,9 @@ Page: https://busywork.example/home/. Free, as its own app for Mac and Windows (
 - Moving Planner: A checklist worked back from moving day, and everyone to tell, with your contracts already on the list.
 - Just in Case: Everything your family would need if something happened to you: people to call, where things are, wishes. One PDF.
 
-Juno by Busy, the AI expert for household paperwork, comes in Busy Home with Juno ($1.49 once on itch.io, https://busyai.itch.io/busy-home), on the owner's own Claude usage. It explains letters, reads contracts and policies, writes replies and keeps renewals in view. It never gives legal advice.
+Juno by Busy, the household assistant, comes in Busy Home with Juno ($1.49 once on itch.io, https://busyai.itch.io/busy-home), on the owner's own Claude. It explains letters, reads contracts and policies, writes replies and keeps renewals in view. It never gives legal advice.
 
 # Privacy in short
 
-The tools never send us anything. Business data stays in the owner's folder; the games keep progress in the browser. The waitlists keep an email address in MailerLite, only to say when Olaf or Busy Growth can be had. Olaf's requests go from the owner's browser to Anthropic with the owner's own key.
+The tools never send us anything. Business data stays in the owner's folder; the games keep progress in the browser. The waitlists keep an email address in MailerLite, only to say when Olaf or Busy Growth can be had. What an expert reads goes to Anthropic under the owner's own Claude account or key, never to Busy.
 Full text: https://busywork.example/privacy.html

@@ -314,6 +314,48 @@
   };
   H.days = days;
 
+  // ---------- the tray ----------
+  // A file dropped in becomes a document in Paper Trail: saved in the folder, named after the file, its words read
+  // where Busy can read them. The person then says whose it is and when it runs out.
+  const TRAY_GUESS = [['id', /passport|paspoort|ausweis|pasaporte|passaporto|\bid\b|identi/i], ['insurance', /insur|polis|verzeker|versicher|seguro|assicur/i], ['contract', /contract|agreement|lease|huur|vertrag|contrato|contratto/i]];
+  H.fileIn = async (file) => {
+    const title = file.name.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim().replace(/^./, (c) => c.toUpperCase()).slice(0, 80) || 'A document';
+    const kind = (TRAY_GUESS.find(([, rx]) => rx.test(file.name)) || ['other'])[0];
+    const ext = (file.name.match(/\.[a-z0-9]+$/i) || [''])[0].toLowerCase();
+    const rec = { title, kind, files: [] };
+    const path = `Papers/${H.kind(kind)[2]}/${BW.fileSafe(title)} ${BW.uid().slice(-4)}${ext}`;
+    const r = await BW.store.writeFile(path, file, { download: false });
+    if (r && r.saved) rec.files.push(path);
+    if (BW.fileText && BW.fileText.CAN.test(file.name)) { try { const t = await BW.fileText.read(file.name, file); if (t) rec.text = t.slice(0, 200000); } catch (e) { /* kept without its words */ } }
+    return BW.store.put('papers', rec);
+  };
+  H.trayHtml = (big) => `<section class="tray${big ? ' big' : ''}" data-tray tabindex="0" role="button" aria-label="${BW.t('Drop the post here')}"><span class="te" aria-hidden="true">📥</span><h2>${BW.t('Drop the post here')}</h2>
+    <p>${BW.t('A letter, a contract, a receipt. Or take a picture of it with your phone and drop that in.')}</p>
+    <p class="how"><b>${BW.t('Free:')}</b> ${BW.t('it is filed, and you add the date.')}<br><b>${BW.t('With Juno:')}</b> ${BW.t('she reads it, files it and drafts the reply.')}</p>
+    <input type="file" multiple hidden data-tray-input></section>`;
+  H.bindTray = (root, refresh) => {
+    const zone = BW.$('[data-tray]', root), input = zone && BW.$('[data-tray-input]', zone);
+    if (!zone) return;
+    const take = async (files) => {
+      files = Array.from(files || []);
+      if (!files.length) return;
+      // An edition with an expert may take the post itself (read it, file it, answer it).
+      if (BW.trayTake) { try { if (await BW.trayTake(files)) return; } catch (e) { BW.error(e); } }
+      if (BW.store.kind !== 'folder') BW.toast('Scans are kept when Busy saves to a folder.', '📁');
+      let last = null;
+      for (const f of files) { try { last = await H.fileIn(f); } catch (e) { BW.error(e); } }
+      if (files.length === 1 && last) { location.href = `${BW.root}apps/papers/index.html#open/${last.id}`; return; }
+      BW.toast(`${files.length} filed. Now say whose they are and when they run out.`, '🗂️');
+      refresh();
+    };
+    zone.onclick = (e) => { if (e.target !== input) input.click(); };
+    zone.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); } };
+    input.onchange = () => take(input.files);
+    zone.ondragover = (e) => { e.preventDefault(); zone.classList.add('over'); };
+    zone.ondragleave = () => zone.classList.remove('over');
+    zone.ondrop = (e) => { e.preventDefault(); zone.classList.remove('over'); take(e.dataTransfer.files); };
+  };
+
   // ---------- Tuck, the Busy Home helper: a short celebration ----------
   // A small rendered clip (shared/media/tuck-cheer.mp4, made in the Busy Studio) with the good news.
   // Without motion (the system setting), a still of the same moment. Closes by itself.

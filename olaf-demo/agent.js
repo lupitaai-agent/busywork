@@ -56,6 +56,24 @@
     return `## The skill you are running: ${s.id}\n\n${s.description}\n\nFollow these instructions:\n\n${s.body}`;
   }
 
+  // What Olaf chooses from: every skill by group, with when to use it. Descriptions are cut to their first
+  // sentences (some imported ones run long) and anything that is not Latin script is dropped.
+  const HOW_TO_CHOOSE = 'Each skill is a way of working written for one job. Before you start a job, pick the skill that fits and call use_skill to read it, then follow it. Do this even when you think you know how: the skill holds the steps, the tools to use and the limits. One conversation can use several skills, one after the other. The skills under "Specialist" were written for bigger marketing teams: use one only when the owner asks for exactly that job, or when nothing above it fits. If nothing fits at all, work from the foundation and say so.';
+  // Groups a small-business owner rarely needs: kept, and kept out of the way (the same test as on the Skills page).
+  const SHELF = /website, search|launches, ads|numbers & upkeep/i;
+  const brief = (d) => { const t = String(d || '').replace(/[\u2e80-\u9fff\uff00-\uffef]+[^.]*$/, '').replace(/\s+/g, ' ').trim(); return t.length > 260 ? t.slice(0, 257).replace(/\s+\S*$/, '') + '…' : t; };
+  function skillIndex(except) {
+    const by = new Map(LIB.skills.map((x) => [x.id, x])), seen = new Set(['marketing-foundation', 'project-foundation', except]);
+    const line = (id) => { const x = by.get(id); if (!x || seen.has(id)) return ''; seen.add(id); return `- ${id}: ${brief(x.description)}`; };
+    const tight = (id) => { const l = line(id); return l.length > 150 ? l.slice(0, 147).replace(/\s+\S*$/, '') + '…' : l; };
+    const parts = (LIB.groups || []).filter(([title]) => !SHELF.test(title)).map(([title, ids]) => { const rows = ids.map(line).filter(Boolean); return rows.length ? `### ${String(title).replace(/^\S+\s/, '')}\n${rows.join('\n')}` : ''; }).filter(Boolean);
+    const shelf = (LIB.groups || []).filter(([title]) => SHELF.test(title)).flatMap(([, ids]) => ids.map(tight)).filter(Boolean);
+    const rest = LIB.skills.map((x) => line(x.id)).filter(Boolean);
+    if (rest.length) parts.push('### Other\n' + rest.join('\n'));
+    if (shelf.length) parts.push('### Specialist\n' + shelf.join('\n'));
+    return parts.join('\n\n');
+  }
+
   const agent = (BW.olafAgent = {
     BASE,
     get runCap() { try { return Number(localStorage.getItem('bw.olafRunCap')) || 2; } catch (e) { return 2; } },
@@ -66,18 +84,21 @@
     async finish(s) { s.finished = true; await save(s); },
     async remove(id) { await BW.store.remove(COLL, id); },
 
+    // skillId: one of the skills, or '' for a conversation where Olaf chooses the skill himself ("Ask Olaf").
     create(skillId, instruction) {
-      const s = LIB.skills.find((x) => x.id === skillId);
-      if (!s) throw new Error('There is no skill called ' + skillId);
+      const s = skillId ? LIB.skills.find((x) => x.id === skillId) : null;
+      if (skillId && !s) throw new Error('There is no skill called ' + skillId);
       const system = [{ type: 'text', text: BASE }];
-      if (skillId !== 'marketing-foundation' && skillId !== 'project-foundation') system.push({ type: 'text', text: foundation(skillId) });
-      system.push({ type: 'text', text: brandContext(skillId) }, { type: 'text', text: skillContext(s) });
+      if (skillId !== 'marketing-foundation' && skillId !== 'project-foundation') system.push({ type: 'text', text: foundation(skillId || '') });
+      system.push({ type: 'text', text: brandContext(skillId || '') });
+      if (s) system.push({ type: 'text', text: skillContext(s) + `\n\n## Your other skills\n\nWhen the conversation moves on to another job, the same rule holds. ${HOW_TO_CHOOSE}\n\n${skillIndex(s.id)}` });
+      else system.push({ type: 'text', text: `## Your skills\n\nNo skill was chosen for this conversation: you choose. ${HOW_TO_CHOOSE}\n\n${skillIndex()}` });
       if (langNote()) system.push({ type: 'text', text: langNote() });
-      const opening = [`Run the ${s.id} skill now.`];
+      const opening = [s ? `Run the ${s.id} skill now.` : 'The owner opened a conversation with you.'];
       if (instruction && instruction.trim()) opening.push('\nWhat the owner asked for:\n' + instruction.trim());
-      else opening.push(`\nNo extra instruction was given. Work from brand-documents/ and memory/, and ask the owner for what you genuinely need${s.hint ? ` (${s.hint})` : ''}.`);
+      else opening.push(s ? `\nNo extra instruction was given. Work from brand-documents/ and memory/, and ask the owner for what you genuinely need${s.hint ? ` (${s.hint})` : ''}.` : '\nGreet them briefly, look at where the business stands, and suggest the one most useful thing to do now.');
       opening.push('\n' + today());
-      return { skillId, title: (instruction && instruction.trim().slice(0, 80)) || s.id, system, messages: [{ role: 'user', content: opening.join('\n') }],
+      return { skillId: skillId || '', title: (instruction && instruction.trim().slice(0, 80)) || (s ? s.id : 'Ask Olaf'), system, messages: [{ role: 'user', content: opening.join('\n') }],
         view: instruction && instruction.trim() ? [{ role: 'me', text: instruction.trim() }] : [], cost: 0, files: [], finished: false, model: BW.ai.model.id, day: BW.today() };
     },
 
@@ -159,8 +180,13 @@
     if (b.name === 'write_file') return 'Writing ' + i.path;
     if (b.name === 'read_file') return 'Reading ' + i.path;
     if (b.name === 'list_dir') return 'Looking in ' + (i.path || 'the workspace');
+    if (b.name === 'use_skill') return 'Looking up how to do this well';
     if (b.name === 'business_numbers') return 'Reading your sales numbers';
     if (b.name === 'check_voice') return 'Checking the writing';
+    if (b.name === 'operations_overview') return 'Reading your invoices, quotes and clients';
+    if (b.name === 'invoice_get') return 'Reading ' + (i.number || 'an invoice');
+    if (b.name === 'invoice_draft') return `Preparing a draft ${i.kind || 'invoice'} for ${i.client || 'a client'}`;
+    if (b.name === 'document_add') return 'Writing ' + (i.title || 'a document');
     if (b.name === 'plan_list') return 'Reading your plan';
     if (b.name === 'plan_add') return `Adding ${((b.input || {}).activities || []).length} activities to your plan`;
     if (b.name === 'plan_update') return 'Updating your plan';

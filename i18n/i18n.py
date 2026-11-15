@@ -232,6 +232,9 @@ def app_scripts() -> list:
     files += [ROOT / "website" / "assets" / f for f in ("place.js", "site.js", "demo.js")]
     files += sorted((ROOT / "website" / "assets" / "games").glob("*.js"))
     files += [p for p in (ROOT / "app").rglob("*.html")]
+    # the experts' link to the person's own Claude runs on every page of a paid app (and in the website demo), so its
+    # words live here too (the script itself comes from the private build)
+    files += [p for p in [ROOT / "olaf-demo" / "room" / "link.js"] if p.exists()]
     return files
 
 

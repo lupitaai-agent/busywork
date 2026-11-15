@@ -1,94 +1,90 @@
-/* The Busy Growth home screen: where you're heading, this week's learning, and every growth tool. */
+/* Busy Growth opens on Today: the moment you are in (a review coming, a raise to ask for, applying, or simply
+   growing), at most three things to do about it, and your worth in short beside them. The tools are in the parts of
+   the rail (My worth, Grow, Say it), never in a grid here. */
 (function () {
   'use strict';
-  const { $, $$, esc } = BW;
+  const { $, $$, esc, ui } = BW;
   const G = BW.growth;
   const main = $('#main');
 
-  BW.boot({ onReady: render, onChange: render });
+  BW.boot({ part: 'today', onReady: render, onChange: render });
 
-  const GROUPS = [
-    ['📚 Learn', ['library', 'learning']],
-    ['🧠 Prove it', ['skills', 'wins']],
-    ['🎯 Land it', ['jobs', 'cv', 'stories', 'contacts']],
-    ['🪞 Every week', ['review']],
-  ];
+  const MOMENTS = [['review', '📅', 'My review'], ['raise', '💶', 'A raise'], ['applying', '📨', 'Applying'], ['growing', '🌱', 'Just growing']];
 
   async function render() {
-    const s = BW.settings;
-    const [library, learning, skills, wins, apps, contacts, reviews] = await Promise.all(['library', 'learning', 'skills', 'wins', 'applications', 'contacts', 'reviews'].map((n) => BW.store.all(n)));
-    const today = BW.today();
-    const h = new Date().getHours();
-    const hello = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
-    const name = (s.ownerName || '').split(' ')[0];
-    const weekMin = G.weekMinutes(learning, today), target = BW.num(s.learnHoursWeek) * 60;
-    const streak = G.learningStreak(learning, today);
-    const toRead = library.filter((x) => x.status !== 'read');
+    const s = BW.settings, today = BW.today();
+    const [library, learning, skills, wins, apps, contacts, reviews, cvs] = await Promise.all(['library', 'learning', 'skills', 'wins', 'applications', 'contacts', 'reviews', 'cvs'].map((n) => BW.store.all(n)));
+    const moment = MOMENTS.some((m) => m[0] === s.moment) ? s.moment : 'growing';
+    const yearAgo = BW.addDays(today, -365);
+    const results = wins.filter((w) => (w.date || '') >= yearAgo && (w.result || '').trim());
+    const followUps = G.followUpsDue(apps, today), catchUp = G.catchUpDue(contacts, today);
     const doing = learning.filter((x) => x.status === 'doing');
-    const month = today.slice(0, 7);
-    const winsMonth = wins.filter((w) => String(w.date || '').startsWith(month));
-    const gap = G.gaps(skills)[0], followUps = G.followUpsDue(apps, today), catchUp = G.catchUpDue(contacts, today);
-    // This week's plan: the "next week, I will…" lines from last week's review.
+    const weekMin = G.weekMinutes(learning, today), target = BW.num(s.learnHoursWeek) * 60;
+    const active = apps.filter((a) => !G.CLOSED.some((c) => c[0] === a.status) && a.status !== 'saved');
+    const empty = !(library.length + learning.length + wins.length + skills.length);
+
+    const needs = [];
+    const add = (w, n) => needs.push(Object.assign({ w }, n));
+    if (empty) {
+      add(99, { c: 'sky', e: '💼', t: 'Start from LinkedIn', s: 'Your jobs, skills and certificates, in ten minutes', b: 'Bring it in', href: 'apps/cv/index.html#import' });
+      add(98, { c: 'pink', e: '🧠', t: 'Add three things you can do', s: 'And how well: that is the start of your worth', b: 'Add a skill', href: 'apps/skills/index.html#new' });
+      add(97, { c: 'sun', e: '🏆', t: 'Write down one thing that went well', s: 'Big or small, with what it changed', b: 'Log a win', href: 'apps/wins/index.html#new' });
+    }
+    if (moment === 'review' || moment === 'raise') {
+      if (results.length < 3) add(92, { c: 'sun', e: '🏆', t: results.length ? `Find ${3 - results.length} more ${3 - results.length === 1 ? 'result' : 'results'} from this year` : 'Find three results from this year', s: 'What you did, and what it changed. A number if you have one.', b: 'Add a result', href: 'apps/wins/index.html#new' });
+      else add(70, { c: 'mint', e: '📄', t: moment === 'raise' ? 'Put your three strongest results in a row' : 'Read your worth page once, out loud', s: 'It is what you will say in the room', b: 'Open my worth', href: 'growth-worth.html' });
+      add(68, { c: 'grape', e: '🗣️', t: moment === 'raise' ? 'Write the sentence you will open with' : 'Lay out your notes for the review', s: 'Busy puts your results in order; you add the words', b: 'Say it', href: `growth-sayit.html#${moment}` });
+    }
+    if (moment === 'applying') {
+      if (!cvs.length) add(92, { c: 'teal', e: '📄', t: 'Make your CV', s: 'From what you can do and what you achieved', b: 'Start', href: 'apps/cv/index.html#new' });
+      if (!apps.length) add(90, { c: 'tomato', e: '🎯', t: 'Save the first job you like', s: 'Paste the advert: Busy shows what it asks for', b: 'Add a job', href: 'apps/jobs/index.html#paste' });
+    }
+    followUps.slice(0, 2).forEach((a) => add(88, { c: 'tomato', e: '⏰', t: `Follow up with ${a.company || a.role || 'an application'}`, s: a.nextStep || 'A short, friendly line is enough', b: 'Open it', href: `apps/jobs/index.html#open/${a.id}` }));
+    if (G.reviewDue(reviews, today)) add(80, { c: 'sun', e: '🪞', t: 'Look back at your week', s: 'Ten minutes: what moved, what was hard, what is next', b: 'Ten minutes', href: 'apps/review/index.html' });
+    if (catchUp.length) add(60, { c: 'grape', e: '☕', t: `Time to catch up with ${catchUp[0].name}`, s: 'People in your corner like to hear from you', b: 'Open', href: `apps/contacts/index.html#open/${catchUp[0].id}` });
+    if (!wins.some((w) => (w.date || '').startsWith(today.slice(0, 7))) && !empty) add(55, { c: 'sun', e: '🏆', t: 'Write down one thing that went well this month', s: 'While you still remember it', b: 'Log a win', href: 'apps/wins/index.html#new' });
+    if (doing.length) add(50, { c: 'mint', e: '🎓', t: `Carry on with "${doing[0].title}"`, s: target ? `${G.hours(weekMin)} ${BW.t('of')} ${G.hours(target)} ${BW.t('this week')}` : `${G.hours(weekMin)} ${BW.t('this week')}`, b: 'Open', href: 'apps/learning/index.html' });
+    needs.sort((a, b) => b.w - a.w);
+    const cards = await ui.yes();
+    const top = needs.slice(0, Math.max(0, 3 - Math.min(cards.n, 3)));
+    BW.partCount('today', top.length + cards.n);
+
+    const when = s.momentDate && s.momentDate >= today ? BW.fmtDate(s.momentDate, { day: 'numeric', month: 'long' }) : '';
+    const HEAD = {
+      review: when ? `Your review is on ${when}. ${results.length >= 3 ? 'You are nearly ready.' : 'Let’s get you ready.'}` : 'A review is coming. Let’s get you ready.',
+      raise: results.length >= 3 ? 'You want a raise. Your case is taking shape.' : 'You want a raise. Let’s build the case.',
+      applying: active.length ? `${active.length} ${active.length === 1 ? 'application' : 'applications'} on the go. One step today.` : 'Looking for the next job. One step today.',
+      growing: "Know what you're worth. Say it well.",
+    };
+    // Your worth, in short: the strongest skills and how many results stand behind them.
+    const best = skills.slice().sort((a, b) => BW.num(b.level) - BW.num(a.level)).slice(0, 4);
     const week = G.weekStart(today), last = reviews.find((r) => r.week === BW.addDays(week, -7));
     const plan = last ? G.lines(last.next).map((t, i) => [t, (last.nextDone || []).includes(i)]) : [];
-    const pick = G.dailyPick(library, today);
-    const glance = [
-      G.reviewDue(reviews, today) && ['sun', '🪞', 'Weekly review', 'Due', 'Ten minutes to look back and plan next week', 'review'],
-      followUps.length && ['tomato', '⏰', 'Follow-ups due', String(followUps.length), followUps.map((a) => a.company || a.role).slice(0, 3).join(', '), 'jobs'],
-      catchUp.length && ['grape', '☕', 'Time to catch up', String(catchUp.length), catchUp.map((c) => c.name).slice(0, 3).join(', '), 'contacts'],
-      ['grape', '🎓', 'Learning this week', target ? `${G.hours(weekMin)} ${BW.t('of')} ${G.hours(target)}` : G.hours(weekMin), streak > 1 ? `🔥 ${streak} weeks in a row` : doing.length ? `${doing.length} thing${doing.length === 1 ? '' : 's'} on the go` : 'Plan something to learn', 'learning'],
-      ['sky', '📚', 'To read', String(toRead.length), toRead[0] ? toRead[0].title || toRead[0].url : 'Save what you want to read', 'library'],
-      ['sun', '🏆', 'Wins this month', String(winsMonth.length), winsMonth[0] ? winsMonth[0].title : 'Write one down while you remember', 'wins'],
-      gap && ['pink', '🧠', 'Biggest gap', esc(gap.name), `${G.LEVELS[BW.num(gap.level) - 1] || 'New'} → ${G.LEVELS[BW.num(gap.target) - 1]}`, 'skills'],
-    ].filter(Boolean);
-    // Pim's line (the guide of the Glasshouse): what's due, or a welcome, or a nudge to keep growing.
-    const say = !(library.length + learning.length + wins.length + skills.length)
-      ? 'Welcome to the Glasshouse! Start from LinkedIn, or save something you read.'
-      : G.reviewDue(reviews, today) ? 'Your weekly review is due: ten minutes to look back and plan.'
-        : followUps.length ? `Time to follow up with ${followUps[0].company || followUps[0].role}.`
-          : catchUp.length ? `It's been a while since you spoke to ${catchUp[0].name}.`
-            : !winsMonth.length ? 'Any wins this month? Write one down while you remember.'
-              : 'Growing nicely. One floor at a time.';
-    const byId = Object.fromEntries(BW.apps.map((a) => [a.id, a]));
-    const steps = [
-      [!!s.linkedinImportedAt || library.length + learning.length + wins.length > 5, '💼', 'Start from LinkedIn', 'Your jobs, skills and certificates in ten minutes', 'apps/cv/index.html#import'],
-      [skills.some((x) => BW.num(x.target) > BW.num(x.level)), '🧠', 'Pick a skill to grow', 'Where you are, and where you want to be', 'apps/skills/index.html#new'],
-      [library.length > 0, '🔗', 'Save something you read', 'A link, a note or a file', 'apps/library/index.html#new/link'],
-      [learning.length > 0, '🎓', 'Plan something to learn', 'A course, a book or a project', 'apps/learning/index.html#new'],
-      [wins.length > 0, '🏆', 'Log a win', 'Big or small, with the numbers', 'apps/wins/index.html#new'],
-      [BW.store.kind === 'folder', '📁', 'Keep it in a folder', 'Pick one inside Google Drive to sync it', null],
-    ];
-    const doneN = steps.filter((x) => x[0]).length;
-    let hidden = false;
-    try { hidden = localStorage.getItem('bw.hideStart:growth') === '1'; } catch (e) { /* private window */ }
-    const tile = (a) => a.ready
-      ? `<a class="tile" style="--c:var(--${a.color})" href="apps/${a.id}/index.html">${BW.roomPic(a.id)}<span class="icon">${a.emoji}</span><b>${a.name}</b><p>${a.tagline}</p><span class="go">Open <span>→</span></span></a>`
-      : `<div class="tile soon" style="--c:var(--${a.color})"><span class="chip chip-grape sticker">Soon</span>${BW.roomPic(a.id)}<span class="icon">${a.emoji}</span><b>${a.name}</b><p>${a.tagline}</p></div>`;
+    const streak = G.learningStreak(learning, today);
+    const SAY = [['review', 'Notes for my review'], ['cv', 'My CV'], ['linkedin', 'My LinkedIn profile'], ['pitch', 'Me, in 30 seconds'], ['raise', 'The case for a raise']];
 
-    main.innerHTML = `
-      ${BW.placeBanner(say)}
-      <section class="home-hero">
-        <div><h1>${hello}${name ? ', ' + esc(name) : ''} <span class="hand">🌱</span></h1>
-          <p class="lead">${s.targetRole ? `Heading for <b>${esc(s.targetRole)}</b>. ` : ''}${s.goal ? `Your goal: ${esc(s.goal.replace(/[.\s]+$/, ''))}.` : 'Learn it, prove it, land it.'}</p></div>
-      </section>
-      <section class="stats glance rise">${glance.map(([c, e, k, v, sub, app]) => `
-        <a class="card stat" style="--tint:var(--${c})" href="apps/${app}/index.html"><div class="k">${e} ${k}</div><div class="v ${/^[\d.,\s]|^Due$/.test(v) ? '' : 'word'}">${v}</div><div class="s">${esc(sub)}</div></a>`).join('')}</section>
-      ${pick ? `<section class="card daily-pick rise"><span class="emo">💡</span><div><small class="faint">From your Library, for today</small>
-        <p>“${esc(pick.text)}”</p><a class="link" href="apps/library/index.html#open/${pick.item.id}">${esc(pick.item.title || 'Open it')}</a></div></section>` : ''}
-      ${plan.length ? `<section class="card week-plan rise"><div class="row-flex" style="justify-content:space-between"><h2>➡️ Your plan for this week</h2><a class="link" href="apps/review/index.html">From your weekly review</a></div>
-        <ul class="plain-list">${plan.map(([t, done]) => `<li>${done ? '✅' : '⬜'} ${esc(t)}</li>`).join('')}</ul></section>` : ''}
-      ${!hidden && doneN < steps.length ? `<section class="card start rise">
-        <div class="start-head"><div><h2>🚀 Getting started</h2><small>${doneN} of ${steps.length} done</small></div><div class="bar"><i style="width:${doneN / steps.length * 100}%"></i></div><button class="link" data-hide>Hide</button></div>
-        <div class="start-steps">${steps.map(([ok, e, t, sub, go], i) => `<${go && !ok ? `a href="${go}"` : 'button type="button"'} class="step ${ok ? 'ok' : ''}" data-step="${i}"><span class="tick">${ok ? '✓' : e}</span><span><b>${t}</b><small>${sub}</small></span></${go && !ok ? 'a' : 'button'}>`).join('')}</div>
-      </section>` : ''}
-      ${GROUPS.map(([title, ids]) => `<div class="section-h"><h2>${title}</h2></div><div class="tiles rise">${ids.map((id) => tile(byId[id])).join('')}</div>`).join('')}
-      <div class="section-h"><h2>🌿 ${byId.ivy.ready ? 'Your coach' : 'Coming to Busy Growth'}</h2><small class="faint">${byId.ivy.ready ? 'On your own Claude key' : 'Free tools stay free; the AI comes with Ivy'}</small></div>
-      <div class="tiles rise">${tile(byId.ivy)}
-        <a class="tile" style="--c:var(--sky)" href="${BW.siteUrl}/games/index.html" target="_blank" rel="noopener"><span class="icon">🧩</span><b>Today’s brain break</b><p>Four free logic puzzles on busy.com.ai, a new one every day.</p><span class="go">Play <span>→</span></span></a></div>
-      <p class="tip">💡 Press <kbd>${/Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl'} K</kbd> anywhere to find something you saved, a skill or a win.</p>
-      <div class="card home-foot"><span class="emo">🔒</span><div><b>Your growth, your files.</b><br><small>Everything is saved in <b>${esc(BW.store.where)}</b>. No account, no server, nothing sent to us.</small></div></div>`;
-    const hide = $('[data-hide]', main);
-    if (hide) hide.onclick = () => { try { localStorage.setItem('bw.hideStart:growth', '1'); } catch (e) { /* ignore */ } render(); };
-    $$('button[data-step]', main).forEach((b) => b.onclick = () => { if (!steps[Number(b.dataset.step)][0]) BW.toast('Use the 📁 button at the top to pick a folder', '📁'); });
+    main.innerHTML = `<div class="today">
+      <div>
+        ${ui.hello(s.ownerName)}
+        <h1 class="big">${esc(BW.t(HEAD[moment]))}</h1>
+        <div class="moments"><span class="k">${BW.t('What is coming up?')}</span>${MOMENTS.map(([id, e, l]) => `<button type="button" class="chip${id === moment ? ' star' : ''}" data-moment="${id}" aria-pressed="${id === moment}">${e} ${BW.t(l)}${id === 'review' && id === moment && when ? ' · ' + BW.fmtDate(s.momentDate, { day: 'numeric', month: 'short' }) : ''}</button>`).join('')}
+          ${moment === 'review' || moment === 'raise' ? `<label class="mdate">${BW.t('When?')} <input type="date" class="in" data-mdate value="${esc(s.momentDate || '')}"></label>` : ''}</div>
+        ${cards.html}
+        ${top.map((n, i) => ui.need(n, i)).join('')}
+        ${!top.length && !cards.n ? `<div class="card all-clear">${ui.guide('happy')}<div><b>${BW.t('Nothing is waiting. You are growing.')}</b><br><span class="muted">${BW.t('Come back on Friday for ten minutes.')}</span></div></div>` : ''}
+        ${ui.k(BW.t('Say it well')).replace('class="k"', 'class="k gap"')}
+        <div class="start-row">${SAY.map(([id, l]) => `<a class="btn${id === moment ? ' btn-primary' : ''}" href="growth-sayit.html#${id}">${BW.t(l)}</a>`).join('')}</div>
+      </div>
+      <aside class="side-col">
+        <a class="card" href="growth-worth.html" style="text-decoration:none;color:inherit">${ui.k(BW.t('Your worth, in short'))}
+          ${best.length ? best.map((k) => `<div class="bars3 w"><span>${esc(k.name)}</span>${ui.gauge(BW.num(k.level) / 5 * 100, BW.num(k.level) >= 3 ? 'mint' : 'sun')}<b>${BW.num(k.level)}</b></div>`).join('') : `<p class="s">${BW.t('Add what you can do, and it shows here.')}</p>`}
+          <p class="s">${results.length} ${BW.t(results.length === 1 ? 'result this year, with what it changed.' : 'results this year, with what they changed.')}</p></a>
+        ${plan.length || streak > 1 ? `<a class="card" href="apps/review/index.html" style="text-decoration:none;color:inherit">${ui.k(BW.t('This week'))}${plan.map(([t, done]) => `<div class="tick"><i class="${done ? 'y' : ''}">${done ? '✓' : ''}</i><span>${esc(t)}</span></div>`).join('')}${streak > 1 ? `<p class="s">🔥 ${streak} ${BW.t('weeks in a row')}</p>` : ''}</a>` : ''}
+        ${doing.length ? `<a class="card" href="growth-grow.html" style="text-decoration:none;color:inherit">${ui.k(BW.t('Growing now'))}${doing.slice(0, 3).map((x) => ui.line(`🎓 ${esc(x.title)}`, G.hours(G.itemMinutes(x)))).join('')}</a>` : ''}
+      </aside></div>`;
+    ui.bindYes(main, render);
+    const save = async (patch) => { await BW.store.saveSettings(Object.assign({}, BW.settings, patch)); render(); };
+    $$('[data-moment]', main).forEach((b) => b.onclick = () => save({ moment: b.dataset.moment }));
+    const md = $('[data-mdate]', main); if (md) md.onchange = () => save({ momentDate: md.value });
   }
 })();
