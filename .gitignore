@@ -29,3 +29,5 @@ __pycache__/
 .claude/
 website/olaf.html
 i18n/work/
+website/films/
+website/close-the-year.html

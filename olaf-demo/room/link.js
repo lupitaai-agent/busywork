@@ -116,6 +116,11 @@ The skill "${x.id}" of the ${CFG.plugin} plugin explains the rest.
         for (const input of list.slice(0, 40)) { const out = await t.dispatch(tool, input); if (typeof out === 'string') parts.push(out); }
         await put(`now/${file}.md`, `# ${file}\n\nEach open one in full, as Busy's "${tool}" gives it (${today}).\n\n${parts.join('\n\n---\n\n') || 'None open.'}\n`);
       }
+      // The real brand files the owner keeps in the Brand Kit: Claude can open them where they are.
+      if (x.id === 'olaf') {
+        const bf = (await BW.store.listFiles('Brand files')).filter((n) => !n.startsWith('.')).sort();
+        await put('now/brand_files.md', `# Brand files\n\nThe owner's real brand files (logo versions, fonts, photos, the brand guide), kept with the Brand Kit in the folder "Brand files" next to this "Claude" folder. Open them there; never change, move or delete them. To suggest a new file, write it to files/output/ and say so.\n\n${bf.map((n) => `- Brand files/${n}`).join('\n') || 'None yet. The owner adds them in Busy: Brand Kit, Your brand files.'}\n`);
+      }
       // The expert's own files, as real files Claude can read and write.
       const seen = jget(K('sync'), {});
       for (const r of await BW.store.all(CFG.coll)) {
@@ -174,7 +179,7 @@ The skill "${x.id}" of the ${CFG.plugin} plugin explains the rest.
     if (!c || typeof c.title !== 'string' || !c.title.trim()) return { id: file, bad: 'This card has no title.' };
     const calls = Array.isArray(c.calls) ? c.calls.slice(0, 25) : [];
     for (const k of calls) if (!k || typeof k.tool !== 'string' || !(await allowed(k.tool))) return { id: file, title: c.title.slice(0, 160), bad: `This card wants to use "${k && k.tool}", which ${x.name} may not change.` };
-    return { id: file, title: c.title.trim().slice(0, 160), why: String(c.why || '').slice(0, 300), emoji: String(c.emoji || '✦').slice(0, 4), show: String(c.show || '').slice(0, 20000), calls };
+    return { id: file, title: c.title.trim().slice(0, 160), why: String(c.why || '').slice(0, 300), emoji: String(c.emoji || '📝').slice(0, 4), show: String(c.show || '').slice(0, 20000), calls };
   }
   const DEMO_CARDS = { olaf: async () => {
     const today = BW.today(), inv = (await BW.store.all('invoices')).filter((i) => i.kind === 'invoice' && i.status === 'sent' && i.dueDate < today && BW.balanceOf(i) > 0)[0];
@@ -227,7 +232,7 @@ The skill "${x.id}" of the ${CFG.plugin} plugin explains the rest.
       if (!live()) return [];
       const week = Date.now() - 7 * 864e5, out = [];
       for (const d of jget(K('yes'), []).filter((r) => r.at > week).reverse()) out.push({ title: d.title });
-      for (const w of jget(K('wrote'), []).filter((r) => r.at > week).reverse()) out.push({ title: `${BW.t('Wrote')} ${w.p.replace(/^.*\//, '').replace(/\.(md|txt)$/, '').replace(/-/g, ' ')}` });
+      for (const w of jget(K('wrote'), []).filter((r) => r.at > week).reverse()) out.push({ title: `${BW.t('Wrote')} ${w.p.replace(/^.*\//, '').replace(/\.(md|txt)$/, '').replace(/-/g, ' ')}`, path: w.p });
       return out.slice(0, 8);
     },
     async yes(id) {
@@ -256,21 +261,43 @@ The skill "${x.id}" of the ${CFG.plugin} plugin explains the rest.
       await writeText(`${DIR}/done/${BW.today()} ${id}`, JSON.stringify({ answer: 'no', at: new Date().toISOString(), title: (c && c.title) || id }, null, 1));
       await BW.store.removeFile(`${DIR}/cards/${id}`);
     },
+    // A file the expert wrote, read in Busy: the same text that sits in the folder.
+    async open(path) {
+      const r = (await BW.store.all(CFG.coll)).find((f) => f.path === path);
+      const text = r ? r.content : await readText(`${DIR}/files/${path}`);
+      if (text == null) return BW.toast('This file is no longer there.', '⚠️');
+      const name = path.replace(/^.*\//, '').replace(/\.(md|txt)$/i, '').replace(/-/g, ' ');
+      if (!document.querySelector('link[href$="shared/ai.css"]')) document.head.append(BW.html(`<link rel="stylesheet" href="${BW.root}shared/ai.css">`));
+      BW.modal({ title: `📄 ${esc(name)}`, body: BW.html(`<div class="md">${BW.md(text.replace(/^---\n[\s\S]*?\n---\n?/, ''))}</div>`), wide: true,
+        actions: [{ label: 'Close', kind: 'ghost' }, { label: BW.t('Copy the text'), onClick: async () => { await BW.copy(text); BW.toast('Copied.', '📋'); return false; } }] });
+    },
     async look(id) {
       const c = DEMO ? (await demoCards()).find((k) => k.id === id) : await readCard(id);
       if (!c) return;
       const body = BW.html(`<div><p class="muted">${esc(c.why || c.bad || '')}</p>${c.show ? `<pre class="card-show">${esc(c.show)}</pre>` : ''}
         ${c.calls && c.calls.length ? `<p class="k" style="margin-top:14px">${BW.t('When you say yes, Busy will')}</p><ul class="card-calls">${c.calls.map((k) => `<li>${esc(say(k))}</li>`).join('')}</ul>` : ''}</div>`);
-      BW.modal({ title: `${esc(c.emoji || '✦')} ${esc(c.title)}`, body, wide: true, actions: [{ label: 'Close', kind: 'ghost' }].concat(c.bad ? [] : [{ label: 'Yes', kind: 'primary', onClick: async () => { await cards.yes(id); BW.refresh(); } }]) });
+      BW.modal({ title: `${esc(c.emoji || '📝')} ${esc(c.title)}`, body, wide: true, actions: [{ label: 'Close', kind: 'ghost' }].concat(c.bad ? [] : [{ label: 'Yes', kind: 'primary', onClick: async () => { await cards.yes(id); BW.refresh(); } }]) });
     },
   });
 
   // ---------- talking to Claude ----------
   const open = (url) => { if (window.BW_HOST && window.BW_HOST.platform && window.BW_HOST.platform.openUrl) BW.openUrl(url); else location.href = url; };
+  // The desktop app knows the Busy folder's full path (the one the owner chose, not the default): the link names it,
+  // so every new Claude task starts in that folder instead of the last one Claude remembers. Claude still asks once
+  // to confirm a folder that arrives by link. In a browser there is no path, and the link goes without one.
+  async function folderPath() {
+    try {
+      const N = window.BW_NATIVE;
+      if (!N || !N.where || !folder()) return '';
+      const w = await N.where(BW.suite || (document.body && document.body.dataset.suite) || 'business');
+      return (w && w.path) || '';
+    } catch (e) { return ''; }
+  }
   async function send(text) {
     try { await BW.copy(text); } catch (e) { /* no clipboard: the link still carries it */ }
-    open('claude://cowork/new?q=' + encodeURIComponent(text));
-    BW.toast('Claude opens with your request typed in. If it stays closed, open Claude yourself and paste: the request is copied.', '✦');
+    const at = await folderPath();
+    open('claude://cowork/new?q=' + encodeURIComponent(text) + (at ? '&folder=' + encodeURIComponent(at) : ''));
+    BW.toast('Claude opens with your request typed in. If it stays closed, open Claude yourself and paste: the request is copied.', x.emoji || '💬');
   }
   BW.askExpert = (text) => {
     if (DEMO) return BW.toast(`In your own ${esc(CFG.app)}, ${esc(x.name)} starts on this in your Claude.`, '🎭');
@@ -280,10 +307,14 @@ The skill "${x.id}" of the ${CFG.plugin} plugin explains the rest.
     const box = BW.html(`<div><textarea class="in" data-q rows="4" placeholder="${esc(BW.t('Say it the way you would say it to a colleague.'))}"></textarea>
       <div class="chips" style="margin-top:10px">${CFG.ask.map((a) => `<button type="button" class="chip-btn" data-a>${esc(BW.t(a))}</button>`).join('')}</div></div>`);
     BW.$$('[data-a]', box).forEach((b) => { b.onclick = () => { BW.$('[data-q]', box).value = b.textContent; }; });
-    BW.modal({ title: `✦ ${esc(BW.t(`Ask ${x.name}`))}`, body: box, actions: [{ label: 'Never mind', kind: 'ghost' }, { label: BW.t('Ask in Claude') + ' →', kind: 'primary', onClick: () => { const q = BW.$('[data-q]', box).value.trim(); if (!q) return false; send(`${x.name}, in my Busy folder: ${q}`); return true; } }] });
+    BW.modal({ title: `${x.emoji || '💬'} ${esc(BW.t(`Ask ${x.name}`))}`, body: box, actions: [{ label: BW.t('Open the steps'), kind: 'ghost', onClick: () => { setTimeout(connect, 50); } }, { label: 'Never mind', kind: 'ghost' }, { label: BW.t('Ask in Claude') + ' →', kind: 'primary', onClick: () => { const q = BW.$('[data-q]', box).value.trim(); if (!q) return false; send(`${x.name}, in my Busy folder: ${q}`); return true; } }] });
     setTimeout(() => BW.$('[data-q]', box).focus(), 50);
     return null;
   };
+
+  // Busy's own skill buttons, without a key: the same skill, asked in the person's Claude.
+  const viaClaude = () => !DEMO && mode() !== 'key';
+  const askSkill = (name, instruction) => BW.askExpert([name ? `use your skill "${name}"` : '', instruction || ''].filter(Boolean).join(': '));
 
   // ---------- connecting, in three steps ----------
   async function connected() {
@@ -298,14 +329,16 @@ The skill "${x.id}" of the ${CFG.plugin} plugin explains the rest.
     const where = BW.store ? BW.store.where : '';
     const desk = window.BW_HOST && window.BW_HOST.revealFolder;
     const body = BW.html(`<div class="connect">
-      <p class="lead">${esc(BW.t(`${x.name} works on the Claude you already have. No key, no second bill. Three steps, about two minutes.`))}</p>
+      <div class="idea best-key"><span class="e">🔑</span><div><b>${esc(BW.t('The best experience: a Claude API key.'))}</b> ${esc(BW.t(`${x.name} then works right here in Busy, in one conversation, with everything already open. You pay Anthropic for what you use.`))}
+        <div style="margin-top:8px"><button type="button" class="btn" data-usekey>🔑 ${BW.t('Use a key')}</button></div></div></div>
+      <p class="lead">${esc(BW.t('Or use the Claude app you already have:'))} ${esc(BW.t(`${x.name} works on the Claude you already have. No key, no second bill. Three steps, about two minutes.`))}</p>
       ${folder() ? '' : `<p class="idea"><span class="e">📁</span><span>${BW.t('First let Busy save in a folder (the folder button in the rail). Claude and Busy meet in that folder.')}</span></p>`}
       <div class="cstep"><i>1</i><div><b>${esc(BW.t(`Add ${x.name} to your Claude`))}</b><p>${BW.t('Save the plugin file. In Claude, open Cowork, choose Customize, then Plugins, and upload the file.')}</p>
         <button type="button" class="btn" data-plugin>⬇️ ${BW.t('Save the plugin file')}</button></div></div>
       <div class="cstep"><i>2</i><div><b>${BW.t('Show Claude your Busy folder')}</b><p>${BW.t('When Claude asks which folder to work in, choose this one:')} <b>${esc(where)}</b></p>
         ${desk ? `<button type="button" class="btn" data-reveal>📁 ${BW.t('Show the folder')}</button>` : ''}</div></div>
       <div class="cstep"><i>3</i><div><b>${BW.t('Say hello')}</b><p>${BW.t('Claude opens with the first sentence typed in. Press Enter.')}</p>
-        <button type="button" class="btn btn-primary" data-hello>✦ ${BW.t('Open Claude')}</button> <button type="button" class="btn btn-ghost" data-copy>${BW.t('Copy the sentence')}</button></div></div>
+        <button type="button" class="btn btn-primary" data-hello>${x.emoji || '💬'} ${BW.t('Open Claude')}</button> <button type="button" class="btn btn-ghost" data-copy>${BW.t('Copy the sentence')}</button></div></div>
       </div>`);
     const hello = `${CFG.hello}. Use the ${CFG.plugin} plugin and work in my Busy folder.`;
     const start = async () => { if (!folder()) { BW.toast('Choose a folder for Busy first: the folder button in the rail.', '📁'); return false; } ls.set(MODE, 'claude'); await brief(true); paint(); return true; };
@@ -322,9 +355,11 @@ The skill "${x.id}" of the ${CFG.plugin} plugin explains the rest.
       } catch (e) { BW.toast('The plugin file is not in this copy of Busy. Download Busy again from where you bought it.', '⚠️'); }
     };
     const rv = BW.$('[data-reveal]', body); if (rv) rv.onclick = () => window.BW_HOST.revealFolder(BW.suite);
+    const useKey = () => { ls.set(MODE, 'key'); location.href = `${BW.root}apps/${x.id}/index.html`; };
+    BW.$('[data-usekey]', body).onclick = useKey;
     BW.$('[data-hello]', body).onclick = async () => { if (await start()) send(hello); };
     BW.$('[data-copy]', body).onclick = async () => { if (await start()) { await BW.copy(hello); BW.toast('Copied. Paste it into Claude.', '📋'); } };
-    BW.modal({ title: `✦ ${esc(BW.t(`Connect ${x.name}`))}`, body, wide: true, actions: [{ label: BW.t('I have a key instead'), kind: 'ghost', onClick: () => { ls.set(MODE, 'key'); location.href = `${BW.root}apps/${x.id}/index.html`; } }, { label: 'Done', kind: 'primary', onClick: () => { check(true); } }] });
+    BW.modal({ title: `${x.emoji || '💬'} ${esc(BW.t(`Connect ${x.name}`))}`, body, wide: true, actions: [{ label: 'Done', kind: 'primary', onClick: () => { check(true); } }] });
   }
   BW.connectExpert = connect;
 
@@ -334,9 +369,11 @@ The skill "${x.id}" of the ${CFG.plugin} plugin explains the rest.
     if (!box) return;
     const m = mode(), on = m === 'claude' && await connected();
     const pic = `<img src="${BW.root}apps/${x.id}/room/${x.id}-hello.png" alt="" data-pic>`, role = BW.t(x.role);
+    // The expert's own room (the animated figure, the skills, the files) stays one click away, whichever way they work.
+    const room = `<a class="room-go" href="${BW.root}apps/${x.id}/index.html">${esc(BW.t(`Open ${x.name}`))}</a>`;
     box.innerHTML = m === 'key' ? `${pic}<b>${esc(x.name)}</b><span>${role}.</span><a class="go" href="${BW.root}apps/${x.id}/index.html">${esc(BW.t(`Open ${x.name}`))} →</a>`
-      : on ? `${pic}<b>${esc(x.name)} <small class="on" title="${esc(BW.t('Connected to your Claude'))}">●</small></b><span>${role}. ${BW.t('On your own Claude.')}</span><button type="button" class="go" data-ask>${esc(BW.t(`Ask ${x.name}`))} →</button>`
-        : `${pic}<b>${esc(x.name)}</b><span>${role}. ${BW.t(m === 'claude' ? 'Waiting for the first hello from Claude.' : 'Works on the Claude you already have.')}</span><button type="button" class="go" data-connect>${m === 'claude' ? BW.t('Open the steps') : esc(BW.t(`Connect ${x.name}`))} →</button>`;
+      : on ? `${pic}<b>${esc(x.name)} <small class="on" title="${esc(BW.t('Connected to your Claude'))}">●</small></b><span>${role}. ${BW.t('On your own Claude.')}</span><span class="go-row"><button type="button" class="go" data-ask>${esc(BW.t(`Ask ${x.name}`))} →</button>${room}</span>`
+        : `${pic}<b>${esc(x.name)}</b><span>${role}. ${BW.t(m === 'claude' ? 'Waiting for the first hello from Claude.' : 'Works on the Claude you already have.')}</span><span class="go-row"><button type="button" class="go" data-connect>${m === 'claude' ? BW.t('Open the steps') : esc(BW.t(`Connect ${x.name}`))} →</button>${room}</span>`;
     box.hidden = false;
     const img = BW.$('[data-pic]', box); if (img) img.onerror = () => img.remove();
     const a = BW.$('[data-ask]', box); if (a) a.onclick = () => BW.askExpert();
@@ -356,7 +393,7 @@ The skill "${x.id}" of the ${CFG.plugin} plugin explains the rest.
     } catch (e) { console.info('Could not look in the Claude folder:', e && e.message); }
     paint();
   }
-  BW.expertLink = { mode, brief, check, connect, paint, live, pickUp };
+  BW.expertLink = { mode, brief, check, connect, paint, live, pickUp, viaClaude, askSkill, met: () => !!ls.get(K('met')) };
   paint();
   if (DEMO) return;
   const later = BW.debounce(() => brief(), 3000);

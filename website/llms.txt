@@ -2,7 +2,7 @@
 
 > Busy makes free, private tools for work and life, in suites: Busy Business (thirteen tools for small businesses and freelancers to grow and run the business: a marketing studio with a brand profile and a year plan, a brand kit, projects, invoices and quotes, time, receipts, money, clients, documents, subscriptions, trips and stock), Busy Growth (free tools to grow your career: a library, skills, wins, a job tracker, a CV and LinkedIn builder and more), Busy Home (free tools for household paperwork: documents with expiry reminders, contracts with the last day to cancel, upkeep, a home inventory, letters, moving and a Just in Case binder) and Busy Games (free daily brain games). Each suite is a free app for Mac and Windows, or runs in the browser, and keeps everything in the owner's own folder, with no account and no subscription. Each suite also comes as a paid app with an AI expert inside, bought once on itch.io: Olaf for business, Ivy for professional growth, Juno for household paperwork. Busy also makes the game Busy Street.
 
-Busy, free, private tools for work and life, lives at https://busywork.example. It was called Busywork until October 2026. It is not related to BUSY accounting software (busy.in).
+Busy, free, private tools for work and life, lives at https://busy.com.ai. It was called Busywork until October 2026. It is not related to BUSY accounting software (busy.in).
 
 Key facts:
 - Price: every suite's tools are free, with no account and no subscription. Each suite also has a paid edition with an AI expert, sold once on itch.io at an introductory price: Busy Business with Olaf $7.99 (https://busyai.itch.io/busy-business), Busy Growth with Ivy $1.49 (https://busyai.itch.io/busy-growth), Busy Home with Juno $1.49 (https://busyai.itch.io/busy-home). The experts run on the owner's own Claude. The games: Busy Street: Tuck's Errand $1.99 (https://busyai.itch.io/tucks-errand) and Busy Street 3D for Mac $3.99 (https://busyai.itch.io/busy-street-3d).
@@ -13,67 +13,67 @@ Key facts:
 
 ## Busy Business: free tools for small businesses
 
-- [Busy Business](https://busywork.example/business/): 13 free tools for small businesses and freelancers, for three jobs: growing the brand (a marketing studio and a brand kit), delivering projects, and running the money and admin.
-- [Invoices & Quotes](https://busywork.example/business/invoices.html): Make professional invoices and quotes in a minute. VAT, numbering, PDF, scan-to-pay QR code, reminders and recurring invoices. Free, private, no account.
-- [Client Book](https://busywork.example/business/clients.html): Keep every client in one friendly place: contact details, payment terms, rates, notes and invoice history. Import from Excel or Google Sheets. Free and private.
-- [Time Tracker](https://busywork.example/business/time.html): Track hours with one button and turn them into an invoice in one click. Billable rates per client, rounding, a weekly timesheet. Free and private.
-- [Receipts & Expenses](https://busywork.example/business/expenses.html): Snap or drop receipts and we file them in your folder, count the VAT you can claim back and make a spreadsheet for your accountant. Free and private.
-- [Money Dashboard](https://busywork.example/business/money.html): See profit, VAT to set aside and cash flow at a glance, from your own invoices and receipts. Free, private, no account.
-- [Project Planner](https://busywork.example/business/projects.html): Plan client jobs, launches and events: milestones, a drag-and-drop timeline, who does what, risks and a weekly update. Free, private, no account.
-- [Project Board](https://busywork.example/business/board.html): A playful kanban board: drag cards from to-do to done, add checklists and due dates, and track time on any card. Free and private.
-- [Document Maker](https://busywork.example/business/docs.html): Letters, payment reminders, proposals, price lists, project briefs and simple agreements, with names and addresses filled in and your logo on every PDF. Free.
-- [Brand Kit](https://busywork.example/business/brand.html): Turn your logo and colour into a palette, a proper email signature for Gmail, Outlook and Apple Mail, and print-ready business cards with a QR code. Free.
-- [Subscriptions](https://busywork.example/business/subscriptions.html): Every monthly and yearly bill in one place: true monthly cost, renewal warnings, a 12-month timeline and one-click expense logging. Free and private.
-- [Trip Log](https://busywork.example/business/trips.html): Log business trips in seconds, with return trips, frequent routes and a yearly total worth money at tax time. Export for your accountant. Free and private.
-- [Stock Keeper](https://busywork.example/business/stock.html): Tap plus and minus as stock comes and goes, get low-stock warnings, scan barcodes, see stock value, margins and a full history per item. Free and private.
-- [Marketing Studio](https://busywork.example/business/marketing.html): Do your own marketing on proven science: a brand profile, a year plan, a content calendar and insights from your invoices. Free and private.
-- [Olaf, the brand consultant](https://busywork.example/business/olaf.html): a 90-day marketing plan, project plans, a weekly check-in and the work done with the owner, on proven marketing science. $7.99 once.
-- [Download Busy Business](https://busywork.example/business/download.html): the free Busy Business app for Mac and Windows (beta); no AI, nothing sent anywhere. A zip for the browser is there too.
-- [All business tools](https://busywork.example/business/tools.html): what each tool does.
+- [Busy Business](https://busy.com.ai/business/): 13 free tools for small businesses and freelancers, for three jobs: growing the brand (a marketing studio and a brand kit), delivering projects, and running the money and admin.
+- [Invoices & Quotes](https://busy.com.ai/business/invoices.html): Make professional invoices and quotes in a minute. VAT, numbering, PDF, scan-to-pay QR code, reminders and recurring invoices. Free, private, no account.
+- [Client Book](https://busy.com.ai/business/clients.html): Keep every client in one friendly place: contact details, payment terms, rates, notes and invoice history. Import from Excel or Google Sheets. Free and private.
+- [Time Tracker](https://busy.com.ai/business/time.html): Track hours with one button and turn them into an invoice in one click. Billable rates per client, rounding, a weekly timesheet. Free and private.
+- [Receipts & Expenses](https://busy.com.ai/business/expenses.html): Snap or drop receipts and we file them in your folder, count the VAT you can claim back and make a spreadsheet for your accountant. Free and private.
+- [Money Dashboard](https://busy.com.ai/business/money.html): See profit, VAT to set aside and cash flow at a glance, from your own invoices and receipts. Free, private, no account.
+- [Project Planner](https://busy.com.ai/business/projects.html): Plan client jobs, launches and events: milestones, a drag-and-drop timeline, who does what, risks and a weekly update. Free, private, no account.
+- [Project Board](https://busy.com.ai/business/board.html): A playful kanban board: drag cards from to-do to done, add checklists and due dates, and track time on any card. Free and private.
+- [Document Maker](https://busy.com.ai/business/docs.html): Letters, payment reminders, proposals, price lists, project briefs and simple agreements, with names and addresses filled in and your logo on every PDF. Free.
+- [Brand Kit](https://busy.com.ai/business/brand.html): Turn your logo and colour into a palette, a proper email signature for Gmail, Outlook and Apple Mail, and print-ready business cards with a QR code. Free.
+- [Subscriptions](https://busy.com.ai/business/subscriptions.html): Every monthly and yearly bill in one place: true monthly cost, renewal warnings, a 12-month timeline and one-click expense logging. Free and private.
+- [Trip Log](https://busy.com.ai/business/trips.html): Log business trips in seconds, with return trips, frequent routes and a yearly total worth money at tax time. Export for your accountant. Free and private.
+- [Stock Keeper](https://busy.com.ai/business/stock.html): Tap plus and minus as stock comes and goes, get low-stock warnings, scan barcodes, see stock value, margins and a full history per item. Free and private.
+- [Marketing Studio](https://busy.com.ai/business/marketing.html): Do your own marketing on proven science: a brand profile, a year plan, a content calendar and insights from your invoices. Free and private.
+- [Olaf, the brand consultant](https://busy.com.ai/business/olaf.html): a 90-day marketing plan, project plans, a weekly check-in and the work done with the owner, on proven marketing science. $7.99 once.
+- [Download Busy Business](https://busy.com.ai/business/download.html): the free Busy Business app for Mac and Windows (beta); no AI, nothing sent anywhere. A zip for the browser is there too.
+- [All business tools](https://busy.com.ai/business/tools.html): what each tool does.
 
 ## Busy Games: free daily brain games
 
-- [Busy Games](https://busywork.example/games/): four free logic puzzles in the browser or as a free app for Mac and Windows (beta), a new one every day and 10,000 levels each. No account.
-- [Busy Street: Tuck's Errand](https://busywork.example/games/tucks-errand.html): Busy's free puzzle adventure, in the browser or as a free app for Mac and Windows (beta). Six levels, six friends to cut loose from the Red Tape; the download has a film at the start and end of every level. No AI, no account. In six languages in the browser; the app is in English for now.
-- [Stars](https://busywork.example/games/stars.html): Stars, a free Star Battle logic puzzle: one star per row, column and colour patch. A new puzzle every day and 10,000 levels. No account.
-- [Duo](https://busywork.example/games/duo.html): Duo, a free Takuzu (Binairo) logic puzzle with suns and grapes: half and half, never three in a row. A new puzzle every day and 10,000 levels.
-- [Trail](https://busywork.example/games/trail.html): Trail, a free path puzzle: draw one line through every cell, passing the numbers in order. A new puzzle every day and 10,000 levels. No account.
-- [Six](https://busywork.example/games/six.html): Six, a free 6×6 Sudoku: fill every row, column and box with 1 to 6. A new puzzle every day and 10,000 levels, from easy to expert. No account.
+- [Busy Games](https://busy.com.ai/games/): four free logic puzzles in the browser or as a free app for Mac and Windows (beta), a new one every day and 10,000 levels each. No account.
+- [Busy Street: Tuck's Errand](https://busy.com.ai/games/tucks-errand.html): Busy's free puzzle adventure, in the browser or as a free app for Mac and Windows (beta). Six levels, six friends to cut loose from the Red Tape; the download has a film at the start and end of every level. No AI, no account. In six languages in the browser; the app is in English for now.
+- [Stars](https://busy.com.ai/games/stars.html): Stars, a free Star Battle logic puzzle: one star per row, column and colour patch. A new puzzle every day and 10,000 levels. No account.
+- [Duo](https://busy.com.ai/games/duo.html): Duo, a free Takuzu (Binairo) logic puzzle with suns and grapes: half and half, never three in a row. A new puzzle every day and 10,000 levels.
+- [Trail](https://busy.com.ai/games/trail.html): Trail, a free path puzzle: draw one line through every cell, passing the numbers in order. A new puzzle every day and 10,000 levels. No account.
+- [Six](https://busy.com.ai/games/six.html): Six, a free 6×6 Sudoku: fill every row, column and box with 1 to 6. A new puzzle every day and 10,000 levels, from easy to expert. No account.
 
 ## Busy Growth: free tools to grow your career
 
-- [Busy Growth](https://busywork.example/growth/): 9 free tools: a library of what you read and learn, skills, wins, a learning plan, a job tracker, a CV builder, interview stories, contacts and a weekly review. Ivy, an AI career coach, comes with the paid edition.
-- [Download Busy Growth](https://busywork.example/growth/#get): the free Busy Growth app for Mac and Windows (beta), or a zip for the browser.
-- [Library](https://busywork.example/growth/library.html): Files, links and notes from everything you read and learn, tagged by topic and skill, and searchable down to the words inside a PDF. Free, private.
-- [Learning Planner](https://busywork.example/growth/learning.html): Plan courses, books, videos and projects with goals, dates and the hours a week you can give them, and see when you'll be done. Free, private.
-- [Skills Map](https://busywork.example/growth/skills.html): What you can do, how well, where you want to be, and the proof behind each skill: what you saved, learned and achieved. The biggest gaps come first. Free.
-- [Wins Log](https://busywork.example/growth/wins.html): Log achievements as they happen, with the result and the proof, linked to the skills they show. Your brag document for reviews and CVs, free and private.
-- [Job Tracker](https://busywork.example/growth/jobs.html): Paste a job ad and it's on your board: the skills it asks for, the words your CV misses, who you know there, and follow-ups that don't slip. Free.
-- [CV and LinkedIn Builder](https://busywork.example/growth/cv.html): CVs and cover letters from your real skills and wins, a CV check, and your LinkedIn profile written from the same facts. Real PDFs, free and private.
-- [Interview Story Bank](https://busywork.example/growth/stories.html): Your best stories in the STAR shape (situation, task, action, result), grown from your wins and linked to the skills they prove. Practise for interviews. Free.
-- [Contacts](https://busywork.example/growth/contacts.html): The people who help your career: who they are, how you know them, when you last talked and when to catch up again. LinkedIn connections included. Free.
-- [Weekly Review](https://busywork.example/growth/review.html): Ten minutes on Friday: what moved, what was hard, what's next. The numbers come from your other tools, and next week starts by ticking off this week's plan. Free.
-- [Ivy, the career coach](https://busywork.example/growth/#ivy): learn it, prove it, land it; never invents experience. In Busy Growth with Ivy, $1.49 once on itch.io (https://busyai.itch.io/busy-growth), on the owner's own Claude.
+- [Busy Growth](https://busy.com.ai/growth/): 9 free tools: a library of what you read and learn, skills, wins, a learning plan, a job tracker, a CV builder, interview stories, contacts and a weekly review. Ivy, an AI career coach, comes with the paid edition.
+- [Download Busy Growth](https://busy.com.ai/growth/#get): the free Busy Growth app for Mac and Windows (beta), or a zip for the browser.
+- [Library](https://busy.com.ai/growth/library.html): Files, links and notes from everything you read and learn, tagged by topic and skill, and searchable down to the words inside a PDF. Free, private.
+- [Learning Planner](https://busy.com.ai/growth/learning.html): Plan courses, books, videos and projects with goals, dates and the hours a week you can give them, and see when you'll be done. Free, private.
+- [Skills Map](https://busy.com.ai/growth/skills.html): What you can do, how well, where you want to be, and the proof behind each skill: what you saved, learned and achieved. The biggest gaps come first. Free.
+- [Wins Log](https://busy.com.ai/growth/wins.html): Log achievements as they happen, with the result and the proof, linked to the skills they show. Your brag document for reviews and CVs, free and private.
+- [Job Tracker](https://busy.com.ai/growth/jobs.html): Paste a job ad and it's on your board: the skills it asks for, the words your CV misses, who you know there, and follow-ups that don't slip. Free.
+- [CV and LinkedIn Builder](https://busy.com.ai/growth/cv.html): CVs and cover letters from your real skills and wins, a CV check, and your LinkedIn profile written from the same facts. Real PDFs, free and private.
+- [Interview Story Bank](https://busy.com.ai/growth/stories.html): Your best stories in the STAR shape (situation, task, action, result), grown from your wins and linked to the skills they prove. Practise for interviews. Free.
+- [Contacts](https://busy.com.ai/growth/contacts.html): The people who help your career: who they are, how you know them, when you last talked and when to catch up again. LinkedIn connections included. Free.
+- [Weekly Review](https://busy.com.ai/growth/review.html): Ten minutes on Friday: what moved, what was hard, what's next. The numbers come from your other tools, and next week starts by ticking off this week's plan. Free.
+- [Ivy, the career coach](https://busy.com.ai/growth/#ivy): learn it, prove it, land it; never invents experience. In Busy Growth with Ivy, $1.49 once on itch.io (https://busyai.itch.io/busy-growth), on the owner's own Claude.
 
 ## Busy Home: free tools for household paperwork
 
-- [Busy Home](https://busywork.example/home/): 7 free tools: documents that warn before they expire, contracts with the last day to cancel, home upkeep, a home inventory with an insurance claim pack, letters, a moving planner and a Just in Case binder. Juno, an AI household assistant, comes with the paid edition.
-- [Download Busy Home](https://busywork.example/home/#get): the free Busy Home app for Mac and Windows (beta), or a zip for the browser.
-- [Paper Trail](https://busywork.example/home/papers.html): Passports, policies, contracts and warranties in one place, searchable down to the words inside a PDF, with a nudge before anything expires. Free, private.
-- [Contracts & Renewals](https://busywork.example/home/contracts.html): Insurance, energy, phone, the gym: what each costs a month and the last day to cancel before it renews by itself. A free reminder, private.
-- [Home Upkeep](https://busywork.example/home/upkeep.html): The boiler service, smoke alarms, gutters: when each is due, when it was done, by whom and for how much. A free home maintenance planner, private.
-- [Home Inventory](https://busywork.example/home/inventory.html): What you own, room by room, with photos, receipts and warranties. After a break-in or water damage, the claim pack is one click away. Free, private.
-- [Letters](https://busywork.example/home/letters.html): Cancel a contract, complain, claim, object or ask for your data: letters with your details, the company and the dates already filled in. Free.
-- [Moving Planner](https://busywork.example/home/moving.html): A moving checklist worked back from moving day, and everyone to tell, with your contracts already on the list. Change-of-address letters in one click. Free.
-- [Just in Case](https://busywork.example/home/binder.html): Everything your family would need if something happened to you: people to call, where things are, accounts, wishes. One PDF to keep with the will. Free.
-- [Juno, the household assistant](https://busywork.example/home/#juno): explains letters, writes the replies and keeps the household ahead. In Busy Home with Juno, $1.49 once on itch.io (https://busyai.itch.io/busy-home), on the owner's own Claude.
+- [Busy Home](https://busy.com.ai/home/): 7 free tools: documents that warn before they expire, contracts with the last day to cancel, home upkeep, a home inventory with an insurance claim pack, letters, a moving planner and a Just in Case binder. Juno, an AI household assistant, comes with the paid edition.
+- [Download Busy Home](https://busy.com.ai/home/#get): the free Busy Home app for Mac and Windows (beta), or a zip for the browser.
+- [Paper Trail](https://busy.com.ai/home/papers.html): Passports, policies, contracts and warranties in one place, searchable down to the words inside a PDF, with a nudge before anything expires. Free, private.
+- [Contracts & Renewals](https://busy.com.ai/home/contracts.html): Insurance, energy, phone, the gym: what each costs a month and the last day to cancel before it renews by itself. A free reminder, private.
+- [Home Upkeep](https://busy.com.ai/home/upkeep.html): The boiler service, smoke alarms, gutters: when each is due, when it was done, by whom and for how much. A free home maintenance planner, private.
+- [Home Inventory](https://busy.com.ai/home/inventory.html): What you own, room by room, with photos, receipts and warranties. After a break-in or water damage, the claim pack is one click away. Free, private.
+- [Letters](https://busy.com.ai/home/letters.html): Cancel a contract, complain, claim, object or ask for your data: letters with your details, the company and the dates already filled in. Free.
+- [Moving Planner](https://busy.com.ai/home/moving.html): A moving checklist worked back from moving day, and everyone to tell, with your contracts already on the list. Change-of-address letters in one click. Free.
+- [Just in Case](https://busy.com.ai/home/binder.html): Everything your family would need if something happened to you: people to call, where things are, accounts, wishes. One PDF to keep with the will. Free.
+- [Juno, the household assistant](https://busy.com.ai/home/#juno): explains letters, writes the replies and keeps the household ahead. In Busy Home with Juno, $1.49 once on itch.io (https://busyai.itch.io/busy-home), on the owner's own Claude.
 
 ## About
 
-- [About Busy](https://busywork.example/about.html): what it is, who it is for, and how it works.
-- [Privacy](https://busywork.example/privacy.html): what happens to data (nothing is sent to us).
-- [Terms](https://busywork.example/terms.html)
+- [About Busy](https://busy.com.ai/about.html): what it is, who it is for, and how it works.
+- [Privacy](https://busy.com.ai/privacy.html): what happens to data (nothing is sent to us).
+- [Terms](https://busy.com.ai/terms.html)
 
 ## Optional
 
-- [llms-full.txt](https://busywork.example/llms-full.txt): all of the above with every tool's and game's features and questions in one file.
+- [llms-full.txt](https://busy.com.ai/llms-full.txt): all of the above with every tool's and game's features and questions in one file.

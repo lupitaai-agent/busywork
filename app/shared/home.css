@@ -269,3 +269,48 @@ a.line:hover span { text-decoration: underline; }
   .yes { grid-template-columns: minmax(0, 1fr); gap: 6px; }
   .yes .na { justify-content: flex-start; }
 }
+
+/* Brand Strategy (part-brand.js): tabs, tiles, reports, Olaf's brand work */
+.bs .band { margin-bottom: 14px; }
+.bs-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 16px; }
+.bs-tabs button { padding: 7px 14px; border-radius: 999px; border: 2px solid var(--hair); background: var(--surface); color: var(--ink-2); font: inherit; font-weight: 750; font-size: .9rem; cursor: pointer; }
+.bs-tabs button[aria-selected="true"] { border-color: var(--ink); background: var(--ink); color: var(--bg); }
+.bs-view > .card, .bs-view > section { margin-bottom: 16px; }
+.bs-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-bottom: 16px; }
+.bs-grid.two { grid-template-columns: 2fr 1fr; }
+.bs-grid > * { min-width: 0; }
+@media (max-width: 1000px) { .bs-grid, .bs-grid.two { grid-template-columns: 1fr; } }
+.bs .card { padding: 16px 18px; }
+.bs .card h2 { margin: 4px 0 8px; font-size: 1.15rem; letter-spacing: -.01em; }
+.bs .card h3 { margin: 4px 0 6px; font-size: 1rem; line-height: 1.35; }
+.bs .card p.s { margin: 6px 0 0; color: var(--ink-2); font-size: .9rem; }
+.bs-big { font-size: 2.1rem; font-weight: 900; letter-spacing: -.03em; line-height: 1.05; margin: 2px 0 4px; }
+.bs-tile .gauge { margin-top: 12px; }
+.bs-spark { display: flex; align-items: flex-end; gap: 5px; height: 46px; margin-top: 10px; }
+.bs-spark i { width: 16px; background: var(--sun); border: 2px solid var(--border); border-radius: 5px 5px 0 0; }
+.bs-meta { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin: 12px 0 0; font-size: .82rem; color: var(--ink-3); }
+.bs-meta .link, .bs-meta a { font-weight: 750; color: var(--ink); }
+.bs .fresh { color: #1F9D63; font-weight: 800; } .bs .old { color: #B76E00; font-weight: 800; } .bs .never { color: var(--ink-3); font-weight: 800; }
+.bs-rep { display: flex; gap: 12px; align-items: center; width: 100%; padding: 9px 0; border: 0; border-bottom: 2px solid var(--hair); background: none; font: inherit; color: var(--ink); text-align: left; cursor: pointer; }
+.bs-rep:last-child { border-bottom: 0; }
+.bs-rep .e { font-size: 1.25rem; } .bs-rep b { display: block; font-size: .93rem; } .bs-rep small { color: var(--ink-3); font-size: .8rem; }
+.bs-rep .go { margin-left: auto; font-weight: 800; font-size: .85rem; }
+.bs-rep:hover b { text-decoration: underline; }
+.bs-skills { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 4px; }
+@media (max-width: 1000px) { .bs-skills { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.bs-sk { border: 2px solid var(--hair); border-radius: 14px; padding: 10px 12px; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0; }
+.bs-sk b { font-size: .92rem; } .bs-sk small { font-size: .8rem; }
+.bs-sk.done { border-color: var(--mint); } .bs-sk.aging { border-color: var(--sun); } .bs-sk.none { border-style: dashed; }
+.bs-sk .btn, .bs-report .btn { padding: 4px 12px; font-size: .8rem; margin-top: 4px; }
+.btn.btn-expert { background: var(--grape); color: #fff; border-color: var(--border); }
+.bs-ceps { display: grid; gap: 8px; margin-top: 6px; }
+.bs-cep { border: 2px solid var(--hair); border-radius: 12px; padding: 8px 12px; display: grid; gap: 2px; }
+.bs-cep.star { background: color-mix(in srgb, var(--sun) 30%, var(--surface)); border-color: var(--border); }
+.bs-cep small { color: var(--ink-3); font-size: .8rem; letter-spacing: .02em; }
+.bs-assets { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; margin-top: 10px; }
+.bs-asset { border: 2px dashed var(--hair); border-radius: 12px; padding: 8px 12px; display: grid; gap: 2px; }
+.bs-asset.kept { border-style: solid; border-color: var(--border); }
+.bs-asset small { color: var(--ink-3); font-size: .8rem; }
+.bs-alt { display: grid; gap: 2px; padding: 8px 0; border-bottom: 2px solid var(--hair); } .bs-alt:last-child { border-bottom: 0; }
+.bs-alt span { color: var(--ink-2); font-size: .88rem; }
+@media print { .bs-tabs, .bs-work, .bs-meta .link { display: none; } }

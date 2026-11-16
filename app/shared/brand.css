@@ -534,3 +534,17 @@ body.has-rail { padding-left: var(--rail); }
   .demo-bar [data-example] { display: none; }
   .demo-bar .btn { padding: 4px 10px !important; font-size: .8rem; }
 }
+
+/* Brand Kit: the real brand files */
+.bf-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-bottom: 12px; }
+.bf { border: 2px solid var(--hair); border-radius: 14px; padding: 8px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.bf-pic { height: 96px; border-radius: 10px; background: var(--surface-2); display: grid; place-items: center; overflow: hidden; }
+.bf-pic img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.bf-pic span { font-weight: 800; color: var(--ink-3); letter-spacing: .05em; }
+.bf b { font-size: .82rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bf-acts { display: flex; justify-content: space-between; align-items: center; font-size: .82rem; }
+.bf-drop { display: block; border: 2px dashed var(--hair); border-radius: 14px; padding: 16px; text-align: center; cursor: pointer; color: var(--ink-2); }
+.bf-drop.over, .bf-drop:hover { border-color: var(--ink); }
+.rail-helper .go-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin-top: 6px; max-width: none; }
+.rail-helper .go-row .go { margin-top: 0; }
+.rail-helper .room-go { font-size: .78rem; font-weight: 750; color: var(--ink-2); }

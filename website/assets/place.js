@@ -14,6 +14,8 @@
    place_web.py): the pictures follow the clock, the guide stands behind the furniture and is lit like the room,
    and the room moves a little with the pointer (the shared engine: app/shared/scene.js).
    Without WebGL the rooms, words and buttons all still work, just without the guide. */
+// Room pictures as WebP where the browser takes it (tools/webp.py makes them): about 60% lighter than the JPEGs.
+const WEBP = (() => { try { return document.createElement('canvas').toDataURL('image/webp').startsWith('data:image/webp'); } catch (e) { return false; } })();
 const house = document.querySelector('[data-house]');
 if (house) start(house).catch((e) => console.info('The place stays simple:', e && e.message));
 
@@ -55,7 +57,7 @@ async function start(house) {
   const season = asked || ((document.documentElement.lang || '').toLowerCase() === 'pt-br' ? flip[north] : north);
   const seasonOf = (id) => (roomData[id] && roomData[id].seasons && roomData[id].seasons.includes(season) ? '-' + season : '');
   const base = (id) => (roomData[id] && roomData[id].base) || house.dataset.housePlates;
-  const src = (id) => `${base(id)}room-${id}${seasonOf(id)}${timeOf(id)}-${wide() ? 1920 : 1280}.jpg`;
+  const src = (id) => `${base(id)}room-${id}${seasonOf(id)}${timeOf(id)}-${wide() ? 1920 : 1280}.${WEBP ? 'webp' : 'jpg'}`;
   const depthSrc = (id) => `${base(id)}room-${id}-depth.png`;
   const ready = {};
   const preload = (id) => ready[id] || (ready[id] = new Promise((ok) => { const i = new Image(); i.onload = i.onerror = ok; i.src = src(id); }));
@@ -358,6 +360,13 @@ async function start(house) {
   // the live guide is a 3 to 4 MB model: on a slow connection, or when saving data, the rooms and words do without it
   const net = navigator.connection;
   if (net && (net.saveData || /^(slow-2g|2g|3g)$/.test(net.effectiveType || ''))) return;
+  // On a phone the still picture comes first, and the guide (a 1.7 to 2 MB model and a 3D scene) only once the
+  // visitor starts walking round: a tap or a key in the place. The page is light to land on (health check, 2026-11-15).
+  if (matchMedia('(max-width: 820px), (pointer: coarse)').matches) {
+    let go = () => { go = null; idle(load); };
+    ['pointerdown', 'keydown'].forEach((ev) => house.addEventListener(ev, () => go && go(), { once: true, passive: true }));
+    return;
+  }
   if (document.readyState === 'complete') idle(load); else addEventListener('load', () => idle(load), { once: true });
 }
 

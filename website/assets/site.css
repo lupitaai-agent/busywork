@@ -636,3 +636,21 @@ a.card.feat .go { display: inline-block; margin-top: 8px; font-weight: 800; font
 /* the other languages need more words for the same headline: a size smaller, so the card and its two buttons fit a laptop screen */
 html:not([lang="en"]) .house-street .house-card h1 { font-size: clamp(1.8rem, 3.2vw, 2.5rem); }
 @media (min-width: 761px) { .house-street .house-card { max-height: calc(100% - 146px); } }
+
+/* the buying-moment pages and the films' own pages (16 November 2026) */
+.center-flex { justify-content: center; margin-top: 18px; }
+.moment-steps { list-style: none; padding: 0; margin: 28px auto 0; max-width: 820px; display: grid; gap: 14px; counter-reset: step; }
+.moment-steps li { display: flex; gap: 16px; align-items: flex-start; padding: 18px 20px; }
+.moment-steps li .e { font-size: 1.8rem; line-height: 1; }
+.moment-steps li b { font-size: 1.1rem; }
+.moment-steps li p { margin: 4px 0 0; color: var(--ink-2); }
+.paths:has(> :nth-child(3)) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.film.watch { max-width: 1040px; }
+.film.watch figcaption { margin-top: 14px; }
+.film-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; margin-top: 28px; }
+.film-grid .film-card { text-decoration: none; color: var(--ink); }
+.film-grid .film-card img { width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 12px; border: 3px solid var(--ink); }
+.film-grid .film-card small { color: var(--ink-2); }
+@media (max-width: 820px) { .film-grid, .paths:has(> :nth-child(3)) { grid-template-columns: 1fr; } }
+/* WebP first (build.py webp_pictures): the wrapper takes no room, so the picture lays out as the <img> did */
+picture { display: contents; }

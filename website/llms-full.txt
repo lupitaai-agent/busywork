@@ -2,17 +2,17 @@
 
 Busy makes free, private tools for work and life, in suites: Busy Business (thirteen tools for small businesses and freelancers to grow and run the business: a marketing studio with a brand profile and a year plan, a brand kit, projects, invoices and quotes, time, receipts, money, clients, documents, subscriptions, trips and stock), Busy Growth (free tools to grow your career: a library, skills, wins, a job tracker, a CV and LinkedIn builder and more), Busy Home (free tools for household paperwork: documents with expiry reminders, contracts with the last day to cancel, upkeep, a home inventory, letters, moving and a Just in Case binder) and Busy Games (free daily brain games). Each suite is a free app for Mac and Windows, or runs in the browser, and keeps everything in the owner's own folder, with no account and no subscription. Each suite also comes as a paid app with an AI expert inside, bought once on itch.io: Olaf for business, Ivy for professional growth, Juno for household paperwork. Busy also makes the game Busy Street.
 
-Website: https://busywork.example/
+Website: https://busy.com.ai/
 
 Busy at busy.com.ai: free, private tools for work and life, formerly called Busywork. Not related to BUSY accounting software (busy.in).
 
 # Busy Business: free tools for small businesses
 
-Page: https://busywork.example/business/
+Page: https://busy.com.ai/business/
 
 ## How it works
 
-1. Download the free Busy Business app for Mac or Windows (beta) from https://busywork.example/business/download.html and install it. Without installing, a zip that runs in Chrome or Edge is there too.
+1. Download the free Busy Business app for Mac or Windows (beta) from https://busy.com.ai/business/download.html and install it. Without installing, a zip that runs in Chrome or Edge is there too.
 2. Open Busy Business.
 3. Every tool saves plain files in its own folder (Documents/Busy/Business, or one you choose); put the folder in Google Drive, Dropbox, OneDrive or iCloud Drive for backups and syncing.
 4. Busy also keeps a daily backup in that folder. There is no account and no server: nothing is sent to us.
@@ -21,13 +21,13 @@ Page: https://busywork.example/business/
 
 - Free app (Mac and Windows, beta) and free download: all 13 tools, the Marketing Studio included. No AI, no account, no subscription.
 - Busy Business with Olaf ($7.99 once on itch.io, https://busyai.itch.io/busy-business): the same tools plus Olaf, the brand consultant, on the owner's own Claude.
-- Website demo: every tool filled with a pretend design studio, at https://busywork.example/app/index.html. Nothing is kept after the tab closes.
+- Website demo: every tool filled with a pretend design studio, at https://busy.com.ai/app/index.html. Nothing is kept after the tab closes.
 
 ## Invoices & Quotes
 
 Invoices that practically write themselves. Pick a client, type what you did, hit send. We do the maths, the numbering, the PDF and even the reminder email. Free, and your invoices never leave your computer.
 
-Page: https://busywork.example/business/invoices.html
+Page: https://busy.com.ai/business/invoices.html
 
 What it does:
 - Type right on the invoice: No forms. Click anything on the paper and change it. What you see is the PDF you send.
@@ -47,7 +47,7 @@ Questions:
 
 Everyone you work with, in one friendly place. A simple CRM without the CRM. Contact details, what they’ve paid, what’s still open, and the little things worth remembering.
 
-Page: https://busywork.example/business/clients.html
+Page: https://busy.com.ai/business/clients.html
 
 What it does:
 - Import your list: Drop in a CSV from Excel or Google Sheets. Column names, even Dutch ones, are matched for you.
@@ -66,7 +66,7 @@ Questions:
 
 Tap start. Do the work. Bill the hours. One big button, a week view, and a ‘make the invoice’ button that does exactly that. Your client’s rate and your rounding rules are applied for you.
 
-Page: https://busywork.example/business/time.html
+Page: https://busy.com.ai/business/time.html
 
 What it does:
 - One-button timer: Start and stop with a click or the S key. The timer also shows in your browser tab.
@@ -85,7 +85,7 @@ Questions:
 
 Snap the receipt. Done. Drop a photo or a PDF anywhere on the page. We file it, count the VAT you can claim back, and keep a list your accountant will love.
 
-Page: https://busywork.example/business/expenses.html
+Page: https://busy.com.ai/business/expenses.html
 
 What it does:
 - Drag, drop, filed: Receipts are saved as files in your business folder, by year.
@@ -104,7 +104,7 @@ Questions:
 
 How’s business? Here’s the honest answer. Profit, VAT to pay, what to keep aside for income tax, who still owes you and what the next 90 days look like. All from the invoices and receipts you already have.
 
-Page: https://busywork.example/business/money.html
+Page: https://busy.com.ai/business/money.html
 
 What it does:
 - Profit, month by month: Money in and out without VAT, counted when it actually arrives.
@@ -123,7 +123,7 @@ Questions:
 
 Every project on one page. Start from a template, drag the timeline to fit your dates, give each task a name, and see at a glance what is late, what waits on whom and who has too much on. No account, no per-seat price.
 
-Page: https://busywork.example/business/projects.html
+Page: https://busy.com.ai/business/projects.html
 
 What it does:
 - A timeline you drag: Move a task and everything that waits for it moves along. Late work turns red.
@@ -143,7 +143,7 @@ Questions:
 
 Drag your to-dos from “ugh” to “done”. One board per project, four columns, checklists in every card, and confetti every time something’s finished.
 
-Page: https://busywork.example/business/board.html
+Page: https://busy.com.ai/business/board.html
 
 What it does:
 - Drag and drop: To do, doing, waiting, done.
@@ -162,7 +162,7 @@ Questions:
 
 Letters and agreements that fill themselves in. Pick a template and a client. Names, addresses, dates and bank details are filled in. Add the good bits and save a PDF with your logo.
 
-Page: https://busywork.example/business/docs.html
+Page: https://busy.com.ai/business/docs.html
 
 What it does:
 - Nine templates: Letter, payment reminder, thank-you note, proposal, price list, project brief, meeting notes, simple agreement, blank page.
@@ -181,7 +181,7 @@ Questions:
 
 Look the same everywhere. Your colours, an email signature that works in every mail app, and business cards you can print at home, with a QR code to your website.
 
-Page: https://busywork.example/business/brand.html
+Page: https://busy.com.ai/business/brand.html
 
 What it does:
 - Email signatures: Three styles. Copy and paste into Gmail, Outlook or Apple Mail.
@@ -200,7 +200,7 @@ Questions:
 
 No more surprise renewals. All the little monthly bills in one place, what they really cost per month, and a nudge before anything renews.
 
-Page: https://busywork.example/business/subscriptions.html
+Page: https://busy.com.ai/business/subscriptions.html
 
 What it does:
 - The real monthly cost: Weekly, monthly, quarterly and yearly bills, added up per month.
@@ -219,7 +219,7 @@ Questions:
 
 Every business kilometre counts. Log a trip in seconds, tap your usual routes, and see what your kilometres are worth at tax time.
 
-Page: https://busywork.example/business/trips.html
+Page: https://busy.com.ai/business/trips.html
 
 What it does:
 - Usual trips: Routes you drive often become one-tap buttons.
@@ -238,7 +238,7 @@ Questions:
 
 Know what’s on the shelf before it runs out. Tap plus and minus as things come in and go out. We warn you before the shelf runs empty and keep a history of every change.
 
-Page: https://busywork.example/business/stock.html
+Page: https://busy.com.ai/business/stock.html
 
 What it does:
 - Quick plus and minus: Big buttons, made for busy hands.
@@ -257,7 +257,7 @@ Questions:
 
 Do your own marketing, the way brands really grow. Plan, make and measure your marketing yourself: a brand profile, an always-on year plan, a content calendar and insights from your own invoices, all built on decades of research into how people really buy. Free, and your data stays yours.
 
-Page: https://busywork.example/business/marketing.html
+Page: https://busy.com.ai/business/marketing.html
 
 What it does:
 - A brand profile, not a persona: Your category, the moments people need you, your distinctive look, your voice and your budget. Your plan and posts build on it.
@@ -277,7 +277,7 @@ Questions:
 
 ## Olaf, the brand consultant (paid edition of Busy Business)
 
-Page: https://busywork.example/business/olaf.html. $7.99 once.
+Page: https://busy.com.ai/business/olaf.html. $7.99 once.
 
 Marketing:
 - Looks at where you stand: Reads your brand profile, your website and your reviews, and tells you plainly what is working and what is missing.
@@ -305,16 +305,16 @@ Questions:
 
 # Busy Street: Tuck's Errand: a free game
 
-Page: https://busywork.example/games/tucks-errand.html. A puzzle adventure on Busy Street: the Red Tape has crept over the street, and Tuck only went out to get a stamp back. Six levels and six friends to cut loose. You swap between two figures on screen, call in the others, throw pots, keys and each other, climb, swing and roll, hide from inspectors and solve logic puzzles. Free, in the browser or as a download for Mac and Windows (beta); the download has a film at the start and end of every level and plays without the internet. No AI and no account. In six languages in the browser; the app is in English for now.
+Page: https://busy.com.ai/games/tucks-errand.html. A puzzle adventure on Busy Street: the Red Tape has crept over the street, and Tuck only went out to get a stamp back. Six levels and six friends to cut loose. You swap between two figures on screen, call in the others, throw pots, keys and each other, climb, swing and roll, hide from inspectors and solve logic puzzles. Free, in the browser or as a download for Mac and Windows (beta); the download has a film at the start and end of every level and plays without the internet. No AI and no account. In six languages in the browser; the app is in English for now.
 
 # Busy Games: free daily brain games
 
-Page: https://busywork.example/games/. Four logic puzzles that run in the browser, a new one every day and 10,000 levels each. Progress stays in the browser; no account.
+Page: https://busy.com.ai/games/. Four logic puzzles that run in the browser, a new one every day and 10,000 levels each. Progress stays in the browser; no account.
 
 ## Stars (Star Battle)
 
 Stars is a one-star Star Battle, a classic logic puzzle. Every board has exactly one answer, so you can always find it by reasoning, without guessing.
-Page: https://busywork.example/games/stars.html
+Page: https://busy.com.ai/games/stars.html
 
 Rules:
 - Put one star in every row, every column and every colour patch.
@@ -324,7 +324,7 @@ Rules:
 ## Duo (Takuzu (Binairo))
 
 Duo is a Takuzu, also known as Binairo or the binary puzzle, a classic logic puzzle. Every board has exactly one answer.
-Page: https://busywork.example/games/duo.html
+Page: https://busy.com.ai/games/duo.html
 
 Rules:
 - Fill every cell with a sun (yellow circle) or a grape (purple square).
@@ -336,7 +336,7 @@ Rules:
 ## Trail (a path puzzle)
 
 Trail is a classic kind of path puzzle: one route that visits every cell exactly once. Every board has exactly one answer.
-Page: https://busywork.example/games/trail.html
+Page: https://busy.com.ai/games/trail.html
 
 Rules:
 - Start at 1 and draw one line through every cell of the board.
@@ -347,7 +347,7 @@ Rules:
 ## Six (6 × 6 Sudoku)
 
 Six is Sudoku on a smaller 6 × 6 grid with 2 × 3 boxes. Every puzzle has exactly one answer.
-Page: https://busywork.example/games/six.html
+Page: https://busy.com.ai/games/six.html
 
 Rules:
 - Fill every row, every column and every 2 × 3 box with the numbers 1 to 6.
@@ -362,7 +362,7 @@ Questions:
 
 # Busy Growth: free tools to grow your career
 
-Page: https://busywork.example/growth/. Free, as its own app for Mac and Windows (https://busywork.example/growth/#get) or a zip for the browser (https://busywork.example/downloads/busy-growth.zip), with a demo at https://busywork.example/app/growth.html. The tools:
+Page: https://busy.com.ai/growth/. Free, as its own app for Mac and Windows (https://busy.com.ai/growth/#get) or a zip for the browser (https://busy.com.ai/downloads/busy-growth.zip), with a demo at https://busy.com.ai/app/growth.html. The tools:
 
 - Library: Files, links and notes from everything you read and learn, tagged and searchable.
 - Learning planner: Courses, books and projects with goals, dates and hours a week.
@@ -378,7 +378,7 @@ Ivy by Busy, the career coach, comes in Busy Growth with Ivy ($1.49 once on itch
 
 # Busy Home: free tools for household paperwork
 
-Page: https://busywork.example/home/. Free, as its own app for Mac and Windows (https://busywork.example/home/#get) or a zip for the browser (https://busywork.example/downloads/busy-home.zip), with a demo at https://busywork.example/app/home.html. The tools:
+Page: https://busy.com.ai/home/. Free, as its own app for Mac and Windows (https://busy.com.ai/home/#get) or a zip for the browser (https://busy.com.ai/downloads/busy-home.zip), with a demo at https://busy.com.ai/app/home.html. The tools:
 
 - Paper Trail: Passports, policies, contracts and warranties in one place, searchable down to the words inside a PDF, with a nudge before anything expires.
 - Contracts & Renewals: Insurance, energy, phone, the gym: what each costs a month and the last day to cancel before it renews by itself.
@@ -393,4 +393,4 @@ Juno by Busy, the household assistant, comes in Busy Home with Juno ($1.49 once 
 # Privacy in short
 
 The tools never send us anything. Business data stays in the owner's folder; the games keep progress in the browser. The waitlists keep an email address in MailerLite, only to say when Olaf or Busy Growth can be had. What an expert reads goes to Anthropic under the owner's own Claude account or key, never to Busy.
-Full text: https://busywork.example/privacy.html
+Full text: https://busy.com.ai/privacy.html

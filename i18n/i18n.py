@@ -256,7 +256,7 @@ def site_pages() -> list:
 
 # Words a script asks for with BW.t() that the extractor would take for code (one lowercase word).
 # Sentences put together at runtime that read badly when translated in parts: the whole sentence per case.
-EXTRA_KEYS = ["now", "today", "tomorrow", "yesterday", "of", "at"] + [f"Hi! Where should your {n} live?" for n in ("business", "growth folder", "home folder")] \
+EXTRA_KEYS = ["now", "today", "tomorrow", "yesterday", "of", "at", "{0} kept"] + [f"Hi! Where should your {n} live?" for n in ("business", "growth folder", "home folder")] \
     + [f"Choose a folder for my {n}" for n in ("business", "growth folder", "home folder")] \
     + [f"Your {n} is saved only in this browser: clearing your browsing data would delete it." for n in ("business", "growth folder", "home folder")]
 # The words on the share images (tools/share_images.py), made in every language

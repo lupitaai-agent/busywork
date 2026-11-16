@@ -9,7 +9,7 @@
   // The website. build.py puts the real address in the copies it publishes and zips.
   BW.siteUrl = 'https://busywork.example';
   // The release, shown in problem reports and written into the business folder (data/meta.json).
-  BW.version = '2.0.0';
+  BW.version = '2.0.1';
   // A shell around Busy (a desktop or phone app, a test, a hosted version) can set window.BW_HOST
   // before this file loads to bring its own storage driver, platform functions, AI transport or
   // entitlements. A plain browser tab sets nothing and gets the defaults below. See ARCHITECTURE.md.
@@ -86,7 +86,7 @@
   BW.PARTS = {
     business: [
       { id: 'today', emoji: '☀️', name: 'Today', href: 'index.html' },
-      { id: 'brand', emoji: '🪧', name: 'Brand', href: 'brand.html', tools: ['brand'] },
+      { id: 'brand', emoji: '🧭', name: 'Brand Strategy', href: 'brand.html', tools: ['brand'] },
       { id: 'marketing', emoji: '📣', name: 'Marketing', href: 'apps/marketing/index.html', tools: ['marketing'] },
       { id: 'operations', emoji: '🧰', name: 'Operations', href: 'operations.html', tools: ['invoices', 'clients', 'time', 'expenses', 'money', 'projects', 'board', 'docs', 'subscriptions', 'trips', 'stock'] },
     ],
@@ -108,9 +108,9 @@
   BW.partOf = (appId) => BW.parts().find((p) => (p.tools || []).includes(appId)) || null;
   // Each suite's expert (the paid version), for the card at the foot of the rail.
   BW.EXPERTS = {
-    business: { id: 'olaf', name: 'Olaf', role: 'Your brand consultant', free: 'He can do these for you.', page: '/business/olaf.html' },
-    growth: { id: 'ivy', name: 'Ivy', role: 'Your career coach', free: 'She finds the words for you.', page: '/growth/#ivy' },
-    house: { id: 'juno', name: 'Juno', role: 'Your household assistant', free: 'She reads the post for you.', page: '/home/#juno' },
+    business: { id: 'olaf', name: 'Olaf', emoji: '🧭', role: 'Your brand consultant', free: 'He can do these for you.', page: '/business/olaf.html' },
+    growth: { id: 'ivy', name: 'Ivy', emoji: '🌿', role: 'Your career coach', free: 'She finds the words for you.', page: '/growth/#ivy' },
+    house: { id: 'juno', name: 'Juno', emoji: '🏡', role: 'Your household assistant', free: 'She reads the post for you.', page: '/home/#juno' },
   };
   const tod = () => { const h = new Date().getHours(); return h >= 5 && h < 11 ? '-morning' : h >= 11 && h < 17 ? '' : '-evening'; };
   // The season as on the website's places (shared/scene.js, the same rule): '' in summer, else '-spring', '-autumn' or
@@ -1348,10 +1348,15 @@
       ${drv.kind === 'folder' ? '<div class="lbl" style="padding-top:4px">A copy is saved in backups/ every day</div>' : ''}
       <button class="menu-item" data-a="report">🩺 Download a problem report</button>
     </div>`);
+    // Below the button when it fits, above it otherwise (the button sits at the foot of the rail), always inside the window.
     const r = btn.getBoundingClientRect();
-    pop.style.top = (r.bottom + window.scrollY + 8) + 'px';
-    pop.style.right = Math.max(16, innerWidth - r.right) + 'px';
+    pop.style.position = 'fixed'; pop.style.visibility = 'hidden';
     document.body.append(pop);
+    const h = pop.offsetHeight, w = pop.offsetWidth;
+    pop.style.top = (r.bottom + 8 + h <= innerHeight - 8 ? r.bottom + 8 : Math.max(8, r.top - 8 - h)) + 'px';
+    pop.style.left = Math.max(8, Math.min(r.left, innerWidth - w - 8)) + 'px';
+    pop.style.maxHeight = (innerHeight - 16) + 'px'; pop.style.overflowY = 'auto';
+    pop.style.visibility = '';
     const away = (e) => { if (!pop.contains(e.target) && e.target !== btn) { pop.remove(); document.removeEventListener('mousedown', away); } };
     setTimeout(() => document.addEventListener('mousedown', away));
     pop.onclick = async (e) => {
@@ -1742,7 +1747,7 @@
       else here = !!(BW.apps.find((a) => a.id === x.id) || {}).ready;
     } catch (e) { /* no expert in this edition */ }
     const pic = here ? `${BW.root}apps/${x.id}/room/${x.id}-hello.png` : '';
-    box.innerHTML = `${pic ? `<img src="${pic}" alt="" data-pic>` : '<span class="he" aria-hidden="true">✦</span>'}<b>${x.name}</b><span>${BW.t(x.role)}. ${here ? '' : BW.t(x.free)}</span>
+    box.innerHTML = `${pic ? `<img src="${pic}" alt="" data-pic>` : `<span class="he" aria-hidden="true">${x.emoji || '💬'}</span>`}<b>${x.name}</b><span>${BW.t(x.role)}. ${here ? '' : BW.t(x.free)}</span>
       <a class="go" ${here ? `href="${BW.root}apps/${x.id}/index.html"` : `href="${BW.siteUrl}${x.page}" target="_blank" rel="noopener"`}>${here ? BW.t('Open') + ' ' + x.name : BW.t('See how')} →</a>`;
     const img = BW.$('[data-pic]', box); if (img) img.onerror = () => img.remove();
     box.hidden = false;

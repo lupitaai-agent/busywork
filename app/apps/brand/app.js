@@ -1,9 +1,12 @@
-/* Brand Kit: your colours, an email signature to paste, and business cards to print. */
+/* Brand Kit: your colours, your real brand files, an email signature to paste, and business cards to print. */
 (function () {
   'use strict';
   const { $, $$, esc } = BW;
   const main = $('#main');
   const STYLES = [['classic', 'Classic'], ['bold', 'Bold'], ['minimal', 'Minimal']];
+  // The real files (logo versions, fonts, photos, the brand guide) live in the Busy folder, in a folder of their own.
+  const FILES = 'Brand files';
+  const PIC = /\.(png|jpe?g|gif|webp|svg)$/i;
 
   BW.boot({ app: 'brand', onReady: render, onChange: (n) => { if (n === 'settings' || n === '*') render(); } });
 
@@ -22,6 +25,11 @@
           </div>
           <div class="tints">${tints.map((t, i) => `<button style="background:${t};color:${BW.isLight(t) ? '#1E1B2E' : '#fff'}" data-hex="${t}" title="Copy ${t}">${i === 0 ? 'Main ' : ''}${t.toUpperCase()}</button>`).join('')}</div>
           <p class="steps-mini">Click a colour to copy its code. Lighter shades work great as backgrounds.</p>
+        </section>
+
+        <section class="card wide" data-files>
+          <h2>🗂️ ${BW.t('Your brand files')}</h2><p class="sub">${BW.t('Your logo files, fonts, photos and brand guide, in one place. They are saved in your Busy folder, in the folder Brand files.')}${BW.expertLink && BW.suite === 'business' ? ' ' + BW.t('Olaf can use them too.') : ''}</p>
+          <div class="brand-files" data-filelist><p class="faint">…</p></div>
         </section>
 
         <section class="card">
@@ -65,6 +73,51 @@
     update();
     $('[data-copysig]', main).onclick = () => copyRich($('[data-sigprev]', main).innerHTML);
     $('[data-cards]', main).onclick = cards;
+    files().catch(BW.error);
+  }
+
+  let urls = [];
+  async function files() {
+    const box = $('[data-filelist]', main);
+    if (!box) return;
+    urls.forEach((u) => URL.revokeObjectURL(u)); urls = [];
+    if (BW.store.kind !== 'folder') { box.innerHTML = `<p class="faint">📁 ${BW.t('Choose a folder for Busy first: the folder button in the rail.')}</p>`; return; }
+    const names = (await BW.store.listFiles(FILES)).filter((n) => !n.startsWith('.')).sort((a, b) => a.localeCompare(b));
+    const tile = async (n) => {
+      let pic = '';
+      if (PIC.test(n)) {
+        try {
+          const f = await BW.store.readFile(`${FILES}/${n}`);
+          if (f) { const u = URL.createObjectURL(new Blob([f], { type: /\.svg$/i.test(n) ? 'image/svg+xml' : '' })); urls.push(u); pic = `<img src="${u}" alt="">`; }
+        } catch (e) { /* shown without a picture */ }
+      }
+      return `<div class="bf" data-name="${esc(n)}"><div class="bf-pic">${pic || `<span>${esc((n.split('.').pop() || '').toUpperCase().slice(0, 4))}</span>`}</div><b title="${esc(n)}">${esc(n)}</b>
+        <span class="bf-acts"><button type="button" class="link" data-get>${BW.t('Download')}</button><button type="button" class="icon-btn" data-del title="${BW.t('Remove')}" aria-label="${BW.t('Remove')}">✕</button></span></div>`;
+    };
+    box.innerHTML = `${names.length ? `<div class="bf-grid">${(await Promise.all(names.map(tile))).join('')}</div>` : `<p class="faint">${BW.t('No files yet.')}</p>`}
+      <label class="bf-drop" data-drop><input type="file" multiple hidden data-pick><span>➕ <b>${BW.t('Add files')}</b> · ${BW.t('or drop them here')}</span></label>`;
+    const add = async (list) => {
+      let n = 0;
+      for (const file of list) {
+        if (file.size > 50 * 1024 * 1024) { BW.toast(`${esc(file.name)}: ${BW.t('too big (more than 50 MB).')}`, '⚠️'); continue; }
+        await BW.store.writeFile(`${FILES}/${file.name.replace(/[\\/:*?"<>|]/g, '-')}`, file, { download: false }); n++;
+      }
+      if (n) { BW.toast(`${n} ${BW.t(n === 1 ? 'file saved in Brand files.' : 'files saved in Brand files.')}`, '🗂️'); BW.refresh('brand-files'); }
+      files();
+    };
+    $('[data-pick]', box).onchange = (e) => add([...e.target.files]);
+    const drop = $('[data-drop]', box);
+    drop.ondragover = (e) => { e.preventDefault(); drop.classList.add('over'); };
+    drop.ondragleave = () => drop.classList.remove('over');
+    drop.ondrop = (e) => { e.preventDefault(); drop.classList.remove('over'); add([...e.dataTransfer.files]); };
+    $$('.bf', box).forEach((row) => {
+      const n = row.dataset.name;
+      $('[data-get]', row).onclick = async () => { const f = await BW.store.readFile(`${FILES}/${n}`); if (f) BW.download(new Blob([f]), n); };
+      $('[data-del]', row).onclick = async () => {
+        if (!(await BW.confirm(BW.t('Remove this file from your brand files? It is deleted from your Busy folder.'), { ok: BW.t('Remove'), danger: true }))) return;
+        await BW.store.removeFile(`${FILES}/${n}`); files();
+      };
+    });
   }
 
   // Email signatures need tables and inline styles: that is what every mail app understands.

@@ -38,9 +38,9 @@
       try { list = await BW.cards.list(); done = (await BW.cards.done()) || []; } catch (e) { console.warn('Cards skipped', e); }
       if (!list.length && !done.length) return { html: '', n: 0 };
       const who = (BW.EXPERTS[BW.suite] || {}).name || '';
-      return { n: list.length, html: `${list.length ? `<section class="card yes-card"><h2>${BW.t('Needs your yes')} <small>· ${list.length}</small></h2>${list.map((c) => `<div class="yes" data-card="${esc(c.id)}"><div><b>${esc(c.emoji || '✦')} ${esc(c.title)}</b><span>${esc(c.why || '')}</span></div>
+      return { n: list.length, html: `${list.length ? `<section class="card yes-card"><h2>${BW.t('Needs your yes')} <small>· ${list.length}</small></h2>${list.map((c) => `<div class="yes" data-card="${esc(c.id)}"><div><b>${esc(c.emoji || '📝')} ${esc(c.title)}</b><span>${esc(c.why || '')}</span></div>
           <div class="na"><button type="button" class="btn btn-primary" data-yes>${BW.t('Yes')}</button><button type="button" class="btn btn-ghost" data-look>${BW.t('Look')}</button><button type="button" class="icon-btn" data-no title="${BW.t('No, thank you')}" aria-label="${BW.t('No, thank you')}">✕</button></div></div>`).join('')}</section>` : ''}
-        ${done.length ? `<section class="card flat done-card"><h2>${BW.t('Done for you')} <small>· ${done.length}</small></h2>${done.slice(0, 5).map((d) => `<div class="tick"><i class="y">✓</i><span>${esc(d.title)}</span></div>`).join('')}<p class="faint">${esc(who)} ${BW.t('never sends or publishes anything without your yes.')}</p></section>` : ''}` };
+        ${done.length ? `<section class="card flat done-card"><h2>${BW.t('Done for you')} <small>· ${done.length}</small></h2>${done.slice(0, 5).map((d) => `<div class="tick"><i class="y">✓</i>${d.path && BW.cards.open ? `<button type="button" class="link" data-done-file="${esc(d.path)}">${esc(d.title)}</button>` : `<span>${esc(d.title)}</span>`}</div>`).join('')}<p class="faint">${esc(who)} ${BW.t('never sends or publishes anything without your yes.')}</p></section>` : ''}` };
     },
     bindYes(root, refresh) {
       if (!BW.cards) return;
@@ -50,6 +50,7 @@
         BW.$('[data-no]', row).onclick = run(BW.cards.no);
         BW.$('[data-look]', row).onclick = () => BW.cards.look(id);
       });
+      BW.$$('[data-done-file]', root).forEach((b) => { b.onclick = () => BW.cards.open(b.dataset.doneFile).catch(BW.error); });
     },
   });
 })();

@@ -93,9 +93,20 @@
   }
 
 
-  // The first time: the step-by-step guide to a Claude key. After that: the settings window.
+
+  // No key: the same skill, asked in the person's own Claude (experts/link.js). Only a person who chose a key gets the key guide.
+  const viaClaude = () => !!(BW.expertLink && BW.expertLink.viaClaude());
+  function keyless(id, instruction) {
+    if (!viaClaude()) return null;
+    const s = id ? LIB.skills.find((k) => k.id === id) : null;
+    BW.expertLink.askSkill(s ? s.name : '', instruction);
+    return true;
+  }
+
+  // The first time: the ways to connect (a key, or the Claude app). After that: the settings window.
   function connect() {
     if (DEMO) return demoNotice('marketing-journey');
+    if (!BW.ai.ready() && BW.connectExpert && viaClaude()) return BW.connectExpert();
     if (!BW.ai.ready()) return BW.ai.setup({ who: 'Olaf', onDone: render });
     return settings();
   }
@@ -256,7 +267,7 @@
     const go = { weekly: 'Weekly check-in', monthly: 'Monthly review' };
     const due = j && (!j['Next check-in'] || j['Next check-in'] <= BW.today());
     v.innerHTML = `
-      ${key ? '' : `<div class="next rise" style="margin-bottom:16px"><button data-key><span class="e">🔌</span><span><b>Connect Olaf to Claude</b><small>Five minutes, once, with a step-by-step guide. Your key stays in this browser and is only sent to Anthropic.</small></span></button></div>`}
+      ${key || (viaClaude() && BW.expertLink.met()) ? '' : `<div class="next rise" style="margin-bottom:16px"><button data-key><span class="e">🔌</span><span><b>Connect Olaf to Claude</b><small>Five minutes, once, with a step-by-step guide. Your key stays in this browser and is only sent to Anthropic.</small></span></button></div>`}
       ${st.complete ? doneHtml(st) : setupHtml(st)}
       ${j ? `<div class="card coach-hero rise">
           <div><h2>Stage ${Math.min(j.stages.filter((s) => s.done).length + 1, 6)} of 6: ${esc((j.stages.find((s) => !s.done) || { title: 'Keep it going' }).title)}</h2>
@@ -350,7 +361,7 @@
         </div>
         <div class="card pcard fview">${cur ? `
           <div class="row-flex" style="margin-bottom:10px"><b>${esc(cur)}</b><div class="spacer"></div><button class="btn" data-edit>✏️ Edit</button><button class="btn" data-dl>⬇️ Download</button></div>
-          <div class="md" data-body>${BW.md(WS.read(cur))}</div>` : '<p class="faint">Pick a file to read it. Olaf keeps your brand documents, what it has learned, and everything it made here.</p>'}</div>
+          <div class="md" data-body>${BW.md(String(WS.read(cur) || '').replace(/^---\n[\s\S]*?\n---\n?/, ''))}</div>` : '<p class="faint">Pick a file to read it. Olaf keeps your brand documents, what it has learned, and everything it made here.</p>'}</div>
       </div>`;
     $$('[data-f]', v).forEach((b) => b.onclick = () => { openFile = b.dataset.f; viewFiles(v); });
     $('[data-up]', v).onchange = async (e) => {
@@ -381,7 +392,7 @@
   async function start(id, instruction) {
     if (DEMO) return demoNotice(id);
     if (locked) return licenceScreen();
-    if (!BW.ai.ready()) return connect();
+    if (!BW.ai.ready()) return keyless(id, instruction) || connect();
     if (running) return BW.toast('Olaf is already working on something', '⏳');
     try { session = A.create(id, instruction); } catch (e) { return BW.error(e); }
     render(); window.scrollTo(0, 0);

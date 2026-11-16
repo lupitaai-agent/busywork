@@ -422,7 +422,8 @@ def film(key: str, prefix: str = "../", label: str = None) -> str:
     """A product's short film: our own file, nothing loads until the visitor presses play (the site sends nothing anywhere)."""
     x = PRODUCTS[key]
     return (f'<figure class="film reveal"><video controls playsinline preload="none" poster="{prefix}assets/films/{x["film"]}.jpg" '
-            f'src="{prefix}assets/films/{x["film"]}.mp4" aria-label="{e(label or x["name"])}: a short film"></video></figure>')
+            f'src="{prefix}assets/films/{x["film"]}.mp4" aria-label="{e(label or x["name"])}: a short film"></video>'
+            f'<figcaption class="center faint"><a href="{prefix}films/{x["film"]}.html">The film on its own page →</a></figcaption></figure>')
 
 
 def waitlist_form(where: str, endpoint: str = None, consent: str = None, button: str = "🧭 Put me on the list", who: str = None) -> str:
@@ -560,7 +561,7 @@ def forward_page(new_rel: str, depth: int) -> str:
 def site_pages(forwards: bool = False) -> list:
     """Every published page: the root, the suites, the games. Forwarding pages only when asked."""
     pages = list(SITE.glob("*.html"))
-    for d in ("business", "games", "growth", "home"):
+    for d in ("business", "games", "growth", "home", "films"):
         pages += list((SITE / d).glob("*.html"))
     return [p for p in pages if forwards or FORWARD not in p.read_text()]
 
@@ -667,11 +668,12 @@ def footer(prefix: str, tools: list) -> str:
             return f'<li><a href="{prefix}{folder}/index.html">Coming soon</a></li>{expert}'
         ts = {t["id"]: t for t in suite_tools(folder)}
         picks = "".join(f'<li><a href="{prefix}{folder}/{i}.html">{ts[i]["emoji"]} {e(ts[i]["name"])}</a></li>' for i in FOOTER_PICKS[name] if i in ts)
-        return f'{picks}<li><a href="{prefix}{folder}/index.html#tools">All {len(ts)} tools</a></li>{expert}'
+        extra = f'<li><a href="{prefix}growth/your-review.html">Your review is coming</a></li>' if folder == "growth" else ""
+        return f'{picks}<li><a href="{prefix}{folder}/index.html#tools">All {len(ts)} tools</a></li>{extra}{expert}'
     return f"""<footer class="footer sitemap"><div class="wrap">
   <div><span class="brandmark"><span class="blob">✦</span>Busy</span><p class="faint">Busy with what matters.<br>Free, private tools for work and life.</p>
-    <ul><li><a href="{prefix}about.html">About Busy</a></li><li><a href="{prefix}pricing.html">Free and paid</a></li><li><a href="{prefix}updates.html">What's new</a></li><li><a href="{prefix}press.html">Press</a></li><li><a href="{prefix}privacy.html">Privacy</a></li><li><a href="{prefix}terms.html">Terms</a></li></ul><!--langs--></div>
-  <div><b>💼 Busy Business</b><ul>{biz}<li><a href="{prefix}business/tools.html">All {len(tools)} tools</a></li><li><a href="{prefix}business/olaf.html">🧭 Olaf by Busy</a></li><li><a href="{PRODUCTS["olaf"]["url"]}" target="_blank" rel="noopener">With Olaf · {PRODUCTS["olaf"]["price"]} ↗</a></li></ul>
+    <ul><li><a href="{prefix}about.html">About Busy</a></li><li><a href="{prefix}pricing.html">Free and paid</a></li><li><a href="{prefix}updates.html">What's new</a></li><li><a href="{prefix}press.html">Press</a></li><li><a href="{prefix}films/index.html">Films</a></li><li><a href="{prefix}close-the-year.html">Close the year in an evening</a></li><li><a href="{prefix}privacy.html">Privacy</a></li><li><a href="{prefix}terms.html">Terms</a></li></ul><!--langs--></div>
+  <div><b>💼 Busy Business</b><ul>{biz}<li><a href="{prefix}business/tools.html">All {len(tools)} tools</a></li><li><a href="{prefix}business/quiet-month.html">A quiet month?</a></li><li><a href="{prefix}business/olaf.html">🧭 Olaf by Busy</a></li><li><a href="{PRODUCTS["olaf"]["url"]}" target="_blank" rel="noopener">With Olaf · {PRODUCTS["olaf"]["price"]} ↗</a></li></ul>
     <p style="margin-top:22px"><b>🧩 Busy Games</b></p><ul><li><a href="{prefix}games/tucks-errand.html">Tuck's Errand</a></li>{games}<li><a href="{prefix}games/index.html">All games</a></li><li><a href="{PRODUCTS["tuck"]["url"]}" target="_blank" rel="noopener">Tuck's Errand, the full game · {PRODUCTS["tuck"]["price"]} ↗</a></li><li><a href="{PRODUCTS["street3d"]["url"]}" target="_blank" rel="noopener">Busy Street 3D · {PRODUCTS["street3d"]["price"]} ↗</a></li></ul></div>
   <div><b>🌱 Busy Growth</b><ul>{suite("growth", "growth", GROWTH_LIVE, f'<li><a href="{prefix}growth/index.html#ivy">🌿 Ivy by Busy</a></li><li><a href="{PRODUCTS["ivy"]["url"]}" target="_blank" rel="noopener">With Ivy · {PRODUCTS["ivy"]["price"]} ↗</a></li>')}</ul>
     <p style="margin-top:22px"><b>🏡 Busy Home</b></p><ul>{suite("house", "home", HOME_LIVE, f'<li><a href="{prefix}home/index.html#juno">🏡 Juno by Busy</a></li><li><a href="{PRODUCTS["juno"]["url"]}" target="_blank" rel="noopener">With Juno · {PRODUCTS["juno"]["price"]} ↗</a></li>')}</ul></div>
@@ -2164,6 +2166,7 @@ def build_pages() -> None:
     (SITE / "growth" / "index.html").write_text(growth_page(tools))
     (SITE / "home").mkdir(exist_ok=True)
     (SITE / "home" / "index.html").write_text(home_page(tools))
+    new_pages = write_new_pages(tools)
     suite_pages = []
     for folder, live in (("home", HOME_LIVE), ("growth", GROWTH_LIVE)):
         ts = suite_tools(folder)
@@ -2184,7 +2187,7 @@ def build_pages() -> None:
     (SITE / "download.html").write_text(forward_page("business/download.html", 0))
     sync_chrome(tools)
     pages = (["", "about.html", "pricing.html", "updates.html", "press.html", "claude-key.html", "privacy.html", "terms.html", "business/index.html", "business/tools.html", "business/download.html", "business/olaf.html"]
-             + [f'business/{t["id"]}.html' for t in tools] + game_pages + ["growth/index.html", "home/index.html"] + suite_pages)
+             + [f'business/{t["id"]}.html' for t in tools] + game_pages + ["growth/index.html", "home/index.html"] + suite_pages + new_pages)
     today = date.today().isoformat()
     (SITE / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
                                       + "".join(f"  <url><loc>{SITE_URL}/{p}</loc><lastmod>{page_date(p)}</lastmod></url>\n" for p in pages) + "</urlset>\n")
@@ -2199,6 +2202,236 @@ def build_pages() -> None:
         {"src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png"}]}, indent=1) + "\n")
     missing = [t["id"] for t in tools if t["id"] not in sc]
     print(f"website/business: {len(tools)} product pages + index; {len(tools) + 3} old addresses forwarded" + (f" (no scene for {missing})" if missing else ""))
+
+
+# ---------- the buying moments (Olaf's moments report, owner's approval of 16 November 2026) ----------
+# People look for help at a moment, not for "an app". Each moment has its own page, linked from every footer.
+# Plain words, the free price first, what the tools really do; the paid expert as the second step.
+MOMENTS = {
+    "growth/your-review.html": {
+        "title": "Your review is coming: your year on one page", "suite": "growth", "emoji": "🌱",
+        "desc": "A review next month, and you cannot say what you achieved? Busy Growth keeps your wins as they happen and helps you put the year on one page. Free, in your own folder.",
+        "kicker": "Busy Growth · review season",
+        "h1": "Your review is next month. What did you do this year?",
+        "lead": "Most of a year's good work is forgotten by December. Busy Growth keeps it: each win with its result and its proof, ready for the conversation about your next step. Free, no account, everything in your own folder.",
+        "steps_h": "Your review in one evening",
+        "steps": [("🏆", "Write down every win you remember", "In the Wins Log: what happened, the result, and the proof. Go month by month; one evening is enough."),
+                  ("🧭", "Link each win to a skill", "The Skills Map shows what your year proves and where you grew."),
+                  ("🗓️", "Read your Fridays back", "If you kept the Weekly Review, the numbers and the hard weeks are already there."),
+                  ("🗣️", "Turn the best wins into stories", "The Interview Story Bank shapes them as situation, task, action and result: what you say when your manager asks.")],
+        "after": "Next year, log the win the day it happens. Next December's review then takes ten minutes.",
+        "expert": "ivy", "expert_line": "Ivy, your career coach, reads your wins and finds the words for your review and for the raise you want to ask for.",
+        "get": "growth/index.html#get", "demo": "app/growth.html",
+    },
+    "business/quiet-month.html": {
+        "title": "A quiet month? Five things to do this week", "suite": "business", "emoji": "💼",
+        "desc": "Next month's diary is empty. Five things a small business can do in a quiet week to be easier to find, remember and choose, each one in the free Busy Business.",
+        "kicker": "Busy Business · a quiet month",
+        "h1": "A quiet month, and next month's diary is empty.",
+        "lead": "Every small business has them. A quiet week is the best time for the work that brings the next customers: being easy to find, easy to remember and easy to choose. Five things, each done in Busy Business, free.",
+        "steps_h": "Five things for this week",
+        "steps": [("🧭", "Write down who you are for", "In the Marketing Studio's brand profile: who buys from you, and the moments they think of someone like you."),
+                  ("📇", "Call three past clients", "Clients shows who you worked for and when you last spoke. Ask how it went, and whether they know someone who needs you."),
+                  ("🎨", "Make everything look like you", "The Brand Kit keeps your colours, your logo and your words in one place, so every post and every quote looks the same."),
+                  ("🗓️", "Plan next month on one page", "The year plan in the Marketing Studio: one thing a week, small enough to do in a busy week too."),
+                  ("🧾", "Follow up the quotes that are waiting", "Invoices and quotes shows the open ones. A friendly question this week is often the next job.")],
+        "after": "Be the name people think of first. A quiet week is where that starts.",
+        "expert": "olaf", "expert_line": "Olaf, your brand consultant, looks at your brand, your website and your market, and prepares the month's plan with you.",
+        "get": "business/download.html", "demo": "app/index.html",
+    },
+    "close-the-year.html": {
+        "title": "Close the year in an evening: work, business, home", "suite": "", "emoji": "🗓️",
+        "desc": "One evening in December: look back at your work year, plan your business year and put the household papers in order. Three free apps from Busy, no account.",
+        "kicker": "December and January",
+        "h1": "Close the year in an evening.",
+        "lead": "Three doors, one evening: your work, your business and your home. Each app is free, and everything stays in your own folder.",
+        "doors": [("🌱", "Your work year", "What did this year prove? The Wins Log and the Skills Map put it on one page, ready for your review.", "growth/your-review.html", "Your review →", "growth/index.html#get"),
+                  ("💼", "Your business year", "Who are you for, and what will you do each month? The Marketing Studio's brand profile and year plan, on one page.", "business/quiet-month.html", "A quiet month? →", "business/download.html"),
+                  ("🏡", "Your home year", "What renews in January, and what expires next year? Contracts & Renewals shows the last day to cancel; the Paper Trail finds the passports and policies.", "home/index.html", "Busy Home →", "home/index.html#get")],
+        "after": "Busy with what matters.",
+    },
+}
+
+
+def moment_page(rel: str, m: dict, tools: list) -> str:
+    prefix = "../" * rel.count("/")
+    head_title = m["title"] + ({"growth": " · Busy Growth", "business": " · Busy Business"}.get(m["suite"], " · Busy"))
+    if m.get("doors"):
+        body = "".join(f'<article class="card path reveal pop"><span class="e">{em}</span><h3>{e(h)}</h3><p>{e(p)}</p>'
+                       f'<div class="row-flex"><a class="btn btn-primary" href="{prefix}{get}">⬇️ Free</a><a class="btn" href="{prefix}{more}">{e(more_label)}</a></div></article>'
+                       for em, h, p, more, more_label, get in m["doors"])
+        middle = f'<section class="section"><div class="wrap"><div class="paths">{body}</div></div></section>'
+        paid = (f'<section class="section"><div class="wrap center"><p class="lead reveal">Want it done with you? The experts, from {FROM_PRICE} once: '
+                f'<a href="{prefix}business/olaf.html">Olaf</a>, <a href="{prefix}growth/index.html#ivy">Ivy</a> and <a href="{prefix}home/index.html#juno">Juno</a>.</p>'
+                f'<p class="kicker reveal">{e(m["after"])}</p></div></section>')
+        ctas = ""
+    else:
+        steps = "".join(f'<li class="card reveal"><span class="e">{em}</span><div><b>{e(h)}</b><p>{e(p)}</p></div></li>' for em, h, p in m["steps"])
+        middle = (f'<section class="section"><div class="wrap"><div class="center reveal"><h2 class="big">{e(m["steps_h"])}</h2></div>'
+                  f'<ol class="moment-steps">{steps}</ol><p class="center lead reveal">{e(m["after"])}</p></div></section>')
+        x = PRODUCTS[m["expert"]]
+        works = ("He" if m["expert"] == "olaf" else "She") + " works on the Claude you already have."
+        paid = (f'<section class="section"><div class="wrap"><article class="card path featured reveal"><span class="chip chip-grape">AI expert · {x["price"]} once</span>'
+                f'<h3>{e(x["name"])}</h3><p>{e(m["expert_line"])} {works}</p>'
+                f'<div class="row-flex">{itch_button(m["expert"])}</div></article></div></section>')
+        ctas = (f'<div class="row-flex center-flex"><a class="btn btn-primary btn-big" href="{prefix}{m["get"]}">⬇️ Download free</a>'
+                f'<a class="btn btn-big" href="{prefix}{m["demo"]}">👀 See the demo</a></div>')
+    return f"""{head(head_title, m["desc"], rel, prefix)}
+<body class="site app-sun">
+{nav(prefix, explore(prefix))}
+<main id="main">
+  <section class="section"><div class="wrap">
+    <div class="center reveal"><p class="kicker">{e(m["kicker"])}</p><h1 class="big">{e(m["h1"])}</h1>
+      <p class="lead">{e(m["lead"])}</p>{ctas}<p class="faint">Free · no account · Mac and Windows</p></div>
+  </div></section>
+  {middle}
+  {paid}
+</main>
+{footer(prefix, tools)}
+<script src="{prefix}assets/site.js"></script>
+</body>
+</html>
+"""
+
+
+# ---------- a watch page per film (Search Console, 16 November 2026: "Video isn't on a watch page") ----------
+# On the product pages a film is one part of many; Google shows a film in its video results only from a page that is
+# about the film. Our own file plays here (nothing loads until play); the same film is on the Busy YouTube channel.
+YOUTUBE = "https://www.youtube.com/@Busy-AI-com"
+FILMS = {
+    "busy-business": ("Busy Business with Olaf: the film", "The free tools for a small business, and Olaf, the brand consultant upstairs, in 30 seconds.", "sKWE_rWW6zQ", "business/index.html", "Busy Business"),
+    "busy-growth": ("Busy Growth with Ivy: the film", "The free tools to grow your career, and Ivy, the career coach at the top of the Glasshouse, in 30 seconds.", "DZX4lbfiyMk", "growth/index.html", "Busy Growth"),
+    "busy-home": ("Busy Home with Juno: the film", "The free tools for household paperwork, and Juno, the household assistant in the attic, in 30 seconds.", "6iGmY4yqhPc", "home/index.html", "Busy Home"),
+    "busy-games": ("Busy Games: the film", "The four daily brain games in 24 seconds. Free, a new puzzle every day.", "SScuHhGPRLc", "games/index.html", "Busy Games"),
+    "tucks-errand": ("Busy Street: Tuck's Errand, the trailer", "Tuck has one overdue stamp and a whole street of red tape. The trailer of the game, in six languages.", "EZPAUpdnXo4", "games/tucks-errand.html", "Tuck's Errand"),
+    "busy-street-3d": ("Busy Street 3D: the trailer", "Busy Street in 3D: the street, the worlds and the cities, with the owner's piano music.", "CZWQVzKUeS0", "games/tucks-errand.html", "Busy Street 3D"),
+}
+
+
+# The films' lengths, measured with ffprobe on 16 November 2026 (the online build has no ffprobe); a new film is measured.
+FILM_SECONDS = {"busy-business": 31, "busy-growth": 31, "busy-home": 31, "busy-games": 24, "tucks-errand": 67, "busy-street-3d": 57}
+
+
+def film_seconds(name: str) -> int:
+    if name in FILM_SECONDS:
+        return FILM_SECONDS[name]
+    try:
+        out = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(SITE / "assets" / "films" / f"{name}.mp4")],
+                             capture_output=True, text=True, timeout=30).stdout.strip()
+        return max(1, round(float(out)))
+    except (OSError, ValueError, subprocess.TimeoutExpired):
+        return 30
+
+
+def film_watch(name: str, tools: list) -> str:
+    title, desc, yt, home, label = FILMS[name]
+    rel, prefix, sec = f"films/{name}.html", "../", film_seconds(name)
+    when = page_date(f"assets/films/{name}.mp4", [f"website/assets/films/{name}.mp4"])
+    ld = jsonld({"@context": "https://schema.org", "@type": "VideoObject", "name": title, "description": desc,
+                 "thumbnailUrl": f"{SITE_URL}/assets/films/{name}.jpg", "contentUrl": f"{SITE_URL}/assets/films/{name}.mp4",
+                 "uploadDate": when, "duration": f"PT{sec}S", "inLanguage": "en", "url": f"{SITE_URL}/{rel}",
+                 "publisher": {"@type": "Organization", "name": "Busy", "url": f"{SITE_URL}/"},
+                 "sameAs": f"https://www.youtube.com/watch?v={yt}"})
+    return f"""{head(title + " · Busy", desc, rel, prefix, ld)}
+<body class="site app-sun">
+{nav(prefix, explore(prefix))}
+<main id="main">
+  <section class="section"><div class="wrap">
+    <div class="center"><p class="kicker">A film by Busy</p><h1 class="big">{e(title)}</h1></div>
+    <figure class="film watch"><video controls playsinline preload="metadata" poster="{prefix}assets/films/{name}.jpg" src="{prefix}assets/films/{name}.mp4" aria-label="{e(title)}"></video>
+      <figcaption class="center lead">{e(desc)}</figcaption></figure>
+    <div class="row-flex center-flex"><a class="btn btn-primary btn-big" href="{prefix}{home}">{e(label)} →</a>
+      <a class="btn btn-big out" href="https://www.youtube.com/watch?v={yt}" target="_blank" rel="noopener">Also on YouTube <span aria-hidden="true">↗</span></a></div>
+    <p class="center faint" style="margin-top:22px"><a href="{prefix}films/index.html">All films →</a></p>
+  </div></section>
+</main>
+{footer(prefix, tools)}
+<script src="{prefix}assets/site.js"></script>
+</body>
+</html>
+"""
+
+
+def films_index(tools: list) -> str:
+    cards = "".join(f'<a class="card film-card reveal" href="{n}.html"><img src="../assets/films/{n}.jpg" alt="" loading="lazy" width="640" height="360"><b>{e(t)}</b><small>{e(d)}</small></a>'
+                    for n, (t, d, *_) in FILMS.items())
+    desc = "The short films of Busy: the three apps with their experts, the brain games, and the game Busy Street in 2D and 3D."
+    return f"""{head("Films · Busy", desc, "films/index.html", "../")}
+<body class="site app-sun">
+{nav("../", explore("../"))}
+<main id="main">
+  <section class="section"><div class="wrap">
+    <div class="center reveal"><p class="kicker">Films</p><h1 class="big">Busy, in short films.</h1><p class="lead">{e(desc)} Also on <a href="{YOUTUBE}" target="_blank" rel="noopener">our YouTube channel ↗</a>.</p></div>
+    <div class="film-grid">{cards}</div>
+  </div></section>
+</main>
+{footer("../", tools)}
+<script src="../assets/site.js"></script>
+</body>
+</html>
+"""
+
+
+def write_new_pages(tools: list) -> list:
+    out = []
+    for rel, m in MOMENTS.items():
+        (SITE / rel).parent.mkdir(parents=True, exist_ok=True)
+        (SITE / rel).write_text(moment_page(rel, m, tools)); out.append(rel)
+    (SITE / "films").mkdir(exist_ok=True)
+    for name in FILMS:
+        (SITE / "films" / f"{name}.html").write_text(film_watch(name, tools)); out.append(f"films/{name}.html")
+    (SITE / "films" / "index.html").write_text(films_index(tools)); out.append("films/index.html")
+    return out
+
+
+# ---------- honest page dates (health check of 15 November 2026) ----------
+# A page's date moves when its own words change, not when the build script changes. Each built page (every language)
+# is fingerprinted without its date; a new fingerprint gets today's date. website/content/page-dates.json remembers them.
+DATES_FILE = ROOT / "website" / "content" / "page-dates.json"
+DATE_IN_PAGE = re.compile(r'("dateModified":\s*")(\d{4}-\d{2}-\d{2})(")')
+
+
+def settle_dates() -> None:
+    import hashlib
+    rec = json.loads(DATES_FILE.read_text()) if DATES_FILE.exists() else {}
+    today = date.today().isoformat()
+    sm = SITE / "sitemap.xml"
+    text = sm.read_text()
+    seen = {}
+
+    def file_of(loc: str) -> Path:
+        p = loc[len(SITE_URL) + 1:]
+        return SITE / (p + "index.html" if p == "" or p.endswith("/") else p)
+
+    def fix(m):
+        loc = m.group(1)
+        f = file_of(loc)
+        if not f.exists():
+            return m.group(0)
+        page = f.read_text()
+        key = f.relative_to(SITE).as_posix()
+        # the words people read: without scripts (structured data, the counter) and the site's own address, which the
+        # online build (GitHub Pages) sets differently from a local one
+        words = re.sub(r"<script\b[^>]*>.*?</script>|<style\b[^>]*>.*?</style>", "", page, flags=re.S)
+        meta = " ".join(re.findall(r'<title>.*?</title>|<meta name="description" content="[^"]*"', words, flags=re.S))
+        words = meta + re.sub(r"<[^>]+>", " ", words)   # the text people read, not the markup around it
+        fp = hashlib.sha1(re.sub(r"\s+", " ", words).encode()).hexdigest()[:16]
+        old = rec.get(key)
+        d = old[1] if old and old[0] == fp else (m.group(2) if not old else today)   # first time: the date the sources gave
+        rec[key] = [fp, d]
+        seen[key] = d
+        new_page = DATE_IN_PAGE.sub(lambda x: x.group(1) + d + x.group(3), page)
+        if new_page != page:
+            f.write_text(new_page)
+        return f"<url><loc>{loc}</loc><lastmod>{d}</lastmod>"
+
+    text = re.sub(r"<url><loc>([^<]*)</loc><lastmod>([^<]*)</lastmod>", fix, text)
+    sm.write_text(text)
+    # only the real site keeps its record: a trial build (check.py, without the live address) reads it, never writes it
+    if SITE_URL.startswith("https://busy.com.ai"):
+        DATES_FILE.write_text(json.dumps({k: rec[k] for k in sorted(rec)}, indent=0) + "\n")
+    print(f"page dates: {len(seen)} pages, {sum(1 for d in seen.values() if d == today)} changed today")
+
 
 
 # ---------- who we are, for search engines and AI assistants ----------
@@ -2221,7 +2454,7 @@ DISAMBIGUATION = ("Busy at busy.com.ai: free, private tools for work and life, f
                   "Not related to BUSY accounting software (busy.in).")
 
 
-def page_date(rel: str) -> str:
+def page_date(rel: str, files: list = None) -> str:
     """When a page last changed, from git: its own source file, or for generated pages, what they are made from.
     Honest freshness: the date moves when the content does, not on every build."""
     sources = {"": ["website/index.html"], "business/index.html": ["website/business/index.html"], "business/download.html": ["website/business/download.html"],
@@ -2230,6 +2463,8 @@ def page_date(rel: str) -> str:
                "business/olaf.html": ["build.py", "olaf-demo/library.js"], "growth/index.html": ["build.py"]}.get(rel, ["build.py", "website/content/tools.json"])
     if rel.startswith("games/"):
         sources = ["build.py", "website/assets/games/engine.js", "website/assets/games/play.js"]
+    if files:
+        sources = files
     dates = []
     for src in sources:
         try:
@@ -2249,9 +2484,10 @@ def site_graph(rel: str, title: str) -> dict:
            "disambiguatingDescription": DISAMBIGUATION, "slogan": "Busy with what matters.",
            "logo": {"@type": "ImageObject", "@id": base + "#logo", "url": base + "assets/logo-512.png", "width": 512, "height": 512, "caption": "Busy logo"},
            "image": {"@id": base + "#logo"}}
+    org["sameAs"] = [YOUTUBE, ITCH.rstrip("/")]
     repo = os.environ.get("GITHUB_REPOSITORY")
     if repo:
-        org["sameAs"] = [f"https://github.com/{repo}"]
+        org["sameAs"].append(f"https://github.com/{repo}")
     page_type = {"about.html": "AboutPage", "business/index.html": "CollectionPage", "business/tools.html": "CollectionPage",
                  "games/index.html": "CollectionPage"}.get(rel, "WebPage")
     page = {"@type": page_type, "@id": url + "#webpage", "url": url, "name": title, "inLanguage": "en", "isPartOf": {"@id": base + WEBSITE_ID},
@@ -2681,7 +2917,7 @@ LANG_REDIRECT = ("<script>(function(){try{if(/bot|crawl|spider|slurp|preview/i.t
                  "var a=document.querySelector('link[rel=alternate][hreflang=\"'+(k==='pt-br'?'pt-BR':k)+'\"]');if(a&&k!=='en')location.replace(a.href+location.hash);}catch(e){}})();</script>")
 
 
-HUBS = "business|growth|home|games"
+HUBS = "business|growth|home|games|films"
 
 
 def hub_addresses() -> None:
@@ -2716,9 +2952,21 @@ def short_description(text: str, limit: int = 160) -> str:
     return cut[:limit - 1].rsplit(" ", 1)[0].rstrip(",;:") + "…"
 
 
+SHORT_TITLES = {k: v for k, v in json.loads((ROOT / "i18n" / "short-titles.json").read_text()).items() if k != "_"} \
+    if (ROOT / "i18n" / "short-titles.json").exists() else {}
+
+
 def short_title(text: str, limit: int = 60) -> str:
-    """A tool page's title ends with its suite's name; where that makes it too long for a search result, with Busy alone."""
-    return re.sub(r" · Busy (Growth|Home)$", " · Busy", text) if len(text) > limit else text
+    """A title that fits a search result. A tool page's title ends with its suite's name; where that makes it too long,
+    with Busy alone; still too long, without the name (the address says it); and a translation that is still too long
+    takes its shorter version from i18n/short-titles.json."""
+    if len(text) <= limit:
+        return text
+    text = re.sub(r" · Busy (Growth|Home)$", " · Busy", text)
+    if len(text) > limit:
+        text = re.sub(r" · Busy( Business| Growth| Home| Games)?$", "", text)
+    body = SHORT_TITLES.get(text, text)
+    return body + " · Busy" if body != text and len(body) + 7 <= limit else body
 
 
 def lang_links(rel: str, here: str) -> tuple:
@@ -2734,6 +2982,33 @@ def lang_links(rel: str, here: str) -> tuple:
     links = "".join(f'<a href="{(up + ("" if l == "en" else l + "/") + page) or "./"}" data-lang="{l}" hreflang="{"en" if l == "en" else I18N.HTML_LANG[l]}"{current if l == here else ""}>{LANG_LABEL[l]}</a>'
                     for l in LANG_LABEL)
     return tags, f'<nav class="langs" aria-label="Language">🌐 {links}</nav>'
+
+
+def webp_pictures() -> None:
+    """Each <img> of a JPEG or PNG that has a WebP copy (tools/webp.py) becomes <picture> with the WebP first; browsers
+    without WebP, and anything that reads the old file, still get the original. picture{display:contents} in site.css."""
+    sys.path.insert(0, str(ROOT / "tools"))
+    import webp
+    webp.main()
+    img = re.compile(r'(?<!type="image/webp">)<img(?P<a>[^>]*?) src="(?P<src>[^"#?]+)\.(?P<ext>png|jpe?g)"(?P<b>[^>]*)>')
+    n = 0
+    for f in site_pages():
+        t = f.read_text()
+
+        def wrap(m):
+            nonlocal n
+            src = m.group("src")
+            if src.startswith(("http:", "https:", "data:")) or not (f.parent / (src + ".webp")).exists():
+                return m.group(0)
+            n += 1
+            return f'<picture><source srcset="{src}.webp" type="image/webp">{m.group(0)}</picture>'
+        new = img.sub(wrap, t)
+        # the first room, fetched early: as WebP too (type= lets a browser without WebP skip it)
+        new = re.sub(r'<link rel="preload" href="([^"]+)\.jpg" as="image">',
+                     lambda m: f'<link rel="preload" href="{m.group(1)}.webp" as="image" type="image/webp">' if (f.parent / (m.group(1) + ".webp")).exists() else m.group(0), new)
+        if new != t:
+            f.write_text(new)
+    print(f"webp: {n} pictures served as WebP first")
 
 
 def translate_site() -> None:
@@ -2826,7 +3101,9 @@ def main() -> None:
     site_counter()
     site_csp()
     hub_addresses()
+    webp_pictures()
     translate_site()
+    settle_dates()
     leak_check()
 
 

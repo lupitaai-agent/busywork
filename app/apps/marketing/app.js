@@ -160,7 +160,8 @@
     BW.modal({ title: `${s.emoji} ${esc(s.name)}`, body: `<p>${esc(s.summary)}</p>
         ${context ? `<p class="faint" style="margin-top:10px">${esc(context)}</p>` : ''}
         <div class="idea" style="margin-top:14px"><span class="e">🧭</span><div><b>Olaf does this with you.</b> It reads your brand profile and your numbers, asks what only you know, does the work and saves it to your dashboard. ${here ? 'Olaf is installed: open it and pick this from its skills.' : 'Olaf comes with the paid edition.'}</div></div>`,
-      actions: [{ label: 'Close', kind: 'ghost' }, { label: here ? 'Open Olaf →' : olafEdition === 'demo' ? 'See Olaf in action →' : 'Register your interest →', kind: 'primary', onClick: () => { if (olafEdition) location.href = olafHref(); else BW.openUrl(olafHref()); } }] });
+      actions: [{ label: 'Close', kind: 'ghost' }].concat(here && BW.expertLink && BW.expertLink.viaClaude() ? [{ label: 'Open Olaf', onClick: () => { location.href = olafHref(); } }, { label: BW.t('Ask in Claude') + ' →', kind: 'primary', onClick: () => { BW.expertLink.askSkill(s.name, context); } }]
+        : [{ label: here ? 'Open Olaf →' : olafEdition === 'demo' ? 'See Olaf in action →' : 'Register your interest →', kind: 'primary', onClick: () => { if (olafEdition) location.href = olafHref(); else BW.openUrl(olafHref()); } }]) });
   }
   function bindOlaf(v) { $$('[data-skill]', v).forEach((b) => b.onclick = () => olafDoes(b.dataset.skill)); }
 
