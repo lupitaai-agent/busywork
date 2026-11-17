@@ -1,6 +1,20 @@
 {
- "about": "What changed in Busy, newest first. build.py makes the What's new page (updates.html) and the RSS feed (feed.xml) from it. Add each release here when it goes out.",
+ "about": "What changed in Busy, newest first. build.py makes the What's new page (updates.html) and the RSS feed (feed.xml) from it. Add each release here when it goes out, with the day it goes out as its date. An item is a sentence, or [a name, a sentence] for one new thing.",
  "updates": [
+  {
+   "version": "2.1",
+   "date": "2026-11-17",
+   "title": "Busy Home 2.1: for a household of any size",
+   "items": [
+    ["The whole household", "Everyone who lives there, people and pets, each with a colour. Say who looks after what, and see just your own things."],
+    ["Shared Costs", "Who paid what, and who owes whom: split equally, by income share or your own way, between any number of people."],
+    ["Pets", "Vaccinations and check-ups with their next dates, a sitter's booklet as a PDF, and a checklist for travelling with a pet in the EU."],
+    ["Tax time", "The date for the UK, the Netherlands, Germany, Spain, Italy or Brazil, the papers to gather, and a tag to keep a paper for the return."],
+    ["Drop here", "A folder for the scans and photos from your phone: they wait in the tray to be filed."],
+    ["The renewal check", "Last year's price beside this year's, and a reminder to compare energy deals before a fixed deal ends."],
+    "Free, like the rest. Juno, in the paid edition, does the boring part of each for you."
+   ]
+  },
   {
    "version": "2.0",
    "date": "2026-11-15",

@@ -51,6 +51,15 @@
     return (measure.measureText(String(str)).width / 100) * size;
   }
 
+  // Glyph widths in 1/1000 em for the WinAnsi codes 32 to 255, measured like the layout measures text.
+  const UNI = {}; Object.entries(WIN).forEach(([u, b]) => { if (b >= 0x80) UNI[b] = Number(u); });
+  const widthsCache = {};
+  function widths(bold) {
+    if (widthsCache[bold]) return widthsCache[bold];
+    const out = [];
+    for (let c = 32; c <= 255; c++) { const u = c >= 0x80 && c <= 0x9F ? UNI[c] : c; out.push(u ? Math.round(width(String.fromCharCode(u), 1000, bold)) : 0); }
+    return (widthsCache[bold] = out.join(' '));
+  }
   function Doc() { this.pages = []; this.images = []; this.links = []; this.addPage(); }
   Doc.prototype = {
     W, H,
@@ -67,13 +76,26 @@
       return w;
     },
     wrap(str, maxW, size, bold) {
+      const fits = (s) => width(s, size, bold) <= maxW;
+      // A word wider than the line (a long web address) is broken after / - _ . ? = &, or else letter by letter.
+      const byChars = (s) => { const out = []; let c = ''; for (const ch of s) { if (fits(c + ch) || !c) c += ch; else { out.push(c); c = ch; } } if (c) out.push(c); return out; };
+      const pieces = (word) => {
+        if (fits(word)) return [word];
+        const out = []; let cur = '';
+        for (const tok of word.match(/[^/_.?=&-]*[/_.?=&-]?/g).filter(Boolean)) { if (fits(cur + tok) || !cur) cur += tok; else { out.push(cur); cur = tok; } }
+        if (cur) out.push(cur);
+        return out.flatMap((p) => (fits(p) ? [p] : byChars(p)));
+      };
       const lines = [];
       for (const para of String(str || '').split(/\r?\n/)) {
         let line = '';
         for (const word of para.split(/\s+/)) {
-          const tryLine = line ? line + ' ' + word : word;
-          if (width(tryLine, size, bold) <= maxW || !line) line = tryLine;
-          else { lines.push(line); line = word; }
+          pieces(word).forEach((w, i) => {
+            if (i) { lines.push(line); line = w; return; }
+            const tryLine = line ? line + ' ' + w : w;
+            if (fits(tryLine) || !line) line = tryLine;
+            else { lines.push(line); line = w; }
+          });
         }
         lines.push(line);
       }
@@ -114,8 +136,10 @@
       put('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n');
       obj(1, '<< /Type /Catalog /Pages 2 0 R >>');
       obj(2, `<< /Type /Pages /Kids [${this.pages.map((_, p) => pageId(p) + ' 0 R').join(' ')}] /Count ${P} >>`);
-      obj(3, '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');
-      obj(4, '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
+      // The widths the lines were laid out with go into the file, so every reader spaces the letters the same way
+      // (without them, a reader's own Helvetica can draw "€" over the space that follows it).
+      obj(3, `<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding /FirstChar 32 /LastChar 255 /Widths [${widths(false)}] >>`);
+      obj(4, `<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding /FirstChar 32 /LastChar 255 /Widths [${widths(true)}] >>`);
       this.images.forEach((im, i) => obj(imgId(i), [
         `<< /Type /XObject /Subtype /Image /Width ${im.w} /Height ${im.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${im.bytes.length} >>\nstream\n`,
         im.bytes, '\nendstream',

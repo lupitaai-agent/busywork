@@ -12,12 +12,12 @@
     app: 'papers',
     onReady: async () => {
       await load(); render(); bindDrops();
-      BW.route({ new: (k) => edit({ kind: k || 'other' }), open: (id) => { const x = papers.find((p) => p.id === id); if (x) edit(x); } });
+      BW.route({ new: (k) => edit({ kind: k || 'other' }), open: (id) => { const x = H.visiblePapers(papers, H.myself()).find((p) => p.id === id); if (x) edit(x); } });
     },
     onChange: async () => { await load(); if (!$('.drawer-wrap')) render(); },
   });
   BW.shortcut('n', 'Add a document', () => edit({ kind: 'other' }));
-  async function load() { papers = await BW.store.all('papers'); }
+  async function load() { [papers] = await Promise.all([BW.store.all('papers'), H.loadMembers()]); }
 
   // A good first guess from the file name; the owner can change it.
   const GUESS = [['id', /passport|paspoort|id[ _-]?card|identiteit|rijbewijs|driving|licen[cs]e/i], ['insurance', /polis|polic|insur|verzeker/i], ['car', /\bcar\b|auto|apk|\bmot\b|kenteken|vehicle/i],
@@ -37,13 +37,14 @@
   function render() {
     const today = BW.today();
     const people = [...new Set(papers.map((p) => p.person).filter(Boolean))].sort();
-    let shown = papers.filter((p) => (!kind || p.kind === kind) && (!person || p.person === person));
+    const hidden = papers.length - H.visiblePapers(papers, H.myself()).length;
+    let shown = H.visiblePapers(papers, H.myself()).filter((p) => (!kind || p.kind === kind) && (!person || p.person === person));
     shown = q ? H.search(shown, q) : shown.sort((a, b) => String(a.title).localeCompare(String(b.title)));
-    const soon = H.expiring(papers, today);
+    const soon = H.expiring(H.visiblePapers(papers, H.myself()), today);
     const counts = {}; papers.forEach((p) => { counts[p.kind || 'other'] = (counts[p.kind || 'other'] || 0) + 1; });
     main.innerHTML = `
       <div class="page-head">
-        <div><h1><span class="title-emo">🗂️</span> Paper Trail</h1><p class="lead">Every important document, found in seconds. Drop scans anywhere on this page.</p></div>
+        <div><h1><span class="title-emo">🗂️</span> Paper Trail</h1><p class="lead">Every important document, found in seconds. Drop scans anywhere on this page.</p>${hidden ? `<p class="s">🔒 ${hidden} ${BW.t(hidden === 1 ? 'private document of someone else is not shown' : 'private documents of others are not shown')}</p>` : ''}</div>
         <div class="spacer"></div>
         <div class="row-flex"><button class="btn" data-add-files><span class="emo">📎</span> Add scans</button><button class="btn btn-primary btn-big" data-new><span class="emo">＋</span> Add a document</button></div>
       </div>
@@ -74,7 +75,7 @@
   }
   function row(p) {
     const n = (p.files || []).length;
-    const sub = [p.person, p.reference && `ref. ${p.reference}`, p.expires && `until ${BW.fmtDate(p.expires)}`, p.where && `📍 ${p.where}`].filter(Boolean);
+    const sub = [p.person, p.who && `👤 ${H.whoName(H.members, p.who)}`, p.private && '🔒', p.taxYear && `🧾 ${p.taxYear}`, p.reference && `ref. ${p.reference}`, p.expires && `until ${BW.fmtDate(p.expires)}`, p.where && `📍 ${p.where}`].filter(Boolean);
     return `<div class="row" data-id="${p.id}" tabindex="0"><span class="icon-big">${H.kind(p.kind)[1]}</span>
       <span class="main"><b>${esc(p.title || 'A document')}</b><small>${esc(sub.join(' · ')) || '&nbsp;'}</small>
         <span class="meta">${n ? `<span class="chip chip-grey mini">📎 ${n} file${n === 1 ? '' : 's'}</span>` : '<span class="chip chip-grey mini">No scan yet</span>'}${p.replaced ? '<span class="chip chip-grey mini">Older copy</span>' : ''}${String(p.tags || '').split(',').map((t) => t.trim()).filter(Boolean).map((t) => `<span class="chip chip-grey mini"># ${esc(t)}</span>`).join('')}</span></span>
@@ -128,6 +129,9 @@
         { k: 'title', label: 'What is it?', ph: 'e.g. Passport Noor, Home insurance policy, Lease', span: 2, required: true },
         { k: 'kind', label: 'Kind', type: 'chips', options: H.KINDS.map((k) => [k[0], `${k[1]} ${k[2]}`]) },
         { k: 'person', label: 'Whose is it?', ph: 'e.g. Noor, the whole household, the car' },
+        ...H.whoField(p && p.who),
+        ...((tc, ty) => [{ k: 'taxYear', label: 'Keep for the tax return?', type: 'select', options: [['', 'No'], [ty, `Yes, for ${ty}`], [String(H.taxYearOf(tc, BW.addPeriod(BW.today(), 'month', -12))), `Yes, for ${H.taxYearOf(tc, BW.addPeriod(BW.today(), 'month', -12))}`]].concat(p && p.taxYear && ![ty, String(H.taxYearOf(tc, BW.addPeriod(BW.today(), 'month', -12)))].includes(String(p.taxYear)) ? [[String(p.taxYear), `Yes, for ${p.taxYear}`]] : []) }])(H.taxCountry(BW.settings, H.lang()), H.taxYearOf(H.taxCountry(BW.settings, H.lang()), BW.today())),
+        ...(H.people(H.members).length > 1 && H.member(H.members, H.myself()) ? [{ k: 'private', label: 'Who sees it?', type: 'select', options: [['', 'Everyone in the household'], ['yes', 'Only the one who looks after it']], hint: 'Tidiness, never a lock: the file stays in the shared folder.' }] : []),
         { k: 'reference', label: 'Number or reference', ph: 'Policy or customer number', hint: 'Skip ID numbers if you’d rather not keep them here.' },
         { k: 'issued', label: 'Issued or signed on', type: 'date' },
         { k: 'expires', label: 'Expires on', type: 'date', hint: 'Busy warns you in time: four months ahead for passports and ID cards, two for the rest.' },

@@ -57,7 +57,8 @@ Key facts:
 
 ## Busy Home: free tools for household paperwork
 
-- [Busy Home](https://busy.com.ai/home/): 7 free tools: documents that warn before they expire, contracts with the last day to cancel, home upkeep, a home inventory with an insurance claim pack, letters, a moving planner and a Just in Case binder. Juno, an AI household assistant, comes with the paid edition.
+- [Busy Home](https://busy.com.ai/home/): 8 free tools: documents that warn before they expire, contracts with the last day to cancel, home upkeep, a home inventory with an insurance claim pack, letters, a moving planner and a Just in Case binder. Juno, an AI household assistant, comes with the paid edition.
+- [New in Busy Home 2.1](https://busy.com.ai/home/#new): for a household of any size. The whole household: Everyone who lives there, people and pets, each with a colour. Say who looks after what, and see just your own things. Shared Costs: Who paid what, and who owes whom: split equally, by income share or your own way, between any number of people. Pets: Vaccinations and check-ups with their next dates, a sitter's booklet as a PDF, and a checklist for travelling with a pet in the EU. Tax time: The date for the UK, the Netherlands, Germany, Spain, Italy or Brazil, the papers to gather, and a tag to keep a paper for the return. Drop here: A folder for the scans and photos from your phone: they wait in the tray to be filed. The renewal check: Last year's price beside this year's, and a reminder to compare energy deals before a fixed deal ends.
 - [Download Busy Home](https://busy.com.ai/home/#get): the free Busy Home app for Mac and Windows (beta), or a zip for the browser.
 - [Paper Trail](https://busy.com.ai/home/papers.html): Passports, policies, contracts and warranties in one place, searchable down to the words inside a PDF, with a nudge before anything expires. Free, private.
 - [Contracts & Renewals](https://busy.com.ai/home/contracts.html): Insurance, energy, phone, the gym: what each costs a month and the last day to cancel before it renews by itself. A free reminder, private.
@@ -66,6 +67,7 @@ Key facts:
 - [Letters](https://busy.com.ai/home/letters.html): Cancel a contract, complain, claim, object or ask for your data: letters with your details, the company and the dates already filled in. Free.
 - [Moving Planner](https://busy.com.ai/home/moving.html): A moving checklist worked back from moving day, and everyone to tell, with your contracts already on the list. Change-of-address letters in one click. Free.
 - [Just in Case](https://busy.com.ai/home/binder.html): Everything your family would need if something happened to you: people to call, where things are, accounts, wishes. One PDF to keep with the will. Free.
+- [Shared Costs](https://busy.com.ai/home/costs.html): Who paid what, and who owes whom: split equally, by income share or your own way, between any number of people. Free, private, no AI.
 - [Juno, the household assistant](https://busy.com.ai/home/#juno): explains letters, writes the replies and keeps the household ahead. In Busy Home with Juno, $1.49 once on itch.io (https://busyai.itch.io/busy-home), on the owner's own Claude.
 
 ## About

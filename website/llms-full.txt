@@ -387,6 +387,16 @@ Page: https://busy.com.ai/home/. Free, as its own app for Mac and Windows (https
 - Letters: Cancel, complain, claim, object or ask for your data: letters with your details, the company and the dates filled in.
 - Moving Planner: A checklist worked back from moving day, and everyone to tell, with your contracts already on the list.
 - Just in Case: Everything your family would need if something happened to you: people to call, where things are, wishes. One PDF.
+- Shared Costs: Who paid what, and who owes whom: split equally, by income share or your own way, between any number of people.
+
+New in Busy Home 2.1, for a household of any size:
+
+- The whole household: Everyone who lives there, people and pets, each with a colour. Say who looks after what, and see just your own things.
+- Shared Costs: Who paid what, and who owes whom: split equally, by income share or your own way, between any number of people.
+- Pets: Vaccinations and check-ups with their next dates, a sitter's booklet as a PDF, and a checklist for travelling with a pet in the EU.
+- Tax time: The date for the UK, the Netherlands, Germany, Spain, Italy or Brazil, the papers to gather, and a tag to keep a paper for the return.
+- Drop here: A folder for the scans and photos from your phone: they wait in the tray to be filed.
+- The renewal check: Last year's price beside this year's, and a reminder to compare energy deals before a fixed deal ends.
 
 Juno by Busy, the household assistant, comes in Busy Home with Juno ($1.49 once on itch.io, https://busyai.itch.io/busy-home), on the owner's own Claude. It explains letters, reads contracts and policies, writes replies and keeps renewals in view. It never gives legal advice.
 

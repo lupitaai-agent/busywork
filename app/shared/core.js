@@ -9,7 +9,7 @@
   // The website. build.py puts the real address in the copies it publishes and zips.
   BW.siteUrl = 'https://busywork.example';
   // The release, shown in problem reports and written into the business folder (data/meta.json).
-  BW.version = '2.0.1';
+  BW.version = '2.1.0';
   // A shell around Busy (a desktop or phone app, a test, a hosted version) can set window.BW_HOST
   // before this file loads to bring its own storage driver, platform functions, AI transport or
   // entitlements. A plain browser tab sets nothing and gets the defaults below. See ARCHITECTURE.md.
@@ -50,7 +50,13 @@
     { id: 'letters', suite: 'house', name: 'Letters', emoji: '✉️', color: 'pink', ready: true, tagline: 'Cancel, complain, claim or object, with your details already filled in.' },
     { id: 'moving', suite: 'house', name: 'Moving Planner', emoji: '🚚', color: 'teal', ready: true, tagline: 'Everything to do before and after the move, and everyone to tell.' },
     { id: 'binder', suite: 'house', name: 'Just in Case', emoji: '📕', color: 'mint', ready: true, tagline: 'Everything your family would need if something happened to you, in one place.' },
+    { id: 'costs', suite: 'house', name: 'Shared Costs', emoji: '🧮', color: 'teal', ready: true, tagline: 'Who paid what, and who owes whom: for couples, families and housemates.' },
+    { id: 'homes', suite: 'rentals', name: 'Homes & Tenancies', emoji: '🏠', color: 'sky', ready: true, tagline: 'Each home, who lives there, and every check and certificate with its date.' },
+    { id: 'rent', suite: 'rentals', name: 'Rent & Deposits', emoji: '💶', color: 'mint', ready: true, tagline: 'What came in, what is late, and where each deposit stands.' },
+    { id: 'rentletters', suite: 'rentals', name: 'Letters to Tenants', emoji: '✉️', color: 'pink', ready: true, tagline: 'A welcome, a visit, a repair, a copy, the deposit: filled in, in the language you choose.' },
+    { id: 'rentcosts', suite: 'rentals', name: 'Costs & the Tax Year', emoji: '🧾', color: 'sun', ready: true, tagline: 'Costs per home with receipts, and the year’s totals for the return.' },
     { id: 'juno', suite: 'house', name: 'Juno', emoji: '🏡', color: 'tomato', ready: false, tagline: 'Your AI expert for household paperwork: reads the letters, writes the replies, keeps you ahead.' },
+    { id: 'wren', suite: 'rentals', name: 'Wren', emoji: '🔑', color: 'sky', ready: false, tagline: 'Wren reads the tenancy and keeps the year.' },
   ]);
 
   // A suite is a set of tools with its own home page and its own folder. Business folders and growth
@@ -59,6 +65,7 @@
     business: { name: 'Busy Business', home: 'index.html', noun: 'business', folder: 'My Business', details: 'Business details', key: '' },
     growth: { name: 'Busy Growth', home: 'growth.html', noun: 'growth folder', folder: 'My Growth', details: 'Your details', key: ':growth' },
     house: { name: 'Busy Home', home: 'home.html', noun: 'home folder', folder: 'My Home', details: 'Your household', key: ':house' },
+    rentals: { name: 'Busy Rentals', home: 'rentals.html', noun: 'rentals folder', folder: 'My Rentals', details: 'Your details', key: ':rentals' },
   };
   BW.suite = 'business';
   const suite = () => BW.SUITES[BW.suite] || BW.SUITES.business;
@@ -102,6 +109,14 @@
       { id: 'dates', emoji: '🗓️', name: 'Dates', href: 'home-dates.html', tools: ['contracts', 'upkeep', 'moving'] },
       { id: 'letters', emoji: '✉️', name: 'Letters', href: 'apps/letters/index.html', tools: ['letters'] },
       { id: 'binder', emoji: '📕', name: 'Just in case', href: 'apps/binder/index.html', tools: ['binder'] },
+      { id: 'people', emoji: '👪', name: 'Household', href: 'home-people.html', tools: ['costs'] },
+    ],
+    rentals: [
+      { id: 'today', emoji: '☀️', name: 'This month', href: 'rentals.html' },
+      { id: 'homes', emoji: '🏠', name: 'Homes', href: 'apps/homes/index.html', tools: ['homes'] },
+      { id: 'money', emoji: '💶', name: 'Money', href: 'apps/rent/index.html', tools: ['rent', 'rentcosts'] },
+      { id: 'dates', emoji: '🗓️', name: 'The landlord’s year', href: 'rentals-dates.html' },
+      { id: 'letters', emoji: '✉️', name: 'Letters', href: 'apps/rentletters/index.html', tools: ['rentletters'] },
     ],
   };
   BW.parts = () => BW.PARTS[BW.suite] || [];
@@ -111,6 +126,7 @@
     business: { id: 'olaf', name: 'Olaf', emoji: '🧭', role: 'Your brand consultant', free: 'He can do these for you.', page: '/business/olaf.html' },
     growth: { id: 'ivy', name: 'Ivy', emoji: '🌿', role: 'Your career coach', free: 'She finds the words for you.', page: '/growth/#ivy' },
     house: { id: 'juno', name: 'Juno', emoji: '🏡', role: 'Your household assistant', free: 'She reads the post for you.', page: '/home/#juno' },
+    rentals: { id: 'wren', name: 'Wren', emoji: '🔑', role: 'Your property manager', free: 'Wren reads the tenancy and keeps the year.', page: '/rentals/#wren', pic: false },
   };
   const tod = () => { const h = new Date().getHours(); return h >= 5 && h < 11 ? '-morning' : h >= 11 && h < 17 ? '' : '-evening'; };
   // The season as on the website's places (shared/scene.js, the same rule): '' in summer, else '-spring', '-autumn' or
@@ -817,7 +833,7 @@
   //   top(rec) / bottom(rec) return extra HTML; bind(box, rec, save) wires it up.
   //   isComplete(rec) says when there is enough to save (default: the first field is filled).
   //   Deleting offers Undo; pass confirmDelete (a message) instead when a delete takes other things with it.
-  BW.recordDrawer = ({ collection, rec, fields, title, newTitle, top, bottom, bind, isComplete, onSaved, onClose, deleteLabel = 'Delete', confirmDelete }) => {
+  BW.recordDrawer = ({ collection, rec, fields, title, newTitle, top, bottom, bind, isComplete, onSaved, onClose, deleteLabel = 'Delete', confirmDelete, canDelete }) => {
     const r = Object.assign({}, rec || {});
     const complete = isComplete || ((x) => !!String(x[fields[0].k] || '').trim());
     const box = document.createElement('div');
@@ -850,6 +866,7 @@
       form.onsubmit = (e) => { e.preventDefault(); flush(); };
       const del = BW.$('[data-del]', box);
       if (del) del.onclick = async () => {
+        if (canDelete && !(await canDelete(r))) return;
         if (confirmDelete && !(await BW.confirm(confirmDelete, { ok: deleteLabel, danger: true, title: `${deleteLabel}?` }))) return;
         pending = false;
         const copy = Object.assign({}, r);
@@ -884,12 +901,12 @@
   BW.sponsors = [
     // { emoji: '🏦', title: 'Sponsor name', text: 'One line about the offer.', cta: 'Learn more', href: 'https://…' },
   ];
-  const EXPERT_PAGES = { ivy: '/growth/index.html#ivy', juno: '/home/index.html#juno' };
+  const EXPERT_PAGES = { ivy: '/growth/index.html#ivy', juno: '/home/index.html#juno', wren: '/rentals/wren.html' };
   BW.houseAds = () => BW.suiteApps().filter((a) => a.ready).map((a) => ({
     id: a.id, emoji: a.emoji, title: `Try ${a.name}`, text: a.tagline, cta: 'Open it', href: `${BW.root}apps/${a.id}/index.html`, color: a.color,
   })).concat(BW.suiteApps().filter((a) => !a.ready).map((a) => ({
-    id: a.id, emoji: a.emoji, title: `Coming soon: ${a.name}`, text: a.tagline, color: a.color,
-    // An expert that isn't here yet has its own section on its suite's page.
+    // An expert is not in the free app, but it is on sale: it is introduced, not announced as coming.
+    id: a.id, emoji: a.emoji, title: EXPERT_PAGES[a.id] ? `Meet ${a.name}` : `Coming soon: ${a.name}`, text: a.tagline, color: a.color,
     ...(EXPERT_PAGES[a.id] ? { href: BW.siteUrl + EXPERT_PAGES[a.id], cta: 'Learn more', external: true } : {}),
   })));
   BW.adSlot = (here) => {
@@ -912,7 +929,11 @@
   };
 
   // ---------- business details (wizard + settings form share these fields) ----------
-  const CURRENCIES = ['EUR', 'USD', 'GBP', 'CHF', 'SEK', 'NOK', 'DKK', 'PLN', 'CAD', 'AUD'];
+  // BRL is the default in Brazilian Portuguese, so it must be in the list: a select without the saved value
+  // would quietly save the first one instead.
+  const CURRENCIES = ['EUR', 'USD', 'GBP', 'BRL', 'CHF', 'SEK', 'NOK', 'DKK', 'PLN', 'CAD', 'AUD'];
+  // Home and Rentals show money too (shared costs, contracts, rent), so their details can set the currency.
+  const CURRENCY_FIELD = { k: 'currency', label: 'Currency', type: 'select', options: CURRENCIES.map((c) => [c, c]) };
   const STEPS = [
     { emoji: '👋', title: "First things first: what's your business called?", short: "What's your business called?", sub: 'This goes at the top of every invoice and quote.', fields: [
       { k: 'businessName', label: 'Business name', ph: 'e.g. Sunny Side Studio', required: true },
@@ -973,7 +994,22 @@
       { k: 'email', label: 'Email', type: 'email', ph: 'you@example.com' },
     ] },
   ];
-  const HOUSE_DETAILS = HOUSE_STEPS[0].fields.concat(HOUSE_STEPS[1].fields, [{ k: 'phone', label: 'Phone', ph: '+31 6 1234 5678' }]);
+  const HOUSE_DETAILS = HOUSE_STEPS[0].fields.concat(HOUSE_STEPS[1].fields, [{ k: 'phone', label: 'Phone', ph: '+31 6 1234 5678' }, CURRENCY_FIELD]);
+  // Busy Rentals asks who the landlord is, the country whose rules apply, and where letters go out from.
+  const RENTALS_STEPS = [
+    { emoji: '🔑', title: 'Hi! Who lets the home?', sub: 'Busy Rentals keeps every date, certificate, deposit and payment of the homes you let, with your country’s landlord year built in.', fields: [
+      { k: 'ownerName', label: 'Your name', ph: 'e.g. Sam Jansen', required: true, hint: 'Letters to tenants are signed with it.' },
+      { k: 'country', label: 'Which country’s rules?', type: 'chips', options: [['england', 'England'], ['nl', 'Nederland'], ['de', 'Deutschland'], ['other', 'Another country']], hint: 'Busy knows the landlord’s year in these three. Elsewhere it keeps your homes, rent, deposits, costs and letters, without country dates.' },
+    ] },
+    { emoji: '📬', title: 'Where do letters go out from?', sub: 'Your address goes on letters to tenants. Skip anything you like.', fields: [
+      { k: 'address', label: 'Street and number', ph: 'Keizersgracht 1', span: 2 },
+      { k: 'postcode', label: 'Postcode', ph: '1015 AA' },
+      { k: 'city', label: 'City', ph: 'Amsterdam' },
+      { k: 'email', label: 'Email', type: 'email', ph: 'you@example.com' },
+      { k: 'phone', label: 'Phone', ph: '+31 6 1234 5678' },
+    ] },
+  ];
+  const RENTALS_DETAILS = RENTALS_STEPS[0].fields.concat(RENTALS_STEPS[1].fields, [CURRENCY_FIELD, { k: 'mtd', label: 'Quarterly digital tax updates (England)', type: 'chips', options: [['', 'Not for me'], ['yes', 'Yes, they apply to me']], hint: 'Shows the quarterly dates in your year. Whether they apply depends on your income: see gov.uk.' }]);
   const COLORS = ['#FF6B4A', '#F5A623', '#2FD18C', '#22C3C3', '#4DA3FF', '#9B6BFF', '#FF7AC6', '#1E1B2E'];
 
   function fieldsHtml(fields, data) {
@@ -1085,7 +1121,7 @@
     return ob;
   }
 
-  function runWizard(steps = BW.suite === 'growth' ? GROWTH_STEPS : BW.suite === 'house' ? HOUSE_STEPS : STEPS) {
+  function runWizard(steps = BW.suite === 'growth' ? GROWTH_STEPS : BW.suite === 'house' ? HOUSE_STEPS : BW.suite === 'rentals' ? RENTALS_STEPS : STEPS) {
     return new Promise((resolve) => {
       const data = Object.assign({}, BW.settings, BW.suite === 'business' ? {} : { suite: BW.suite });
       let i = 0;
@@ -1117,6 +1153,8 @@
           readFields(form, data);
           const req = st.fields && st.fields.find((f) => f.required && !data[f.k]);
           if (req) { const el = BW.$(`[name="${req.k}"]`, form); el.classList.add('shake'); el.focus(); setTimeout(() => el.classList.remove('shake'), 500); return; }
+          // Busy Rentals: the country whose rules apply also sets the money (England: pounds).
+          if (BW.suite === 'rentals' && ({ england: 'GBP', nl: 'EUR', de: 'EUR' })[data.country]) data.currency = ({ england: 'GBP', nl: 'EUR', de: 'EUR' })[data.country];
           try { await BW.store.saveSettings(data); } catch (e) { BW.error(e); return; }
           i++; render();
         };
@@ -1143,6 +1181,7 @@
   BW.openSettings = () => {
     if (BW.suite === 'growth') return personSettings(GROWTH_DETAILS, 'What should we call you? 🙂');
     if (BW.suite === 'house') return personSettings(HOUSE_DETAILS, 'Letters need your name 🙂');
+    if (BW.suite === 'rentals') return personSettings(RENTALS_DETAILS, 'Letters need your name 🙂');
     const data = Object.assign({}, BW.settings);
     const box = document.createElement('div');
     const render = () => {
@@ -1188,7 +1227,7 @@
   // ---------- connecting storage ----------
   async function welcome() {
     // The paid edition says where the expert's requests go; the free download has no AI to mention.
-    const expertHere = BW.ivyLibrary || BW.junoLibrary || await BW.olafInstalled();
+    const expertHere = BW.ivyLibrary || BW.junoLibrary || BW.wrenLibrary || await BW.olafInstalled();
     return new Promise((resolve) => {
       const ob = overlay(`<div class="ob-card card wide">
         <div class="ob-emoji">👋</div>
@@ -1462,7 +1501,7 @@
       const [people] = await Promise.all(['contacts'].map((n) => BW.store.all(n).catch(() => [])));
       people.forEach((x) => found.push({ group: 'Contacts', emoji: '🤝', label: x.name || 'Someone', sub: [x.role, x.org].filter(Boolean).join(' · '), href: app('contacts') + '#open/' + x.id }));
       const [papers, contracts, upkeep, things, letters] = await Promise.all(['papers', 'contracts', 'upkeep', 'inventory', 'letters'].map((n) => BW.store.all(n).catch(() => [])));
-      papers.forEach((x) => found.push({ group: 'Documents', emoji: '🗂️', label: x.title || 'Document', sub: [x.person, x.expires && 'until ' + BW.fmtDate(x.expires)].filter(Boolean).join(' · '), href: app('papers') + '#open/' + x.id }));
+      (BW.house ? BW.house.visiblePapers(papers, BW.house.myself()) : papers).forEach((x) => found.push({ group: 'Documents', emoji: '🗂️', label: x.title || 'Document', sub: [x.person, x.expires && 'until ' + BW.fmtDate(x.expires)].filter(Boolean).join(' · '), href: app('papers') + '#open/' + x.id }));
       contracts.forEach((x) => found.push({ group: 'Contracts', emoji: '🔁', label: x.name || x.provider || 'Contract', sub: x.provider || '', href: app('contracts') + '#open/' + x.id }));
       upkeep.forEach((x) => found.push({ group: 'Upkeep', emoji: '🛠️', label: x.task || 'Job', sub: x.area || '', href: app('upkeep') + '#open/' + x.id }));
       things.forEach((x) => found.push({ group: 'Inventory', emoji: '🛋️', label: x.name || 'Thing', sub: x.room || '', href: app('inventory') + '#open/' + x.id }));
@@ -1549,7 +1588,7 @@
   BW.entitlements = Object.assign({
     async edition(feature) {
       // Olaf (Busy Business) and Ivy (Busy Growth): their paid files say they are here.
-      const ed = feature === 'olaf' ? await BW.olafInstalled() : feature === 'ivy' ? (BW.ivyEdition || null) : feature === 'juno' ? (BW.junoEdition || null) : null;
+      const ed = feature === 'olaf' ? await BW.olafInstalled() : feature === 'ivy' ? (BW.ivyEdition || null) : feature === 'juno' ? (BW.junoEdition || null) : feature === 'wren' ? (BW.wrenEdition || null) : null;
       if (ed !== 'full' || !BW.licence.required(feature)) return ed;
       return (await BW.licence.current(feature)) ? 'full' : 'locked';
     },
@@ -1746,7 +1785,7 @@
       if (x.id === 'olaf') { const ed = await BW.entitlements.edition('olaf'); here = ed === 'full' || ed === 'locked' || ed === 'demo'; }
       else here = !!(BW.apps.find((a) => a.id === x.id) || {}).ready;
     } catch (e) { /* no expert in this edition */ }
-    const pic = here ? `${BW.root}apps/${x.id}/room/${x.id}-hello.png` : '';
+    const pic = here && x.pic !== false ? `${BW.root}apps/${x.id}/room/${x.id}-hello.png` : '';   // pic: false = no picture made yet
     box.innerHTML = `${pic ? `<img src="${pic}" alt="" data-pic>` : `<span class="he" aria-hidden="true">${x.emoji || '💬'}</span>`}<b>${x.name}</b><span>${BW.t(x.role)}. ${here ? '' : BW.t(x.free)}</span>
       <a class="go" ${here ? `href="${BW.root}apps/${x.id}/index.html"` : `href="${BW.siteUrl}${x.page}" target="_blank" rel="noopener"`}>${here ? BW.t('Open') + ' ' + x.name : BW.t('See how')} →</a>`;
     const img = BW.$('[data-pic]', box); if (img) img.onerror = () => img.remove();

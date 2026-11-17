@@ -13,9 +13,13 @@
     onReady: async () => { await load(); render(); BW.route({ new: (sec) => edit({ section: sec || 'people' }), open: (id) => { const x = entries.find((e) => e.id === id); if (x) edit(x); } }); },
     onChange: async () => { await load(); if (!$('.drawer-wrap')) render(); },
   });
-  async function load() { [entries, contracts, papers] = await Promise.all(['binder', 'contracts', 'papers'].map((n) => BW.store.all(n))); }
+  let upkeep = [], members = [];
+  async function load() { [entries, contracts, papers, upkeep, members] = await Promise.all(['binder', 'contracts', 'papers', 'upkeep', 'members'].map((n) => BW.store.all(n).catch(() => []))); }
+  // Who looks after what, for the binder: one line per person with what they carry (2.1).
+  const loads = () => { const l = H.loads(members, { contracts: live(), upkeep, papers: current() }); return l.rows.filter((r) => r.items.length); };
+  const loadName = (a) => (a.kind === 'contracts' ? a.item.name || a.item.provider : a.kind === 'upkeep' ? a.item.task : a.item.title) || '';
   const live = () => contracts.filter((c) => H.contractState(c, BW.today()) !== 'ended');
-  const current = () => papers.filter((p) => !p.replaced);
+  const current = () => papers.filter((p) => !p.replaced && !p.private);
 
   function render() {
     const filled = H.BINDER.filter(([id]) => entries.some((e) => e.section === id)).length;
@@ -36,6 +40,7 @@
           ${hint ? `<p class="hint">${esc(hint)}</p>` : ''}
           ${mine.map((e) => `<div class="binder-entry" data-id="${e.id}" tabindex="0"><b>${esc(e.title || 'Untitled')}</b>${e.text ? `<p>${esc(e.text)}</p>` : ''}</div>`).join('') || '<small class="faint">Nothing yet.</small>'}</section>`;
       }).join('')}
+      ${loads().length ? `<section class="card binder-sec rise"><h2>👪 ${BW.t('Who looks after what')}</h2><p class="hint">${BW.t('From the Household page: who to ask about each thing.')}</p>${loads().map((r) => `<div class="binder-entry"><b>${esc(r.member.name)}</b><p>${esc(r.items.map(loadName).filter(Boolean).join(' · '))}</p></div>`).join('')}</section>` : ''}
       <section class="card binder-sec rise"><h2>🔁 Contracts</h2><p class="hint">From Contracts &amp; Renewals: what to keep, transfer or cancel.</p>
         ${live().map((c) => `<a class="binder-entry" href="../contracts/index.html#open/${c.id}"><b>${esc(c.name || c.provider || 'Contract')}</b><p>${esc([c.provider, c.reference && 'ref. ' + c.reference, c.phone].filter(Boolean).join(' · '))}</p></a>`).join('') || '<small class="faint">Add contracts in Contracts &amp; Renewals and they show here.</small>'}</section>
       <section class="card binder-sec rise"><h2>🗂️ Documents</h2><p class="hint">From Paper Trail, with where each original is.</p>
@@ -71,6 +76,7 @@
       lines.push(`# ${title}`, '');
       mine.forEach((e) => { lines.push(`- ${e.title || ''}`); if (e.text) e.text.split('\n').forEach((l) => lines.push(l)); lines.push(''); });
     }
+    if (loads().length) { lines.push('# Who looks after what', ''); loads().forEach((r) => lines.push(`- ${r.member.name}: ${r.items.map(loadName).filter(Boolean).join(', ')}`)); lines.push(''); }
     if (live().length) { lines.push('# Contracts', ''); live().forEach((c) => lines.push(`- ${[c.name || c.provider, c.provider !== c.name && c.provider, c.reference && 'ref. ' + c.reference, c.phone].filter(Boolean).join(' · ')}`)); lines.push(''); }
     if (current().length) { lines.push('# Documents', ''); current().forEach((p) => lines.push(`- ${p.title || 'Document'}${p.person ? ` (${p.person})` : ''}: ${p.where || 'original’s place not noted'}`)); }
     try { await H.savePdf('Home', `Just in case ${BW.today()}`, H.pdf('Just in case', lines.join('\n'), { footer: 'Keep this somewhere safe. No passwords are written here.' })); } catch (e) { BW.error(e); }

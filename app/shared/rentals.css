@@ -1,0 +1,51 @@
+/* Busy Rentals: the few styles its screens add to the shared frame (home.css) and design system (brand.css). */
+.duty-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 0; border-bottom: 1px dashed var(--hair); }
+.duty-row:last-child { border-bottom: 0; }
+.duty-row .main { flex: 1 1 220px; min-width: 0; }
+.duty-row .main small { display: block; color: var(--ink-3, var(--ink-2)); }
+.duty-state { font-size: 12px; font-weight: 800; padding: 3px 9px; border-radius: 99px; border: 1.5px solid var(--border); white-space: nowrap; }
+.duty-state.overdue { background: color-mix(in srgb, var(--tomato) 30%, var(--surface)); }
+.duty-state.soon { background: color-mix(in srgb, var(--sun) 40%, var(--surface)); }
+.duty-state.unknown { background: var(--surface); border-style: dashed; }
+.duty-state.ok, .duty-state.done { background: color-mix(in srgb, var(--mint) 30%, var(--surface)); }
+/* What was recorded for a duty: each date with a small button to take it away again. */
+.duty-recs { flex: 1 1 100%; display: flex; flex-wrap: wrap; gap: 6px; }
+.duty-rec { display: inline-flex; align-items: center; gap: 2px; font-size: 12px; font-weight: 650; color: var(--ink-2); padding: 0 2px 0 9px; border: 1.5px dashed var(--hair); border-radius: 99px; }
+.duty-rec .btn { padding: 2px 7px; min-height: 0; border: 0; background: none; box-shadow: none; }
+/* A room's name in a check-in or check-out report: reads as a heading, and can be typed over. */
+.in.room-name { flex: 1 1 160px; min-width: 0; font-weight: 800; }
+.ledger { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.ledger th, .ledger td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--hair); }
+.ledger td.n, .ledger th.n { text-align: right; white-space: nowrap; }
+.ledger tr.late td { background: color-mix(in srgb, var(--tomato) 14%, transparent); }
+.table-scroll { overflow-x: auto; }
+.ledger td.acts { white-space: nowrap; text-align: right; }
+.ledger td.acts .btn + .btn { margin-left: 4px; padding-left: 10px; padding-right: 10px; }
+/* On a phone the row has to fit without scrolling sideways: "Due" goes (it is "In" plus "Open"). */
+@media (max-width: 520px) { .ledger .due { display: none; } .ledger th, .ledger td { padding: 8px 3px; } .ledger .btn { padding: 6px 10px; } }
+/* A long state (the deposit line) wraps instead of running off the drawer. */
+.duty-state.wrap { white-space: normal; display: inline-block; border-radius: 14px; }
+.tpl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; margin-bottom: 28px; }
+.tpl { text-align: left; font: inherit; color: inherit; cursor: pointer; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; }
+.tpl .e { font-size: 1.6rem; }
+.tpl small { color: var(--ink-2); line-height: 1.35; }
+.tpl:hover { transform: translate(-2px, -2px); }
+/* Lists and cards on the tool pages and in the drawers. Busy Home has the same in house.css: each suite ships on its own. */
+#main > .card, #main > section.card, .drawer .card, .home-card { padding: 14px 16px; }
+#main > section.card h2, .home-card h3 { margin: 0 0 6px; }
+#main > .card + .card, #main > section.card + section.card { margin-top: 14px; }
+.home-card { display: block; margin-bottom: 12px; color: inherit; text-decoration: none; cursor: pointer; }
+.filters { display: flex; gap: 6px; flex-wrap: wrap; }
+.filters button { font: inherit; font-weight: 750; font-size: .88rem; padding: 6px 12px; border: 2px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--ink); cursor: pointer; }
+.filters button[aria-pressed="true"] { background: var(--app); color: var(--on-app); }
+.attention { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; padding: 14px 16px; background: var(--app-soft); }
+.attention h2 { font-size: 1.05rem; margin: 0 0 2px; }
+.file-row { display: flex; gap: 10px; align-items: center; padding: 10px 12px; margin: 8px 0; border: 2px solid var(--border); border-radius: var(--r-sm); background: var(--surface); color: inherit; text-decoration: none; }
+.file-row .main { flex: 1; min-width: 0; }
+.file-row .main small { display: block; overflow: hidden; text-overflow: ellipsis; }
+.file-row .main small { font-weight: 600; color: var(--ink-2); }
+a.file-row:hover { border-color: var(--app); }
+.check-list { display: flex; flex-direction: column; gap: 6px; }
+.check-item { display: flex; gap: 10px; align-items: center; padding: 8px 12px; border: 2px solid var(--border); border-radius: var(--r-sm); background: var(--surface); }
+.check-item input { width: 20px; height: 20px; accent-color: var(--app); flex: none; }
+.check-item .main { flex: 1; min-width: 0; }

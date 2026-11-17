@@ -37,6 +37,7 @@
     .xp-tile span { position: absolute; left: 18px; right: 18px; bottom: 16px; z-index: 1; }
     .xp-tile b { display: block; font-size: 1.2rem; color: #FBF7EE; } .xp-tile small { display: block; color: rgba(251, 247, 238, .88); margin-top: 2px; }
     .xp-tile:hover { transform: translate(-2px, -2px); }
+    .xp-tile.plain { min-height: 130px; background: linear-gradient(135deg, var(--app), color-mix(in srgb, var(--app) 45%, #16141F)); }
     .xp-list { display: grid; gap: 10px; }
     .xp-list .xp-do { box-shadow: none; }
     .xp-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
@@ -68,8 +69,8 @@
   };
   // The numbers from the free tools: [[label, value, sub], ...]
   ui.stats = (list) => `<div class="xp-stats rise">${list.map(([k, v, s]) => `<div class="card xp-stat"><div class="k">${esc(k)}</div><div class="v">${esc(String(v))}</div><div class="s">${esc(s || '')}</div></div>`).join('')}</div>`;
-  // Three picture tiles: [{ title, sub, place, room, ids }]
-  ui.tiles = (tiles) => `<div class="section-h"><h2>What we can do</h2></div><div class="xp-tiles rise">${tiles.map((t, i) => `<button class="xp-tile" data-tile="${i}" style="background-image:url('${pic(t.place, t.room)}')"><span><b>${esc(t.title)}</b><small>${esc(t.sub)}</small></span></button>`).join('')}</div>`;
+  // Three picture tiles: [{ title, sub, place, room, ids }]. A suite without a place yet (Rentals) gets plain tiles.
+  ui.tiles = (tiles) => `<div class="section-h"><h2>What we can do</h2></div><div class="xp-tiles rise">${tiles.map((t, i) => `<button class="xp-tile${t.place ? '' : ' plain'}" data-tile="${i}"${t.place ? ` style="background-image:url('${pic(t.place, t.room)}')"` : ''}><span><b>${esc(t.title)}</b><small>${esc(t.sub)}</small></span></button>`).join('')}</div>`;
   // Conversations as cards, the notes behind one button.
   ui.history = ({ sessions, files, title, who, folder }) => `
     <div class="section-h"><h2>Conversations</h2></div>

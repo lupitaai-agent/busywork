@@ -16,7 +16,7 @@
     onChange: async () => { await load(); if (!$('.drawer-wrap')) render(); },
   });
   BW.shortcut('n', 'Add a contract', () => edit(blank()));
-  async function load() { [contracts, papers] = await Promise.all(['contracts', 'papers'].map((n) => BW.store.all(n))); }
+  async function load() { [contracts, papers] = await Promise.all(['contracts', 'papers'].map((n) => BW.store.all(n))); await H.loadMembers(); }
   const blank = (k) => ({ kind: k || 'insurance', per: 'month', renews: 'yes', renewMonths: 12, notice: 1, noticeUnit: 'month' });
   const long = (d) => BW.fmtDate(d, { day: 'numeric', month: 'long', year: 'numeric' });
 
@@ -74,7 +74,7 @@
     const [cls, pill] = verdict(c, today), m = H.monthly(c);
     return `<button class="card h-card ${H.contractState(c, today) === 'ended' ? 'ended' : ''}" data-id="${c.id}">
       <small>${H.contractKind(c.kind)}</small><b>${esc(c.name || c.provider || 'A contract')}</b>
-      <small>${esc([c.provider && c.provider !== c.name ? c.provider : '', m ? `${BW.money(m)} a month` : ''].filter(Boolean).join(' · ')) || '&nbsp;'}</small>
+      <small>${esc([c.provider && c.provider !== c.name ? c.provider : '', m ? `${BW.money(m)} a month` : '', c.who ? `👤 ${H.whoName(H.members, c.who)}` : ''].filter(Boolean).join(' · ')) || '&nbsp;'}</small>
       <span><span class="due ${cls}">${pill}</span></span></button>`;
   }
 
@@ -98,7 +98,9 @@
         { k: 'address', label: 'Where cancellation letters go', type: 'textarea', ph: 'The postal address or the email address in the terms', span: 2 },
         { k: 'website', label: 'Website or login page', ph: 'e.g. example.com/my-account' },
         { k: 'phone', label: 'Phone', ph: 'Customer service' },
-        { k: 'paperId', label: 'The policy or contract in Paper Trail', type: 'select', options: [['', 'Not linked']].concat(papers.map((p) => [p.id, p.title || 'A document'])), span: 2 },
+        { k: 'paperId', label: 'The policy or contract in Paper Trail', type: 'select', options: [['', 'Not linked']].concat(H.visiblePapers(papers, H.myself()).map((p) => [p.id, p.title || 'A document'])), span: 2 },
+        ...H.whoField(c && c.who),
+        { k: 'lastCost', label: 'What it cost before', ph: '0.00', hint: 'The price before this term, for the same period. Busy then shows what changed at renewal.' },
         { k: 'notes', label: 'Notes', type: 'textarea', ph: 'What’s included, the excess, what you agreed on the phone', span: 2 },
       ],
       isComplete: (r) => !!(r.name || r.provider),

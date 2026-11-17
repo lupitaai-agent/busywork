@@ -654,3 +654,12 @@ html:not([lang="en"]) .house-street .house-card h1 { font-size: clamp(1.8rem, 3.
 @media (max-width: 820px) { .film-grid, .paths:has(> :nth-child(3)) { grid-template-columns: 1fr; } }
 /* WebP first (build.py webp_pictures): the wrapper takes no room, so the picture lays out as the <img> did */
 picture { display: contents; }
+
+/* Wren, Busy Rentals' property manager: sky blue, like her key. */
+.expert-chip.wren { background: #4DA3FF; }
+.expert.wren { background: #101C2B; }
+.ivy-card.wren-card { background: #101C2B; color: #EEF6FF; }
+.wren-card .kicker { color: #9CCBFF; }
+
+/* On a phone, a long button in a page's opening (a price, a longer language) wraps instead of widening the column. */
+@media (max-width: 520px) { .tool-hero-grid > * { min-width: 0; } .tool-hero .ctas .btn { white-space: normal; text-align: center; } }

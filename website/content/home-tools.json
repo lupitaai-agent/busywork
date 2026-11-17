@@ -96,5 +96,19 @@
   "faq": [["Do I put passwords in it?", "No. Only where they are kept, like a password manager or a sealed envelope."],
           ["Who can see it?", "Only people with access to your folder or the printed PDF. Nothing is uploaded."],
           ["Is it free?", "Yes, Busy Home is free."]],
-  "related": ["papers", "contracts", "inventory"]}
+  "related": ["papers", "contracts", "inventory"]},
+ {"id": "costs", "name": "Shared Costs", "emoji": "🧮", "color": "mint", "shot": "costs",
+  "title": "Free shared household costs tracker",
+  "description": "Who paid what, and who owes whom: split equally, by income share or your own way, between any number of people. Free, private, no AI.",
+  "h1": "Who paid what, settled fairly.",
+  "lead": "Groceries, the energy bill, the swimming lessons: add what each person paid and how to split it. Busy shows who owes whom, and the fewest payments that settle it.",
+  "features": [["⚖️", "Three ways to split", "Equally, by income share, or your own parts, per cost."],
+               ["👪", "Any number of people", "Partners, grown-up children, a parent who lives with you: everyone in the household."],
+               ["🤝", "The fewest payments", "Busy works out who pays whom to make everyone even."],
+               ["🔒", "In your own folder", "Nothing is sent to us, and there is no account to share."]],
+  "steps": [["Add who lives there", "On the Household page: people and pets."], ["Add what each person paid", "With how to split it."], ["Settle up", "Tap Paid once the money has gone."]],
+  "faq": [["Can each of us use it?", "Put the folder in Google Drive, Dropbox, OneDrive or iCloud Drive and open it on each computer."],
+          ["Does it move money?", "No. Busy shows who owes whom; you pay each other as you always do."],
+          ["Is it free?", "Yes. Busy Home is free, with no account and no subscription."]],
+  "related": ["contracts", "papers", "binder"]}
 ]

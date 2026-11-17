@@ -41,10 +41,18 @@
       ask: ['What am I worth?', 'Get me ready for my review', 'Help me find what I achieved this year'] },
     juno: { plugin: 'busy-home', app: 'Busy Home', hello: 'Set up Busy Home with me', coll: 'juno-files', lib: 'junoLibrary', tools: () => BW.junoTools, dirs: ['', 'output'],
       scripts: ['shared/house.js', 'shared/filetext.js', 'shared/ai.js', 'apps/juno/tools.js'],
-      read: ['home_overview', 'papers_list', 'contracts_list', 'upkeep_list', 'inventory_list', 'letters_list', 'binder_list', 'move_get'],
+      read: ['home_overview', 'papers_list', 'contracts_list', 'upkeep_list', 'inventory_list', 'letters_list', 'binder_list', 'move_get', 'household_list', 'costs_overview', 'tax_overview', 'drop_list'],
       never: ['list_files', 'read_file', 'write_file', 'use_skill', 'check_voice', 'suggest_next', 'papers_search', 'paper_read', 'open_document'],
       detail: [],
       ask: ['What do I need to do this week?', 'I have a letter I do not understand', 'What do we pay for every month?'] },
+    wren: { plugin: 'busy-rentals', app: 'Busy Rentals', hello: 'Set up Busy Rentals with me', coll: 'wren-files', lib: 'wrenLibrary', tools: () => BW.wrenTools, dirs: ['', 'output'],
+      scripts: ['shared/rentals.js', 'shared/filetext.js', 'shared/ai.js', 'apps/wren/tools.js'],
+      read: ['rentals_overview', 'homes_list', 'country_pack', 'letters_list', 'costs_list', 'tax_year', 'inbox_list'],
+      never: ['list_files', 'read_file', 'write_file', 'use_skill', 'check_voice', 'suggest_next', 'home_get', 'rent_ledger', 'reports_get', 'deposit_state', 'rent_review', 'open_document', 'read_tenancy'],
+      detail: [['homes', 'home_get', 'homes_list', (o) => (Array.isArray(o) ? o : []).map((h) => ({ id: h.id }))],
+        ['rent', 'rent_ledger', 'homes_list', (o) => (Array.isArray(o) ? o : []).filter((h) => h.tenancy && h.tenancy.id).map((h) => ({ tenancy_id: h.tenancy.id }))],
+        ['reports', 'reports_get', 'homes_list', (o) => (Array.isArray(o) ? o : []).filter((h) => h.tenancy && h.tenancy.id).map((h) => ({ tenancy_id: h.tenancy.id }))]],
+      ask: ['What is due at my rentals this month?', 'Read my tenancy agreement', 'The tenant reported a repair'] },
   }[x.id];
   const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* private window */ } } };
   const jget = (k, d) => { try { return JSON.parse(ls.get(k)) || d; } catch (e) { return d; } };
@@ -170,7 +178,9 @@ The skill "${x.id}" of the ${CFG.plugin} plugin explains the rest.
     application_add: 'Add a job to your Job Tracker', application_update: 'Update an application', career_update: 'Update your career history', career_add: 'Add to your career history', profile_update: 'Save your headline and About',
     cv_create: 'Make a CV version', stories_add: 'Save interview stories', contact_update: 'Update a contact', review_save: 'Save your weekly review',
     paper_add: 'File documents in Paper Trail', paper_update: 'Update a document', contract_add: 'Add a contract', contract_update: 'Update a contract', upkeep_add: 'Add an upkeep job', upkeep_update: 'Update an upkeep job',
-    upkeep_done: 'Mark a job as done', inventory_add: 'Add to your Home Inventory', letter_create: 'Save a letter in Letters', move_create: 'Start a move', move_add_tasks: 'Add tasks to the move', binder_add: 'Add to the Just in Case binder' };
+    upkeep_done: 'Mark a job as done', inventory_add: 'Add to your Home Inventory', letter_create: 'Save a letter in Letters', move_create: 'Start a move', move_add_tasks: 'Add tasks to the move', binder_add: 'Add to the Just in Case binder',
+    home_add: 'Add a home', home_update: 'Update a home', tenancy_add: 'Add a tenancy', tenancy_update: 'Update a tenancy', check_record: 'Record a check', copy_given: 'Note the copy for the tenant',
+    rent_record: 'Record rent received', letter_draft: 'Save a letter to the tenant', cost_add: x.id === 'juno' ? 'Add shared costs' : 'Add costs of a home' };
   const say = (c) => { const i = c.input || {}, n = i.title || i.name || i.client || i.company || ''; return `${BW.t(WHAT[c.tool] || String(c.tool || '').replace(/_/g, ' '))}${n ? ': ' + n : ''}`; };
   async function readCard(file) {
     const raw = await readText(`${DIR}/cards/${file}`);
@@ -212,11 +222,19 @@ The skill "${x.id}" of the ${CFG.plugin} plugin explains the rest.
         show: `1. Book the appointment at the town hall this week.\n2. Bring: the old document, one recent photo, a bank card.\n3. Collect it about a week later.\n\nI put a reminder on the day you need to book by.` },
       energy && { id: 'd3', emoji: '⚡', title: 'Your energy contract: keep, switch or stop', why: `The fixed price ends soon. You pay ${eur(BW.num(energy.cost))} a month now.`, calls: [{ tool: 'contract_update', input: { name: energy.name } }],
         show: `What you pay now: ${eur(BW.num(energy.cost))} a month, fixed.\nWhat happens if you do nothing: a variable rate from next month.\n\nThree things to compare before then:\n1. The price per unit, with the standing charge.\n2. The length of the new term.\n3. The cost of leaving early.\n\nSay yes and I set the date to decide by, a week before the end.` }].filter(Boolean);
+  }, wren: async () => {
+    const today = BW.today(), homes = await BW.store.all('homes'), tenancies = await BW.store.all('tenancies'), h = homes[0];
+    const t = h && BW.rentals.current(h, tenancies, today), me = BW.settings.ownerName || '';
+    return [h && { id: 'd1', emoji: '🔥', title: `Book the gas safety check at ${h.name || h.address}`, why: 'Due within the month. The tenant must get a copy within 28 days of the check.', calls: [{ tool: 'letter_draft', input: { title: 'A visit to the home' } }],
+      show: `Dear ${(t && t.tenants) || '[tenant]'},\n\nI would like to visit on [day and date] at [time] for the yearly gas safety check. It takes about half an hour.\n\nIf that time does not suit you, please tell me one that does.\n\nKind regards,\n${me}` },
+      t && { id: 'd2', emoji: '💶', title: `Rent from ${t.tenants}: this month's payment recorded`, why: 'It came in on the payment day. Nothing is late now.', calls: [{ tool: 'rent_record', input: { title: t.tenants } }] },
+      h && { id: 'd3', emoji: '🧾', title: 'Three receipts sorted into costs', why: 'The plumber, the insurance and the ground rent, each with its kind and receipt.', calls: [{ tool: 'cost_add', input: { items: [1, 2, 3] } }] }].filter(Boolean);
   } };
   const demoCards = () => DEMO_CARDS[x.id]();
   const DEMO_DONE = { olaf: ['Filed three receipts and counted the VAT you get back', 'Checked your brand assets: five to keep, three to test', 'Wrote this week’s update for your project'],
     ivy: ['Turned your course into two lines for your CV', 'Found three wins in your weekly reviews', 'Wrote your 30-second introduction'],
-    juno: ['Read the letter from the insurer: nothing to do', 'Filed four scans with their dates', 'Added the boiler service to this month'] };
+    juno: ['Read the letter from the insurer: nothing to do', 'Filed four scans with their dates', 'Added the boiler service to this month'],
+    wren: ['Read the tenancy agreement and filled in the dates', 'Recorded the energy certificate with its next date', 'Put the deposit\'s protection date in your year'] };
   const gone = new Set();
   const cards = (BW.cards = {
     async list() {
@@ -314,7 +332,15 @@ The skill "${x.id}" of the ${CFG.plugin} plugin explains the rest.
 
   // Busy's own skill buttons, without a key: the same skill, asked in the person's Claude.
   const viaClaude = () => !DEMO && mode() !== 'key';
-  const askSkill = (name, instruction) => BW.askExpert([name ? `use your skill "${name}"` : '', instruction || ''].filter(Boolean).join(': '));
+  /* `id` is the skill's id: the name it has in the plugin. files: documents the person attached. Claude can open the
+     ones that are saved in the Busy folder, so the request names them; one that is not saved there cannot be passed
+     on, and the person is told so. */
+  const askSkill = (id, instruction, files) => {
+    const saved = (files || []).filter((f) => f && f.path);
+    if ((files || []).length > saved.length) BW.toast('A document you attached was not passed on: Claude can only open documents saved in your Busy folder.', '📎');
+    const ask = [instruction || '', saved.length ? `I attached ${saved.map((f) => f.path).join(' and ')} (saved in my Busy folder): read ${saved.length === 1 ? 'it' : 'them'} first.` : ''].filter(Boolean).join('\n');
+    return BW.askExpert([id ? `use your skill "${id}"` : '', ask].filter(Boolean).join(': '));
+  };
 
   // ---------- connecting, in three steps ----------
   async function connected() {
@@ -368,7 +394,7 @@ The skill "${x.id}" of the ${CFG.plugin} plugin explains the rest.
     const box = BW.$('[data-helper]');
     if (!box) return;
     const m = mode(), on = m === 'claude' && await connected();
-    const pic = `<img src="${BW.root}apps/${x.id}/room/${x.id}-hello.png" alt="" data-pic>`, role = BW.t(x.role);
+    const pic = x.pic === false ? `<span class="he" aria-hidden="true">${x.emoji || '💬'}</span>` : `<img src="${BW.root}apps/${x.id}/room/${x.id}-hello.png" alt="" data-pic>`, role = BW.t(x.role);
     // The expert's own room (the animated figure, the skills, the files) stays one click away, whichever way they work.
     const room = `<a class="room-go" href="${BW.root}apps/${x.id}/index.html">${esc(BW.t(`Open ${x.name}`))}</a>`;
     box.innerHTML = m === 'key' ? `${pic}<b>${esc(x.name)}</b><span>${role}.</span><a class="go" href="${BW.root}apps/${x.id}/index.html">${esc(BW.t(`Open ${x.name}`))} →</a>`
@@ -393,7 +419,7 @@ The skill "${x.id}" of the ${CFG.plugin} plugin explains the rest.
     } catch (e) { console.info('Could not look in the Claude folder:', e && e.message); }
     paint();
   }
-  BW.expertLink = { mode, brief, check, connect, paint, live, pickUp, viaClaude, askSkill, met: () => !!ls.get(K('met')) };
+  BW.expertLink = { mode, brief, check, connect, paint, live, pickUp, viaClaude, askSkill, met: () => !!ls.get(K('met')), read: CFG.read, never: CFG.never, detail: CFG.detail.map((d) => d[1]) };
   paint();
   if (DEMO) return;
   const later = BW.debounce(() => brief(), 3000);

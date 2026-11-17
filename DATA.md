@@ -173,19 +173,23 @@ sit in `library/` inside the folder; files dropped there outside Busy are picked
   is all LinkedIn gives.
 
 ### Busy Home (a home folder)
-A home folder holds one household's paperwork. Its `settings` add `suite: "house"` and `household`
-(who lives there, as text), and use `ownerName`, `address`, `postcode`, `city`, `country`, `email`
+A home folder holds one household's paperwork. Its `settings` add `suite: "house"`, `household`
+(who lives there, as text; the first members are made from it once, when `members` does not exist yet),
+`taxCountry` (the country chosen on the Tax time page: `uk`, `nl`, `de`, `es`, `it`, `br`, or `none`
+for no tax time) and `taxTicks` (`{ "<country>:<tax year>": [ticked lines] }`), and use `ownerName`, `address`, `postcode`, `city`, `country`, `email`
 and `phone` for letters. Scans and photos are files in the folder: `Papers/` and `Inventory/`; PDFs
 Busy makes go to `Letters/` and `Home/`.
 - `papers`: Paper Trail. `title`, `kind` (`id`, `insurance`, `contract`, `house`, `car`, `money`,
   `health`, `school`, `warranty`, `pet`, `other`), `person`, `reference`, `issued`, `expires`,
   `reviewAt` (a date to look at it again), `files` (paths in `Papers/`), `text` (the words of a PDF,
-  for search), `where` (where the original is), `tags`, `notes`, `replaced` (`yes` for an older copy, never warned about).
+  for search), `where` (where the original is), `tags`, `notes`, `replaced` (`yes` for an older copy, never warned about),
+  `who` (the member who looks after it), `taxYear` (kept for that year's tax return), `private` (only me).
 - `contracts`: Contracts & Renewals. `name`, `kind`, `provider`, `reference`, `cost` per `per`
   (`month`, `quarter`, `year`), `start`, `end` (the current term's end), `renews` (`yes`: renews by
   `renewMonths`, default 12; `no`: just ends; `rolling`: after the first term, cancel any time),
   `notice` and `noticeUnit` (`day`, `week`, `month`), `cancelledAt`, `paperId` (the policy or contract
-  in Paper Trail), `address` (where letters go), `website`, `phone`, `notes`. The last day to cancel
+  in Paper Trail), `address` (where letters go), `website`, `phone`, `notes`, `who`, `lastCost` (the
+  price before this term, for the renewal check). The last day to cancel
   is worked out, never stored: the next end minus the notice.
 - `upkeep`: Home Upkeep. `task`, `area`, `every` (months), `last` (done), `next` (a date set by
   hand, which wins over `last` + `every`), `who`, `notes`, and `log`: `{ date, note, cost }`, newest first.
@@ -198,6 +202,45 @@ Busy makes go to `Letters/` and `Home/`.
   `{ who, done }`, `finished`, `notes`.
 - `binder`: Just in Case. `section` (`people`, `where`, `money`, `home`, `digital`, `pets`, `wishes`,
   `notes`), `title`, `text`. Never passwords or PINs: where they are, not what they are.
+- `members`: the household, any number of people and pets. `name`, `kind` (`person`, `pet`), `colour`,
+  `role`, `born`, `share` (a weight for splitting costs by income, never the income itself), `notes`;
+  for a pet also `species`, `chip`, `chipRegister`, `vet`, `vetPhone`, `passport`, `food`, `medicines`,
+  `routines` and `care`: `{ what, last, every (months), next }`. Other records point at a member with
+  `who` (who looks after it), which is different from `person` (whose it is). Which member a computer
+  belongs to is kept on that computer, never in the folder.
+- `costs`: Shared Costs. `date`, `what`, `amount`, `paidBy` (a member), `split` (`equal`, `income`,
+  `shares`), `among` (the member ids it is shared between; Busy always writes them, and reads an empty list as everyone), `shares` (`{ memberId: weight }`), `note`.
+- `settlements`: Shared Costs. `date`, `from`, `to` (members), `amount`, `note`. Balances are worked
+  out, never stored.
+
+### Busy Rentals (a rentals folder; not released: RENTALS_LIVE)
+- `homes`: Homes & Tenancies. `name`, `address`, `postcode`, `city`, `country` (`england`, `nl`, `de`, or `other` for
+  another country: the country pack in `shared/rentals.js` it follows; empty follows the landlord's own), `duties`
+  (ids of optional duties that apply, such as a licence, or England's register once it has opened for the region),
+  `keys`, `meters`, `suppliers`, `insurance`, `notes`. A home that still has a tenancy is not deleted.
+- `tenancies`: one tenancy of one home. `homeId`, `tenants`, `email`, `phone`, `start`, `endedAt`, `rent` per `rentPer`
+  (`month`, `week`): always the latest figure, `rents` (how the rent changed: `[{ from: 'YYYY-MM-DD', rent }]`, oldest
+  first; empty or missing means the rent was always `rent`; written with `BW.rentals.changeRent`, which also sets
+  `rent` and `lastRentChange`), `payDay` (a whole day 1 to 31 for a monthly rent; a weekly rent is due on the weekday
+  of `start`), `lastRentChange`, `deposit`, `depositReceived`, `depositHeld`, `depositRef`, `depositProtectedAt`,
+  `deductions`, `depositReturnedAt`, `letterLang` (the language letters to this tenancy are written in: en, nl, de, es,
+  it, pt-br; empty means the home's country's), `notes`. What is due, late or allowed is worked out from the country
+  pack, never stored. Deleting a tenancy deletes its rent payments, reports, letters and the checks recorded for it.
+- `rentpayments`: rent received. `tenancyId`, `month` (YYYY-MM it was noted for), `date`, `amount`, `note`. What is open
+  is a running balance: everything paid goes to the oldest amount due first, whatever `month` says.
+- `checks`: a duty done for a home. `homeId`, `tenancyId` (for duties per tenancy: the check then counts for that
+  tenancy only), `duty` (the pack's duty id), `last` (done on, never in the future), `next` (a booked date, which wins;
+  only for duties that come back), `handedOverAt` (when the tenant got a copy), `handedOverTo` (the tenancy that got
+  it: a later tenant is owed a copy of their own), `by`, `files`, `notes`.
+- `rentletters`: Letters to Tenants. `template` (`welcome`, `access`, `repair`, `copy`, `deposit`), `tenancyId`, `to`,
+  `title`, `body` (`# ` for headings), `lang` (the letter's language: the home's country's), `sentAt`.
+- `reports`: a check-in (`kind: 'in'`) or check-out (`'out'`) report. `homeId`, `tenancyId`, `date`, `rooms`: `{ room
+  (its name, which the two reports are compared by), condition (good, fair, poor), notes, photos (paths in Homes/) }`,
+  `meters`, `keys`, `notes`. Saved once something is filled in.
+- `rentcosts`: Costs & the Tax Year. `homeId` (empty: a cost of no one home, which still counts, as "No home"), `date`,
+  `what`, `kind` (`repairs`, `insurance`, `interest`, `service`, `utilities`, `agent`, `legal`, `other`), `amount`,
+  `receipt` (the path of its photo or PDF in Costs/), `note`. Each home counts in its own country's tax year and
+  currency.
 
 ### Olaf (paid edition)
 - `olaf-files`: Olaf's workspace, one markdown file per record by `path`.

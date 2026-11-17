@@ -191,7 +191,7 @@ def js_literals(src: str, i: int = 0, stop: str = "") -> tuple:
 
 
 def looks_like_code(t: str) -> bool:
-    return bool(re.search(r"=\s|;\s*($|[a-z_$][\w$.]*\s*[=(])|=>|\bfunction\b|\breturn\b|\bconst\b|\bvar\b|\.(js|css)\b|^\s*[.#][a-z][\w-]*\s*\{|^[a-z]+\([^)]*\)$|^\w+\.\w+\(|\bBW\.|document\.|window\.", t)) \
+    return bool(re.search(r"=\s|;\s*($|[a-z_$][\w$.]*\s*[=(])|=>|\bfunction\b|(^|[;{]\s*)return\b(?!\s+(and|or|with|is|of|for|to|in|the|due|helps|date|form)\b)|\bconst\b|\bvar\b|\.(js|css)\b|^\s*[.#][a-z][\w-]*\s*\{|^[a-z]+\([^)]*\)$|^\w+\.\w+\(|\bBW\.|document\.|window\.", t)) \
         or bool(re.fullmatch(r"[a-z][a-zA-Z0-9]*(\.[a-zA-Z0-9]+)+", t)) or bool(re.fullmatch(r"[\w-]+(\s[\w-]+)*", t) and t == t.lower() and ("-" in t or "_" in t))
 
 
@@ -256,9 +256,9 @@ def site_pages() -> list:
 
 # Words a script asks for with BW.t() that the extractor would take for code (one lowercase word).
 # Sentences put together at runtime that read badly when translated in parts: the whole sentence per case.
-EXTRA_KEYS = ["now", "today", "tomorrow", "yesterday", "of", "at", "{0} kept"] + [f"Hi! Where should your {n} live?" for n in ("business", "growth folder", "home folder")] \
-    + [f"Choose a folder for my {n}" for n in ("business", "growth folder", "home folder")] \
-    + [f"Your {n} is saved only in this browser: clearing your browsing data would delete it." for n in ("business", "growth folder", "home folder")]
+EXTRA_KEYS = ["now", "today", "tomorrow", "yesterday", "of", "at", "{0} kept"] + [f"Hi! Where should your {n} live?" for n in ("business", "growth folder", "home folder", "rentals folder")] \
+    + [f"Choose a folder for my {n}" for n in ("business", "growth folder", "home folder", "rentals folder")] \
+    + [f"Your {n} is saved only in this browser: clearing your browsing data would delete it." for n in ("business", "growth folder", "home folder", "rentals folder")]
 # The words on the share images (tools/share_images.py), made in every language
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
 from share_images import texts as _share_texts  # noqa: E402

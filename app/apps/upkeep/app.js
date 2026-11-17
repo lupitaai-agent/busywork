@@ -16,7 +16,7 @@
     onChange: async () => { await load(); if (!$('.drawer-wrap, .modal-wrap')) render(); },
   });
   BW.shortcut('n', 'Add an upkeep job', () => edit({ area: area || 'other', every: 12 }));
-  async function load() { jobs = await BW.store.all('upkeep'); }
+  async function load() { [jobs] = await Promise.all([BW.store.all('upkeep'), H.loadMembers()]); }
   const everyText = (n) => { n = BW.num(n) || 12; return n === 1 ? 'every month' : n === 12 ? 'every year' : n % 12 === 0 ? `every ${n / 12} years` : `every ${n} months`; };
 
   function render() {
@@ -51,7 +51,7 @@
   }
   function row(j, due, today) {
     const left = H.days(today, due), st = H.jobState(j, today);
-    const sub = [everyText(j.every), j.last ? `last done ${BW.fmtDate(j.last)}` : 'not done yet', j.who].filter(Boolean).join(' · ');
+    const sub = [everyText(j.every), j.last ? `last done ${BW.fmtDate(j.last)}` : 'not done yet', H.whoName(H.members, j.who)].filter(Boolean).join(' · ');
     return `<div class="row" data-id="${j.id}" tabindex="0"><span class="icon-big">${H.area(j.area).split(' ')[0]}</span>
       <span class="main"><b>${esc(j.task || 'A job')}</b><small>${esc(sub)}</small></span>
       <span class="due ${st === 'overdue' ? 'late' : st}">${st === 'overdue' ? 'Overdue' : left === 0 ? 'Due today' : 'Due ' + H.when(left)}</span>
@@ -96,7 +96,7 @@
         { k: 'every', label: 'How often', type: 'chips', options: [[1, 'Monthly'], [3, 'Every 3 months'], [6, 'Twice a year'], [12, 'Yearly'], [24, 'Every 2 years'], [60, 'Every 5 years']] },
         { k: 'last', label: 'Last done on', type: 'date' },
         { k: 'next', label: 'Next time on (optional)', type: 'date', hint: 'Booked already? Set the date and it wins over “how often”.' },
-        { k: 'who', label: 'Who does it?', ph: 'e.g. Me, the heating company, the garage' },
+        ...H.whoField(j && j.who, { k: 'who', label: 'Who does it?', ph: 'e.g. Me, the heating company, the garage' }),
         { k: 'notes', label: 'Notes', type: 'textarea', ph: 'Phone number, what to ask for, model numbers', span: 2 },
       ],
       isComplete: (r) => !!r.task,

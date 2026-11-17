@@ -10,11 +10,11 @@
   'use strict';
   // Each suite has its own pretend data, as each has its own folder.
   const SUITE = (document.body && document.body.dataset.suite) || 'business';
-  const GROWTH = SUITE === 'growth', HOUSE = SUITE === 'house';
+  const GROWTH = SUITE === 'growth', HOUSE = SUITE === 'house', RENTALS = SUITE === 'rentals';
   // Busy Business has two examples. Busy itself is the main one; the design studio is the one the Workshop tour
   // tells its story about, so the tour's links ask for it (?example=studio). The choice lasts for the tab.
   const WHICH = (() => {
-    if (GROWTH || HOUSE) return '';
+    if (GROWTH || HOUSE || RENTALS) return '';
     let asked = '', kept = '';
     try { asked = new URLSearchParams(location.search).get('example') || ''; } catch (e) { /* no address to read */ }
     try { kept = sessionStorage.getItem('bw.demo.which') || ''; } catch (e) { /* private window */ }
@@ -22,7 +22,7 @@
     try { sessionStorage.setItem('bw.demo.which', which); } catch (e) { /* private window: Busy every time */ }
     return which;
   })();
-  const PREFIX = GROWTH ? 'bw.demo.growth.' : HOUSE ? 'bw.demo.house.' : WHICH === 'busy' ? 'bw.demo.busy.' : 'bw.demo.';
+  const PREFIX = GROWTH ? 'bw.demo.growth.' : HOUSE ? 'bw.demo.house.' : RENTALS ? 'bw.demo.rentals.' : WHICH === 'busy' ? 'bw.demo.busy.' : 'bw.demo.';
   const ss = {
     get(k) { try { return sessionStorage.getItem(PREFIX + k); } catch (e) { return null; } },
     set(k, v) { try { sessionStorage.setItem(PREFIX + k, v); } catch (e) { /* private window: it simply resets */ } },
@@ -72,6 +72,14 @@
         await BW.houseExamples.load();
         ss.set('seeded', '1');
       }
+      if (!ss.get('seeded') && RENTALS) {
+        BW.useDriver(d);
+        await BW.loadScript(BW.root + 'shared/rentals-examples.js');
+        await d.writeJSON('settings', BW.rentalsExamples.settings);
+        BW.settings = await BW.store.settings();
+        await BW.rentalsExamples.load();
+        ss.set('seeded', '1');
+      }
       if (!ss.get('seeded') && WHICH === 'busy') {
         BW.useDriver(d);
         await BW.loadScript(BW.root + 'shared/busy-example.js');
@@ -107,6 +115,9 @@
     bar.innerHTML = HOUSE
       ? '<span>🎭 A demo: a pretend household. Nothing is kept.</span>'
         + `<a class="btn btn-primary" style="padding:6px 14px" href="${site}home/index.html#get">⬇️ Download free</a>`
+      : RENTALS
+      ? '<span>🎭 A demo: a pretend landlord with two homes. Nothing is kept.</span>'
+        + `<a class="btn btn-primary" style="padding:6px 14px" href="${site}rentals/index.html#get">⬇️ Download free</a>`
       : GROWTH
       ? '<span>🎭 A demo: a pretend career switcher. Nothing is kept.</span>'
         + `<a class="btn btn-primary" style="padding:6px 14px" href="${site}growth/index.html#get">⬇️ Download free</a>`

@@ -1,0 +1,112 @@
+[
+ {
+  "id": "homes", "name": "Homes & Tenancies", "emoji": "🏠", "color": "sky", "shot": "homes",
+  "title": "Free landlord certificate and tenancy tracker",
+  "description": "Every home you let, who lives there, and every check and certificate with its date and official source, for England, the Netherlands and Germany. Free, private, no AI.",
+  "h1": "Every check and certificate, with its date.",
+  "lead": "Each home you let, its tenancy and your country's duties: the gas check, the energy label, the smoke alarms, and the copy the tenant must get and by when. Each rule links to its official page.",
+  "features": [
+   ["📋", "Your country's duties, built in", "England, the Netherlands and Germany: each duty with how often it comes back, its official source and the date Busy last checked it."],
+   ["📨", "The copy the tenant is owed", "Record a check and Busy shows when the tenant must have a copy, for example within 28 days of a gas safety check in England."],
+   ["🔍", "Check-in and check-out", "Room by room, with photos, meter readings and keys. At the end, Busy lays the two reports side by side and marks what got worse."],
+   ["📄", "Your rental on a page", "The home, the tenancy, the next dates and what is in order, as one PDF."]
+  ],
+  "steps": [
+   ["Add the home you let", "Its address and its country: Busy loads that country's duties."],
+   ["Add who lives there", "The start date, the rent and the deposit."],
+   ["Record what is done", "The last gas check or energy label: Busy keeps the next date."]
+  ],
+  "faq": [
+   ["Which countries does it know?", "England, the Netherlands and Germany. In any other country, Busy keeps your homes, rent, deposits, costs and letters, without country dates."],
+   ["Is this legal advice?", "No. Busy states each rule plainly, links the official source and shows the date it was last checked. For advice, ask a solicitor, an accountant or your landlords' association."],
+   ["Where is my data?", "In a folder you choose on your own computer, as plain files. Nothing is sent to us."]
+  ],
+  "sources": [
+   ["England", "Gas safety check", "https://www.hse.gov.uk/gas/landlords/gassaferecord.htm"]
+  ],
+  "related": ["rent", "rentletters", "rentcosts"]
+ },
+ {
+  "id": "rent", "name": "Rent & Deposits", "emoji": "💶", "color": "mint", "shot": "rent",
+  "title": "Free rent tracker and deposit dates for landlords",
+  "description": "What came in, what is late, and where each deposit stands: the cap, the date to protect or return it, and the earliest rent review. Free, private, no AI.",
+  "h1": "Rent in, deposits in order.",
+  "lead": "Mark the rent as paid, see what is still open, give a receipt as a PDF, and keep each deposit within its country's rules and dates.",
+  "features": [
+   ["✅", "Paid in one tap", "Each month's rent with its payment day. A month counts as late only after its payment day."],
+   ["🧾", "Receipts as PDF", "A rent receipt for the tenant, with the month, the amount and the home."],
+   ["🛡️", "The deposit and its dates", "The cap for your country, the 30 days to protect it in England, and the date to return it in the Netherlands."],
+   ["📈", "The earliest rent review", "When a new rent may start under your country's rule, with the official source."]
+  ],
+  "steps": [
+   ["Add the tenancy", "The rent, the payment day and the deposit."],
+   ["Mark each month as paid", "Busy shows what is open and since when."],
+   ["Keep the deposit right", "Protected in time, returned in time, with what was kept back and why."]
+  ],
+  "faq": [
+   ["How big may a deposit be?", "England: at most 5 weeks' rent, or 6 weeks when the rent is £50,000 a year or more. The Netherlands: at most 2 months' bare rent. Germany: at most 3 months' rent without the service-charge advance. Busy shows the cap for your home."],
+   ["Does Busy collect the rent?", "No. Busy keeps the record. The rent goes from your tenant to you as it does now."],
+   ["Is it free?", "Yes, with no account and no AI."]
+  ],
+  "sources": [
+   ["England", "The deposit cap", "https://www.gov.uk/assured-tenancy-agreements-a-guide-for-landlords/rent-in-advance-and-deposits"],
+   ["England", "Protecting the deposit", "https://www.gov.uk/tenancy-deposit-protection"],
+   ["The Netherlands", "The deposit", "https://www.rijksoverheid.nl/vraag-en-antwoord/woning-verhuren/regels-voor-verhuurders-en-verhuurbemiddelaars"],
+   ["Germany", "The deposit", "https://www.gesetze-im-internet.de/bgb/__551.html"]
+  ],
+  "related": ["homes", "rentletters", "rentcosts"]
+ },
+ {
+  "id": "rentletters", "name": "Letters to Tenants", "emoji": "✉️", "color": "grape", "shot": "rentletters",
+  "title": "Free letter templates for landlords, in six languages",
+  "description": "A welcome, a visit, a repair, a copy of a certificate and the deposit at the end: filled in from your records, in the language you choose for each tenant. Busy drafts; you send.",
+  "h1": "The right letter, already filled in.",
+  "lead": "Pick the letter and the tenancy. Names, the address, the rent and the dates are filled in, in the language you choose for that tenant: English, Dutch, German, Spanish, Italian or Portuguese. What Busy cannot know stays in brackets.",
+  "features": [
+   ["👋", "Five letters", "A welcome, a visit to the home, a repair, a copy of a certificate, and the deposit at the end."],
+   ["🌍", "In six languages, you choose", "It starts in the home's country's language, and you can pick another for each tenant. The rules stay those of the home's country."],
+   ["📄", "As a PDF", "Saved in your folder, ready to print or attach."],
+   ["✍️", "You send it", "Busy drafts and never sends anything. The record shows when it went."]
+  ],
+  "steps": [
+   ["Pick a letter", "And the tenancy it is for."],
+   ["Fill in the brackets", "What Busy cannot know, such as the time of a visit."],
+   ["Make the PDF", "Send it the way you always do, and note the date."]
+  ],
+  "faq": [
+   ["Are the letters legal documents?", "No. They are plain, polite templates, not advice. For a notice with legal effect, use your country's official form or ask a professional."],
+   ["Which languages?", "English, Dutch, German, Spanish, Italian and Brazilian Portuguese. A letter starts in the home's country's language; you choose another for each tenant, and Busy remembers it."],
+   ["Is it free?", "Yes, with no account and no AI."]
+  ],
+  "related": ["homes", "rent", "rentcosts"]
+ },
+ {
+  "id": "rentcosts", "name": "Costs & the Tax Year", "emoji": "🧾", "color": "sun", "shot": "rentcosts",
+  "title": "Free rental income and costs tracker for landlords",
+  "description": "Costs per home with the receipt, and the year's totals per home: rent in and costs by kind, as a list and a CSV for your accountant. Busy never files anything.",
+  "h1": "The tax year, already added up.",
+  "lead": "Add a repair, the insurance or the agent's fee with its receipt. At the end of the year, each home's rent and costs are totalled: in England's tax year from 6 April, elsewhere by calendar year.",
+  "features": [
+   ["🔧", "Costs by kind", "Repairs, insurance, service charges, utilities and fees, each with its home and its receipt."],
+   ["🗓️", "Your country's tax year", "England from 6 April to 5 April; the Netherlands and Germany by calendar year."],
+   ["📊", "Totals per home", "Rent in, costs and the difference, per home and per year."],
+   ["⬇️", "For the accountant", "One CSV with every home and every kind of cost."]
+  ],
+  "steps": [
+   ["Add costs as they come", "With the receipt and the home."],
+   ["Mark the rent as paid", "In Rent & Deposits: it counts here too."],
+   ["Export the year", "A list and a CSV for your return or your accountant."]
+  ],
+  "faq": [
+   ["Does Busy say what is deductible?", "No. Busy totals what you recorded. Which costs count, and how, is for your tax office's guidance or your accountant."],
+   ["Does Busy file my tax return?", "No. It prepares the figures; you or your accountant file."],
+   ["Is it free?", "Yes, with no account and no AI."]
+  ],
+  "sources": [
+   ["England", "The tax year", "https://www.gov.uk/self-assessment-tax-returns/deadlines"],
+   ["The Netherlands", "The tax year", "https://www.belastingdienst.nl/wps/wcm/connect/nl/belastingaangifte/content/kan-ik-nog-uitstel-aanvragen-belastingaangifte"],
+   ["Germany", "The tax year", "https://www.gesetze-im-internet.de/ao_1977/__149.html"]
+  ],
+  "related": ["homes", "rent", "rentletters"]
+ }
+]

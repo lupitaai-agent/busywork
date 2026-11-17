@@ -100,3 +100,32 @@
 .tuck-cheer .close { position: absolute; top: 6px; right: 8px; background: none; border: 0; color: var(--ink-2); font-size: 1rem; cursor: pointer; padding: 6px; }
 @keyframes tuck-in { from { opacity: 0; transform: translate(-50%, 40px); } to { opacity: 1; transform: translate(-50%, 0); } }
 @media (prefers-reduced-motion: reduce) { .tuck-cheer { animation: none; } }
+
+/* ---------- the household (2.1): members, and the name of the one who looks after a thing ---------- */
+.who-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 700; padding: 2px 9px 2px 7px; border-radius: 99px; border: 1.5px solid var(--border); background: color-mix(in srgb, var(--who, var(--hair)) 28%, var(--surface)); white-space: nowrap; }
+.who-chip::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--who, var(--hair)); border: 1px solid var(--border); }
+.members { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; margin: 16px 0; }
+.member { display: flex; flex-direction: column; gap: 6px; border-top: 8px solid var(--who, var(--hair)); min-width: 0; padding: 12px 16px 14px; }
+.member-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font: inherit; font-size: 1.15rem; background: none; border: 0; padding: 0; color: inherit; cursor: pointer; text-align: left; }
+.member-head .dot { width: 16px; height: 16px; border-radius: 50%; background: var(--who, var(--hair)); border: 2px solid var(--border); flex: none; }
+.member-head:focus-visible { outline: 3px solid var(--sky); outline-offset: 3px; border-radius: 6px; }
+.member-acts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: auto; padding-top: 8px; }
+.just-mine { display: inline-flex; gap: 6px; }
+.just-mine { margin: 4px 0 14px; }
+.view-note { margin: 4px 0 14px; }
+.phone-guide ol { padding-left: 1.2em; display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+
+/* A row with a title and a line under it (Shared Costs, the documents). */
+.file-row .main small { display: block; overflow: hidden; text-overflow: ellipsis; }
+.file-row .main small { font-weight: 600; color: var(--ink-2); }
+a.file-row { color: inherit; text-decoration: none; margin: 8px 0; }
+a.file-row:hover { border-color: var(--app); }
+
+/* Tax time: the cards in the main column (the side column has its own padding in home.css). */
+.dates-two > div > .card:not(.month) { padding: 14px 18px; margin-bottom: 14px; }
+
+/* Shared Costs (2.1): cards on a tool page have no padding of their own; the part field of "our own split". */
+.card.pad { padding: 14px 16px; }
+.card.pad h2 { margin: 0; font-size: 1.05rem; }
+.check-item input.share-in { width: 84px; height: auto; flex: none; text-align: right; }
+.line .unsettle { padding: 2px 8px; margin-left: 6px; }
