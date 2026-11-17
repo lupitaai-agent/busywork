@@ -1,8 +1,8 @@
 {
 "_": "Each page: [the fingerprint of its title, description and main content, the date that content last changed]. build.py settle_dates() keeps it; only pages of the last build are listed.",
 "about.html": [
-"625b4ef1551737fe",
-"2026-11-15"
+"193b30569855d91f",
+"2026-11-17"
 ],
 "business/board.html": [
 "4fb14e4b75e45d61",
@@ -85,8 +85,8 @@
 "2026-11-16"
 ],
 "de/about.html": [
-"4cacca7feb64c707",
-"2026-11-15"
+"4f3b25197d7123db",
+"2026-11-17"
 ],
 "de/business/board.html": [
 "744f28ab944df467",
@@ -184,13 +184,17 @@
 "83c5a7197a0e388a",
 "2026-11-16"
 ],
+"de/films/busy-rentals.html": [
+"ca801bdbeb56da89",
+"2026-11-17"
+],
 "de/films/busy-street-3d.html": [
 "7c550b79b949b022",
 "2026-11-16"
 ],
 "de/films/index.html": [
-"67d72060bfdf1b81",
-"2026-11-16"
+"ab6e14837ece695d",
+"2026-11-17"
 ],
 "de/films/tucks-errand.html": [
 "62b3aabcaeb14be2",
@@ -301,32 +305,56 @@
 "2026-11-17"
 ],
 "de/index.html": [
-"58b5309046b9e51b",
+"5a7fdd94b39a5ac4",
 "2026-11-17"
 ],
 "de/press.html": [
-"8f7581dbaddb1b43",
-"2026-11-15"
+"fd7aadc1e41ee4b8",
+"2026-11-17"
 ],
 "de/pricing.html": [
-"6b87d58e2820d2b0",
+"410223ac4a3c25b2",
 "2026-11-17"
 ],
 "de/privacy.html": [
 "8528342311cfeeb3",
 "2026-11-15"
 ],
+"de/rentals/homes.html": [
+"bb54bf1041ae21f7",
+"2026-11-17"
+],
+"de/rentals/index.html": [
+"4e8fff2f5173f4ac",
+"2026-11-17"
+],
+"de/rentals/rent.html": [
+"7dda6371d170acbf",
+"2026-11-17"
+],
+"de/rentals/rentcosts.html": [
+"048159fefc5b09ff",
+"2026-11-17"
+],
+"de/rentals/rentletters.html": [
+"220137ff335c7d3e",
+"2026-11-17"
+],
+"de/rentals/wren.html": [
+"8a84eec62d7f9c0e",
+"2026-11-17"
+],
 "de/terms.html": [
 "b98431dfffe164a1",
 "2026-11-15"
 ],
 "de/updates.html": [
-"268ea1035835d182",
+"e4089e9ec206badb",
 "2026-11-17"
 ],
 "es/about.html": [
-"573373b250ecf5cb",
-"2026-11-15"
+"8bb6a3bb8175e464",
+"2026-11-17"
 ],
 "es/business/board.html": [
 "394ceba2b73e4873",
@@ -424,13 +452,17 @@
 "c42d91f6443ad5b7",
 "2026-11-16"
 ],
+"es/films/busy-rentals.html": [
+"98f1e670a28b14c3",
+"2026-11-17"
+],
 "es/films/busy-street-3d.html": [
 "90cf27cfd6a4aa7f",
 "2026-11-16"
 ],
 "es/films/index.html": [
-"ba604fbeb7b74ca3",
-"2026-11-16"
+"f8ca5c1487e49334",
+"2026-11-17"
 ],
 "es/films/tucks-errand.html": [
 "e2f311de037e29c2",
@@ -541,27 +573,51 @@
 "2026-11-17"
 ],
 "es/index.html": [
-"ddb6f1663f373e6e",
+"7cd1f4a87537d48e",
 "2026-11-17"
 ],
 "es/press.html": [
-"b5da5a14b3085e21",
-"2026-11-15"
+"844a97cc518a2157",
+"2026-11-17"
 ],
 "es/pricing.html": [
-"cf1397782963e123",
+"ed6b910b35b1c279",
 "2026-11-17"
 ],
 "es/privacy.html": [
 "0ad34c96ef5cb8ec",
 "2026-11-15"
 ],
+"es/rentals/homes.html": [
+"d8ba9fba270ba312",
+"2026-11-17"
+],
+"es/rentals/index.html": [
+"c8e3a3c87b277843",
+"2026-11-17"
+],
+"es/rentals/rent.html": [
+"86e887cfa78dae72",
+"2026-11-17"
+],
+"es/rentals/rentcosts.html": [
+"e025f5c9e77ad177",
+"2026-11-17"
+],
+"es/rentals/rentletters.html": [
+"dc51e4b646b7ef8e",
+"2026-11-17"
+],
+"es/rentals/wren.html": [
+"7e968232f4f8bd85",
+"2026-11-17"
+],
 "es/terms.html": [
 "19ea6283387386cf",
 "2026-11-15"
 ],
 "es/updates.html": [
-"b8e508ac2e66366c",
+"206ac2af06117e93",
 "2026-11-17"
 ],
 "films/busy-business.html": [
@@ -580,13 +636,17 @@
 "570dad6d92e69750",
 "2026-11-16"
 ],
+"films/busy-rentals.html": [
+"e3e5258315c72845",
+"2026-11-17"
+],
 "films/busy-street-3d.html": [
 "7735fba43a015d93",
 "2026-11-16"
 ],
 "films/index.html": [
-"62caf1da0b988ada",
-"2026-11-16"
+"2ebe702d8ff1b29d",
+"2026-11-17"
 ],
 "films/tucks-errand.html": [
 "7834adb287d5c4a1",
@@ -697,12 +757,12 @@
 "2026-11-17"
 ],
 "index.html": [
-"5cfcf0144565902a",
+"da1a17aefb1bf7e9",
 "2026-11-17"
 ],
 "it/about.html": [
-"a778f82f57b284a5",
-"2026-11-15"
+"563409f2170f136b",
+"2026-11-17"
 ],
 "it/business/board.html": [
 "80e674bf7dcce6a6",
@@ -800,13 +860,17 @@
 "5d1026917c5bdba2",
 "2026-11-16"
 ],
+"it/films/busy-rentals.html": [
+"598785cb06e31923",
+"2026-11-17"
+],
 "it/films/busy-street-3d.html": [
 "693a625e9879a8dd",
 "2026-11-16"
 ],
 "it/films/index.html": [
-"893b0aa865949f3c",
-"2026-11-16"
+"009ab634d80ddb09",
+"2026-11-17"
 ],
 "it/films/tucks-errand.html": [
 "023dfbba4a34c3b8",
@@ -917,32 +981,56 @@
 "2026-11-17"
 ],
 "it/index.html": [
-"542e5d4950733a79",
+"5d810bdbe88e5837",
 "2026-11-17"
 ],
 "it/press.html": [
-"6887e6b69da6deef",
-"2026-11-15"
+"6b7781567101fbd5",
+"2026-11-17"
 ],
 "it/pricing.html": [
-"d4a804a4abeecd96",
+"547542697d9d3587",
 "2026-11-17"
 ],
 "it/privacy.html": [
 "07f2187d9e8eb954",
 "2026-11-15"
 ],
+"it/rentals/homes.html": [
+"b3c26878385b1413",
+"2026-11-17"
+],
+"it/rentals/index.html": [
+"d8ebb26abd5fd419",
+"2026-11-17"
+],
+"it/rentals/rent.html": [
+"898a38e41bb26e0f",
+"2026-11-17"
+],
+"it/rentals/rentcosts.html": [
+"c3e6108b681f5e84",
+"2026-11-17"
+],
+"it/rentals/rentletters.html": [
+"72ed08e8fd1f91dd",
+"2026-11-17"
+],
+"it/rentals/wren.html": [
+"906b9f5a8ca4a32b",
+"2026-11-17"
+],
 "it/terms.html": [
 "256be1d711264c91",
 "2026-11-15"
 ],
 "it/updates.html": [
-"6a62cb452f4d72ac",
+"0cbc007c2402e554",
 "2026-11-17"
 ],
 "nl/about.html": [
-"fc98d032c742ed6a",
-"2026-11-15"
+"dec6a6e0c282cefb",
+"2026-11-17"
 ],
 "nl/business/board.html": [
 "169e80dd919dd070",
@@ -1040,13 +1128,17 @@
 "e1d4b3545094fead",
 "2026-11-16"
 ],
+"nl/films/busy-rentals.html": [
+"a39f2aab65660875",
+"2026-11-17"
+],
 "nl/films/busy-street-3d.html": [
 "fb8c53e36e851504",
 "2026-11-16"
 ],
 "nl/films/index.html": [
-"0d3c9605a2f0b1ad",
-"2026-11-16"
+"0bd6745433e0ca37",
+"2026-11-17"
 ],
 "nl/films/tucks-errand.html": [
 "ab38881efea9fd6d",
@@ -1157,35 +1249,59 @@
 "2026-11-17"
 ],
 "nl/index.html": [
-"c08e32696d9bc69c",
+"2c8d0c8564976872",
 "2026-11-17"
 ],
 "nl/press.html": [
-"5170b26c84c19415",
-"2026-11-15"
+"cb77fd79791e0cd9",
+"2026-11-17"
 ],
 "nl/pricing.html": [
-"8674370bfa924037",
+"cd820736157f7c71",
 "2026-11-17"
 ],
 "nl/privacy.html": [
 "482ccde025b09907",
 "2026-11-15"
 ],
+"nl/rentals/homes.html": [
+"ac8773c7191fbf3f",
+"2026-11-17"
+],
+"nl/rentals/index.html": [
+"359e185daecae24b",
+"2026-11-17"
+],
+"nl/rentals/rent.html": [
+"11caf0e66a15cdf4",
+"2026-11-17"
+],
+"nl/rentals/rentcosts.html": [
+"8063e0a404efd8a1",
+"2026-11-17"
+],
+"nl/rentals/rentletters.html": [
+"d6bc839c62308e1f",
+"2026-11-17"
+],
+"nl/rentals/wren.html": [
+"d3e7d8b2c0cd2f21",
+"2026-11-17"
+],
 "nl/terms.html": [
 "951d21500702a7d6",
 "2026-11-15"
 ],
 "nl/updates.html": [
-"108617b67b1d4077",
+"484e0d5763c8f670",
 "2026-11-17"
 ],
 "press.html": [
-"3d9f9f5aee6365ed",
-"2026-11-15"
+"58d5e77146a92647",
+"2026-11-17"
 ],
 "pricing.html": [
-"30595371ac98feb4",
+"ca6fd72da02d9014",
 "2026-11-17"
 ],
 "privacy.html": [
@@ -1193,8 +1309,8 @@
 "2026-11-15"
 ],
 "pt-br/about.html": [
-"2e6aa6207c7e152e",
-"2026-11-15"
+"c9c0eec38bbcc14e",
+"2026-11-17"
 ],
 "pt-br/business/board.html": [
 "bbe055ea7abeb184",
@@ -1292,13 +1408,17 @@
 "f753d88069fc9bf1",
 "2026-11-16"
 ],
+"pt-br/films/busy-rentals.html": [
+"672364d90dd95bc6",
+"2026-11-17"
+],
 "pt-br/films/busy-street-3d.html": [
 "c8a6925dfa3d0720",
 "2026-11-16"
 ],
 "pt-br/films/index.html": [
-"35c21a89b115b602",
-"2026-11-16"
+"ef33a5445bf0a1e3",
+"2026-11-17"
 ],
 "pt-br/films/tucks-errand.html": [
 "0e5220dba351f001",
@@ -1409,27 +1529,75 @@
 "2026-11-17"
 ],
 "pt-br/index.html": [
-"21afea3e029f45b7",
+"6e4d1f7b8717dde3",
 "2026-11-17"
 ],
 "pt-br/press.html": [
-"fa58432c0e992681",
-"2026-11-15"
+"bfa84c79bf34cd7e",
+"2026-11-17"
 ],
 "pt-br/pricing.html": [
-"c2d2b7523fa19976",
+"d22508bc4e669403",
 "2026-11-17"
 ],
 "pt-br/privacy.html": [
 "2e564759674557ef",
 "2026-11-15"
 ],
+"pt-br/rentals/homes.html": [
+"d52ecabafe818c16",
+"2026-11-17"
+],
+"pt-br/rentals/index.html": [
+"7d22d65ae26b5291",
+"2026-11-17"
+],
+"pt-br/rentals/rent.html": [
+"93ba7c4262f6187c",
+"2026-11-17"
+],
+"pt-br/rentals/rentcosts.html": [
+"63775ca9979e03d7",
+"2026-11-17"
+],
+"pt-br/rentals/rentletters.html": [
+"321a5c809a3d563d",
+"2026-11-17"
+],
+"pt-br/rentals/wren.html": [
+"b701842258de1dfc",
+"2026-11-17"
+],
 "pt-br/terms.html": [
 "2557fb2ffefc5d18",
 "2026-11-15"
 ],
 "pt-br/updates.html": [
-"7a382ce120586635",
+"bbc0c1f7268e384b",
+"2026-11-17"
+],
+"rentals/homes.html": [
+"79b9c39fa0433c2a",
+"2026-11-17"
+],
+"rentals/index.html": [
+"753102f3e375a355",
+"2026-11-17"
+],
+"rentals/rent.html": [
+"4ea9200d013d0b5a",
+"2026-11-17"
+],
+"rentals/rentcosts.html": [
+"af942c6bd81c7fa9",
+"2026-11-17"
+],
+"rentals/rentletters.html": [
+"60de4370b07a38a2",
+"2026-11-17"
+],
+"rentals/wren.html": [
+"7485ad65465ec646",
 "2026-11-17"
 ],
 "terms.html": [
@@ -1437,7 +1605,7 @@
 "2026-11-15"
 ],
 "updates.html": [
-"216ec06c9c3b26fe",
+"24fed8fb7cf56cc5",
 "2026-11-17"
 ]
 }
