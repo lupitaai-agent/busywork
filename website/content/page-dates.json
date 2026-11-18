@@ -1,7 +1,7 @@
 {
 "_": "Each page: [the fingerprint of its title, description and main content, the date that content last changed]. build.py settle_dates() keeps it; only pages of the last build are listed.",
 "about.html": [
-"193b30569855d91f",
+"4e75de466107e819",
 "2026-11-18"
 ],
 "business/board.html": [
@@ -85,7 +85,7 @@
 "2026-11-16"
 ],
 "de/about.html": [
-"4f3b25197d7123db",
+"5d78f390d87f2c52",
 "2026-11-18"
 ],
 "de/business/board.html": [
@@ -193,7 +193,7 @@
 "2026-11-16"
 ],
 "de/films/index.html": [
-"ab6e14837ece695d",
+"bc5d33d0fe2b5328",
 "2026-11-18"
 ],
 "de/films/tucks-errand.html": [
@@ -305,11 +305,15 @@
 "2026-11-17"
 ],
 "de/index.html": [
-"5a7fdd94b39a5ac4",
+"c4b773e6eefcd497",
+"2026-11-18"
+],
+"de/kitchen/index.html": [
+"8aa639039f09b28b",
 "2026-11-18"
 ],
 "de/press.html": [
-"fd7aadc1e41ee4b8",
+"51a8bc2ef9babf66",
 "2026-11-18"
 ],
 "de/pricing.html": [
@@ -349,11 +353,11 @@
 "2026-11-15"
 ],
 "de/updates.html": [
-"e4089e9ec206badb",
+"7a08563c742a114d",
 "2026-11-18"
 ],
 "es/about.html": [
-"8bb6a3bb8175e464",
+"1cc95ae2dc478166",
 "2026-11-18"
 ],
 "es/business/board.html": [
@@ -461,7 +465,7 @@
 "2026-11-16"
 ],
 "es/films/index.html": [
-"f8ca5c1487e49334",
+"995faa9660289118",
 "2026-11-18"
 ],
 "es/films/tucks-errand.html": [
@@ -573,11 +577,15 @@
 "2026-11-17"
 ],
 "es/index.html": [
-"7cd1f4a87537d48e",
+"47a49fadf5983186",
+"2026-11-18"
+],
+"es/kitchen/index.html": [
+"3fc7c5ad3fc58428",
 "2026-11-18"
 ],
 "es/press.html": [
-"844a97cc518a2157",
+"b2e6c1d52a20e3cf",
 "2026-11-18"
 ],
 "es/pricing.html": [
@@ -617,7 +625,7 @@
 "2026-11-15"
 ],
 "es/updates.html": [
-"206ac2af06117e93",
+"4034755aee1d2bcc",
 "2026-11-18"
 ],
 "films/busy-business.html": [
@@ -645,7 +653,7 @@
 "2026-11-16"
 ],
 "films/index.html": [
-"2ebe702d8ff1b29d",
+"e7a7966f6e941c4f",
 "2026-11-18"
 ],
 "films/tucks-errand.html": [
@@ -757,11 +765,11 @@
 "2026-11-17"
 ],
 "index.html": [
-"da1a17aefb1bf7e9",
+"45841319d1de8fc8",
 "2026-11-18"
 ],
 "it/about.html": [
-"563409f2170f136b",
+"94a78680a3a4a07f",
 "2026-11-18"
 ],
 "it/business/board.html": [
@@ -869,7 +877,7 @@
 "2026-11-16"
 ],
 "it/films/index.html": [
-"009ab634d80ddb09",
+"56182ce5390a9502",
 "2026-11-18"
 ],
 "it/films/tucks-errand.html": [
@@ -981,11 +989,15 @@
 "2026-11-17"
 ],
 "it/index.html": [
-"5d810bdbe88e5837",
+"c65c8d0cc9a7bb4e",
+"2026-11-18"
+],
+"it/kitchen/index.html": [
+"c025d2d1f48d9f6a",
 "2026-11-18"
 ],
 "it/press.html": [
-"6b7781567101fbd5",
+"206e0aad4d12aa2f",
 "2026-11-18"
 ],
 "it/pricing.html": [
@@ -1025,11 +1037,15 @@
 "2026-11-15"
 ],
 "it/updates.html": [
-"0cbc007c2402e554",
+"08c7b4d9588c877c",
+"2026-11-18"
+],
+"kitchen/index.html": [
+"e8ddeb3d59cd8193",
 "2026-11-18"
 ],
 "nl/about.html": [
-"dec6a6e0c282cefb",
+"155274241c2120c1",
 "2026-11-18"
 ],
 "nl/business/board.html": [
@@ -1137,7 +1153,7 @@
 "2026-11-16"
 ],
 "nl/films/index.html": [
-"0bd6745433e0ca37",
+"cc48daec11df65cf",
 "2026-11-18"
 ],
 "nl/films/tucks-errand.html": [
@@ -1249,11 +1265,15 @@
 "2026-11-17"
 ],
 "nl/index.html": [
-"2c8d0c8564976872",
+"d48f07ab687a92d7",
+"2026-11-18"
+],
+"nl/kitchen/index.html": [
+"d82cace061d4ebbe",
 "2026-11-18"
 ],
 "nl/press.html": [
-"cb77fd79791e0cd9",
+"efb799de4c40092d",
 "2026-11-18"
 ],
 "nl/pricing.html": [
@@ -1293,11 +1313,11 @@
 "2026-11-15"
 ],
 "nl/updates.html": [
-"484e0d5763c8f670",
+"64901097657d8bd7",
 "2026-11-18"
 ],
 "press.html": [
-"58d5e77146a92647",
+"60413045d5fca65c",
 "2026-11-18"
 ],
 "pricing.html": [
@@ -1309,7 +1329,7 @@
 "2026-11-15"
 ],
 "pt-br/about.html": [
-"c9c0eec38bbcc14e",
+"2b0a033412eb6c66",
 "2026-11-18"
 ],
 "pt-br/business/board.html": [
@@ -1417,7 +1437,7 @@
 "2026-11-16"
 ],
 "pt-br/films/index.html": [
-"ef33a5445bf0a1e3",
+"faca80d39b71f2d6",
 "2026-11-18"
 ],
 "pt-br/films/tucks-errand.html": [
@@ -1529,11 +1549,15 @@
 "2026-11-17"
 ],
 "pt-br/index.html": [
-"6e4d1f7b8717dde3",
+"8130943367ebda8c",
+"2026-11-18"
+],
+"pt-br/kitchen/index.html": [
+"0fea16db0bec3e0c",
 "2026-11-18"
 ],
 "pt-br/press.html": [
-"bfa84c79bf34cd7e",
+"fea803e46295da0e",
 "2026-11-18"
 ],
 "pt-br/pricing.html": [
@@ -1573,7 +1597,7 @@
 "2026-11-15"
 ],
 "pt-br/updates.html": [
-"bbc0c1f7268e384b",
+"d3b52bdf3a338c9c",
 "2026-11-18"
 ],
 "rentals/homes.html": [
@@ -1605,7 +1629,7 @@
 "2026-11-15"
 ],
 "updates.html": [
-"24fed8fb7cf56cc5",
+"29b43bdf68ddc147",
 "2026-11-18"
 ]
 }

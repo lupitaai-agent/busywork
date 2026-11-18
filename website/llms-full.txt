@@ -1,6 +1,6 @@
 # Busy: the full picture
 
-Busy makes free, private tools for work and life, in suites: Busy Business (thirteen tools for small businesses and freelancers to grow and run the business: a marketing studio with a brand profile and a year plan, a brand kit, projects, invoices and quotes, time, receipts, money, clients, documents, subscriptions, trips and stock), Busy Growth (free tools to grow your career: a library, skills, wins, a job tracker, a CV and LinkedIn builder and more), Busy Home (free tools for household paperwork: documents with expiry reminders, contracts with the last day to cancel, upkeep, a home inventory, letters, moving and a Just in Case binder), Busy Rentals (free rental management for people who let one home or a few: every date, certificate, deposit, rent payment and receipt, with the landlord's year for England, the Netherlands and Germany) and Busy Games (free daily brain games). Each suite is a free app for Mac and Windows, or runs in the browser, and keeps everything in the owner's own folder, with no account and no subscription. Each suite also comes as a paid app with an AI expert inside, bought once on itch.io: Olaf for business, Ivy for professional growth, Juno for household paperwork, Wren for letting a home. Busy also makes the game Busy Street.
+Busy makes free, private tools for work and life, in suites: Busy Business (thirteen tools for small businesses and freelancers to grow and run the business: a marketing studio with a brand profile and a year plan, a brand kit, projects, invoices and quotes, time, receipts, money, clients, documents, subscriptions, trips and stock), Busy Growth (free tools to grow your career: a library, skills, wins, a job tracker, a CV and LinkedIn builder and more), Busy Home (free tools for household paperwork: documents with expiry reminders, contracts with the last day to cancel, upkeep, a home inventory, letters, moving and a Just in Case binder), Busy Rentals (free rental management for people who let one home or a few: every date, certificate, deposit, rent payment and receipt, with the landlord's year for England, the Netherlands and Germany) and Busy Games (free daily brain games). Each suite is a free app for Mac and Windows, or runs in the browser, and keeps everything in the owner's own folder, with no account and no subscription. Each suite also comes as a paid app with an AI expert inside, bought once on itch.io: Olaf for business, Ivy for professional growth, Juno for household paperwork, Wren for letting a home. Busy Kitchen is a free cultural kitchen of the six languages: 1,886 dishes from six kitchens, matched to what's in your fridge. The home cooking of Busy's six languages, with each kitchen's story, regions and feast days, and a recipe for every dish. Busy also makes the game Busy Street.
 
 Website: https://busy.com.ai/
 
@@ -534,6 +534,63 @@ Questions:
 - Does Wren give legal or tax advice? No. She explains what the official guidance says, with its source, and tells you when to ask a solicitor, an accountant or the tribunal.
 - Which countries does she know? England, the Netherlands and Germany, from the same country rules as the free app. Elsewhere she keeps your records and points you to your country's official guidance.
 - Is Wren in the free download? No. The free Busy Rentals has every tool and no AI. Wren comes in her own download when you buy her, with Busy Rentals included.
+
+# Busy Kitchen: the cultural kitchen of six languages
+
+Page: https://busy.com.ai/kitchen/index.html
+
+1,886 dishes from six kitchens, matched to what's in your fridge. The home cooking of Busy's six languages, with each kitchen's story, regions and feast days, and a recipe for every dish.
+
+## Tools
+
+- Tonight: Type what is in your fridge, in any of the six languages, and see what you can cook now, and what needs one thing more. Or travel tonight to one kitchen.
+- The six kitchens: Each kitchen's story, how to say its dishes, its regions, its pantry, how people eat, its calendar and its dishes, with pictures.
+- Food calendar: What the six kitchens cook through the year: Sinterklaas, Advent, Semana Santa, Natale, Festa Junina, Thanksgiving and every season.
+- Recipe Box: Your own recipes and the family's, with a photo of the handwritten card, the story behind it, and a family cookbook to print.
+- Week Plan & Shopping: The next two weeks' dinners and the leftovers, and the shopping list that follows, on your phone through your synced folder or printed.
+- Pantry: What is in the fridge, the freezer and the cupboard, with use-by dates. What goes off first comes first.
+- Cooking mode: One step at a time, in big letters, with a timer, and a screen that stays on.
+- Ingredients abroad: Can't find speculaas spice or queso fresco where you live? What to use instead.
+- Cups, grams and gas marks: Fahrenheit and Celsius, fan and conventional ovens, and portions with a + and a −.
+- A kitchen passport: A stamp for every dish you cook, kitchen by kitchen.
+
+## Questions
+
+Q: What is Busy Kitchen?
+A: A free app with the home cooking of six language worlds: 1,886 dishes from the Dutch, German, Spanish, Italian, Portuguese and English kitchens, each with its story, its regions, its feast days and a recipe, in English, Dutch, German, Spanish, Italian and Brazilian Portuguese.
+
+Q: How does it find dinner?
+A: Type what is in your fridge, in any of the six languages. Busy Kitchen shows the dishes you can cook now, and the ones that need one or two things more. Salt, oil and the other basics are taken as read.
+
+Q: Are the recipes any good?
+A: Busy wrote every recipe in its own words, from how the dish is made at home in its region, and checked each one against written rules: the amounts, the oven, the allergens and how to know meat is cooked through. Nobody at Busy has cooked them all yet, and each recipe says so. Tell us how it went, and the recipes get better from what you tell us.
+
+Q: What does it cost?
+A: Nothing. Busy Kitchen is free, with no account and no AI. Busy Kitchen with Sal, your chef, is $1.49 once on itch.io, and Sal works on your own Claude.
+
+Q: Where are my recipes?
+A: In a folder you choose on your own computer, as plain files. Put it in Google Drive, Dropbox, OneDrive or iCloud Drive and the shopping list reaches your phone. Nothing is sent to us.
+
+Q: Which kitchens are in it?
+A: The Dutch kitchen (the Netherlands, Flanders, and Surinamese and Indonesian-Dutch home cooking), the German (Germany, Austria and Switzerland), the Spanish (Spain and Latin America), the Italian (all twenty regions), the Portuguese (Brazil and Portugal) and the English (Britain, Ireland and the United States).
+
+Q: Can I add my own recipes?
+A: Yes. The Recipe Box keeps your own and your family's recipes, with a photo, the story and the country it came from. Every house recipe can go into it too, as your own copy to change. Print them all as a family cookbook.
+
+Q: What about allergies?
+A: Each recipe lists what it contains from the EU's 14 allergens, hidden ones such as stock and soy sauce included. It never says a dish is free of anything. Always check the labels of what you buy.
+
+Q: What if I can't find an ingredient?
+A: Each kitchen has its ingredients abroad: what to use instead, close and never quite the same. A missing ingredient in Tonight shows its swap.
+
+Q: Are the pictures real?
+A: The pictures of the kitchens' places and customs are made with AI, to show each kitchen as it lives, and the app says so beside them.
+
+Q: Will the recipes keep changing?
+A: No. The collection is fixed and complete. We improve a recipe when people tell us how it went.
+
+Q: Why six kitchens?
+A: Busy speaks six languages, and each language has a kitchen behind it. So Busy Kitchen is a cultural kitchen: the dishes those languages grew up with, at home and on their feast days.
 
 
 # Privacy in short
