@@ -2,7 +2,7 @@
 "_": "Each page: [the fingerprint of its title, description and main content, the date that content last changed]. build.py settle_dates() keeps it; only pages of the last build are listed.",
 "about.html": [
 "193b30569855d91f",
-"2026-11-17"
+"2026-11-18"
 ],
 "business/board.html": [
 "4fb14e4b75e45d61",
@@ -86,7 +86,7 @@
 ],
 "de/about.html": [
 "4f3b25197d7123db",
-"2026-11-17"
+"2026-11-18"
 ],
 "de/business/board.html": [
 "744f28ab944df467",
@@ -194,7 +194,7 @@
 ],
 "de/films/index.html": [
 "ab6e14837ece695d",
-"2026-11-17"
+"2026-11-18"
 ],
 "de/films/tucks-errand.html": [
 "62b3aabcaeb14be2",
@@ -306,11 +306,11 @@
 ],
 "de/index.html": [
 "5a7fdd94b39a5ac4",
-"2026-11-17"
+"2026-11-18"
 ],
 "de/press.html": [
 "fd7aadc1e41ee4b8",
-"2026-11-17"
+"2026-11-18"
 ],
 "de/pricing.html": [
 "410223ac4a3c25b2",
@@ -350,11 +350,11 @@
 ],
 "de/updates.html": [
 "e4089e9ec206badb",
-"2026-11-17"
+"2026-11-18"
 ],
 "es/about.html": [
 "8bb6a3bb8175e464",
-"2026-11-17"
+"2026-11-18"
 ],
 "es/business/board.html": [
 "394ceba2b73e4873",
@@ -462,7 +462,7 @@
 ],
 "es/films/index.html": [
 "f8ca5c1487e49334",
-"2026-11-17"
+"2026-11-18"
 ],
 "es/films/tucks-errand.html": [
 "e2f311de037e29c2",
@@ -574,11 +574,11 @@
 ],
 "es/index.html": [
 "7cd1f4a87537d48e",
-"2026-11-17"
+"2026-11-18"
 ],
 "es/press.html": [
 "844a97cc518a2157",
-"2026-11-17"
+"2026-11-18"
 ],
 "es/pricing.html": [
 "ed6b910b35b1c279",
@@ -618,7 +618,7 @@
 ],
 "es/updates.html": [
 "206ac2af06117e93",
-"2026-11-17"
+"2026-11-18"
 ],
 "films/busy-business.html": [
 "92585af5f8d2df16",
@@ -646,7 +646,7 @@
 ],
 "films/index.html": [
 "2ebe702d8ff1b29d",
-"2026-11-17"
+"2026-11-18"
 ],
 "films/tucks-errand.html": [
 "7834adb287d5c4a1",
@@ -758,11 +758,11 @@
 ],
 "index.html": [
 "da1a17aefb1bf7e9",
-"2026-11-17"
+"2026-11-18"
 ],
 "it/about.html": [
 "563409f2170f136b",
-"2026-11-17"
+"2026-11-18"
 ],
 "it/business/board.html": [
 "80e674bf7dcce6a6",
@@ -870,7 +870,7 @@
 ],
 "it/films/index.html": [
 "009ab634d80ddb09",
-"2026-11-17"
+"2026-11-18"
 ],
 "it/films/tucks-errand.html": [
 "023dfbba4a34c3b8",
@@ -982,11 +982,11 @@
 ],
 "it/index.html": [
 "5d810bdbe88e5837",
-"2026-11-17"
+"2026-11-18"
 ],
 "it/press.html": [
 "6b7781567101fbd5",
-"2026-11-17"
+"2026-11-18"
 ],
 "it/pricing.html": [
 "547542697d9d3587",
@@ -1026,11 +1026,11 @@
 ],
 "it/updates.html": [
 "0cbc007c2402e554",
-"2026-11-17"
+"2026-11-18"
 ],
 "nl/about.html": [
 "dec6a6e0c282cefb",
-"2026-11-17"
+"2026-11-18"
 ],
 "nl/business/board.html": [
 "169e80dd919dd070",
@@ -1138,7 +1138,7 @@
 ],
 "nl/films/index.html": [
 "0bd6745433e0ca37",
-"2026-11-17"
+"2026-11-18"
 ],
 "nl/films/tucks-errand.html": [
 "ab38881efea9fd6d",
@@ -1250,11 +1250,11 @@
 ],
 "nl/index.html": [
 "2c8d0c8564976872",
-"2026-11-17"
+"2026-11-18"
 ],
 "nl/press.html": [
 "cb77fd79791e0cd9",
-"2026-11-17"
+"2026-11-18"
 ],
 "nl/pricing.html": [
 "cd820736157f7c71",
@@ -1294,11 +1294,11 @@
 ],
 "nl/updates.html": [
 "484e0d5763c8f670",
-"2026-11-17"
+"2026-11-18"
 ],
 "press.html": [
 "58d5e77146a92647",
-"2026-11-17"
+"2026-11-18"
 ],
 "pricing.html": [
 "ca6fd72da02d9014",
@@ -1310,7 +1310,7 @@
 ],
 "pt-br/about.html": [
 "c9c0eec38bbcc14e",
-"2026-11-17"
+"2026-11-18"
 ],
 "pt-br/business/board.html": [
 "bbe055ea7abeb184",
@@ -1418,7 +1418,7 @@
 ],
 "pt-br/films/index.html": [
 "ef33a5445bf0a1e3",
-"2026-11-17"
+"2026-11-18"
 ],
 "pt-br/films/tucks-errand.html": [
 "0e5220dba351f001",
@@ -1530,11 +1530,11 @@
 ],
 "pt-br/index.html": [
 "6e4d1f7b8717dde3",
-"2026-11-17"
+"2026-11-18"
 ],
 "pt-br/press.html": [
 "bfa84c79bf34cd7e",
-"2026-11-17"
+"2026-11-18"
 ],
 "pt-br/pricing.html": [
 "d22508bc4e669403",
@@ -1574,7 +1574,7 @@
 ],
 "pt-br/updates.html": [
 "bbc0c1f7268e384b",
-"2026-11-17"
+"2026-11-18"
 ],
 "rentals/homes.html": [
 "79b9c39fa0433c2a",
@@ -1606,6 +1606,6 @@
 ],
 "updates.html": [
 "24fed8fb7cf56cc5",
-"2026-11-17"
+"2026-11-18"
 ]
 }

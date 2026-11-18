@@ -53,6 +53,13 @@
         ['rent', 'rent_ledger', 'homes_list', (o) => (Array.isArray(o) ? o : []).filter((h) => h.tenancy && h.tenancy.id).map((h) => ({ tenancy_id: h.tenancy.id }))],
         ['reports', 'reports_get', 'homes_list', (o) => (Array.isArray(o) ? o : []).filter((h) => h.tenancy && h.tenancy.id).map((h) => ({ tenancy_id: h.tenancy.id }))]],
       ask: ['What is due at my rentals this month?', 'Read my tenancy agreement', 'The tenant reported a repair'] },
+    sal: { plugin: 'busy-kitchen', app: 'Busy Kitchen', hello: 'Plan my week with me', coll: 'sal-files', lib: 'salLibrary', tools: () => BW.salTools, dirs: ['', 'output'],
+      scripts: ['shared/kitchen-data.js', 'shared/kitchen-words.js', 'shared/kitchen-swaps.js', 'shared/kitchen.js', 'shared/filetext.js', 'shared/ai.js', 'apps/sal/tools.js'],
+      read: ['kitchen_overview', 'pantry_list', 'find_dishes', 'recipes_list', 'plan_list', 'shopping_list', 'cooked_list', 'food_calendar', 'inbox_list'],
+      never: ['list_files', 'read_file', 'write_file', 'use_skill', 'check_voice', 'suggest_next', 'recipe_get', 'dish_get', 'dishes_search', 'kitchen_get', 'convert', 'open_document'],
+      detail: [['recipes', 'recipe_get', 'recipes_list', (o) => (Array.isArray(o) ? o : []).map((r) => ({ id: r.id }))],
+        ['dishes', 'dish_get', 'plan_list', (o) => [...new Set((Array.isArray(o) ? o : []).map((p) => p.dishId).filter(Boolean))].map((id) => ({ id }))]],
+      ask: ['What can I cook tonight?', 'Plan our dinners for this week', 'Read my grandmother’s recipe'] },
   }[x.id];
   const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* private window */ } } };
   const jget = (k, d) => { try { return JSON.parse(ls.get(k)) || d; } catch (e) { return d; } };
@@ -125,6 +132,10 @@ The skill "${x.id}" of the ${CFG.plugin} plugin explains the rest.
         await put(`now/${file}.md`, `# ${file}\n\nEach open one in full, as Busy's "${tool}" gives it (${today}).\n\n${parts.join('\n\n---\n\n') || 'None open.'}\n`);
       }
       // The real brand files the owner keeps in the Brand Kit: Claude can open them where they are.
+      // Every dish of the six kitchens, so Claude can search them (Busy's dishes_search and find_dishes in the app).
+      if (x.id === 'sal' && BW.kitchen) {
+        await put('now/all_dishes.md', `# All dishes\n\nEvery dish of Busy Kitchen's six kitchens (${BW.kitchen.dishes.length}), one per line: id | name | in English | kitchen | kind | key ingredients. Busy's full house recipe of a dish in the week plan is in now/dishes.md; for any other dish, a recipe_save card with its dish_id copies the house recipe into the Recipe Box.\n\n${BW.kitchen.dishes.map((d) => [d.id, d.name, d.en !== d.name ? d.en : '', d.k, d.type, d.ing].join(' | ')).join('\n')}\n`);
+      }
       if (x.id === 'olaf') {
         const bf = (await BW.store.listFiles('Brand files')).filter((n) => !n.startsWith('.')).sort();
         await put('now/brand_files.md', `# Brand files\n\nThe owner's real brand files (logo versions, fonts, photos, the brand guide), kept with the Brand Kit in the folder "Brand files" next to this "Claude" folder. Open them there; never change, move or delete them. To suggest a new file, write it to files/output/ and say so.\n\n${bf.map((n) => `- Brand files/${n}`).join('\n') || 'None yet. The owner adds them in Busy: Brand Kit, Your brand files.'}\n`);
@@ -180,7 +191,9 @@ The skill "${x.id}" of the ${CFG.plugin} plugin explains the rest.
     paper_add: 'File documents in Paper Trail', paper_update: 'Update a document', contract_add: 'Add a contract', contract_update: 'Update a contract', upkeep_add: 'Add an upkeep job', upkeep_update: 'Update an upkeep job',
     upkeep_done: 'Mark a job as done', inventory_add: 'Add to your Home Inventory', letter_create: 'Save a letter in Letters', move_create: 'Start a move', move_add_tasks: 'Add tasks to the move', binder_add: 'Add to the Just in Case binder',
     home_add: 'Add a home', home_update: 'Update a home', tenancy_add: 'Add a tenancy', tenancy_update: 'Update a tenancy', check_record: 'Record a check', copy_given: 'Note the copy for the tenant',
-    rent_record: 'Record rent received', letter_draft: 'Save a letter to the tenant', cost_add: x.id === 'juno' ? 'Add shared costs' : 'Add costs of a home' };
+    rent_record: 'Record rent received', letter_draft: 'Save a letter to the tenant', cost_add: x.id === 'juno' ? 'Add shared costs' : 'Add costs of a home',
+    recipe_save: 'Save a recipe in your Recipe Box', recipe_update: 'Update a recipe', plan_add: 'Plan dinners', shopping_add: 'Add to the shopping list', pantry_add: 'Add to the pantry',
+    pantry_update: 'Update the pantry', cooked_add: 'Stamp your kitchen passport', household_update: 'Save your household' };
   const say = (c) => { const i = c.input || {}, n = i.title || i.name || i.client || i.company || ''; return `${BW.t(WHAT[c.tool] || String(c.tool || '').replace(/_/g, ' '))}${n ? ': ' + n : ''}`; };
   async function readCard(file) {
     const raw = await readText(`${DIR}/cards/${file}`);
@@ -229,12 +242,18 @@ The skill "${x.id}" of the ${CFG.plugin} plugin explains the rest.
       show: `Dear ${(t && t.tenants) || '[tenant]'},\n\nI would like to visit on [day and date] at [time] for the yearly gas safety check. It takes about half an hour.\n\nIf that time does not suit you, please tell me one that does.\n\nKind regards,\n${me}` },
       t && { id: 'd2', emoji: '💶', title: `Rent from ${t.tenants}: this month's payment recorded`, why: 'It came in on the payment day. Nothing is late now.', calls: [{ tool: 'rent_record', input: { title: t.tenants } }] },
       h && { id: 'd3', emoji: '🧾', title: 'Three receipts sorted into costs', why: 'The plumber, the insurance and the ground rent, each with its kind and receipt.', calls: [{ tool: 'cost_add', input: { items: [1, 2, 3] } }] }].filter(Boolean);
+  }, sal: async () => {
+    const p = (await BW.store.all('pantry')).filter((y) => y.useBy).sort((a, b) => a.useBy.localeCompare(b.useBy))[0], d = BW.kitchen && BW.kitchen.dish('dut1');
+    return [p && { id: 'd1', emoji: '🍳', title: `Tonight: something with the ${p.name}`, why: 'It goes off first. The first dish needs nothing from the shop.', calls: [{ tool: 'plan_add', input: { items: [1] } }] },
+      d && { id: 'd2', emoji: '🗓️', title: `${d.name} on Thursday`, why: 'Not yet cooked by us. Contains milk and mustard. Always check the labels of what you buy.', calls: [{ tool: 'plan_add', input: { items: [1] } }] },
+      { id: 'd3', emoji: '🛒', title: 'Five things on the shopping list', why: 'For this week’s dinners, minus what is in the pantry.', calls: [{ tool: 'shopping_add', input: { items: [1, 2, 3, 4, 5] } }] }].filter(Boolean);
   } };
   const demoCards = () => DEMO_CARDS[x.id]();
   const DEMO_DONE = { olaf: ['Filed three receipts and counted the VAT you get back', 'Checked your brand assets: five to keep, three to test', 'Wrote this week’s update for your project'],
     ivy: ['Turned your course into two lines for your CV', 'Found three wins in your weekly reviews', 'Wrote your 30-second introduction'],
     juno: ['Read the letter from the insurer: nothing to do', 'Filed four scans with their dates', 'Added the boiler service to this month'],
-    wren: ['Read the tenancy agreement and filled in the dates', 'Recorded the energy certificate with its next date', 'Put the deposit\'s protection date in your year'] };
+    wren: ['Read the tenancy agreement and filled in the dates', 'Recorded the energy certificate with its next date', 'Put the deposit\'s protection date in your year'],
+    sal: ['Planned four dinners around what goes off first', 'Read Oma’s handwritten apple tart into your Recipe Box', 'Made the shopping list for Saturday’s guests'] };
   const gone = new Set();
   const cards = (BW.cards = {
     async list() {

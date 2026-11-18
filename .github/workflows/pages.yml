@@ -49,6 +49,8 @@ jobs:
           HOME_LIVE: ${{ vars.HOME_LIVE }}
           # Busy Rentals' launch switch (with Wren on itch.io), the same way: 1 builds its pages, its download and its demo.
           RENTALS_LIVE: ${{ vars.RENTALS_LIVE }}
+          # Busy Kitchen's launch switch (with Sal on itch.io), the same way: 1 builds its page, its download and its demo.
+          KITCHEN_LIVE: ${{ vars.KITCHEN_LIVE }}
           # Cloudflare Web Analytics: the private visitor count. Empty means no counter on the site.
           CF_ANALYTICS_TOKEN: ${{ vars.CF_ANALYTICS_TOKEN }}
       - name: The pages that changed, for IndexNow

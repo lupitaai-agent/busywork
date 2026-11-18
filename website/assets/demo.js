@@ -1,7 +1,7 @@
 /* The website demo: every Busy tool, already filled in, so visitors see what they get before they download or
    buy. Busy Business opens on Busy itself (our own brand profile, year plan and projects; the money is made up),
-   with a pretend design studio one click away; Busy Growth has a pretend career switcher and Busy Home a pretend
-   household. Not part of any download: build.py adds this script to the website's copy of the tools only, before core.js.
+   with a pretend design studio one click away; Busy Growth has a pretend career switcher, Busy Home a pretend
+   household, Busy Rentals a pretend landlord and Busy Kitchen a pretend household's kitchen. Not part of any download: build.py adds this script to the website's copy of the tools only, before core.js.
 
    It uses the shell hook in core.js (window.BW_HOST): the business is kept in sessionStorage, so it
    lasts while the tab is open (moving between tools keeps it) and is gone when the tab closes.
@@ -10,11 +10,11 @@
   'use strict';
   // Each suite has its own pretend data, as each has its own folder.
   const SUITE = (document.body && document.body.dataset.suite) || 'business';
-  const GROWTH = SUITE === 'growth', HOUSE = SUITE === 'house', RENTALS = SUITE === 'rentals';
+  const GROWTH = SUITE === 'growth', HOUSE = SUITE === 'house', RENTALS = SUITE === 'rentals', KITCHEN = SUITE === 'kitchen';
   // Busy Business has two examples. Busy itself is the main one; the design studio is the one the Workshop tour
   // tells its story about, so the tour's links ask for it (?example=studio). The choice lasts for the tab.
   const WHICH = (() => {
-    if (GROWTH || HOUSE || RENTALS) return '';
+    if (GROWTH || HOUSE || RENTALS || KITCHEN) return '';
     let asked = '', kept = '';
     try { asked = new URLSearchParams(location.search).get('example') || ''; } catch (e) { /* no address to read */ }
     try { kept = sessionStorage.getItem('bw.demo.which') || ''; } catch (e) { /* private window */ }
@@ -22,7 +22,7 @@
     try { sessionStorage.setItem('bw.demo.which', which); } catch (e) { /* private window: Busy every time */ }
     return which;
   })();
-  const PREFIX = GROWTH ? 'bw.demo.growth.' : HOUSE ? 'bw.demo.house.' : RENTALS ? 'bw.demo.rentals.' : WHICH === 'busy' ? 'bw.demo.busy.' : 'bw.demo.';
+  const PREFIX = GROWTH ? 'bw.demo.growth.' : HOUSE ? 'bw.demo.house.' : RENTALS ? 'bw.demo.rentals.' : KITCHEN ? 'bw.demo.kitchen.' : WHICH === 'busy' ? 'bw.demo.busy.' : 'bw.demo.';
   const ss = {
     get(k) { try { return sessionStorage.getItem(PREFIX + k); } catch (e) { return null; } },
     set(k, v) { try { sessionStorage.setItem(PREFIX + k, v); } catch (e) { /* private window: it simply resets */ } },
@@ -80,6 +80,14 @@
         await BW.rentalsExamples.load();
         ss.set('seeded', '1');
       }
+      if (!ss.get('seeded') && KITCHEN) {
+        BW.useDriver(d);
+        await BW.loadScript(BW.root + 'shared/kitchen-examples.js');
+        await d.writeJSON('settings', BW.kitchenExamples.settings);
+        BW.settings = await BW.store.settings();
+        await BW.kitchenExamples.load();
+        ss.set('seeded', '1');
+      }
       if (!ss.get('seeded') && WHICH === 'busy') {
         BW.useDriver(d);
         await BW.loadScript(BW.root + 'shared/busy-example.js');
@@ -118,6 +126,9 @@
       : RENTALS
       ? '<span>🎭 A demo: a pretend landlord with two homes. Nothing is kept.</span>'
         + `<a class="btn btn-primary" style="padding:6px 14px" href="${site}rentals/index.html#get">⬇️ Download free</a>`
+      : KITCHEN
+      ? '<span>🎭 A demo: a pretend household and its kitchen. Nothing is kept.</span>'
+        + `<a class="btn btn-primary" style="padding:6px 14px" href="${site}kitchen/index.html#get">⬇️ Download free</a>`
       : GROWTH
       ? '<span>🎭 A demo: a pretend career switcher. Nothing is kept.</span>'
         + `<a class="btn btn-primary" style="padding:6px 14px" href="${site}growth/index.html#get">⬇️ Download free</a>`

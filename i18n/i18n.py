@@ -224,7 +224,7 @@ def script_strings(text: str, lines: bool = False) -> list:
 
 # Script files people never see text from (data, engines, libraries) and the pretend demo data.
 # the demo businesses (examples.js and co.) are translated too, so a visitor sees the demo in their language
-SKIP_SCRIPTS = {"vendor", "shared/i18n.js", "three-busy.js", "scene.js", "schema.js", "pdf.js", "filetext.js", "qr.js", ".glb.js"}
+SKIP_SCRIPTS = {"kitchen-data.js", "kitchen/recipes-", "kitchen/details-", "kitchen-words.js", "kitchen-swaps.js", "vendor", "shared/i18n.js", "three-busy.js", "scene.js", "schema.js", "pdf.js", "filetext.js", "qr.js", ".glb.js"}
 
 
 def app_scripts() -> list:
@@ -256,9 +256,9 @@ def site_pages() -> list:
 
 # Words a script asks for with BW.t() that the extractor would take for code (one lowercase word).
 # Sentences put together at runtime that read badly when translated in parts: the whole sentence per case.
-EXTRA_KEYS = ["now", "today", "tomorrow", "yesterday", "of", "at", "{0} kept"] + [f"Hi! Where should your {n} live?" for n in ("business", "growth folder", "home folder", "rentals folder")] \
-    + [f"Choose a folder for my {n}" for n in ("business", "growth folder", "home folder", "rentals folder")] \
-    + [f"Your {n} is saved only in this browser: clearing your browsing data would delete it." for n in ("business", "growth folder", "home folder", "rentals folder")]
+EXTRA_KEYS = ["now", "today", "tomorrow", "yesterday", "of", "at", "{0} kept", "dishes", "cooked", "leftovers", "bought", "used up", "serves", "from", "recipe", "recipes", "hours", "h", "min", "person", "people", "fan", "gas mark"] + [f"Hi! Where should your {n} live?" for n in ("business", "growth folder", "home folder", "rentals folder", "kitchen folder")] \
+    + [f"Choose a folder for my {n}" for n in ("business", "growth folder", "home folder", "rentals folder", "kitchen folder")] \
+    + [f"Your {n} is saved only in this browser: clearing your browsing data would delete it." for n in ("business", "growth folder", "home folder", "rentals folder", "kitchen folder")]
 # The words on the share images (tools/share_images.py), made in every language
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
 from share_images import texts as _share_texts  # noqa: E402

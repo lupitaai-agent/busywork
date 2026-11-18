@@ -55,8 +55,13 @@
     { id: 'rent', suite: 'rentals', name: 'Rent & Deposits', emoji: '💶', color: 'mint', ready: true, tagline: 'What came in, what is late, and where each deposit stands.' },
     { id: 'rentletters', suite: 'rentals', name: 'Letters to Tenants', emoji: '✉️', color: 'pink', ready: true, tagline: 'A welcome, a visit, a repair, a copy, the deposit: filled in, in the language you choose.' },
     { id: 'rentcosts', suite: 'rentals', name: 'Costs & the Tax Year', emoji: '🧾', color: 'sun', ready: true, tagline: 'Costs per home with receipts, and the year’s totals for the return.' },
+    { id: 'kitchens', suite: 'kitchen', name: 'The Six Kitchens', emoji: '🌍', color: 'sun', ready: true, tagline: 'Six kitchens, six languages: their stories, regions, customs and 1,886 dishes.' },
+    { id: 'recipes', suite: 'kitchen', name: 'Recipe Box', emoji: '📖', color: 'tomato', ready: true, tagline: 'Your own recipes and the family’s, with their stories, a cooking mode and a family cookbook.' },
+    { id: 'plan', suite: 'kitchen', name: 'Week Plan & Shopping', emoji: '🗓️', color: 'mint', ready: true, tagline: 'The week’s dinners for your household, and the shopping list that follows from them.' },
+    { id: 'pantry', suite: 'kitchen', name: 'Pantry', emoji: '🧺', color: 'grape', ready: true, tagline: 'What is in the fridge, the freezer and the cupboard, and what to use first.' },
     { id: 'juno', suite: 'house', name: 'Juno', emoji: '🏡', color: 'tomato', ready: false, tagline: 'Your AI expert for household paperwork: reads the letters, writes the replies, keeps you ahead.' },
     { id: 'wren', suite: 'rentals', name: 'Wren', emoji: '🔑', color: 'sky', ready: false, tagline: 'Wren reads the tenancy and keeps the year.' },
+    { id: 'sal', suite: 'kitchen', name: 'Sal', emoji: '🧂', color: 'sun', ready: false, tagline: 'Sal cooks with what you have and plans the week with you.' },
   ]);
 
   // A suite is a set of tools with its own home page and its own folder. Business folders and growth
@@ -66,6 +71,7 @@
     growth: { name: 'Busy Growth', home: 'growth.html', noun: 'growth folder', folder: 'My Growth', details: 'Your details', key: ':growth' },
     house: { name: 'Busy Home', home: 'home.html', noun: 'home folder', folder: 'My Home', details: 'Your household', key: ':house' },
     rentals: { name: 'Busy Rentals', home: 'rentals.html', noun: 'rentals folder', folder: 'My Rentals', details: 'Your details', key: ':rentals' },
+    kitchen: { name: 'Busy Kitchen', home: 'kitchen.html', noun: 'kitchen folder', folder: 'My Kitchen', details: 'Your household', key: ':kitchen' },
   };
   BW.suite = 'business';
   const suite = () => BW.SUITES[BW.suite] || BW.SUITES.business;
@@ -118,6 +124,13 @@
       { id: 'dates', emoji: '🗓️', name: 'The landlord’s year', href: 'rentals-dates.html' },
       { id: 'letters', emoji: '✉️', name: 'Letters', href: 'apps/rentletters/index.html', tools: ['rentletters'] },
     ],
+    kitchen: [
+      { id: 'today', emoji: '🍳', name: 'Tonight', href: 'kitchen.html' },
+      { id: 'kitchens', emoji: '🌍', name: 'The six kitchens', href: 'apps/kitchens/index.html', tools: ['kitchens'] },
+      { id: 'calendar', emoji: '🗓️', name: 'Food calendar', href: 'kitchen-calendar.html' },
+      { id: 'recipes', emoji: '📖', name: 'Recipe box', href: 'apps/recipes/index.html', tools: ['recipes'] },
+      { id: 'week', emoji: '🛒', name: 'Week & pantry', href: 'apps/plan/index.html', tools: ['plan', 'pantry'] },
+    ],
   };
   BW.parts = () => BW.PARTS[BW.suite] || [];
   BW.partOf = (appId) => BW.parts().find((p) => (p.tools || []).includes(appId)) || null;
@@ -127,6 +140,8 @@
     growth: { id: 'ivy', name: 'Ivy', emoji: '🌿', role: 'Your career coach', free: 'She finds the words for you.', page: '/growth/#ivy' },
     house: { id: 'juno', name: 'Juno', emoji: '🏡', role: 'Your household assistant', free: 'She reads the post for you.', page: '/home/#juno' },
     rentals: { id: 'wren', name: 'Wren', emoji: '🔑', role: 'Your property manager', free: 'Wren reads the tenancy and keeps the year.', page: '/rentals/#wren', pic: false },
+    // Sal, a man, in sun yellow (owner, 18 November 2026: kitchen/DECISIONS-2026-11-18.md).
+    kitchen: { id: 'sal', name: 'Sal', emoji: '🧂', role: 'Your chef', free: 'He cooks with what you have.', page: '/kitchen/index.html#chef', pic: false },
   };
   const tod = () => { const h = new Date().getHours(); return h >= 5 && h < 11 ? '-morning' : h >= 11 && h < 17 ? '' : '-evening'; };
   // The season as on the website's places (shared/scene.js, the same rule): '' in summer, else '-spring', '-autumn' or
@@ -901,7 +916,7 @@
   BW.sponsors = [
     // { emoji: '🏦', title: 'Sponsor name', text: 'One line about the offer.', cta: 'Learn more', href: 'https://…' },
   ];
-  const EXPERT_PAGES = { ivy: '/growth/index.html#ivy', juno: '/home/index.html#juno', wren: '/rentals/wren.html' };
+  const EXPERT_PAGES = { ivy: '/growth/index.html#ivy', juno: '/home/index.html#juno', wren: '/rentals/wren.html', sal: '/kitchen/index.html#chef' };
   BW.houseAds = () => BW.suiteApps().filter((a) => a.ready).map((a) => ({
     id: a.id, emoji: a.emoji, title: `Try ${a.name}`, text: a.tagline, cta: 'Open it', href: `${BW.root}apps/${a.id}/index.html`, color: a.color,
   })).concat(BW.suiteApps().filter((a) => !a.ready).map((a) => ({
@@ -1010,6 +1025,32 @@
     ] },
   ];
   const RENTALS_DETAILS = RENTALS_STEPS[0].fields.concat(RENTALS_STEPS[1].fields, [CURRENCY_FIELD, { k: 'mtd', label: 'Quarterly digital tax updates (England)', type: 'chips', options: [['', 'Not for me'], ['yes', 'Yes, they apply to me']], hint: 'Shows the quarterly dates in your year. Whether they apply depends on your income: see gov.uk.' }]);
+  // Busy Kitchen asks about the household that eats there and what the kitchen has. The answers live in the settings
+  // as kitchenHousehold ({ name, people, allergies }) and kitchenGear ({ oven, airfryer, onepot }); the form works on
+  // flat stand-ins (kitchenName, kitchenPeople, kitchenAllergies) that kitchenPack folds back in before saving.
+  const KITCHEN_STEPS = [
+    { emoji: '🍳', title: 'Whose kitchen is this?', sub: 'Busy Kitchen keeps your recipes, the week’s dinners, the shopping list and the pantry together, with six kitchens to cook from.', fields: [
+      { k: 'kitchenName', label: 'Your household’s name', ph: 'e.g. The Jansens', hint: 'Leave it empty and it is “Our kitchen”.' },
+      { k: 'kitchenPeople', label: 'How many usually eat?', type: 'chips', options: [[1, '1'], [2, '2'], [3, '3'], [4, '4'], [5, '5'], [6, '6 or more']] },
+    ] },
+    { emoji: '🥗', title: 'Anything to keep in mind?', sub: 'Skip what does not apply. You can change it any time with the ⚙️ button at the top.', fields: [
+      { k: 'kitchenAllergies', label: 'Allergies and diets', ph: 'e.g. no nuts, one vegetarian', span: 2, hint: 'Always check the labels of what you buy.' },
+      { k: 'kitchenGear', label: 'What is in your kitchen', type: 'toggles', options: [['oven', 'An oven', '🔥'], ['airfryer', 'An air fryer', '🌀'], ['onepot', 'One pot only', '🍲']], hint: 'Without an oven, dishes that are baked or roasted step aside. Busy guesses this from each dish’s kind.' },
+    ] },
+  ];
+  const KITCHEN_DETAILS = KITCHEN_STEPS[0].fields.concat(KITCHEN_STEPS[1].fields);
+  const ourKitchen = () => (BW.t ? BW.t('Our kitchen') : 'Our kitchen');
+  const kitchenUnpack = (data) => {
+    const hh = data.kitchenHousehold || {};
+    return Object.assign(data, { kitchenName: hh.name && hh.name !== ourKitchen() ? hh.name : '', kitchenPeople: hh.people || 2, kitchenAllergies: hh.allergies || '',
+      kitchenGear: Object.assign({ oven: true, airfryer: false, onepot: false }, data.kitchenGear || {}) });
+  };
+  const kitchenPack = (data) => {
+    const { kitchenName, kitchenPeople, kitchenAllergies, ...out } = data;
+    out.suite = 'kitchen';
+    out.kitchenHousehold = Object.assign({}, data.kitchenHousehold, { name: kitchenName || ourKitchen(), people: Number(kitchenPeople) || 2, allergies: kitchenAllergies || '' });
+    return out;
+  };
   const COLORS = ['#FF6B4A', '#F5A623', '#2FD18C', '#22C3C3', '#4DA3FF', '#9B6BFF', '#FF7AC6', '#1E1B2E'];
 
   function fieldsHtml(fields, data) {
@@ -1020,21 +1061,28 @@
       // A field with html: true has labels written in code, such as colour swatches.
       if (f.type === 'select') input = `<select class="in" name="${f.k}">${f.options.map(([val, l]) => `<option value="${BW.esc(val)}" ${String(val) === String(v) ? 'selected' : ''}>${BW.esc(l)}</option>`).join('')}</select>`;
       else if (f.type === 'chips') input = `<div class="choice-chips" data-name="${f.k}">${f.options.map(([val, l]) => `<button type="button" data-v="${BW.esc(val)}" aria-pressed="${String(val) === String(v)}">${f.html ? l : BW.esc(l)}</button>`).join('')}</div>`;
+      // Toggles: several can be on at once, saved as { option: true or false }.
+      else if (f.type === 'toggles') input = `<div class="choice-chips multi" data-multi="${f.k}">${f.options.map(([val, l, e]) => `<button type="button" data-v="${BW.esc(val)}" aria-pressed="${!!(v && v[val])}">${e ? e + ' ' : ''}${BW.esc(l)}</button>`).join('')}</div>`;
       else if (f.type === 'textarea') input = `<textarea class="in" name="${f.k}" placeholder="${BW.esc(f.ph || '')}">${BW.esc(v)}</textarea>`;
       else if (f.type === 'money' || f.type === 'number') input = `<input class="in" name="${f.k}" inputmode="decimal" placeholder="${BW.esc(f.ph || '')}" value="${BW.esc(v)}" autocomplete="off">`;
       else input = `<input class="in" name="${f.k}" type="${f.type || 'text'}" placeholder="${BW.esc(f.ph || '')}" value="${BW.esc(v)}" ${f.required ? 'required' : ''} autocomplete="off">`;
-      return `<label class="field ${f.span || f.type === 'chips' ? 'span-2' : ''}"><span>${f.label}</span>${input}${f.hint ? `<em>${f.hint}</em>` : ''}</label>`;
+      return `<label class="field ${f.span || f.type === 'chips' || f.type === 'toggles' ? 'span-2' : ''}"><span>${f.label}</span>${input}${f.hint ? `<em>${f.hint}</em>` : ''}</label>`;
     }).join('')}</div>`;
   }
   function bindChips(root) {
     BW.$$('.choice-chips', root).forEach((g) => g.addEventListener('click', (e) => {
       const b = e.target.closest('button'); if (!b) return;
+      if (g.dataset.multi) { b.setAttribute('aria-pressed', String(b.getAttribute('aria-pressed') !== 'true')); return; }
       BW.$$('button', g).forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
     }));
   }
   function readFields(root, data) {
     BW.$$('[name]', root).forEach((el) => { data[el.name] = el.value.trim(); });
-    BW.$$('.choice-chips', root).forEach((g) => {
+    BW.$$('.choice-chips[data-multi]', root).forEach((g) => {
+      const o = data[g.dataset.multi] = Object.assign({}, data[g.dataset.multi]);
+      BW.$$('button', g).forEach((b) => { o[b.dataset.v] = b.getAttribute('aria-pressed') === 'true'; });
+    });
+    BW.$$('.choice-chips[data-name]', root).forEach((g) => {
       const on = BW.$('[aria-pressed="true"]', g);
       if (on) data[g.dataset.name] = /^\d+$/.test(on.dataset.v) ? Number(on.dataset.v) : on.dataset.v;
     });
@@ -1121,16 +1169,21 @@
     return ob;
   }
 
-  function runWizard(steps = BW.suite === 'growth' ? GROWTH_STEPS : BW.suite === 'house' ? HOUSE_STEPS : BW.suite === 'rentals' ? RENTALS_STEPS : STEPS) {
+  function runWizard(steps = BW.suite === 'growth' ? GROWTH_STEPS : BW.suite === 'house' ? HOUSE_STEPS : BW.suite === 'rentals' ? RENTALS_STEPS : BW.suite === 'kitchen' ? KITCHEN_STEPS : STEPS) {
     return new Promise((resolve) => {
       const data = Object.assign({}, BW.settings, BW.suite === 'business' ? {} : { suite: BW.suite });
+      if (BW.suite === 'kitchen') kitchenUnpack(data);
       let i = 0;
       const ob = overlay('<div class="ob-card card"></div>');
       const card = BW.$('.ob-card', ob);
       const render = () => {
         const done = i >= steps.length;
         const st = steps[i] || {};
-        card.innerHTML = done
+        card.innerHTML = done && BW.suite === 'kitchen'
+          ? `<div style="text-align:center"><div class="ob-emoji">🎉</div><h1>Your kitchen is ready.</h1>
+             <p class="sub">Change any of this with the ⚙️ button at the top.</p>
+             <button class="btn btn-primary btn-big" data-go>Let's go →</button></div>`
+          : done
           ? `<div style="text-align:center"><div class="ob-emoji">🎉</div><h1>You're all set, ${BW.esc((data.ownerName || '').split(' ')[0] || data.businessName)}!</h1>
              <p class="sub">Your ${BW.suite === 'business' ? 'business details are' : 'details are'} saved. Change them any time with the ⚙️ button at the top.</p>
              <button class="btn btn-primary btn-big" data-go>Let's go →</button></div>`
@@ -1155,7 +1208,7 @@
           if (req) { const el = BW.$(`[name="${req.k}"]`, form); el.classList.add('shake'); el.focus(); setTimeout(() => el.classList.remove('shake'), 500); return; }
           // Busy Rentals: the country whose rules apply also sets the money (England: pounds).
           if (BW.suite === 'rentals' && ({ england: 'GBP', nl: 'EUR', de: 'EUR' })[data.country]) data.currency = ({ england: 'GBP', nl: 'EUR', de: 'EUR' })[data.country];
-          try { await BW.store.saveSettings(data); } catch (e) { BW.error(e); return; }
+          try { await BW.store.saveSettings(BW.suite === 'kitchen' ? kitchenPack(data) : data); } catch (e) { BW.error(e); return; }
           i++; render();
         };
         form.onsubmit = (e) => { e.preventDefault(); next(); };
@@ -1182,6 +1235,7 @@
     if (BW.suite === 'growth') return personSettings(GROWTH_DETAILS, 'What should we call you? 🙂');
     if (BW.suite === 'house') return personSettings(HOUSE_DETAILS, 'Letters need your name 🙂');
     if (BW.suite === 'rentals') return personSettings(RENTALS_DETAILS, 'Letters need your name 🙂');
+    if (BW.suite === 'kitchen') return kitchenSettings();
     const data = Object.assign({}, BW.settings);
     const box = document.createElement('div');
     const render = () => {
@@ -1224,10 +1278,28 @@
     });
   }
 
+  // Kitchen: the household that eats there and what the kitchen has. No name is needed: "Our kitchen" will do.
+  function kitchenSettings() {
+    const data = kitchenUnpack(Object.assign({}, BW.settings));
+    const box = BW.html(`<div>${fieldsHtml(KITCHEN_DETAILS, data)}${langHtml()}</div>`);
+    bindChips(box);
+    BW.modal({
+      title: '⚙️ ' + suite().details, body: box, wide: true,
+      actions: [
+        { label: 'Cancel', kind: 'ghost' },
+        { label: 'Save', kind: 'primary', onClick: async () => {
+          readFields(box, data);
+          try { await BW.store.saveSettings(kitchenPack(data)); BW.toast('Saved.', '✨'); listeners.forEach((fn) => fn('settings')); saveLang(box); }
+          catch (e) { BW.error(e); return false; }
+        } },
+      ],
+    });
+  }
+
   // ---------- connecting storage ----------
   async function welcome() {
     // The paid edition says where the expert's requests go; the free download has no AI to mention.
-    const expertHere = BW.ivyLibrary || BW.junoLibrary || BW.wrenLibrary || await BW.olafInstalled();
+    const expertHere = BW.ivyLibrary || BW.junoLibrary || BW.wrenLibrary || BW.salLibrary || await BW.olafInstalled();
     return new Promise((resolve) => {
       const ob = overlay(`<div class="ob-card card wide">
         <div class="ob-emoji">👋</div>
@@ -1588,7 +1660,7 @@
   BW.entitlements = Object.assign({
     async edition(feature) {
       // Olaf (Busy Business) and Ivy (Busy Growth): their paid files say they are here.
-      const ed = feature === 'olaf' ? await BW.olafInstalled() : feature === 'ivy' ? (BW.ivyEdition || null) : feature === 'juno' ? (BW.junoEdition || null) : feature === 'wren' ? (BW.wrenEdition || null) : null;
+      const ed = feature === 'olaf' ? await BW.olafInstalled() : feature === 'ivy' ? (BW.ivyEdition || null) : feature === 'juno' ? (BW.junoEdition || null) : feature === 'wren' ? (BW.wrenEdition || null) : feature === 'sal' ? (BW.salEdition || null) : null;
       if (ed !== 'full' || !BW.licence.required(feature)) return ed;
       return (await BW.licence.current(feature)) ? 'full' : 'locked';
     },
@@ -1885,7 +1957,9 @@
       BW.settings = await BW.store.settings();
       // Changes reach the page only once it has its settings: a change during start-up has nothing to redraw yet.
       if (onChange) BW.onChange(onChange);
-      if (!readOnly && (BW.suite === 'business' ? !BW.settings.businessName : !BW.settings.ownerName)) await runWizard();
+      // A kitchen is set up once its household has a name (the wizard saves "Our kitchen" when none is given).
+      const setUp = BW.suite === 'business' ? BW.settings.businessName : BW.suite === 'kitchen' ? (BW.settings.kitchenHousehold || {}).name || BW.settings.ownerName : BW.settings.ownerName;
+      if (!readOnly && !setUp) await runWizard();
     } catch (e) { BW.error(e); return; }
     const chip = BW.$('[data-store]', bar);
     chip.hidden = false;

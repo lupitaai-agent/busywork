@@ -663,3 +663,11 @@ picture { display: contents; }
 
 /* On a phone, a long button in a page's opening (a price, a longer language) wraps instead of widening the column. */
 @media (max-width: 520px) { .tool-hero-grid > * { min-width: 0; } .tool-hero .ctas .btn { white-space: normal; text-align: center; } }
+
+/* Busy Kitchen's six kitchens (kitchen/index.html, built while KITCHEN_LIVE is on) */
+.kitchen-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+.kitchen-tile { display: flex; flex-direction: column; padding: 0; overflow: hidden; color: inherit; text-decoration: none; }
+.kitchen-tile img { width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; display: block; border-bottom: 3px solid var(--border); }
+.kitchen-tile .txt { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px 16px; }
+.kitchen-tile .txt span { color: var(--ink-2); }
+.kitchen-tile .txt small { color: var(--ink-2); opacity: .8; }

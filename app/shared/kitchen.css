@@ -1,0 +1,90 @@
+/* Busy Kitchen: the few styles its screens add to the shared frame (home.css) and design system (brand.css). */
+.k-flag { font-size: 1.05em; }
+/* What you have: a row of chips you can take away again, and a field to add one. */
+.have { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 8px 0 4px; }
+.have .chip { color: inherit; display: inline-flex; align-items: center; gap: 4px; padding: 4px 6px 4px 12px; border: 2px solid var(--border); border-radius: 99px; background: var(--surface); font-weight: 700; font-size: 14px; }
+.have .chip button { color: inherit; opacity: .7; border: 0; background: none; cursor: pointer; font-size: 13px; padding: 0 4px; color: var(--ink-2); }
+.have .chip.pantry { border-style: dashed; }
+.have input { flex: 1 1 180px; min-width: 140px; }
+.travel { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 2px; }
+.travel [aria-pressed="true"] { background: var(--sun); color: #1E1B2E; }
+/* A dish or recipe that can be cooked: what you have, what is missing. */
+.cook-row { display: flex; gap: 12px; align-items: flex-start; padding: 12px 0; border-bottom: 1px dashed var(--hair); }
+.cook-row:last-child { border-bottom: 0; }
+.cook-row .main { flex: 1; min-width: 0; }
+.cook-row .main b { display: block; }
+.cook-row .main small { color: var(--ink-2); display: block; }
+.cook-row .miss { font-size: 13px; font-weight: 700; color: var(--ink-2); }
+.cook-group h2 { font-size: 1.05rem; margin: 0 0 4px; }
+/* The six kitchens as cards with their pictures. */
+.kitchen-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; }
+.kitchen-card { text-decoration: none; color: inherit; padding: 0; overflow: hidden; display: flex; flex-direction: column; }
+.kitchen-card .pic { aspect-ratio: 16 / 9; background: var(--hair) center / cover no-repeat; }
+.kitchen-card .txt { padding: 12px 16px 16px; }
+.kitchen-card .txt b { font-size: 1.1rem; display: block; }
+.kitchen-hero { aspect-ratio: 21 / 9; border-radius: 18px; background: var(--hair) center / cover no-repeat; border: 2px solid var(--border); margin-bottom: 16px; }
+.story p { line-height: 1.6; max-width: 70ch; margin: 0 0 14px; }
+.card h3 { margin: 16px 0 6px; }
+.card p + p { margin-top: 8px; }
+.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.gallery figure { margin: 0; }
+.gallery img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 12px; border: 2px solid var(--border); display: block; cursor: zoom-in; }
+.gallery figcaption { font-size: 13px; color: var(--ink-2); margin-top: 4px; }
+.big-pic { width: 100%; border-radius: 14px; display: block; }
+.dish-list .line { align-items: flex-start; }
+.dish-list .line small { display: block; color: var(--ink-2); font-weight: 600; }
+.tabs-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 14px; }
+.tabs-row [aria-pressed="true"] { background: var(--sun); color: #1E1B2E; }
+.kv { display: grid; grid-template-columns: 9em 1fr; gap: 4px 12px; margin: 10px 0; }
+.kv dt { font-weight: 800; color: var(--ink-2); }
+.kv dd { margin: 0; }
+/* The passport: one stamp per kitchen, filled by the dishes cooked. */
+.passport { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.stamp { text-align: center; padding: 8px 4px; border: 2px dashed var(--border); border-radius: 14px; }
+.stamp.on { border-style: solid; background: color-mix(in srgb, var(--sun) 35%, var(--surface)); }
+.stamp .f { font-size: 1.5rem; display: block; }
+.stamp small { font-weight: 800; }
+/* Cooking mode: one step at a time, large, and the screen stays on. */
+.cook-mode { position: fixed; inset: 0; z-index: 90; background: var(--bg, #FFF6E9); color: var(--ink); display: flex; flex-direction: column; padding: 24px clamp(16px, 5vw, 64px); }
+.cook-mode .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.cook-mode .step { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+.cook-mode .step p { font-size: clamp(1.6rem, 4vw, 2.6rem); line-height: 1.35; font-weight: 700; max-width: 32ch; }
+.cook-mode .nav { display: flex; justify-content: space-between; gap: 12px; }
+.cook-mode .nav .btn { font-size: 1.2rem; padding: 14px 26px; }
+.cook-mode .timer { font-size: 2rem; font-variant-numeric: tabular-nums; font-weight: 800; }
+.week-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.day-cell { padding: 10px 12px; min-height: 96px; }
+.day-cell.is-today { outline: 3px solid var(--sun); }
+.day-cell b { display: block; font-size: 13px; color: var(--ink-2); }
+.day-cell .meal { font-weight: 800; margin-top: 4px; }
+.shop-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px dashed var(--hair); }
+.shop-row.done span { text-decoration: line-through; color: var(--ink-2); }
+.shop-row span { flex: 1; }
+.use-first { background: color-mix(in srgb, var(--tomato) 18%, var(--surface)); }
+.conv { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.conv label { font-size: 13px; font-weight: 700; }
+.conv .out { grid-column: 1 / -1; font-weight: 800; }
+@media (max-width: 520px) { .kv { grid-template-columns: 1fr; } .passport { grid-template-columns: repeat(2, 1fr); } }
+.part-page .today section.card, .part-page > section.card { padding: 18px 20px; }
+.day-acts { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 6px; font-size: 13px; }
+.day-cell .meal .link { font-size: 12px; }
+.cook-row .swap { display: block; font-size: 12.5px; color: inherit; opacity: .8; margin-top: 2px; }
+
+/* A house recipe in the dish drawer (shared/kitchen.js, K.showRecipe). */
+.r-card { border: 2px solid var(--border); border-radius: 16px; padding: 14px 16px; margin: 12px 0 18px; background: var(--surface); }
+.r-untested { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 8px; }
+.r-untested .chip { color: inherit; font-weight: 700; }
+.r-meta { margin: 0 0 10px; }
+.r-size { display: flex; align-items: center; gap: 10px; margin: 6px 0 4px; }
+.r-size .btn { min-width: 44px; min-height: 40px; font-size: 20px; padding: 0 10px; }
+.r-ing { list-style: none; padding: 0; margin: 6px 0 12px; }
+.r-ing li { display: flex; gap: 10px; padding: 5px 0; border-bottom: 1px dashed var(--border); }
+.r-ing .r-q { min-width: 6.5em; font-weight: 700; font-variant-numeric: tabular-nums; }
+.r-ing .r-group { font-weight: 800; border-bottom: 0; padding-top: 12px; }
+.r-steps { padding-left: 1.4em; margin: 6px 0 12px; }
+.r-steps li { margin: 0 0 10px; line-height: 1.5; }
+.r-tip, .r-allergens { margin: 8px 0 0; }
+
+/* The "made with AI" label on a kitchen's big picture, always in view with it. */
+.kitchen-hero { position: relative; }
+.kitchen-hero .ai-label { position: absolute; right: 10px; bottom: 8px; background: rgba(30,27,46,.72); color: #FFF6E9; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 8px; }

@@ -96,22 +96,35 @@ RENTALS_FILES = {"rentals.html", "rentals-suite.js", "rentals-dates.html", "part
 # the apps or names what they are for takes its words from here, so the switch changes them all together.
 APPS_COUNT = "four" if RENTALS_LIVE else "three"
 APPS_FOR = "your brand, your growth, your home and the home you let" if RENTALS_LIVE else "your brand, your growth and your home"
+if os.environ.get("KITCHEN_LIVE", "").strip().lower() in ("1", "true", "yes") and RENTALS_LIVE:  # Busy Kitchen makes five
+    APPS_COUNT, APPS_FOR = "five", "your brand, your growth, your home, the home you let and your kitchen"
 
 
 def rentals_part(rel: str) -> bool:
     return rel in RENTALS_FILES or any(rel == f"apps/{a}" or rel.startswith(f"apps/{a}/") for a in RENTALS_APPS)
 
 
+# Busy Kitchen (the six kitchens of the six languages) is built behind its own switch KITCHEN_LIVE=1, like Rentals
+# was. Until then none of its files reach the website, the demo or any download (owner, 17 November 2026: wave one).
+KITCHEN_LIVE = os.environ.get("KITCHEN_LIVE", "").strip().lower() in ("1", "true", "yes")
+KITCHEN_APPS = ("kitchens", "recipes", "plan", "pantry")
+KITCHEN_FILES = {"kitchen.html", "kitchen-suite.js", "kitchen-calendar.html", "part-kitchen-calendar.js", "shared/kitchen.js", "shared/kitchen.css", "shared/kitchen-data.js", "shared/kitchen-words.js", "shared/kitchen-swaps.js", "shared/kitchen-examples.js"}
+
+
+def kitchen_part(rel: str) -> bool:
+    return rel in KITCHEN_FILES or rel == "shared/kitchen" or rel.startswith("shared/kitchen/") or any(rel == f"apps/{a}" or rel.startswith(f"apps/{a}/") for a in KITCHEN_APPS)
+
+
 def suites_of(rel: str) -> set:
     """The suites a file belongs to; none for the business tools and the shared core."""
-    return {s for s, part in (("growth", growth_part), ("house", house_part), ("rentals", rentals_part)) if part(rel)}
+    return {s for s, part in (("growth", growth_part), ("house", house_part), ("rentals", rentals_part), ("kitchen", kitchen_part)) if part(rel)}
 
 
 def on_site(rel: str) -> bool:
     """A suite's files reach the website demo only once that suite is live (a file shared by two
     suites, like the PDF reader, once either is)."""
     s = suites_of(rel)
-    return not s or ("growth" in s and GROWTH_LIVE) or ("house" in s and HOME_LIVE) or ("rentals" in s and RENTALS_LIVE)
+    return not s or ("growth" in s and GROWTH_LIVE) or ("house" in s and HOME_LIVE) or ("rentals" in s and RENTALS_LIVE) or ("kitchen" in s and KITCHEN_LIVE)
 
 
 def copy_app() -> None:
@@ -126,7 +139,7 @@ def copy_app() -> None:
 
 # The free download has no AI and no example business: the AI client is Olaf's (paid), and the examples
 # (Busy itself, and the pretend studio) live only in the website demo.
-NOT_IN_DOWNLOAD = {"shared/ai.js", "shared/examples.js", "shared/busy-example.js", "shared/growth-examples.js", "shared/house-examples.js", "shared/rentals-examples.js"}
+NOT_IN_DOWNLOAD = {"shared/ai.js", "shared/examples.js", "shared/busy-example.js", "shared/growth-examples.js", "shared/house-examples.js", "shared/rentals-examples.js", "shared/kitchen-examples.js"}
 
 
 def zip_text(p: Path, files: list):
@@ -469,6 +482,11 @@ WREN = {"name": "Busy Rentals with Wren", "who": "Wren", "suite": "Busy Rentals"
         "film": "busy-rentals", "runs": "Mac and Windows", "adds": "Wren, your property manager"}
 if RENTALS_LIVE:
     PRODUCTS["wren"] = WREN
+# Busy Kitchen's chef (decided 18 November 2026: Sal, a man, the sun colour; $1.49 once on itch.io).
+SAL = {"name": "Busy Kitchen with Sal", "who": "Sal", "suite": "Busy Kitchen", "url": ITCH + "busy-kitchen", "price": "$1.49", "amount": "1.49",
+       "film": "busy-kitchen", "runs": "Mac and Windows", "adds": "Sal, your chef"}
+if KITCHEN_LIVE:
+    PRODUCTS["sal"] = SAL
 
 FROM_PRICE = "$" + min(PRODUCTS[k]["amount"] for k in ("olaf", "ivy", "juno"))  # the cheapest app with an expert: "from $1.49"
 
@@ -623,7 +641,7 @@ def forward_page(new_rel: str, depth: int) -> str:
 def site_pages(forwards: bool = False) -> list:
     """Every published page: the root, the suites, the games. Forwarding pages only when asked."""
     pages = list(SITE.glob("*.html"))
-    for d in ("business", "games", "growth", "home", "rentals", "films"):
+    for d in ("business", "games", "growth", "home", "rentals", "kitchen", "films"):
         pages += list((SITE / d).glob("*.html"))
     return [p for p in pages if forwards or FORWARD not in p.read_text()]
 
@@ -679,9 +697,31 @@ HOMEPAGE_RENTALS = [
 ]
 
 
+HOMEPAGE_KITCHEN = [
+    ("four free, private apps for your brand, your growth, your home and the home you let, and daily brain games.",
+     "five free, private apps for your brand, your growth, your home, the home you let and your kitchen, and daily brain games."),
+    ("four free apps for your brand, your growth, your home and the home you let. The boring part made easy",
+     "five free apps for your brand, your growth, your home, the home you let and your kitchen. The boring part made easy"),
+]
+
+
+def sync_kitchen_launch() -> None:
+    """Five apps on the homepage while Busy Kitchen is live (with Busy Rentals); four again when it is off."""
+    if not RENTALS_LIVE:
+        return
+    page = SITE / "index.html"
+    text = page.read_text()
+    for four, five in HOMEPAGE_KITCHEN:
+        old, new = (four, five) if KITCHEN_LIVE else (five, four)
+        text = text.replace(old, new)
+    page.write_text(text)
+
+
 def sync_rentals_launch() -> None:
     page = SITE / "index.html"
     text = page.read_text()
+    for four, five in HOMEPAGE_KITCHEN:  # back to four first; sync_kitchen_launch() makes it five again while Kitchen is live
+        text = text.replace(five, four)
     for three, four in HOMEPAGE_RENTALS:
         old, new = (three, four) if RENTALS_LIVE else (four, three)
         text = text.replace(old, new)
@@ -728,7 +768,7 @@ def nav_header(prefix: str, cta: tuple = None) -> str:
     label, href = cta or ("⬇️ Download free", f"{prefix}business/download.html")
     return f"""<header class="nav"><div class="wrap">
   <a class="brandmark" href="{prefix}index.html"><span class="blob">✦</span><span class="word">Busy</span></a>
-  <nav class="links" aria-label="Main"><a href="{prefix}business/index.html">💼 Business</a><a href="{prefix}growth/index.html">🌱 Growth</a><a href="{prefix}home/index.html">🏡 Home</a>{f'<a href="{prefix}rentals/index.html">🔑 Rentals</a>' if RENTALS_LIVE else ""}<a href="{prefix}games/index.html">🧩 Games</a><a href="{prefix}pricing.html">Free and paid</a><a href="{prefix}about.html">About</a></nav>
+  <nav class="links" aria-label="Main"><a href="{prefix}business/index.html">💼 Business</a><a href="{prefix}growth/index.html">🌱 Growth</a><a href="{prefix}home/index.html">🏡 Home</a>{f'<a href="{prefix}rentals/index.html">🔑 Rentals</a>' if RENTALS_LIVE else ""}{f'<a href="{prefix}kitchen/index.html">🍳 Kitchen</a>' if KITCHEN_LIVE else ""}<a href="{prefix}games/index.html">🧩 Games</a><a href="{prefix}pricing.html">Free and paid</a><a href="{prefix}about.html">About</a></nav>
   <a class="btn btn-primary" href="{href}">{label}</a>
 </div></header>"""
 
@@ -761,7 +801,7 @@ def footer(prefix: str, tools: list) -> str:
   <div><b>💼 Busy Business</b><ul>{biz}<li><a href="{prefix}business/tools.html">All {len(tools)} tools</a></li><li><a href="{prefix}business/quiet-month.html">A quiet month?</a></li><li><a href="{prefix}business/olaf.html">🧭 Olaf by Busy</a></li><li><a href="{PRODUCTS["olaf"]["url"]}" target="_blank" rel="noopener">With Olaf · {PRODUCTS["olaf"]["price"]} ↗</a></li></ul>
     <p style="margin-top:22px"><b>🧩 Busy Games</b></p><ul><li><a href="{prefix}games/tucks-errand.html">Tuck's Errand</a></li>{games}<li><a href="{prefix}games/index.html">All games</a></li><li><a href="{PRODUCTS["tuck"]["url"]}" target="_blank" rel="noopener">Tuck's Errand, the full game · {PRODUCTS["tuck"]["price"]} ↗</a></li><li><a href="{PRODUCTS["street3d"]["url"]}" target="_blank" rel="noopener">Busy Street 3D · {PRODUCTS["street3d"]["price"]} ↗</a></li></ul></div>
   <div><b>🌱 Busy Growth</b><ul>{suite("growth", "growth", GROWTH_LIVE, f'<li><a href="{prefix}growth/index.html#ivy">🌿 Ivy by Busy</a></li><li><a href="{PRODUCTS["ivy"]["url"]}" target="_blank" rel="noopener">With Ivy · {PRODUCTS["ivy"]["price"]} ↗</a></li>')}</ul>
-    <p style="margin-top:22px"><b>🏡 Busy Home</b></p><ul>{suite("house", "home", HOME_LIVE, f'<li><a href="{prefix}home/index.html#juno">🏡 Juno by Busy</a></li><li><a href="{PRODUCTS["juno"]["url"]}" target="_blank" rel="noopener">With Juno · {PRODUCTS["juno"]["price"]} ↗</a></li>')}</ul>{rentals_footer(prefix, suite) if RENTALS_LIVE else ""}</div>
+    <p style="margin-top:22px"><b>🏡 Busy Home</b></p><ul>{suite("house", "home", HOME_LIVE, f'<li><a href="{prefix}home/index.html#juno">🏡 Juno by Busy</a></li><li><a href="{PRODUCTS["juno"]["url"]}" target="_blank" rel="noopener">With Juno · {PRODUCTS["juno"]["price"]} ↗</a></li>')}</ul>{rentals_footer(prefix, suite) if RENTALS_LIVE else ""}{kitchen_footer(prefix) if KITCHEN_LIVE else ""}</div>
 </div></footer>"""
 
 
@@ -830,6 +870,9 @@ if RENTALS_LIVE:  # Busy Rentals' pictures are on the website only while it is l
     IMAGES.update({"assets/og-wren.png": ("Busy Rentals: be the landlord people hope for",
                                           "Busy Rentals share image: be the landlord people hope for. Free, no AI, with Wren, your property manager, and her sky-blue key."),
                    "assets/wren-mark.svg": ("Wren logo", "The Wren logo: a sky-blue key with a round bow and two teeth, leaning up and to the right.")})
+if KITCHEN_LIVE:  # Busy Kitchen's share image, only while it is live
+    IMAGES.update({"assets/og-kitchen.png": ("Busy Kitchen: bring the world to your table",
+                                             "Busy Kitchen share image: the yellow tile, the promise, and a picture made with AI of pasta rolled by hand in Bologna.")})
 
 
 def png_text(data: bytes, fields: dict) -> bytes:
@@ -984,6 +1027,22 @@ def suite_tools(folder: str) -> list:
 # Busy Rentals' own website files (its tool words, share image, Wren's mark, the screenshots, the film) wait in
 # rentals-site/, outside the published website: copied in while RENTALS_LIVE is on, and taken out again when it is off.
 RENTALS_SITE = ROOT / "rentals-site"
+KITCHEN_SITE = ROOT / "kitchen-site"  # Busy Kitchen's share image and film, copied in only while KITCHEN_LIVE is on
+
+
+def sync_kitchen_assets() -> None:
+    for src in sorted((KITCHEN_SITE / "assets").rglob("*")) if (KITCHEN_SITE / "assets").exists() else []:
+        if not src.is_file():
+            continue
+        dst = SITE / "assets" / src.relative_to(KITCHEN_SITE / "assets")
+        if KITCHEN_LIVE:
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            if not dst.exists() or dst.read_bytes() != src.read_bytes():
+                shutil.copy2(src, dst)
+        else:
+            for f in (dst, dst.with_suffix(".webp")):
+                if f.exists():
+                    f.unlink()
 
 
 def sync_rentals_assets() -> None:
@@ -2360,6 +2419,229 @@ def put_block(page: Path, name: str, html: str) -> None:
     page.write_text(new)
 
 
+# ---------- Busy Kitchen (behind KITCHEN_LIVE) ----------
+# Words from kitchen/PLAN-BUSY-KITCHEN-2026-11-17.md and the launch kit (launch-kit-kitchen/). Every number is read from
+# the app's own data (kitchen-data.js, recipes-en.js), so the page cannot say more than the app holds. No AI in the app.
+KITCHEN_PROMISE = "Bring the world to your table."
+KITCHEN_FEEDBACK = "https://busyai.itch.io/busy-kitchen#comments"  # "Tell us how it went" (owner, 18 November 2026: itch.io, in the comments)
+
+
+def kitchen_data() -> dict:
+    """The six kitchens and their dishes as the app has them, and how many house recipes and notes there are."""
+    def load(name, var):
+        text = (APP / "shared" / name).read_text()
+        # the object only: kitchen-data.js goes on with the line that loads the page language's details
+        return json.JSONDecoder().raw_decode(text, text.index(f"window.{var} = ") + len(f"window.{var} = "))[0]
+    data = load("kitchen-data.js", "BW_KITCHEN")
+    recipes = load("kitchen/recipes-en.js", "BW_KITCHEN_RECIPES") if (APP / "shared" / "kitchen" / "recipes-en.js").exists() else {}
+    data["recipes"] = sum(1 for r in recipes.values() if r.get("k") == "r")
+    data["notes"] = sum(1 for r in recipes.values() if r.get("k") == "n")
+    return data
+
+
+KITCHEN = kitchen_data() if KITCHEN_LIVE else {"kitchens": [], "dishes": [], "recipes": 0, "notes": 0}
+KITCHEN_DISHES = f"{len(KITCHEN['dishes']):,}"
+KITCHEN_WHAT = (f"{KITCHEN_DISHES} dishes from six kitchens, matched to what's in your fridge. The home cooking of Busy's six "
+                "languages, with each kitchen's story, regions and feast days, and a recipe for every dish.")
+KITCHEN_TOOLS = [("🍳", "Tonight", "Type what is in your fridge, in any of the six languages, and see what you can cook now, and what needs one thing more. Or travel tonight to one kitchen."),
+                 ("🌍", "The six kitchens", "Each kitchen's story, how to say its dishes, its regions, its pantry, how people eat, its calendar and its dishes, with pictures."),
+                 ("📅", "Food calendar", "What the six kitchens cook through the year: Sinterklaas, Advent, Semana Santa, Natale, Festa Junina, Thanksgiving and every season."),
+                 ("📖", "Recipe Box", "Your own recipes and the family's, with a photo of the handwritten card, the story behind it, and a family cookbook to print."),
+                 ("🗓️", "Week Plan & Shopping", "The next two weeks' dinners and the leftovers, and the shopping list that follows, on your phone through your synced folder or printed."),
+                 ("🧺", "Pantry", "What is in the fridge, the freezer and the cupboard, with use-by dates. What goes off first comes first.")]
+KITCHEN_EXTRAS = [("👩‍🍳", "Cooking mode", "One step at a time, in big letters, with a timer, and a screen that stays on."),
+                  ("🔁", "Ingredients abroad", "Can't find speculaas spice or queso fresco where you live? What to use instead."),
+                  ("⚖️", "Cups, grams and gas marks", "Fahrenheit and Celsius, fan and conventional ovens, and portions with a + and a −."),
+                  ("🛂", "A kitchen passport", "A stamp for every dish you cook, kitchen by kitchen.")]
+KITCHEN_ANSWERS = [
+    ("What is Busy Kitchen?", f"A free app with the home cooking of six language worlds: {KITCHEN_DISHES} dishes from the Dutch, German, Spanish, Italian, Portuguese and English kitchens, each with its story, its regions, its feast days and a recipe, in English, Dutch, German, Spanish, Italian and Brazilian Portuguese."),
+    ("How does it find dinner?", "Type what is in your fridge, in any of the six languages. Busy Kitchen shows the dishes you can cook now, and the ones that need one or two things more. Salt, oil and the other basics are taken as read."),
+    ("Are the recipes any good?", "Busy wrote every recipe in its own words, from how the dish is made at home in its region, and checked each one against written rules: the amounts, the oven, the allergens and how to know meat is cooked through. Nobody at Busy has cooked them all yet, and each recipe says so. Tell us how it went, and the recipes get better from what you tell us."),
+    ("What does it cost?", f"Nothing. Busy Kitchen is free, with no account and no AI. Busy Kitchen with Sal, your chef, is {SAL['price']} once on itch.io, and Sal works on your own Claude."),
+    ("Where are my recipes?", "In a folder you choose on your own computer, as plain files. Put it in Google Drive, Dropbox, OneDrive or iCloud Drive and the shopping list reaches your phone. Nothing is sent to us.")]
+KITCHEN_MORE_FAQ = [
+    ("Which kitchens are in it?", "The Dutch kitchen (the Netherlands, Flanders, and Surinamese and Indonesian-Dutch home cooking), the German (Germany, Austria and Switzerland), the Spanish (Spain and Latin America), the Italian (all twenty regions), the Portuguese (Brazil and Portugal) and the English (Britain, Ireland and the United States)."),
+    ("Can I add my own recipes?", "Yes. The Recipe Box keeps your own and your family's recipes, with a photo, the story and the country it came from. Every house recipe can go into it too, as your own copy to change. Print them all as a family cookbook."),
+    ("What about allergies?", "Each recipe lists what it contains from the EU's 14 allergens, hidden ones such as stock and soy sauce included. It never says a dish is free of anything. Always check the labels of what you buy."),
+    ("What if I can't find an ingredient?", "Each kitchen has its ingredients abroad: what to use instead, close and never quite the same. A missing ingredient in Tonight shows its swap."),
+    ("Are the pictures real?", "The pictures of the kitchens' places and customs are made with AI, to show each kitchen as it lives, and the app says so beside them."),
+    ("Will the recipes keep changing?", "No. The collection is fixed and complete. We improve a recipe when people tell us how it went."),
+    ("Why six kitchens?", "Busy speaks six languages, and each language has a kitchen behind it. So Busy Kitchen is a cultural kitchen: the dishes those languages grew up with, at home and on their feast days.")]
+KITCHEN_START_HERE = """Busy Kitchen - free: 1,886 dishes from six kitchens, matched to what's in your fridge.
+
+1. Move this Busy Kitchen folder somewhere you will find it again, like Documents.
+2. Double-click kitchen.html. It opens in your browser. Use Chrome or Edge: they can
+   save your kitchen folder as files (Safari and Firefox cannot).
+3. Pick a folder for your files: your recipes, week plan, shopping list and pantry.
+   Put it inside Google Drive, Dropbox, OneDrive or iCloud Drive and the shopping list reaches your phone.
+
+Your data stays on your computer and is never sent to us. No account, no AI.
+The house recipes are not yet cooked by us: tell us how it went, in the comments on
+https://busyai.itch.io/busy-kitchen
+
+More: https://busy.com.ai/kitchen/
+""".replace("1,886", KITCHEN_DISHES)
+
+
+def make_kitchen_zip() -> None:
+    out = SITE / "downloads" / "busy-kitchen.zip"
+    if not KITCHEN_LIVE:
+        if out.exists():
+            out.unlink()
+        return
+    out.parent.mkdir(exist_ok=True)
+    files = suite_zip_files("kitchen") + [APP / "shared" / "pdf.js"]
+    with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
+        z.writestr("Busy Kitchen/START HERE.txt", KITCHEN_START_HERE)
+        for p in dict.fromkeys(files):
+            name = (Path("Busy Kitchen") / p.relative_to(APP)).as_posix()
+            text = zip_text(p, files)
+            if text is not None:
+                z.writestr(name, text)
+            else:
+                z.write(p, name)
+    print(f"website/downloads/{out.name}: {len(files) + 1} files, {out.stat().st_size // 1024} KB")
+
+
+def kitchen_pic(pid: str, prefix: str) -> str:
+    return f"{prefix}app/shared/kitchen/pics/{pid}.jpg"
+
+
+def kitchen_page(tools: list) -> str:
+    """Busy Kitchen's front page: the promise, the six kitchens, the fridge, the recipes and how they were made, free."""
+    pre = "../"
+    feats = "".join(f'<div class="card feat reveal pop" style="transition-delay:{i * .05:.2f}s"><span class="fe">{em}</span><h3>{e(n)}</h3><p>{e(d)}</p></div>' for i, (em, n, d) in enumerate(KITCHEN_TOOLS))
+    extras = "".join(f'<div class="card feat reveal pop"><span class="fe">{em}</span><h3>{e(n)}</h3><p>{e(d)}</p></div>' for em, n, d in KITCHEN_EXTRAS)
+    answers = "".join(f'<div class="card feat reveal pop"><h3>{e(q)}</h3><p>{e(a)}</p></div>' for q, a in KITCHEN_ANSWERS)
+    faq = "".join(f"<details><summary>{e(q)}</summary><p>{e(a)}</p></details>" for q, a in KITCHEN_ANSWERS + KITCHEN_MORE_FAQ)
+    count = {k["id"]: sum(1 for d in KITCHEN["dishes"] if d["k"] == k["id"]) for k in KITCHEN["kitchens"]}
+    kitchens = "".join(f'<a class="card kitchen-tile reveal pop" href="{pre}app/apps/kitchens/index.html#{k["id"]}">'
+                       f'<img src="{kitchen_pic(k["pictures"][0]["id"], pre)}" alt="{e(k["pictures"][0]["title"])}" width="1280" height="714" loading="lazy">'
+                       f'<span class="txt"><b>{k["flag"]} {e(k["name"])}</b><span>{e(k["line"])}</span><small>{count[k["id"]]} dishes</small></span></a>'
+                       for k in KITCHEN["kitchens"] if k["pictures"])
+    desc = f"{KITCHEN_DISHES} dishes from six kitchens, matched to what's in your fridge. Free, no account, no AI, in six languages."
+    ld = (jsonld({"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Busy Kitchen", "applicationCategory": "LifestyleApplication",
+                  "operatingSystem": "macOS, Windows, ChromeOS (in Chrome or Edge)", "description": desc, "url": f"{SITE_URL}/kitchen/index.html",
+                  "inLanguage": ["en", "nl", "de", "es", "it", "pt-BR"], "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}})
+          + jsonld({"@context": "https://schema.org", "@type": "FAQPage",
+                    "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in KITCHEN_ANSWERS + KITCHEN_MORE_FAQ]}))
+    hero = KITCHEN["kitchens"][3]["pictures"][0] if len(KITCHEN["kitchens"]) > 3 else {"id": "", "title": ""}
+    steps = [("🍳", "Open Busy Kitchen", "In your browser, straight away, or from a folder you download. No account, no AI."),
+             ("📁", "Your own folder", "Choose a folder for your recipes, week plan, shopping list and pantry. In a synced folder, the list reaches your phone."),
+             ("🧊", "Tell it what you have", "Type what is in your fridge, in your own language, and see what you can cook tonight."),
+             ("🌍", "Travel tonight", "Or pick a kitchen, read its story and cook one of its dishes. Stamp your passport.")]
+    how = "".join(f'<div class="card feat reveal pop"><span class="fe">{em}</span><h3>{e(n)}</h3><p>{e(d)}</p></div>' for em, n, d in steps)
+    return f"""{head("Busy Kitchen: bring the world to your table", desc, "kitchen/index.html", pre, extra=ld, image="og-kitchen.png")}
+<body class="site app-sun">
+{nav(pre, ("🍳 Open free", "#get"))}
+<main id="main">
+  <section class="tool-hero">
+    <div class="blob" style="width:460px;height:460px;background:var(--sun);right:-140px;top:-120px"></div>
+    <div class="wrap tool-hero-grid">
+      <div class="reveal from-left">
+        <span class="em big" style="--c:var(--sun)">🍳</span>
+        <p class="kicker">Busy Kitchen · free, private, six languages</p>
+        <h1>{e(KITCHEN_PROMISE)}</h1>
+        <p class="lead">{e(KITCHEN_WHAT)}</p>
+        <div class="ctas"><a class="btn btn-primary btn-big" href="{pre}app/kitchen.html">🍳 Open it in your browser</a><a class="btn btn-big" href="#get">⬇️ Download free</a></div>
+        <p class="note">Free · No account · No AI · Nothing is sent to us · English, Nederlands, Deutsch, Español, Italiano, Português · Pictures made with AI · With Sal, your chef: {SAL["price"]} once</p>
+      </div>
+      <div class="stage solo reveal from-right"><figure class="tool-room"><img src="{kitchen_pic(hero["id"], pre)}" alt="{e(hero["title"])}" width="1280" height="714"></figure></div>
+    </div>
+  </section>
+  <section class="section" id="in-short"><div class="wrap">
+    <div class="center reveal"><h2 class="big">Busy Kitchen in short</h2></div>
+    <div class="feats">{answers}</div>
+  </div></section>
+  <section class="section" id="kitchens"><div class="wrap">
+    <div class="center reveal"><h2 class="big">Six languages, six kitchens</h2><p class="lead">The dishes each language grew up with, at home and on its feast days: {KITCHEN_DISHES} in all.</p></div>
+    <div class="kitchen-tiles">{kitchens}</div>
+    <p class="center faint" style="margin-top:12px">Pictures made with AI, to show each kitchen's places and customs.</p>
+  </div></section>
+  <section class="section" id="tools"><div class="wrap">
+    <div class="center reveal"><h2 class="big">What's in your fridge, and what's for dinner</h2><p class="lead">Type what you have in any of the six languages: aardappelen, Kartoffeln, patatas or potatoes all find the same dishes. <a href="{pre}app/kitchen.html">Try it now →</a></p></div>
+    <div class="feats">{feats}</div>
+    <div class="feats" style="margin-top:18px">{extras}</div>
+  </div></section>
+  <section class="section" id="recipes"><div class="wrap">
+    <div class="card ivy-card reveal"><span style="font-size:3.4rem" aria-hidden="true">🧪</span>
+      <div><p class="kicker">{KITCHEN["recipes"]:,} recipes and {KITCHEN["notes"]} notes, in six languages</p><h2>A recipe for every dish, not yet cooked by us</h2>
+      <p>Busy wrote every recipe in its own words, the way the dish is made at home in its region, and checked each one against written rules: the amounts, the oven, the EU's 14 allergens and how to know meat is cooked through. For a ham, a cheese or a café drink there is a short note on how to enjoy it instead. Nobody at Busy has cooked them all yet, and each recipe says so.</p>
+      <p style="margin-top:10px">Cooked one? <a class="out" href="{KITCHEN_FEEDBACK}" target="_blank" rel="noopener">Tell us how it went, in the comments <span aria-hidden="true">↗</span></a></p></div></div>
+  </div></section>
+  <section class="section"><div class="wrap">
+    <div class="card ivy-card reveal"><span style="font-size:3.4rem" aria-hidden="true">🔒</span>
+      <div><p class="kicker">Your kitchen stays yours</p><h2>Everything in your own folder</h2>
+      <p>Your recipes, the family's cards, the week plan and the pantry are kept as plain files in a folder you choose. There is no Busy account and no Busy server, so there is nothing to hack and nothing to sell.</p></div></div>
+  </div></section>
+  <section class="section" id="get"><div class="wrap">
+    <div class="center reveal"><h2 class="big">Get Busy Kitchen</h2><p class="lead">Free, the whole kitchen. No account, no subscription, no AI, nothing sent to us.</p></div>
+    <div class="feats">{how}</div>
+    <div class="center" style="margin-top:22px"><div class="row-flex" style="justify-content:center"><a class="btn btn-primary btn-big" href="{pre}app/kitchen.html">🍳 Open it in your browser</a><a class="btn btn-big" href="{pre}downloads/busy-kitchen.zip" download>⬇️ Download (zip)</a></div>
+      <p class="faint" style="margin-top:10px">The download runs in Chrome or Edge, on Mac, Windows, ChromeOS and Linux: unzip it and open kitchen.html.</p>
+      <p class="faint" style="margin-top:10px">Want the chef too? <a class="out" href="{SAL["url"]}" target="_blank" rel="noopener">{SAL["name"]} · {SAL["price"]} <span aria-hidden="true">↗</span></a></p></div>
+  </div></section>
+  <section class="section" id="sal"><div class="wrap">
+    <div class="card ivy-card reveal"><span style="font-size:3.4rem" aria-hidden="true">🧂</span>
+      <div><p class="kicker">Sal by Busy · {SAL["price"]} once</p><h2>Sal, your chef</h2>
+      <p>Sal knows all six kitchens. He cooks with what's left when no recipe fits, plans your week around who is home, the allergies and what goes off first, and turns a photo of a handwritten family recipe into a recipe in your Recipe Box. He prepares; you decide.</p>
+      <ul class="get-list" style="margin-top:12px"><li>Cook with what's left, and leftovers into lunch</li><li>Plan my week, a shopping run, guests are coming</li><li>Make it vegetarian, gluten-free or for two</li><li>Fix this dish, and teach me a technique</li><li>On your own Claude: the Claude app with a paid plan, or a Claude API key</li></ul>
+      <p style="margin-top:10px" class="faint">Sal never gives medical or diet advice, and every recipe he creates is marked new and not yet cooked by us.</p>
+      <p class="row-flex" style="margin-top:14px">{itch_button("sal", "Get Busy Kitchen with Sal")}</p></div></div>
+    {('<div class="reveal" style="margin-top:22px">' + film_video("sal", pre) + '</div>') if (KITCHEN_SITE / "assets" / "films" / "busy-kitchen.mp4").exists() else ""}
+  </div></section>
+  <section class="section" id="faq"><div class="wrap">
+    <div class="center reveal"><h2 class="big">Questions</h2></div>
+    <div class="faq reveal">{faq}</div>
+  </div></section>
+  <section class="final">
+    <h2 class="reveal pop">{e(KITCHEN_PROMISE)}</h2>
+    <p class="lead reveal" style="margin-top:14px;color:var(--ink-2);font-size:1.2rem">{KITCHEN_DISHES} dishes, six kitchens, one fridge. Free.</p>
+    <div class="row-flex" style="justify-content:center;margin-top:10px"><a class="btn btn-big btn-primary" href="{pre}app/kitchen.html">🍳 Open it in your browser</a>{itch_button("sal", "With Sal", big=True)}</div>
+  </section>
+</main>
+{footer(pre, tools)}
+<script src="{pre}assets/site.js"></script>
+</body>
+</html>
+"""
+
+
+def kitchen_suite_card() -> str:
+    return (f'<a class="card suite reveal pop" href="kitchen/" style="--c:var(--sun);transition-delay:.25s">\n'
+            f'          <span class="e">🍳</span><h3>Busy Kitchen</h3><span class="d">{e(KITCHEN_PROMISE)}</span>\n'
+            f'          <ul><li>{KITCHEN_DISHES} dishes from six kitchens</li><li>Matched to what is in your fridge</li><li>A recipe for every dish, in six languages</li></ul>\n'
+            f'          <span class="foot"><span class="chip chip-sun">New · free</span><span class="expert-chip sal">🧂 With Sal · {SAL["price"]}</span></span>\n'
+            f'        </a>')
+
+
+def kitchen_footer(prefix: str) -> str:
+    return (f'<p style="margin-top:22px"><b>🍳 Busy Kitchen</b></p><ul><li><a href="{prefix}kitchen/index.html#tools">What is in your fridge</a></li>'
+            f'<li><a href="{prefix}kitchen/index.html#kitchens">The six kitchens</a></li><li><a href="{prefix}app/kitchen.html">Open it free</a></li></ul>')
+
+
+def kitchen_update() -> dict:
+    """Busy Kitchen's entry in What's new, only while it is live (like Busy Rentals'), dated the day the switch went on."""
+    rec = json.loads(DATES_FILE.read_text()) if DATES_FILE.exists() else {}
+    day = (rec.get("kitchen/index.html") or [None, date.today().isoformat()])[1]
+    return {"version": "Kitchen 1.0", "id": "kitchen-1.0", "date": day, "title": KITCHEN_PROMISE,
+            "items": [KITCHEN_WHAT, *([n, d] for _, n, d in KITCHEN_TOOLS), KITCHEN_ANSWERS[2][1], KITCHEN_ANSWERS[3][1]]}
+
+
+def kitchen_llms(b: str) -> list:
+    return ["## Busy Kitchen", "", f"Page: {b}/kitchen/index.html", "",
+            f"{KITCHEN_WHAT} Free, no account, no AI, in six languages. {KITCHEN['recipes']:,} house recipes and {KITCHEN['notes']} notes, "
+            "written by Busy and checked against written rules (amounts, oven, the EU's 14 allergens, doneness), marked \"not yet cooked by us\". "
+            f"Runs in Chrome or Edge, online at {b}/app/kitchen.html or from a downloaded folder. Feedback in the comments on {KITCHEN_FEEDBACK.split('#')[0]}.", ""]
+
+
+def kitchen_llms_full(b: str) -> list:
+    out = ["# Busy Kitchen: the cultural kitchen of six languages", "", f"Page: {b}/kitchen/index.html", "", KITCHEN_WHAT, "", "## Tools", ""]
+    out += [f"- {n}: {d}" for _, n, d in KITCHEN_TOOLS + KITCHEN_EXTRAS]
+    out += ["", "## Questions", ""] + [f"Q: {q}\nA: {a}\n" for q, a in KITCHEN_ANSWERS + KITCHEN_MORE_FAQ]
+    return out
+
+
 def put_switched_block(page: Path, name: str, html: str, before: str = "", after: str = "") -> None:
     """A block that is on a hand-made page only while its switch is on. Off: the block and its markers are gone, so the
     page carries no trace of it. On: the block stands between its markers, right before (or after) a line that is
@@ -2692,8 +2974,15 @@ def build_pages() -> None:
         (SITE / "rentals" / "wren.html").write_text(wren_page(tools))
     elif (SITE / "rentals").exists():
         shutil.rmtree(SITE / "rentals")
+    # Busy Kitchen: its page only while it is live; turned off again, it goes.
+    if KITCHEN_LIVE:
+        (SITE / "kitchen").mkdir(exist_ok=True)
+        (SITE / "kitchen" / "index.html").write_text(kitchen_page(tools))
+    elif (SITE / "kitchen").exists():
+        shutil.rmtree(SITE / "kitchen")
     # Busy Rentals' two cards on the homepage: after Busy Home's, and only while it is live (no empty markers before)
     put_switched_block(SITE / "index.html", "rentals-suite", rentals_suite_card() if RENTALS_LIVE else "", before=r'<a class="card suite reveal pop" href="games/"')
+    put_switched_block(SITE / "index.html", "kitchen-suite", kitchen_suite_card() if KITCHEN_LIVE else "", before=r'<a class="card suite reveal pop" href="games/"')
     put_switched_block(SITE / "index.html", "rentals-expert", rentals_expert_card() if RENTALS_LIVE else "", after=r'<a class="card expert juno .*?</a>')
     new_pages = write_new_pages(tools)
     suite_pages = []
@@ -2716,7 +3005,7 @@ def build_pages() -> None:
     (SITE / "download.html").write_text(forward_page("business/download.html", 0))
     sync_chrome(tools)
     pages = (["", "about.html", "pricing.html", "updates.html", "press.html", "claude-key.html", "privacy.html", "terms.html", "business/index.html", "business/tools.html", "business/download.html", "business/olaf.html"]
-             + [f'business/{t["id"]}.html' for t in tools] + game_pages + ["growth/index.html", "home/index.html"] + (["rentals/index.html", "rentals/wren.html"] if RENTALS_LIVE else []) + suite_pages + new_pages)
+             + [f'business/{t["id"]}.html' for t in tools] + game_pages + ["growth/index.html", "home/index.html"] + (["rentals/index.html", "rentals/wren.html"] if RENTALS_LIVE else []) + (["kitchen/index.html"] if KITCHEN_LIVE else []) + suite_pages + new_pages)
     today = date.today().isoformat()
     (SITE / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
                                       + "".join(f"  <url><loc>{SITE_URL}/{p}</loc><lastmod>{page_date(p)}</lastmod></url>\n" for p in pages) + "</urlset>\n")
@@ -3001,10 +3290,10 @@ ENTITY = ("Busy makes free, private tools for work and life, in suites: Busy Bus
           + (", Busy Rentals (free rental management for people who let one home or a few: every date, certificate, deposit, rent payment and receipt, with the landlord's year for England, the Netherlands and Germany) " if RENTALS_LIVE else " ") +
           "and Busy Games (free daily brain games). Each suite is a free app for Mac and Windows, or runs in the browser, and keeps everything in the "
           "owner's own folder, with no account and no subscription. Each suite also comes as a paid app with an AI expert inside, bought "
-          "once on itch.io: Olaf for business, Ivy for professional growth, Juno for household paperwork" + (", Wren for letting a home" if RENTALS_LIVE else "") + ". Busy also makes the game Busy Street.")
+          "once on itch.io: Olaf for business, Ivy for professional growth, Juno for household paperwork" + (", Wren for letting a home" if RENTALS_LIVE else "") + ". " + ("Busy Kitchen is a free cultural kitchen of the six languages: " + KITCHEN_WHAT + " " if KITCHEN_LIVE else "") + "Busy also makes the game Busy Street.")
 ORG_ID, WEBSITE_ID = "#organization", "#website"
 SECTIONS = {"business/": ("Busy Business", "business/index.html"), "games/": ("Busy Games", "games/index.html"), "growth/": ("Busy Growth", "growth/index.html"), "home/": ("Busy Home", "home/index.html"),
-            "rentals/": ("Busy Rentals", "rentals/index.html")}
+            "rentals/": ("Busy Rentals", "rentals/index.html"), "kitchen/": ("Busy Kitchen", "kitchen/index.html")}
 # The name is a common word, and another company sells accounting software as BUSY. These tell search
 # engines and AI assistants which Busy this is; the old name stays as an alternate for a while.
 DESCRIPTOR = "free, private tools for work and life"
@@ -3191,6 +3480,8 @@ def write_llms(tools: list) -> None:
               f"- [llms-full.txt]({b}/llms-full.txt): all of the above with every tool's and game's features and questions in one file."]
     if RENTALS_LIVE:
         lines[lines.index("## About") - 1:lines.index("## About") - 1] = rentals_llms(b)
+    if KITCHEN_LIVE:
+        lines[lines.index("## About") - 1:lines.index("## About") - 1] = kitchen_llms(b)
     (SITE / "llms.txt").write_text("\n".join(lines).replace("Olaf, Ivy and Juno run on", "Olaf, Ivy, Juno and Wren run on" if RENTALS_LIVE else "Olaf, Ivy and Juno run on") + "\n")
 
     full = [f"# Busy: the full picture", "", ENTITY, "", f"Website: {b}/", "", DISAMBIGUATION, "",
@@ -3233,6 +3524,9 @@ def write_llms(tools: list) -> None:
     if RENTALS_LIVE:
         at = full.index("# Privacy in short") - 1
         full[at:at] = rentals_llms_full(b)
+    if KITCHEN_LIVE:
+        at = full.index("# Privacy in short") - 1
+        full[at:at] = kitchen_llms_full(b)
     (SITE / "llms-full.txt").write_text("\n".join(full))
 
 
@@ -3349,6 +3643,8 @@ def site_updates() -> list:
     ups = json.loads((SITE / "content" / "updates.json").read_text())["updates"]
     if RENTALS_LIVE:
         ups = sorted([rentals_update()] + ups, key=lambda u: u["date"], reverse=True)   # a stable sort: on one day, Rentals first
+    if KITCHEN_LIVE:
+        ups = sorted([kitchen_update()] + ups, key=lambda u: u["date"], reverse=True)
     return ups
 
 
@@ -3682,11 +3978,14 @@ def main() -> None:
     make_growth_zip()
     make_home_zip()
     make_rentals_zip()
+    make_kitchen_zip()
     sync_rentals_assets()
+    sync_kitchen_assets()
     build_pages()
     sync_growth_launch()
     sync_home_launch()
     sync_rentals_launch()
+    sync_kitchen_launch()
     sync_homepage_paths()
     apply_site_url()
     image_metadata()

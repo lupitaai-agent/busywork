@@ -242,6 +242,28 @@ Busy makes go to `Letters/` and `Home/`.
   `receipt` (the path of its photo or PDF in Costs/), `note`. Each home counts in its own country's tax year and
   currency.
 
+### Busy Kitchen (a kitchen folder; not released: KITCHEN_LIVE)
+
+The six kitchens and their 1,886 dishes are part of the app (`shared/kitchen-data.js`, built by
+`kitchen/build_app_data.py`), never stored in the folder. The folder holds only the household's own things.
+
+- `recipes`: a recipe of your own or the family's. `name`, `kitchen` (one of the six: nl, de, es, it, pt, en, or
+  empty), `country`, `from` (whose recipe), `family` ('yes' puts it in the family cookbook), `serves`, `minutes`,
+  `gear` (oven, hob, onepot, airfryer or empty), `tags`, `ingredients` and `steps` (one per line), `story`, `source`,
+  `photo` (true when `Recipe photos/<id>.jpg` is in the folder), `salNew` (true on a recipe Sal, the paid chef, made
+  up and the household has not cooked yet; its `source` says so and `tags` has "not yet cooked").
+- `plan`: a dinner on a day. `date`, `recipeId` or `dishId` (a dish of the six kitchens), `name`, `k` (its kitchen),
+  `leftovers` (true when that day eats what was left).
+- `shopping`: one thing to buy. `text`, `for` (the dinner it is for), `done`. "Send to my phone" writes
+  `Shopping list.txt` into the folder.
+- `pantry`: something in the house. `name`, `where` (fridge, freezer, cupboard), `useBy`, `qty`, `leftover` ('yes'),
+  `note`. Used up means removed.
+- `cooked`: a stamp in the kitchen passport. `dishId` or `recipeId`, `k`, `name`, `date`; after "Tell us how it went" also `how` (`good`, `changed` or `bad`) and `note`.
+- Settings: `kitchenGear` ({ oven, airfryer, onepot }: true or false; `onepot` true means one pot only) and
+  `kitchenHousehold` ({ name, people, allergies }: the household's name, "Our kitchen" when none was given, which marks
+  the kitchen as set up; how many usually eat; allergies and diets in the household's own words). The first start asks
+  for both; the Week Plan and Sal change `people` and `allergies` and keep the rest.
+
 ### Olaf (paid edition)
 - `olaf-files`: Olaf's workspace, one markdown file per record by `path`.
 - `olaf-sessions`: conversations, kept exactly as sent so they can continue (the newest 15
