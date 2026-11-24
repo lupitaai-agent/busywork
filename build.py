@@ -156,6 +156,9 @@ def make_zip() -> None:
     downloads = SITE / "downloads"
     downloads.mkdir(exist_ok=True)
     out = downloads / "busy.zip"
+    old = downloads / "busywork.zip"  # the download under the old name (before 25 October 2026): no page links to it, so a folder that still has it loses it
+    if old.exists():
+        old.unlink()
     files = sorted(p for p in APP.rglob("*") if p.is_file() and not any(skip(part) for part in p.relative_to(APP).parents if part.name) and not skip(p)
                    and p.relative_to(APP).as_posix() not in NOT_IN_DOWNLOAD and not suites_of(p.relative_to(APP).as_posix()))
     with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
@@ -490,12 +493,34 @@ if KITCHEN_LIVE:
 
 FROM_PRICE = "$" + min(PRODUCTS[k]["amount"] for k in ("olaf", "ivy", "juno"))  # the cheapest app with an expert: "from $1.49"
 
+# The one honest line about Claude, the same words under every expert's buy button (20 November 2026), so nobody
+# buys an expert they cannot run. One sentence, one translation.
+CLAUDE_LINE = "Works on your own Claude: the Claude app with a paid plan, or a Claude API key."
+# Where each expert is introduced on the site: their own page, or their section on their suite's page.
+EXPERT_PAGE = {"olaf": "business/olaf.html", "ivy": "growth/ivy.html", "juno": "home/juno.html", "wren": "rentals/wren.html", "sal": "kitchen/sal.html"}
+
+
+def experts_live() -> list:
+    """The experts on sale, in the order the site names them."""
+    return [k for k in ("olaf", "ivy", "juno", "wren", "sal") if k in PRODUCTS]
+
+
+def claude_small(cls: str = "") -> str:
+    """The Claude sentence inline, inside a paragraph or a table cell (claude_line() is the block one)."""
+    return f'<small class="claude-line{" " + cls if cls else ""}">{CLAUDE_LINE}</small>'
+
 
 def itch_button(key: str, label: str = None, big: bool = False, primary: bool = True) -> str:
     """The way to buy: the product's own page on itch.io, in a new tab, with where it goes and what it costs."""
     x = PRODUCTS[key]
     cls = "btn" + (" btn-big" if big else "") + (" btn-primary" if primary else "") + " out"
     return f'<a class="{cls}" href="{e(x["url"])}" target="_blank" rel="noopener">{e(label or "Get it on itch.io")} · {x["price"]} <span aria-hidden="true">↗</span></a>'
+
+
+
+
+def claude_line(cls: str = "") -> str:
+    return f'<p class="claude-line{" " + cls if cls else ""}">{CLAUDE_LINE}</p>'
 
 
 def film(key: str, prefix: str = "../", label: str = None) -> str:
@@ -528,8 +553,9 @@ def waitlist_form(where: str, endpoint: str = None, consent: str = None, button:
         </form>"""
 
 
-def paths_block(prefix: str) -> str:
-    """The choice between the free toolbox and Olaf, shared by the homepage, the Studio page and the Olaf page."""
+def paths_block(prefix: str, on_olaf: bool = False) -> str:
+    """The choice between the free toolbox and Olaf, shared by the Busy Business page, the Studio page and the Olaf
+    page (on_olaf: there the card has no "Meet Olaf", which would lead to the page it is on)."""
     n_skills = len(olaf_lib()["skills"]) or 52
     return f"""  <section class="section" id="grow">
     <div class="wrap">
@@ -564,7 +590,8 @@ def paths_block(prefix: str) -> str:
             <li><b>Remembers everything</b>, researches the web and reads your sales numbers for a monthly review</li>
           </ul>
           <p class="price"><b>{PRODUCTS["olaf"]["price"]}</b> <small>once, on your own Claude</small></p>
-          <div class="row-flex">{itch_button("olaf", big=True)}<a class="btn btn-big" href="{prefix}business/olaf.html">Meet Olaf</a><a class="btn btn-big" href="{prefix}app/apps/olaf/index.html">Try the demo</a></div>
+          <div class="row-flex">{itch_button("olaf", big=True)}{"" if on_olaf else f'<a class="btn btn-big" href="{prefix}business/olaf.html">Meet Olaf</a>'}<a class="btn btn-big" href="{prefix}app/apps/olaf/index.html">Try the demo</a></div>
+          {claude_line()}
           <p class="fine">Already using the Studio? Olaf starts from your brand profile.</p>
         </article>
       </div>
@@ -575,7 +602,7 @@ def paths_block(prefix: str) -> str:
           <tbody>
             <tr><td>Proven brand growth science built in</td><td>✓</td><td>✓</td></tr>
             <tr><td>Marketing</td><td>Brand profile, year plan, content calendar, insights</td><td>All of that, plus {n_skills} skills that do the work, with the growth coach and a project lead</td></tr>
-            <tr><td>AI</td><td>None: you do the work</td><td>Claude: the one you already have, or your own key</td></tr>
+            <tr><td>AI</td><td>None: you do the work</td><td>Claude, on your own account: the Claude app with a paid plan, or a Claude API key</td></tr>
             <tr><td>Who decides what to do next</td><td>You</td><td>Olaf suggests, you approve</td></tr>
             <tr><td>Weekly check-ins and a 90-day plan</td><td>You plan it yourself</td><td>✓</td></tr>
             <tr><td>Does the work (reads your files, researches, writes it all)</td><td>You do it yourself</td><td>✓</td></tr>
@@ -597,7 +624,7 @@ def paths_block(prefix: str) -> str:
 def olaf_strip(prefix: str = "../") -> str:
     return f"""  <section class="wrap olaf-strip reveal"><div class="card">
     <span class="e">🧭</span>
-    <div><b>Want more customers, and projects that run on time?</b><p>Olaf, our brand consultant, looks at your business, plans what comes next and checks in every week to do the work with you.</p></div>
+    <div><b>With Olaf, your brand consultant · {PRODUCTS["olaf"]["price"]} once</b><p>Olaf, our brand consultant, looks at your business, plans what comes next and checks in every week to do the work with you.</p>{claude_line()}</div>
     <a class="btn" href="{prefix}business/olaf.html">Meet Olaf →</a>
   </div></section>"""
 
@@ -760,16 +787,20 @@ def sync_chrome(tools: list) -> None:
 
 def explore(prefix: str) -> tuple:
     """The nav button outside a suite: to the suites on the homepage."""
-    return ("🧰 Explore free tools", f"{prefix}index.html#suites")
+    return ("🧰 Explore the apps", f"{prefix}index.html#suites")
 
 
 def nav_header(prefix: str, cta: tuple = None) -> str:
     """The top bar: Busy, the suites, and one button (inside Busy Business: the free download)."""
     label, href = cta or ("⬇️ Download free", f"{prefix}business/download.html")
+    links = f'''<a href="{prefix}business/index.html">💼 Business</a><a href="{prefix}growth/index.html">🌱 Growth</a><a href="{prefix}home/index.html">🏡 Home</a>{f'<a href="{prefix}rentals/index.html">🔑 Rentals</a>' if RENTALS_LIVE else ""}{f'<a href="{prefix}kitchen/index.html">🍳 Kitchen</a>' if KITCHEN_LIVE else ""}<a href="{prefix}games/index.html">🧩 Games</a><a href="{prefix}pricing.html">Pricing</a><a href="{prefix}about.html">About</a>'''
+    # On a narrow screen the links fold into a menu: a <details>, so it opens without scripts; site.js closes it on a
+    # tap outside and on Escape. Its links are the same ones, in the same order.
     return f"""<header class="nav"><div class="wrap">
   <a class="brandmark" href="{prefix}index.html"><span class="blob">✦</span><span class="word">Busy</span></a>
-  <nav class="links" aria-label="Main"><a href="{prefix}business/index.html">💼 Business</a><a href="{prefix}growth/index.html">🌱 Growth</a><a href="{prefix}home/index.html">🏡 Home</a>{f'<a href="{prefix}rentals/index.html">🔑 Rentals</a>' if RENTALS_LIVE else ""}{f'<a href="{prefix}kitchen/index.html">🍳 Kitchen</a>' if KITCHEN_LIVE else ""}<a href="{prefix}games/index.html">🧩 Games</a><a href="{prefix}pricing.html">Free and paid</a><a href="{prefix}about.html">About</a></nav>
+  <nav class="links" aria-label="Main">{links}</nav>
   <a class="btn btn-primary" href="{href}">{label}</a>
+  <details class="menu"><summary><span class="menu-icon" aria-hidden="true"></span><span class="menu-word">Menu</span></summary><nav class="menu-links" aria-label="Menu">{links}</nav></details>
 </div></header>"""
 
 
@@ -798,11 +829,12 @@ def footer(prefix: str, tools: list) -> str:
     return f"""<footer class="footer sitemap"><div class="wrap">
   <div><span class="brandmark"><span class="blob">✦</span>Busy</span><p class="faint">Busy with what matters.<br>Free, private tools for work and life.</p>
     <ul><li><a href="{prefix}about.html">About Busy</a></li><li><a href="{prefix}pricing.html">Free and paid</a></li><li><a href="{prefix}updates.html">What's new</a></li><li><a href="{prefix}press.html">Press</a></li><li><a href="{prefix}films/index.html">Films</a></li><li><a href="{prefix}close-the-year.html">Close the year in an evening</a></li><li><a href="{prefix}privacy.html">Privacy</a></li><li><a href="{prefix}terms.html">Terms</a></li></ul><!--langs--></div>
-  <div><b>💼 Busy Business</b><ul>{biz}<li><a href="{prefix}business/tools.html">All {len(tools)} tools</a></li><li><a href="{prefix}business/quiet-month.html">A quiet month?</a></li><li><a href="{prefix}business/olaf.html">🧭 Olaf by Busy</a></li><li><a href="{PRODUCTS["olaf"]["url"]}" target="_blank" rel="noopener">With Olaf · {PRODUCTS["olaf"]["price"]} ↗</a></li></ul>
+  <div><b>💼 Busy Business</b><ul>{biz}<li><a href="{prefix}business/tools.html">All {len(tools)} tools</a></li><li><a href="{prefix}business/quiet-month.html">A quiet month?</a></li><li><a href="{prefix}business/olaf.html">🧭 Olaf by Busy</a></li><li><a href="{PRODUCTS["olaf"]["url"]}" target="_blank" rel="noopener">With Olaf · {PRODUCTS["olaf"]["price"]} ↗</a></li></ul>{rentals_footer(prefix, suite) if RENTALS_LIVE else ""}{kitchen_footer(prefix) if KITCHEN_LIVE else ""}
     <p style="margin-top:22px"><b>🧩 Busy Games</b></p><ul><li><a href="{prefix}games/tucks-errand.html">Tuck's Errand</a></li>{games}<li><a href="{prefix}games/index.html">All games</a></li><li><a href="{PRODUCTS["tuck"]["url"]}" target="_blank" rel="noopener">Tuck's Errand, the full game · {PRODUCTS["tuck"]["price"]} ↗</a></li><li><a href="{PRODUCTS["street3d"]["url"]}" target="_blank" rel="noopener">Busy Street 3D · {PRODUCTS["street3d"]["price"]} ↗</a></li></ul></div>
-  <div><b>🌱 Busy Growth</b><ul>{suite("growth", "growth", GROWTH_LIVE, f'<li><a href="{prefix}growth/index.html#ivy">🌿 Ivy by Busy</a></li><li><a href="{PRODUCTS["ivy"]["url"]}" target="_blank" rel="noopener">With Ivy · {PRODUCTS["ivy"]["price"]} ↗</a></li>')}</ul>
-    <p style="margin-top:22px"><b>🏡 Busy Home</b></p><ul>{suite("house", "home", HOME_LIVE, f'<li><a href="{prefix}home/index.html#juno">🏡 Juno by Busy</a></li><li><a href="{PRODUCTS["juno"]["url"]}" target="_blank" rel="noopener">With Juno · {PRODUCTS["juno"]["price"]} ↗</a></li>')}</ul>{rentals_footer(prefix, suite) if RENTALS_LIVE else ""}{kitchen_footer(prefix) if KITCHEN_LIVE else ""}</div>
-</div></footer>"""
+  <div><b>🌱 Busy Growth</b><ul>{suite("growth", "growth", GROWTH_LIVE, f'<li><a href="{prefix}growth/ivy.html">🌿 Ivy by Busy</a></li><li><a href="{PRODUCTS["ivy"]["url"]}" target="_blank" rel="noopener">With Ivy · {PRODUCTS["ivy"]["price"]} ↗</a></li>')}</ul>
+    <p style="margin-top:22px"><b>🏡 Busy Home</b></p><ul>{suite("house", "home", HOME_LIVE, f'<li><a href="{prefix}home/juno.html">🏡 Juno by Busy</a></li><li><a href="{PRODUCTS["juno"]["url"]}" target="_blank" rel="noopener">With Juno · {PRODUCTS["juno"]["price"]} ↗</a></li>')}</ul></div>
+  <p class="foot-claude">Each expert works on your own Claude: the Claude app with a paid plan, or a Claude API key.</p>
+</div>{download_panel(prefix)}</footer>"""
 
 
 
@@ -946,7 +978,7 @@ def tool_page(t: dict, tools: list, scene: str) -> str:
         <h1>{e(t["h1"])}</h1>
         <p class="lead">{e(t["lead"])}</p>
         <div class="ctas"><a class="btn btn-primary btn-big" href="../app/apps/{t["id"]}/index.html">👀 See it in the demo</a><a class="btn btn-big" href="download.html" data-download>⬇️ Download all {len(tools)} tools</a></div>
-        <p class="note">Free app for Mac and Windows · Nothing is sent to us · Replaces {e(t["replaces"])}</p>
+        <p class="note">Free app for Mac and Windows · Nothing is sent to us · Part of Busy Business: {len(tools)} tools for a small business</p>
       </div>
       <div class="stage solo reveal from-right"><div class="mock" style="--active:var(--{t["color"]})"><div class="mock-bar"><i></i><i></i><i></i><b>{e(t["name"])}</b></div><div class="scenes">{scene}</div></div></div>
     </div>
@@ -979,7 +1011,6 @@ def tool_page(t: dict, tools: list, scene: str) -> str:
   </section>
 </main>
 {footer("../", tools)}
-<script src="../app/shared/core.js"></script>
 <script src="../assets/site.js"></script>
 </body>
 </html>
@@ -999,7 +1030,6 @@ def tools_index(tools: list) -> str:
   <div class="ad-slot" data-ad="tool"></div>
 </main>
 {footer("../", tools)}
-<script src="../app/shared/core.js"></script>
 <script src="../assets/site.js"></script>
 </body>
 </html>
@@ -1043,6 +1073,8 @@ def sync_kitchen_assets() -> None:
             for f in (dst, dst.with_suffix(".webp")):
                 if f.exists():
                     f.unlink()
+    if not KITCHEN_LIVE and (SITE / "assets" / "kitchen").exists():  # the page's WebP copies of the app's pictures (tools/webp.py)
+        shutil.rmtree(SITE / "assets" / "kitchen")
 
 
 def sync_rentals_assets() -> None:
@@ -1079,6 +1111,50 @@ def tool_sources(t: dict) -> str:
     <div class="center reveal"><h2 class="big">Where the rules come from</h2></div>
     <div class="faq reveal"><ul class="get-list">{items}</ul>
       <p class="faint">{rentals_checked_line({c for c, _, _ in rows})}</p></div>
+  </div></section>"""
+
+
+# What the suite's expert does with each tool, in one line, for the strip on the tool's page (and the one under Busy
+# Kitchen's tools). Each line is a job the expert's skills really have; none promises a result.
+EXPERT_STRIPS = {
+    "growth": {"library": "Ivy answers your questions from what you saved in your Library, and names the sources.",
+               "learning": "Ivy turns a gap in your skills into a week-by-week plan in your Learning Planner, at the hours you really have.",
+               "skills": "Ivy lays a job advert next to your Skills Map: what matches, with its proof, and what is missing.",
+               "wins": "Ivy brings back the wins you never wrote down, with a short interview, and saves each with what changed.",
+               "jobs": "Ivy reads the advert in your Job Tracker and prepares the CV, the cover letter and the interview questions for that job.",
+               "cv": "Ivy writes a CV version for one job from your real wins, and your LinkedIn headline and About from the same facts.",
+               "stories": "Ivy shapes your wins into interview stories and practises them with you, one question at a time.",
+               "contacts": "Ivy drafts the message to catch up, to ask for a referral or to say thank you. You send it.",
+               "review": "Ivy runs the weekly check-in with you: what moved, what was hard, and a small plan for next week, saved in your Weekly Review."},
+    "home": {"papers": "Juno reads the scans in your Paper Trail, gives each a clear title, its dates and its person, and says what each one asks of you.",
+             "contracts": "Juno reads the contract or the policy and fills in the cost, the term and the last day to cancel. Before it renews, she lays out keep, switch or cancel.",
+             "upkeep": "Juno plans a repair or a renovation with you, from the quotes to ask for to the order of the work, and adds the upkeep that follows.",
+             "inventory": "After water damage or a break-in, Juno lists what was lost from your Home Inventory, with values and proof, and drafts the claim letter.",
+             "letters": "Juno writes the cancellation, the complaint, the claim or the objection from the facts in your own papers, ready in Letters.",
+             "moving": "Juno plans the move back from moving day and drafts a change-of-address letter for every contract.",
+             "binder": "Juno fills in Just in Case with you, section by section, in a calm conversation. She never asks for passwords or PINs.",
+             "costs": "Juno adds this month's costs from your bills and receipts and works out who owes whom, in the fewest payments."},
+    "rentals": {"homes": "Wren reads the tenancy agreement and fills in the tenants, the dates, the rent and the deposit, and prepares each check that falls due.",
+                "rent": "Wren drafts a friendly reminder when the rent is late, checks the deposit against your country's cap and prepares the deposit letter at the end.",
+                "rentletters": "Wren drafts the welcome letter, the reply to a repair report and the note about a visit. You send them.",
+                "rentcosts": "Wren sorts a pile of bills and receipts into costs per home, and puts the year's figures together for you or your accountant."},
+    "kitchen": {"": "Sal cooks with what's left, plans your week and writes the shopping list from it, minus what is in your pantry."},
+}
+EXPERT_OF = {"growth": "ivy", "home": "juno", "rentals": "wren", "kitchen": "sal"}  # the expert of each suite's folder
+
+
+def expert_strip(folder: str, tool: str = "") -> str:
+    """One line on what the suite's expert does with this very tool, the price, the Claude sentence and the way to the
+    expert's own page (Busy Business has olaf_strip)."""
+    key = EXPERT_OF[folder]
+    x, line = PRODUCTS[key], EXPERT_STRIPS[folder].get(tool)
+    if not line:
+        return ""
+    mark = '<span class="e" aria-hidden="true">🧂</span>' if key == "sal" else f'<img src="../assets/{key}-mark.svg" alt="" width="56" height="56">'
+    return f"""  <section class="wrap expert-strip reveal"><div class="card">
+    {mark}
+    <div><b>With {x["adds"]} · {x["price"]} once</b><p>{e(line)}</p>{claude_line()}</div>
+    <a class="btn" href="{EXPERTS[key]["page"]}">Meet {x["who"]} →</a>
   </div></section>"""
 
 
@@ -1129,6 +1205,7 @@ def suite_tool_page(t: dict, ts: list, folder: str) -> str:
     <div class="center reveal"><h2 class="big">Works even better with</h2><p class="lead">All {words(len(ts))} tools share your folder.</p></div>
     <div class="rel-grid">{related}</div>
   </div></section>
+{expert_strip(folder, t["id"])}
   <section class="section" id="faq"><div class="wrap">
     <div class="center reveal"><h2 class="big">Questions</h2></div>
     <div class="faq reveal">{faq}</div>
@@ -1140,11 +1217,23 @@ def suite_tool_page(t: dict, ts: list, folder: str) -> str:
   </section>
 </main>
 {footer("../", json.loads((SITE / "content" / "tools.json").read_text()))}
-<script src="../app/shared/core.js"></script>
 <script src="../assets/site.js"></script>
 </body>
 </html>
 """
+
+
+def in_short(name: str, answers: list, wrap: bool = True) -> str:
+    """"X in short": the short answers people and AI search ask for first, each able to stand alone, the product named
+    in each. The same questions and answers go into the page's FAQPage data (faq_ld), word for word."""
+    cards = "".join(f'<div class="card feat reveal pop"><h3>{e(q)}</h3><p>{e(a)}</p></div>' for q, a in answers)
+    inner = f'<div class="center reveal"><h2 class="big">{e(name)} in short</h2></div>\n    <div class="feats">{cards}</div>'
+    return f'<section class="section" id="in-short">{"<div class=wrap>" if wrap else ""}\n    {inner}\n  {"</div>" if wrap else ""}</section>'
+
+
+def faq_ld(items: list) -> str:
+    return jsonld({"@context": "https://schema.org", "@type": "FAQPage",
+                   "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in items]})
 
 
 def suite_ld(folder: str, desc: str) -> str:
@@ -1155,7 +1244,7 @@ def suite_ld(folder: str, desc: str) -> str:
                     "operatingSystem": "macOS, Windows, ChromeOS (in Chrome or Edge)", "description": desc, "url": f"{SITE_URL}/{folder}/index.html",
                     "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}})
             + jsonld({"@context": "https://schema.org", "@type": "SoftwareApplication", "name": f'{ex["name"]} by Busy', "applicationCategory": x["category"],
-                      "operatingSystem": WREN_RUNS_ON if x["expert"] == "wren" else "macOS, Windows, ChromeOS (in Chrome or Edge)", "url": f'{SITE_URL}/{folder}/index.html{ex["page"]}',
+                      "operatingSystem": WREN_RUNS_ON, "url": f'{SITE_URL}/{folder}/{ex["page"]}',
                       "description": f'The paid AI expert in {x["name"]}, on the owner’s own Claude.',
                       "offers": {"@type": "Offer", "price": PRODUCTS[x["expert"]]["amount"], "priceCurrency": "USD", "url": PRODUCTS[x["expert"]]["url"]}}))
 
@@ -1174,32 +1263,43 @@ OLAF_PROJECT_FEATS = [
     ("📣", "Updates and notes, done", "Updates your client reads, a brief for a freelancer, and meeting notes turned into tasks and decisions."),
 ]
 OLAF_FAQ = [("Is Olaf a person?", "No. Olaf is an AI brand consultant, running on Claude, Anthropic's AI. It follows proven marketing science, explains its reasoning in plain words, checks its writing, and never invents facts, reviews or numbers. You approve everything before it goes out."),
-       ("What does it cost?", f"Olaf comes inside {PRODUCTS['olaf']['name']}: {PRODUCTS['olaf']['price']} once on itch.io, an introductory price. Olaf works on the Claude you already have: you add him to your own Claude app in three steps, with no key and no second bill. A Claude API key works too; then you pay Anthropic for what you use."),
-       ("What does the AI cost to run?", "In your own Claude app, Olaf works within the Claude plan you already pay for. With a Claude API key you pay Anthropic for what Olaf uses. In our own tests with a key and Claude Sonnet: a weekly check-in cost about $0.10 to $0.15, making a full plan about $0.25 to $0.30, and writing a month of posts about $0.15. With a key you see the cost of every conversation and set a monthly limit."),
+       ("What does it cost?", f"Olaf comes inside {PRODUCTS['olaf']['name']}: {PRODUCTS['olaf']['price']} once on itch.io, an introductory price. Olaf works on your own Claude: the Claude app with a paid plan, or a Claude API key. With a key you pay Anthropic for what you use."),
+       ("What does the AI cost to run?", "In your own Claude app, Olaf works within your paid Claude plan. With a Claude API key you pay Anthropic for what Olaf uses. In our own tests with a key and Claude Sonnet: a weekly check-in cost about $0.10 to $0.15, making a full plan about $0.25 to $0.30, and writing a month of posts about $0.15. With a key you see the cost of every conversation and set a monthly limit."),
        ("Do I need the Marketing Studio first?", "No. If you have filled in the Studio's brand profile, Olaf starts from it. If not, Olaf's onboarding asks the questions itself, one at a time."),
        ("Where is my data?", "In your own business folder. Olaf's briefing and his prepared work are files in that folder too, read by your own Claude. What Claude reads goes to Anthropic, under your own account, and never to us. We have no server that sees your business."),
        ("Does Olaf post for me?", "No. Olaf writes and prepares; you post, send and publish. That keeps you in control of what goes out under your name."),
-       ("Which computers does it work on?", "Any computer with Chrome or Edge, Mac or Windows. Busy keeps your business as files in a folder, and Safari and Firefox cannot save to folders yet."),
+       ("Which computers does it work on?", "Busy Business with Olaf is an app for Mac and Windows. The demo on this site runs in your browser and shows Olaf with an example business."),
        ("Is Olaf in the free download?", "No. The free download has every Busy tool and the Marketing Studio. Olaf comes in its own download when you buy it, with Busy included. The demo on this site shows what it looks like with an example business.")]
 
 
+# The seven groups of Olaf's skills, each in one plain line (the library's own descriptions are written for Claude).
+OLAF_GROUP_LINES = {
+    "Grow the brand": "Your brand on one page, the moments people need you, what makes you recognisable, the plan for the year and what needs you today.",
+    "Projects": "A plan from a brief, the weekly check-in, the update for your client, meeting notes turned into tasks, and a late project brought back on track.",
+    "Everyday marketing": "Your local listing, your posts, the newsletter, review requests, offers, the local press and the stories of happy customers.",
+    "Content": "Articles and pages written in your voice, checked before they go out, and older pieces brought up to date.",
+    "Website, search & AI answers": "How your website is found in search engines and in AI answers: a check of each page, the words people search for, and the fixes in order.",
+    "Launches, ads & competitors": "A launch planned from start to finish, adverts written and tested, and a clear view of who else your customers consider.",
+    "Numbers & upkeep": "What the numbers say each month, a warning when something drops, and a memory of everything done so far.",
+}
+
+
 def olaf_page(tools: list) -> str:
-    """Olaf's product page, with its skill list built from the library itself."""
+    """Olaf's product page, with its skill list built from the library itself: the groups, how many skills each has and
+    their names. What a group does is said in one plain line of our own (OLAF_GROUP_LINES)."""
     lib = olaf_lib()
-    by_id = {s["id"]: s for s in lib["skills"]}
-    def blurb(d):
-        d = re.sub(r"^(Olaf as the owner's |When (the|an?) (user|owner) wants to )", "", d).strip()
-        first = re.split(r"(?<=\.)\s", d)[0]
-        out = first if len(first) < 170 else d[:160].rsplit(" ", 1)[0] + "…"
-        return out[:1].upper() + out[1:]
+    n_skills = len(lib["skills"])
     def name(i):
         n = " ".join(w.capitalize() for w in i.split("-"))
         for a, b in (("Icp", "ICP"), ("Seo", "SEO"), ("Geo", "GEO"), ("Pr ", "PR "), ("Ab ", "A/B ")):
             n = n.replace(a, b)
         return n
+    def group_line(label):
+        return next((line for k, line in OLAF_GROUP_LINES.items() if label.endswith(k)), "")
     groups = "".join(
-        f'<details class="card sk-group reveal"{" open" if k == 0 else ""}><summary><b>{e(label)}</b><small>{len(ids)} skills</small></summary><ul>'
-        + "".join(f"<li><b>{e(name(i))}</b><span>{e(blurb(by_id[i]['description']))}</span></li>" for i in ids) + "</ul></details>"
+        f'<details class="card sk-group reveal"{" open" if k == 0 else ""}><summary><b>{e(label)}</b><small>{len(ids)} skills</small></summary>'
+        f'<p class="sk-line">{e(group_line(label))}</p><p class="sk-names">'
+        + "".join(f"<span>{e(name(i))}</span>" for i in ids) + "</p></details>"
         for k, (label, ids) in enumerate(lib["groups"]))
     stages = ["Know how you grow", "Be easy to find and buy", "Own your moments and assets", "Plan always-on reach", "Show up every month", "Measure and learn"]
     stage_why = ["Who buys, the moments they need you, what they know you by, your budget and hours.",
@@ -1209,13 +1309,21 @@ def olaf_page(tools: list) -> str:
                  "Posts, newsletter, press and offers, written with you and checked before they go out.",
                  "New customers per month from your invoices, a brand survey now and then, and what to change."]
     feats, project_feats, faq = OLAF_FEATS, OLAF_PROJECT_FEATS, OLAF_FAQ
+    # What Olaf brings, said of Olaf alone (no other way of doing it beside him).
+    gives = [("Built on proven marketing science", "✓ In every answer"),
+             ("Knows your business and remembers results", "✓ Your profile, plan, numbers and every piece of work"),
+             ("Tells you what to do next", "✓ A 90-day plan and a weekly check-in"),
+             ("Does the work", "✓ Drafts it all; you approve"),
+             ("Reads your real sales numbers", "✓ From your Busy invoices"),
+             ("Your data", "Stays on your computer"),
+             ("Cost", f'{PRODUCTS["olaf"]["price"]} once, on your own Claude')]
     ld = jsonld({"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Olaf by Busy", "applicationCategory": "BusinessApplication",
-                 "operatingSystem": "Windows, macOS, ChromeOS (in Chrome or Edge)", "url": f"{SITE_URL}/olaf.html",
+                 "operatingSystem": WREN_RUNS_ON, "url": f"{SITE_URL}/business/olaf.html",
                  "description": "An AI brand consultant for small businesses: a 90-day marketing plan, project plans, a weekly check-in and the work done with you, built on proven marketing science.",
                  "offers": {"@type": "Offer", "price": PRODUCTS["olaf"]["amount"], "priceCurrency": "USD", "url": PRODUCTS["olaf"]["url"]}}) + jsonld({
         "@context": "https://schema.org", "@type": "FAQPage",
         "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in faq]})
-    return f"""{head("Olaf, your brand consultant · Busy", "Olaf plans your marketing and your projects, checks in every week and does the work with you. Built on proven marketing science. Works on the Claude you already have.", "business/olaf.html", "", ld, image="og-olaf.png")}
+    return f"""{head("Olaf, your brand consultant · Busy", "Olaf plans your marketing and your projects, checks in every week and does the work with you. Built on proven marketing science. Works on your own Claude.", "business/olaf.html", "", ld, image="og-olaf.png")}
 <body class="site app-grape">
 {nav("")}
 <main id="main">
@@ -1227,8 +1335,9 @@ def olaf_page(tools: list) -> str:
         <p class="kicker">Olaf · your brand consultant · by Busy</p>
         <h1>Be the name people think of first.</h1>
         <p class="lead">Olaf is your brand consultant. He puts your brand on one page, plans your next 90 days and checks in every week. Then he prepares the work for your yes: the posts, the review requests, the reminders, the plan. Everything rests on decades of marketing science about how people really buy.</p>
-        <div class="ctas"><a class="btn btn-primary btn-big" href="#get">🧭 Get Olaf</a><a class="btn btn-big" href="app/apps/olaf/index.html">👀 Try the demo</a></div>
+        <div class="ctas">{itch_button("olaf", "Get Busy Business with Olaf", big=True)}<a class="btn btn-big" href="app/apps/olaf/index.html">👀 Try the demo</a></div>
         <p class="note">{OLAF_PRICE} · On your own Claude · Nothing is sent to us</p>
+        {claude_line()}
       </div>
       <div class="stage solo reveal from-right"><div class="mock" style="--active:var(--grape)"><div class="mock-bar"><i></i><i></i><i></i><b>Olaf</b></div>
         <div class="olaf-mock">
@@ -1240,7 +1349,8 @@ def olaf_page(tools: list) -> str:
         </div></div></div>
     </div>
   </section>
-  <section class="section"><div class="wrap">{expert_intro("olaf", "Rivet", "app/shared/places/workshop/rivet-hello.png", "business/index.html#upstairs", "")}</div></section>
+  {film_top("olaf", "../")}
+  <section class="section"><div class="wrap">{expert_intro("olaf", "Rivet", "app/shared/places/workshop/rivet-hello.png", "business/index.html#upstairs", "", free="business/download.html", job=True, meet="")}</div></section>
   <section class="section"><div class="wrap">
     <div class="center reveal"><h2 class="big">What Olaf does</h2><p class="lead">The free Marketing Studio gives you the playbooks. Olaf runs them with you, week after week.</p></div>
     <div class="feats">{"".join(f'<div class="card feat reveal pop" style="transition-delay:{i * .06:.2f}s"><span class="fe">{f[0]}</span><h3>{e(f[1])}</h3><p>{e(f[2])}</p></div>' for i, f in enumerate(feats))}</div>
@@ -1249,27 +1359,21 @@ def olaf_page(tools: list) -> str:
     <div class="center reveal"><h2 class="big">Six stages, in the order that grows a business</h2><p class="lead">Olaf works out where you are and starts there. Most businesses keep cycling through the last two.</p></div>
     <div class="steps six">{"".join(f'<div class="card step reveal" style="--c:var(--grape);transition-delay:{i * .06:.2f}s"><span class="num">{i + 1}</span><h3>{e(s)}</h3><p>{e(stage_why[i])}</p></div>' for i, s in enumerate(stages))}</div>
   </div></section>
-{paths_block("")}
+{paths_block("", on_olaf=True)}
   <section class="section" id="projects"><div class="wrap">
     <div class="center reveal"><h2 class="big">Your projects, run with you</h2><p class="lead">The free Project Planner holds the plan. Olaf keeps it honest: it writes the plan with you, checks in every week and does the paperwork.</p></div>
     <div class="feats">{"".join(f'<div class="card feat reveal pop" style="transition-delay:{i * .06:.2f}s"><span class="fe">{f[0]}</span><h3>{e(f[1])}</h3><p>{e(f[2])}</p></div>' for i, f in enumerate(project_feats))}</div>
   </div></section>
   <section class="section" id="skills"><div class="wrap">
-    <div class="center reveal"><h2 class="big">{len(lib["skills"])} skills behind the coach</h2><p class="lead">Olaf picks the right one for each step. You can also run any of them yourself.</p></div>
+    <div class="center reveal"><h2 class="big">{n_skills} skills behind the coach</h2><p class="lead">Olaf picks the right one for each step. You can also run any of them yourself.</p></div>
     <div class="sk-groups">{groups}</div>
   </div></section>
   <section class="section" id="why"><div class="wrap">
-    <div class="center reveal"><h2 class="big">An expert, not another tool</h2><p class="lead">What changes when Olaf runs your marketing with you.</p></div>
-    <div class="cmp vs reveal" role="region" aria-label="Olaf compared with doing it alone or hiring an agency" tabindex="0"><table>
-      <thead><tr><th></th><th>Olaf</th><th>An AI chat on your own</th><th>A marketing agency</th></tr></thead>
+    <div class="center reveal"><h2 class="big">An expert at your side</h2><p class="lead">What Olaf brings to your marketing, week after week.</p></div>
+    <div class="cmp gives reveal" role="region" aria-label="What Olaf brings" tabindex="0"><table>
+      <thead><tr><th></th><th>Olaf</th></tr></thead>
       <tbody>
-        <tr><td>Built on proven marketing science</td><td>✓ In every answer</td><td>Only if you know what to ask</td><td>Depends on the agency</td></tr>
-        <tr><td>Knows your business and remembers results</td><td>✓ Your profile, plan, numbers and every piece of work</td><td>Starts over unless you set it up</td><td>✓</td></tr>
-        <tr><td>Tells you what to do next</td><td>✓ A 90-day plan and a weekly check-in</td><td>You decide, and you prompt</td><td>Usually a monthly meeting</td></tr>
-        <tr><td>Does the work</td><td>✓ Drafts it all; you approve</td><td>You copy, paste and fix</td><td>✓</td></tr>
-        <tr><td>Reads your real sales numbers</td><td>✓ From your Busy invoices</td><td>Only what you paste</td><td>Only what you share</td></tr>
-        <tr><td>Your data</td><td>Stays on your computer</td><td>In a chat history</td><td>With the agency</td></tr>
-        <tr><td>Cost</td><td>{PRODUCTS["olaf"]["price"]} once, plus a few cents of AI per session</td><td>A monthly subscription, plus your time</td><td>A monthly retainer</td></tr>
+        {"".join(f"<tr><td>{e(a)}</td><td>{e(b)}</td></tr>" for a, b in gives)}
       </tbody></table></div>
   </div></section>
   <section class="section" id="get"><div class="wrap">
@@ -1277,8 +1381,9 @@ def olaf_page(tools: list) -> str:
       <span class="e">🧭</span>
       <div><h2>Get Olaf</h2>
         <p>Olaf comes inside <b>{PRODUCTS["olaf"]["name"]}</b>, sold on itch.io for {PRODUCTS["olaf"]["price"]} once: an introductory price. He runs on your own Claude usage.</p>
-        <ul class="get-list"><li>Olaf: the growth coach, setup, dashboard, insights and content calendar</li><li>52 marketing skills, all built on proven marketing science</li><li>The full Busy toolbox in the same download</li><li>Every update, no subscription</li></ul>
+        <ul class="get-list"><li>Olaf: the growth coach, setup, dashboard, insights and content calendar</li><li>{n_skills} skills for marketing and projects, built on proven marketing science</li><li>The full Busy toolbox in the same download</li><li>Every update, no subscription</li></ul>
         <div class="row-flex">{itch_button("olaf", big=True)}<a class="btn btn-big" href="claude-key.html">How Olaf connects to Claude</a></div>
+        {claude_line()}
         <p class="faint" style="font-size:.88rem;margin-top:8px">The free Busy download never contains Olaf. The demo shows an example business; Olaf's work and the AI run only in the paid version.</p></div>
     </div>
   </div></section>
@@ -1288,12 +1393,12 @@ def olaf_page(tools: list) -> str:
   </div></section>
   <section class="final">
     <h2 class="reveal pop">Your marketing and your projects, with an expert.</h2>
-    <p class="lead reveal" style="margin-top:14px;color:var(--ink-2);font-size:1.2rem">Start your journey in the browser, or download Busy and keep it all in your own folder.</p>
-    <div class="row-flex" style="justify-content:center;margin-top:10px"><a class="btn btn-big" href="#get">🧭 Get Olaf</a><a class="btn btn-big ghost-light" href="app/apps/olaf/index.html">👀 Try the demo</a></div>
+    <p class="lead reveal" style="margin-top:14px;color:var(--ink-2);font-size:1.2rem">Try the demo with an example business, or get Olaf and keep it all in your own folder.</p>
+    <div class="row-flex" style="justify-content:center;margin-top:10px">{itch_button("olaf", "Get Busy Business with Olaf", big=True)}<a class="btn btn-big ghost-light" href="app/apps/olaf/index.html">👀 Try the demo</a></div>
+    {claude_line()}
   </section>
 </main>
 {footer("", tools)}
-<script src="app/shared/core.js"></script>
 <script src="assets/site.js"></script>
 </body>
 </html>
@@ -1345,17 +1450,80 @@ GAMES = [
 # desktop/build-free.py and published as a GitHub release of this repository. The file names stay the
 # same from release to release, so these links always give the latest.
 APP_RELEASE = "https://github.com/lupitaai-agent/busywork/releases/latest/download/"
+# The installers' sizes, as people read them ("96 MB"), by file name. The installers are built and released outside
+# this repository, so the build knows none yet: add a file here (or fill this from the release) and the panel that
+# opens after a download click shows its size.
+DOWNLOAD_SIZES = {}
 
 
 def app_download(word: str, name: str) -> str:
     """The download buttons for one free app, with what it runs on and how to open the beta."""
+    # data-suite and data-os tell site.js which app and which system a click is for (the panel that opens after it);
+    # data-size is there only for a file whose size the build knows (DOWNLOAD_SIZES).
+    at = lambda system, file: f'data-download data-suite="{word.lower()}" data-os="{system}"' + (f' data-size="{e(DOWNLOAD_SIZES[file])}"' if file in DOWNLOAD_SIZES else "")
+    mac, win = f"Busy-{word}-Beta-Mac.dmg", f"Busy-{word}-Beta-Windows.exe"
     return f"""<div class="row-flex" style="justify-content:center">
-      <a class="btn btn-primary btn-big" href="{APP_RELEASE}Busy-{word}-Beta-Mac.dmg" data-download>⬇️ {e(name)} for Mac</a>
-      <a class="btn btn-primary btn-big" href="{APP_RELEASE}Busy-{word}-Beta-Windows.exe" data-download>⬇️ {e(name)} for Windows</a></div>
+      <a class="btn btn-primary btn-big" href="{APP_RELEASE}{mac}" {at("mac", mac)}>⬇️ {e(name)} for Mac</a>
+      <a class="btn btn-primary btn-big" href="{APP_RELEASE}{win}" {at("windows", win)}>⬇️ {e(name)} for Windows</a></div>
     <p class="faint" style="margin-top:14px">Free · Beta · Mac: macOS 13 or newer, Apple chip or Intel · Windows 10 or 11, 64-bit</p>
     <details class="first-open"><summary>Opening it the first time</summary><p>The beta isn’t signed by Apple or Microsoft yet, so your computer asks first, once.
       <b>Mac:</b> open the downloaded file, drag {e(name)} into Applications and open it. Click Done, then open System Settings → Privacy &amp; Security, scroll down and click <b>Open Anyway</b>.
       <b>Windows:</b> run the downloaded file; if Windows says it protected your PC, click <b>More info</b>, then <b>Run anyway</b>.</p></details>"""
+
+
+# After a download click (site.js): the page says what happens next. Each free app's demo in the browser (for a
+# phone, where an installer is of no use) and the expert that goes with it, in one line.
+DOWNLOAD_DEMO = {"business": "app/index.html", "growth": "app/growth.html", "home": "app/home.html", "rentals": "app/rentals.html",
+                 "games": "games/index.html", "tucks-errand": "games/tucks-errand.html"}
+DOWNLOAD_EXPERT = {"business": ("olaf", "He puts your brand on one page and prepares the work."),
+                   "growth": ("ivy", "She finds the words for your review, your raise and your next job."),
+                   "home": ("juno", "She reads the letter and drafts the reply."),
+                   "rentals": ("wren", "She reads the tenancy and drafts every letter.")}
+
+
+def download_panel(prefix: str) -> str:
+    """The panel site.js opens after a click on an installer (a link to APP_RELEASE): the download has started, how
+    to open the file (the words of app_download's "Opening it the first time", in steps), and the suite's expert in
+    one line with the line about Claude. On a phone: Busy runs on a computer, with the demo and a link to copy.
+    (The phone's button says what it opens: the demo of an app, or the games themselves; tests/test_build.py keeps
+    "Try it in your browser" off the site, because the browser shows the demo, not the app.)
+    It waits in a <template> in every page's footer, so its words are translated with the page and its links are
+    right in every folder; site.js keeps the parts for this app and this system."""
+    experts = "".join(
+        f'<div class="dl-expert" data-dl-expert="{suite}"><p><b>While it downloads: meet {PRODUCTS[k]["who"]}.</b> <span>{e(line)}</span> '
+        f'<span class="expert-chip {k}">{PRODUCTS[k]["price"]} once</span></p><p>{claude_small()}</p>'
+        f'<a class="btn" href="{prefix}{EXPERT_PAGE[k]}">Meet {PRODUCTS[k]["who"]} →</a></div>'
+        for suite, (k, line) in DOWNLOAD_EXPERT.items() if k in PRODUCTS)
+    demos = "".join(f'<a data-suite="{suite}" href="{prefix}{page}"></a>' for suite, page in DOWNLOAD_DEMO.items())
+    return f"""<template id="dl-panel"><div class="dl-panel card" role="dialog" tabindex="-1">
+  <button type="button" class="dl-close" data-dl-close aria-label="Close">✕</button>
+  <div data-dl-when="computer">
+    <h2>Your download has started</h2>
+    <p class="dl-file" data-dl-file></p>
+    <ol data-dl-os="mac"><li>Open the downloaded file and drag the app into Applications.</li><li>Open the app. The beta isn’t signed by Apple yet, so your Mac asks first, once.</li><li>Click Done, then open System Settings → Privacy &amp; Security, scroll down and click Open Anyway.</li></ol>
+    <ol data-dl-os="windows"><li>Run the downloaded file.</li><li>The beta isn’t signed by Microsoft yet, so Windows asks first, once.</li><li>If Windows says it protected your PC, click More info, then Run anyway.</li></ol>
+    <p class="dl-again">Nothing happening? <a data-dl-again href="#">Download it again</a></p>
+    {experts}
+  </div>
+  <div data-dl-when="phone">
+    <h2>Busy runs on a Mac or Windows computer</h2>
+    <p>Try it here in your browser, or copy the link and open it on your computer.</p>
+    <p class="row-flex"><a class="btn btn-primary" data-dl-demo data-dl-for="app" href="#">👀 Try the demo in your browser</a><a class="btn btn-primary" data-dl-demo data-dl-for="game" href="#">🧩 Play in your browser</a><button type="button" class="btn" data-dl-copy>🔗 Copy the link</button></p>
+    <p class="dl-copied" role="status" aria-live="polite"><span data-dl-copied hidden>Link copied.</span></p>
+    <span hidden data-dl-demos>{demos}</span>
+  </div>
+</div></template>"""
+
+
+def trust_lines(prefix: str) -> str:
+    """Two true lines for the homepage's "Your stuff stays yours": the free apps' code is public (public, not open
+    source: the repository has no licence file), and how many releases there have been since the first, counted
+    from website/content/updates.json so it stays true. The number and the date stand apart from the words, so a
+    new release changes no sentence."""
+    ups = site_updates()   # the same list What's new shows, so the number matches the page it opens
+    first = min(u["date"] for u in ups)
+    return (f'<li><span>👀</span><span><a href="https://github.com/lupitaai-agent/busywork" target="_blank" rel="noopener"><b>The code of the free apps is public on GitHub.</b></a> Anyone can read what they do.</span></li>\n'
+            f'          <li><span>📅</span><span><a href="{prefix}updates.html"><b><span>{len(ups)}</span> releases since <time datetime="{first}">{date_words(first)}</time></b></a></span></li>')
 
 
 GAMES_FAQ = [
@@ -1366,13 +1534,25 @@ GAMES_FAQ = [
 ]
 
 
+GAMES_ANSWERS = [
+    ("What is Busy Games?", f"Busy Games is four free logic puzzles, Stars, Duo, Trail and Six, with a new puzzle every day and {GAME_LEVELS:,} levels each, and the puzzle adventure Busy Street: Tuck's Errand."),
+    ("Who is it for?", "Busy Games is for anyone who likes a short puzzle in a break. Every puzzle has exactly one answer and is solved by reasoning."),
+    ("What does it cost?", f"Busy Games is free: every puzzle and every level, in your browser or in the free app for Mac and Windows, with no account. The full Busy Street: Tuck's Errand is {PRODUCTS['tuck']['price']} once on itch.io, and Busy Street 3D for Mac is {PRODUCTS['street3d']['price']} once."),
+    ("Is there AI in Busy Games?", "No. Busy Games has no AI. The puzzles are made on your own device by fixed rules, and the daily puzzle is the same for everyone."),
+    ("Where is my progress?", "Busy Games keeps your streak, your solved levels and an unfinished puzzle in your own browser or in the app. Nothing is sent to us, and there is no account."),
+    ("Which languages?", "Busy Games is in English, Dutch, German, Spanish, Italian and Brazilian Portuguese."),
+]
+
+
 def games_hub() -> str:
     cards = """<a class="card game-card reveal pop" href="tucks-errand.html" style="--c:var(--sun)"><span class="em">✂️</span><h2>Tuck's Errand</h2><p>Our free puzzle adventure: six levels, six friends to cut loose from the Red Tape.</p><span class="go">Play Tuck's Errand →</span></a>"""
     cards += "".join(f'<a class="card game-card reveal pop" href="{g["id"]}.html" style="--c:var(--{g["color"]})"><span class="em">{g["emoji"]}</span><h2>{e(g["name"])}</h2>'
                     f'<p>{e(g["lead"])}</p><p class="status" data-status="{g["id"]}">🗓️ Today\'s puzzle is waiting<br>🏁 {GAME_LEVELS:,} levels to play</p><span class="go">Play {e(g["name"])} →</span></a>' for g in GAMES)
-    faq = "".join(f"<details><summary>{e(q)}</summary><p>{e(a)}</p></details>" for q, a in GAMES_FAQ)
-    ld = jsonld({"@context": "https://schema.org", "@type": "FAQPage",
-                 "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in GAMES_FAQ]})
+    questions = GAMES_ANSWERS + [qa for qa in GAMES_FAQ if qa[0] in ("How many levels are there?", "Is there a new puzzle every day?")]
+    # "Busy Games in short" stands right above the questions, so the list below it holds only the ones not answered there;
+    # the structured data carries them all (each is on the page, word for word).
+    faq = "".join(f"<details><summary>{e(q)}</summary><p>{e(a)}</p></details>" for q, a in questions[len(GAMES_ANSWERS):])
+    ld = faq_ld(questions)
     desc = f"Free daily brain games from Busy: Stars, Duo, Trail and Six. A new logic puzzle every day and {GAME_LEVELS:,} levels each. In your browser or as an app. No account."
     extra = ld + '<link rel="stylesheet" href="../assets/games/games.css">' + PLACE_HEAD.format(first="../assets/parlour/room-kiosk-1920.jpg")
     return f"""{head("Free brain games: a new puzzle every day · Busy", desc, "games/index.html", "../", extra, image="og-games.png")}
@@ -1381,12 +1561,13 @@ def games_hub() -> str:
 <main id="main">
   {place_html("parlour", PARLOUR_STEPS, parlour_card, "The Puzzle Parlour: a tour of Busy Games", decals=PARLOUR_DECALS)}
   <div class="wrap">
+  <figure class="film film-first reveal" id="film"><video controls playsinline preload="none" poster="../assets/films/busy-games.jpg" src="../assets/films/busy-games.mp4" aria-label="The brain games: a short film"></video><figcaption class="center">The four brain games in 24 seconds. Free, a new puzzle every day. <a href="../films/busy-games.html">The film on its own page →</a></figcaption></figure>
   {street_block("../", wrap=False)}
   <div class="game-cards" id="games">{cards}</div>
-  <figure class="film reveal"><video controls playsinline preload="none" poster="../assets/films/busy-games.jpg" src="../assets/films/busy-games.mp4" aria-label="The brain games: a short film"></video><figcaption class="faint center">The four brain games in 24 seconds. Free, a new puzzle every day.</figcaption></figure>
   <section class="section" id="get-app"><div class="center reveal"><h2 class="big">Play without a browser</h2>
     <p class="lead">Busy Games as a free app on your computer: the same puzzles, your streak kept, and it works offline.</p>
     {app_download("Games", "Busy Games")}</div></section>
+  {in_short("Busy Games", GAMES_ANSWERS, wrap=False)}
   <section class="section" id="faq"><div class="center reveal"><h2 class="big">Questions</h2></div><div class="faq reveal">{faq}</div></section>
   </div>
 </main>
@@ -1444,6 +1625,16 @@ GROWTH_TOOLS = [("📚", "Library", "Files, links and notes from everything you 
                 ("🪞", "Weekly review", "Ten minutes on Friday: what moved, what was hard, what's next.")]
 
 
+GROWTH_ANSWERS = [
+    ("What is Busy Growth?", f"Busy Growth is a free app for Mac and Windows that keeps what you learn, what you can do and what you achieved, and turns it into a CV, a LinkedIn profile and interview stories. It has {len(GROWTH_TOOLS)} tools, and everything is saved in a folder on your own computer."),
+    ("Who is it for?", "Busy Growth is for anyone with a review, a raise or a job change ahead: people in work who want their year on one page, and people applying for their next role."),
+    ("What does it cost?", f"Busy Growth is free, with no account and no subscription. Ivy, the AI career coach, comes in the paid edition: Busy Growth with Ivy, {PRODUCTS['ivy']['price']} once on itch.io."),
+    ("Is there AI in the free version?", "No. The free Busy Growth has no AI and sends nothing anywhere. Only Ivy, in the paid edition, uses AI: Claude, on your own Claude account."),
+    ("Where is my data?", "Busy Growth saves plain files in Documents/Busy/Growth on your own computer, or in a folder you choose. Put it in Google Drive or Dropbox to sync it. Nothing is sent to us."),
+    ("Which languages?", "Busy Growth is in English, Dutch, German, Spanish, Italian and Brazilian Portuguese."),
+]
+
+
 def growth_page(tools: list) -> str:
     feats = tool_cards(GROWTH_TOOLS, "growth", GROWTH_LIVE)
     if GROWTH_WAITLIST_ENDPOINT:
@@ -1456,8 +1647,8 @@ def growth_page(tools: list) -> str:
     <div class="card ivy-card reveal"><img src="../assets/ivy-mark.svg" alt="" width="96" height="96">
       <div><p class="kicker">Ivy by Busy · {PRODUCTS["ivy"]["price"]} once</p><h2>Your career coach</h2>
       <p>Ivy turns what you learn into skills and wins, those into a stronger CV, and helps with every application and interview. Learn it, prove it, land it. Ivy never invents experience: every line comes with its proof.</p>
-      <p class="row-flex" style="margin-top:14px">{itch_button("ivy", "Get Busy Growth with Ivy")} <a class="btn" href="../claude-key.html">How Ivy connects to Claude</a></p>
-      {film("ivy")}</div></div>
+      <p class="row-flex" style="margin-top:14px">{itch_button("ivy", "Get Busy Growth with Ivy")} {'<a class="btn" href="ivy.html">Meet Ivy</a> ' if GROWTH_LIVE else ""}<a class="btn" href="../claude-key.html">How Ivy connects to Claude</a></p>
+      {claude_line()}{"" if GROWTH_LIVE else film("ivy")}</div></div>
   </div></section>"""
     if not GROWTH_LIVE:
         desc = "Busy Growth, coming soon: free tools to grow your career. A library of what you learn, skills, wins, job tracker and CV builder, plus Ivy, your career coach."
@@ -1496,13 +1687,14 @@ def growth_page(tools: list) -> str:
              ("💼", "Start from LinkedIn", "Download your own data from LinkedIn and Busy fills in your jobs, education, skills and certificates in minutes.")]
     how = "".join(f'<div class="card feat reveal pop"><span class="fe">{em}</span><h3>{e(n)}</h3><p>{e(d)}</p></div>' for em, n, d in steps)
     extra = PLACE_HEAD.format(first="../assets/glasshouse/room-foot-1920.jpg")
-    return f"""{head("Busy Growth: know what you’re worth, and say it well", desc, "growth/index.html", "../", extra=extra + suite_ld("growth", desc), image="og-ivy.png")}
+    return f"""{head("Busy Growth: know what you’re worth, and say it well", desc, "growth/index.html", "../", extra=extra + suite_ld("growth", desc) + faq_ld(GROWTH_ANSWERS), image="og-ivy.png")}
 <body class="site app-mint">
 {nav("../", ("⬇️ Download free", "#get"))}
 <main id="main">
   {place_html("glasshouse", GLASSHOUSE_STEPS, glasshouse_card, "The Glasshouse: a tour of Busy Growth", next_label="Up a floor ↑", decals=GLASSHOUSE_DECALS,
              model="../assets/pim/pim.glb", height=1.25, expert="ivy")}
-  <section class="section"><div class="wrap">{expert_intro("ivy", "Pim", "../app/shared/places/glasshouse/pim-hello.png", "#upstairs", free_line=True)}</div></section>
+  {film_top("ivy")}
+  <section class="section"><div class="wrap">{expert_intro("ivy", "Pim", "../app/shared/places/glasshouse/pim-hello.png", "#upstairs", free_line=True, job=True)}</div></section>
   <section class="section" id="tools"><div class="wrap">
     <div class="center reveal"><h2 class="big">{len(GROWTH_TOOLS)} tools that work together</h2><p class="lead">A gap in your skills becomes a plan, the plan becomes a win, the win becomes a CV line and an interview story.</p></div>
     <div class="feats">{feats}</div>
@@ -1512,12 +1704,14 @@ def growth_page(tools: list) -> str:
       <div><p class="kicker">Works with LinkedIn, the honest way</p><h2>Your LinkedIn in, and back out</h2>
       <p>LinkedIn lets every member download their own data. Busy reads that file on your computer and fills in your career, skills, certificates and, if you like, your connections. Then the CV Builder gives your profile back: headline, About and every job as text to paste, within LinkedIn's limits, with a checklist of what recruiters look for. No password, no extension, nothing sent anywhere.</p></div></div>
   </div></section>
+  {in_short("Busy Growth", GROWTH_ANSWERS)}
   <section class="section" id="get"><div class="wrap">
     <div class="center reveal"><h2 class="big">Get Busy Growth</h2><p class="lead">Free, the whole set. No account, no subscription, nothing sent to us.</p></div>
     <div class="feats">{how}</div>
     <div class="center" style="margin-top:22px">{app_download("Growth", "Busy Growth")}
       <p class="faint" style="margin-top:10px">Can’t install apps? <a href="../downloads/busy-growth.zip" download>Use the browser version (zip)</a> in Chrome or Edge.</p>
-      <p class="faint" style="margin-top:10px">Want the expert too? <a class="out" href="{PRODUCTS["ivy"]["url"]}" target="_blank" rel="noopener">{PRODUCTS["ivy"]["name"]} · {PRODUCTS["ivy"]["price"]} <span aria-hidden="true">↗</span></a></p></div>
+      <p class="faint" style="margin-top:10px">Want the expert too? <a class="out" href="{PRODUCTS["ivy"]["url"]}" target="_blank" rel="noopener">{PRODUCTS["ivy"]["name"]} · {PRODUCTS["ivy"]["price"]} <span aria-hidden="true">↗</span></a></p>
+      {claude_line("center")}</div>
   </div></section>
   {ivy}
   {f'''<section class="section"><div class="wrap center">
@@ -1612,19 +1806,113 @@ HOUSE_STEPS = [
 
 EXPERTS = {  # the paid AI experts upstairs: their room and model (busy-studio), size next to Tuck, page and price
     "olaf": {"name": "Olaf", "size": 1.45, "page": "olaf.html", "price": lambda: PRODUCTS["olaf"]["price"] + " once"},
-    "ivy": {"name": "Ivy", "size": 1.28, "page": "#ivy", "price": lambda: PRODUCTS["ivy"]["price"] + " once"},
-    "juno": {"name": "Juno", "size": 1.05, "page": "#juno", "price": lambda: PRODUCTS["juno"]["price"] + " once"},
+    "ivy": {"name": "Ivy", "size": 1.28, "page": "ivy.html", "price": lambda: PRODUCTS["ivy"]["price"] + " once"},
+    "juno": {"name": "Juno", "size": 1.05, "page": "juno.html", "price": lambda: PRODUCTS["juno"]["price"] + " once"},
     "wren": {"name": "Wren", "size": 1.0, "page": "wren.html", "price": lambda: WREN["price"] + " once"},
+    "sal": {"name": "Sal", "size": 1.0, "page": "sal.html", "price": lambda: SAL["price"] + " once"},
 }
 
 
 FREE_AND_PAID = "Free: the boring part made easy, with no account and no AI. Paid: the boring part done for you by an expert, for a few dollars, once. That is what keeps Busy going."
 
 
-def expert_intro(expert: str, guide: str, guide_pic: str, tour: str, prefix: str = "../", free_line: bool = False, free: str = "#get") -> str:
+# "One job, done": one worked example per expert, shown where the price and the buy button are (the expert's own page
+# and the suite's page). Left, what the person hands over; right, what the expert hands back, with the numbers and
+# dates of the example, ending in what waits for the person's yes. Every example is a job that expert's skills and
+# tools really do (checked against the private repo, 20 November 2026), with pretend people, and says so underneath.
+# No word about speed or results.
+ONE_JOB = {
+    "olaf": {"pretend": "An example with a pretend business.",
+             "give_h": "One line about your business",
+             "give": ["“Studio Noor paints signs and lettering for cafés and shops in Utrecht.”"],
+             "back_h": "Your brand on one page",
+             "back": ["After a few questions, eight at most: what you sell and to whom, in your customers' own words.",
+                      "The moments people need you, with the three or four to be known for: a café about to open, a shop front that looks tired.",
+                      "What makes you recognisable, to use every time: the tomato red and the hand-painted letters.",
+                      "The first three things to do, each with its time: opening hours, prices and six photos on your Google listing, 40 minutes; ask your last five clients for a review, 20 minutes; two short posts about the new sign, 15 minutes."],
+             "yes": "The page saved in your own folder, and the three jobs in this week's plan."},
+    "ivy": {"pretend": "An example with a pretend person.",
+            "give_h": "A job advert and three wins",
+            "give": ["The advert: Data analyst at Northwind.",
+                     "Your wins: the weekly ticket report cut from 3 hours to 20 minutes; four colleagues trained on the new support dashboard; the first-reply time brought down to under 2 hours."],
+            "back_h": "Where you stand, and a CV for this job",
+            "back": ["What the advert asks for, must-haves first, each next to your proof: SQL and Excel are shown by the report you cut from 3 hours to 20 minutes.",
+                     "What is missing, said plainly: Power BI. With a first step for your Learning Planner.",
+                     "A CV for Northwind that leads with your three wins, in the advert's own words where they honestly mean the same.",
+                     "The gaps to be ready to talk about in the interview."],
+            "yes": "The CV saved in your CV Builder as “CV for Northwind”, linked to the application in your Job Tracker."},
+    "juno": {"pretend": "An example with a pretend household.",
+             "give_h": "A letter from the energy company",
+             "give": ["“From 1 December your monthly payment changes from €118 to €142.”", "Two pages, with small print on the back."],
+             "back_h": "The letter explained, and the reply ready",
+             "back": ["In plain words: your monthly payment goes from €118 to €142 from 1 December. That is €24 a month more, €288 a year.",
+                      "What to do, by when: send your meter reading before 14 November, so the new amount rests on what you really use.",
+                      "What your contract says about a change of price, quoted from the contract itself.",
+                      "A short reply with your meter reading, drafted in Letters."],
+             "yes": "The letter filed in Paper Trail with 14 November as its date, €142 on the contract in Contracts & Renewals, and the reply saved in Letters."},
+    "wren": {"pretend": "An example with a pretend landlord.",
+             "give_h": "A tenancy agreement",
+             "give": ["“The rent is £1,150 per calendar month, payable in advance on the 1st. The deposit is £1,300.”", "Eleven pages, as a PDF: a flat in England, let from 1 March."],
+             "back_h": "The tenancy filled in, and the deposit checked",
+             "back": ["Filled in from the agreement, each with its place in the document: the tenants, the start on 1 March, the rent of £1,150 a month due on the 1st, and the deposit of £1,300.",
+                      "The deposit next to England's cap of five weeks' rent: £1,326.92. Your £1,300 is within it.",
+                      "The date to protect the deposit by: 31 March, 30 days after you received it on 1 March.",
+                      "What the agreement says about notice, pets and access, in its own words, listed as clauses worth checking with a solicitor or your landlords' association."],
+             "yes": "The home and the tenancy saved in Busy Rentals."},
+    "sal": {"pretend": "An example with a pretend kitchen.",
+            "give_h": "What is in the fridge",
+            "give": ["“Half a bag of curly kale, use by tomorrow. A smoked sausage, bacon and four eggs. Potatoes, an onion, milk, butter and mustard in the cupboard. Dinner for two.”"],
+            "back_h": "Dinner for tonight, from what you have",
+            "back": ["First, because the kale goes off tomorrow: boerenkoolstamppot met rookworst, kale and potato mash with smoked sausage, from the Dutch kitchen. Nothing is missing.",
+                     "Second: tortilla de patatas, the Spanish potato omelette, from the potatoes, the eggs and the onion.",
+                     "The recipe you choose, scaled from four portions to two: 750 g of potatoes and 250 g of kale for the stamppot.",
+                     "Its allergens, milk and mustard, with the reminder to check the labels, and the line “not yet cooked by us”."],
+            "yes": "The stamppot in tonight's week plan. The kale and the sausage leave your pantry once you say they are used up."},
+}
+
+
+def one_job(key: str, buy: str = "") -> str:
+    """The two cards of an expert's worked example. buy: what stands under them (the buy button and the Claude line on
+    the expert's own page; on a suite page the two doors follow, so nothing here)."""
+    j, who = ONE_JOB[key], PRODUCTS[key]["who"]
+    paper = "".join(f"<p>{e(line)}</p>" for line in j["give"])
+    back = "".join(f"<li>{e(line)}</li>" for line in j["back"])
+    return f"""<div class="one-job" id="one-job">
+      <div class="center reveal"><p class="kicker">{who} at work</p><h2 class="big">One job, done</h2></div>
+      <div class="job-cards">
+        <article class="card job-card job-in reveal"><p class="job-tag">You hand over</p><h3>{e(j["give_h"])}</h3><div class="job-paper">{paper}</div></article>
+        <article class="card job-card job-out reveal"><p class="job-tag">{who} hands back</p><h3>{e(j["back_h"])}</h3><ul class="job-list">{back}</ul>
+          <p class="job-yes"><b>Waiting for your yes</b> <span>{e(j["yes"])}</span></p></article>
+      </div>
+      <p class="center faint job-note">{e(j["pretend"])}</p>{buy}
+    </div>"""
+
+
+# The suite's film, right under the hero: one line on what you will see and how long it is.
+FILM_CAPTIONS = {"olaf": "30 seconds: what needs you today in Busy Business, and what Olaf has ready for your yes.",
+                 "ivy": "30 seconds: your worth on one page in Busy Growth, and the words Ivy has ready for your review.",
+                 "juno": "30 seconds: ten minutes with Busy Home, and the letter Juno has ready for your yes.",
+                 "wren": "88 seconds: the homes, the rent, the landlord's year and the letters in Busy Rentals, and Wren, your property manager.",
+                 "sal": "30 seconds: tell Busy Kitchen what is in your fridge, see what's for dinner, and plan the week."}
+
+
+def film_top(key: str, prefix: str = "../") -> str:
+    """A suite's film where the decision is made: under the hero of its suite page and on its expert's page."""
+    name = PRODUCTS[key]["film"]
+    if not any((base / "assets" / "films" / f"{name}.mp4").exists() for base in (ROOT / "website", RENTALS_SITE, KITCHEN_SITE)):
+        return ""
+    return (f'<section class="section film-top" id="film"><div class="wrap"><figure class="film reveal">{film_video(key, prefix)}'
+            f'<figcaption>{e(FILM_CAPTIONS[key])} <a href="{prefix}films/{name}.html">The film on its own page →</a></figcaption></figure></div></section>')
+
+
+def expert_intro(expert: str, guide: str, guide_pic: str, tour: str, prefix: str = "../", free_line: bool = False, free: str = "#get",
+                 job: bool = False, meet: str = None) -> str:
     """An expert on their page: in their room upstairs (rendered in the Busy Studio), a way to watch them at work in
-    the tour's last room, and the guide next to them: the guide is free and scripted, the expert is paid AI."""
+    the tour's last room, and the guide next to them: the guide is free and scripted, the expert is paid AI. job: the
+    expert's worked example between the picture and the two doors, so the price stands next to a finished job.
+    meet: the expert's own page, a third and quieter door ("" where this is that page)."""
     x = EXPERTS[expert]
+    meet = x["page"] if meet is None else meet
     return f"""<div class="expert-intro reveal">
       <figure class="expert-pic"><img src="{prefix}assets/experts/{expert}-card.jpg" alt="{x["name"]} in the room upstairs, rendered in the Busy Studio" loading="lazy" width="1200" height="675">
         <a class="btn btn-primary" href="{tour}">👀 See {x["name"]} at work</a></figure>
@@ -1632,8 +1920,9 @@ def expert_intro(expert: str, guide: str, guide_pic: str, tour: str, prefix: str
         <div class="card"><img src="{guide_pic}" alt="" loading="lazy"><div><b>{guide} · free</b><small>Your guide downstairs: shows you every tool. Scripted, no AI.</small></div></div>
         <div class="card"><img src="{prefix}assets/experts/{expert}-hello.png" alt="" loading="lazy"><div><b>{x["name"]}</b><small>The expert upstairs, on your own Claude. {e(x["price"]())}.</small></div></div>
       </div>
-    </div>
-    <p class="two-doors reveal"><a class="btn btn-big" href="{free}">⬇️ Download free</a>{itch_button(expert, "Get it with " + x["name"], big=True)}</p>{f'<p class="center lead reveal" style="margin-top:26px">{FREE_AND_PAID}</p>' if free_line else ""}"""
+    </div>{one_job(expert) if job else ""}
+    <p class="two-doors reveal"><a class="btn btn-big" href="{free}">⬇️ Download free</a>{itch_button(expert, "Get it with " + x["name"], big=True)}{f'<a class="btn btn-big" href="{meet}">Meet {x["name"]}</a>' if meet else ""}</p>
+    {claude_line("center")}{f'<p class="center lead reveal" style="margin-top:26px">{FREE_AND_PAID}</p>' if free_line else ""}"""
 
 
 # ---------- what is for sale, shown the same way everywhere ----------
@@ -1644,16 +1933,20 @@ def film_video(key: str, prefix: str) -> str:
 
 
 def films_block(prefix: str) -> str:
-    """The home page's films: the three apps at work, each with its two doors (free, and with its expert)."""
-    rows = (("olaf", "business/download.html", "Be the name people think of first: your brand, your marketing and your daily operations in one place."),
-            ("ivy", "growth/index.html#get", "Know what you’re worth, and say it well: at your review, for your raise and for your next job."),
-            ("juno", "home/index.html#get", "Get your evenings back: the contracts, the letters and the dates, taken care of."),
-            *([("wren", "rentals/index.html#get", "Be the landlord people hope for: every date, deposit and letter, in order.")] if RENTALS_LIVE and (SITE / "assets" / "films" / "busy-rentals.mp4").exists() else []))
+    """The home page's films: the apps at work, each with its two doors (free, and with its expert) and, under the
+    expert's door, the one line about Claude. Busy Kitchen's free door opens it in the browser: it has no installer."""
+    get = "⬇️ Download free"
+    rows = (("olaf", "business/download.html", get, "Be the name people think of first: your brand, your marketing and your daily operations in one place."),
+            ("ivy", "growth/index.html#get", get, "Know what you’re worth, and say it well: at your review, for your raise and for your next job."),
+            ("juno", "home/index.html#get", get, "Get your evenings back: the contracts, the letters and the dates, taken care of."),
+            *([("wren", "rentals/index.html#get", get, "Be the landlord people hope for: every date, deposit and letter, in order.")] if RENTALS_LIVE and (SITE / "assets" / "films" / "busy-rentals.mp4").exists() else []),
+            *([("sal", "app/kitchen.html", "🍳 Open it in your browser", f"Bring the world to your table: {KITCHEN_DISHES} dishes from six kitchens, matched to what is in your fridge.")] if KITCHEN_LIVE and (SITE / "assets" / "films" / "busy-kitchen.mp4").exists() else []))
     cards = "".join(f'<article class="card film-card reveal pop">{film_video(k, prefix)}<h3>{e(PRODUCTS[k]["suite"])}</h3><p>{e(line)}</p>'
-                    f'<div class="row-flex"><a class="btn" href="{prefix}{free}">⬇️ Download free</a>{itch_button(k, "With " + PRODUCTS[k]["who"])}</div></article>' for k, free, line in rows)
+                    f'<div class="row-flex"><a class="btn" href="{prefix}{free}">{label}</a>{itch_button(k, "With " + PRODUCTS[k]["who"])}</div>{claude_small("in-film")}</article>' for k, free, label, line in rows)
     return f"""<section class="section film-band" id="films"><div class="wrap">
     <div class="center reveal"><h2 class="big">See Busy at work</h2><p class="lead">{"A short film each." if RENTALS_LIVE else "Half a minute each."} Every app is free. Its expert does the work for you, for a few dollars, once.</p></div>
     <div class="film-row">{cards}</div>
+    <p class="center film-note">{claude_small()}</p>
   </div></section>"""
 
 
@@ -1662,10 +1955,15 @@ def offer_rows(tools: list, prefix: str) -> str:
             ("🌱 Busy Growth", f"{len(GROWTH_TOOLS)} tools: you keep the record and write from it", "Ivy, your career coach, writes it for you", "ivy"),
             ("🏡 Busy Home", f"{len(HOME_TOOLS)} tools: you add it once and are told in time", "Juno, your household assistant, reads it, files it and answers it", "juno"),
             *([("🔑 Busy Rentals", f"{len(RENTALS_TOOLS)} tools: every date, deposit, payment and receipt in order", "Wren, your property manager, reads the tenancy and drafts every letter", "wren")] if RENTALS_LIVE else []),
+            *([("🍳 Busy Kitchen", f"{KITCHEN_DISHES} dishes: you cook from what is in your fridge", "Sal, your chef, cooks with what is left and plans your week", "sal")] if KITCHEN_LIVE else []),
             ("✂️ Busy Street: Tuck's Errand", "Six levels, in your browser or as a download", "All 15 levels: the street and nine worlds", "tuck"),
             ("🏙️ Busy Street 3D", "", "23 levels in 3D, for Mac with Apple silicon", "street3d"),
             ("🧩 Brain games", "Stars, Duo, Trail and Six: a new puzzle every day", "", "")]
-    return "".join(f'<tr><td><b>{e(a)}</b></td><td>{e(b) or "–"}</td><td>{e(c) or "–"}</td><td>{itch_button(k, "itch.io", primary=False) if k else "Free"}</td></tr>' for a, b, c, k in rows)
+    # data-label: on a phone each row is a card of its own (site.css), and the column's name stands above its words.
+    cell = lambda label, text: f'<td data-label="{label}">{e(text)}</td>' if text else '<td class="none">–</td>'
+    live = experts_live()
+    return "".join(f'<tr><td><b>{e(a)}</b></td>{cell("Free", b)}{cell("Paid, once", c)}'
+                   f'<td>{(itch_button(k, "itch.io", primary=False) + (claude_small("in-card") if k in live else "")) if k else "Free"}</td></tr>' for a, b, c, k in rows)
 
 
 def offer_block(tools: list, prefix: str) -> str:
@@ -1674,6 +1972,7 @@ def offer_block(tools: list, prefix: str) -> str:
     <div class="center reveal"><h2 class="big">Free, or with an expert</h2><p class="lead">{FREE_AND_PAID}</p></div>
     <div class="cmp offer reveal" role="region" aria-label="Free and paid editions" tabindex="0"><table>
       <thead><tr><th></th><th>Free</th><th>Paid, once</th><th></th></tr></thead><tbody>{offer_rows(tools, prefix)}</tbody></table></div>
+    <p class="offer-note">{claude_small()}</p>
     <p class="center" style="margin-top:18px"><a class="btn" href="{prefix}pricing.html">How free and paid work →</a></p>
   </div></section>"""
 
@@ -1711,19 +2010,35 @@ def sync_home_prices() -> None:
     page.write_text(text)
 
 
+# Where each expert sits, in a sentence: "Olaf in Busy Business, Ivy in Busy Growth, …"
+EXPERTS_IN = ", ".join(f'{PRODUCTS[k]["who"]} in {PRODUCTS[k]["suite"]}' for k in experts_live())
 PRICING_FAQ = [
     ("Do the free tools stay free?", "Yes. Every tool in every suite is free, with no account, no trial and no time limit. They have no AI in them."),
-    ("What exactly do I buy?", "The same app with its AI expert inside: Olaf in Busy Business, Ivy in Busy Growth, Juno in Busy Home. You pay once and keep it. Updates are free."),
-    ("How does the expert run?", "The expert is Claude, made by Anthropic, working on the Claude you already have. You add the expert to your own Claude app in three steps: no key, no second bill. It prepares the work; you say yes in Busy. A Claude API key works too, if you prefer one: then you pay Anthropic for what you use, a few cents a conversation."),
+    ("What exactly do I buy?", f"The same app with its AI expert inside: {EXPERTS_IN}. You pay once and keep it. Updates are free."),
+    ("How does the expert run?", "The expert is Claude, made by Anthropic, and works on your own Claude: the Claude app with a paid plan, or a Claude API key. If you already pay for Claude, the expert's price is all you pay: you add the expert to your Claude app in three steps. With an API key you pay Anthropic for what you use, a few cents a conversation. The expert prepares the work; you say yes in Busy. The free app is complete on its own."),
     ("Why itch.io?", "itch.io takes the payment and hands you the download, so we never see your card. The buttons on this site open the product's own page there in a new tab."),
     ("Are these the final prices?", "They are introductory prices. If they change, people who already bought keep what they have."),
     ("Which languages?", "English, Dutch, German, Spanish, Italian and Brazilian Portuguese: the apps, the experts' own screens and both games."),
-    ("Mac or Windows?", "The three apps and Tuck's Errand run on Mac and Windows. Busy Street 3D is for Mac with Apple silicon. The apps are not signed yet, so your computer warns you the first time you open one."),
+    ("Mac or Windows?", "The apps and Tuck's Errand run on Mac and Windows" + ("; the free Busy Kitchen opens in your browser" if KITCHEN_LIVE else "") + ". Busy Street 3D is for Mac with Apple silicon. The apps are not signed yet, so your computer warns you the first time you open one."),
 ]
 
-if RENTALS_LIVE:  # with Busy Rentals live, four apps and four experts
-    PRICING_FAQ = [(q, a.replace("Juno in Busy Home.", "Juno in Busy Home, Wren in Busy Rentals.").replace("The three apps and Tuck's Errand", "The four apps and Tuck's Errand"))
-                   for q, a in PRICING_FAQ]
+# "Which one first?": one line per expert, starting from where the visitor is, most to gain first.
+WHICH_FIRST = [("olaf", "You run a business or work freelance: start with Olaf. He puts your brand on one page and prepares the work for your yes."),
+               ("wren", "You let a home or a few: start with Wren. She reads the tenancy and drafts every letter."),
+               ("ivy", "A review or a job hunt is ahead: start with Ivy. She finds the words from your own record."),
+               ("juno", "A pile of post is waiting: start with Juno. She reads the letter and drafts the reply."),
+               ("sal", "Dinner needs deciding: start with Sal. He cooks with what is left in your fridge.")]
+INTRO_PRICES = "Introductory prices. If they change, people who already bought keep what they have."
+
+
+def which_first(prefix: str) -> str:
+    rows = "".join(f'<li><a class="card which-row {k}" href="{prefix}{EXPERT_PAGE[k]}"><span class="which-line">{e(line)}</span>'
+                   f'<span class="expert-chip {k}">{PRODUCTS[k]["price"]}</span><span class="which-go" aria-hidden="true">→</span></a></li>'
+                   for k, line in WHICH_FIRST if k in PRODUCTS)
+    return f"""<section class="section which" id="which"><div class="wrap">
+    <div class="center reveal"><h2 class="big">Which one first?</h2></div>
+    <ul class="which-list reveal">{rows}</ul>
+  </div></section>"""
 
 
 def pricing_page(tools: list) -> str:
@@ -1732,28 +2047,42 @@ def pricing_page(tools: list) -> str:
     faq = "".join(f"<details><summary>{e(q)}</summary><p>{e(a)}</p></details>" for q, a in PRICING_FAQ)
     ld = jsonld({"@context": "https://schema.org", "@type": "FAQPage",
                  "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in PRICING_FAQ]})
+    live = experts_live()
+    suites = [PRODUCTS[k]["suite"] for k in live]
+    every_tool = "Every tool in " + ", ".join(suites[:-1]) + " and " + suites[-1]
+    # the free doors: an installer's page for each app; Busy Kitchen opens in the browser
+    doors = {"olaf": ("business/download.html", "⬇️ Business"), "ivy": ("growth/index.html#get", "⬇️ Growth"), "juno": ("home/index.html#get", "⬇️ Home"),
+             "wren": ("rentals/index.html#get", "⬇️ Rentals"), "sal": ("kitchen/index.html#get", "🍳 Kitchen")}
+    does = {"olaf": "<b>Olaf</b>, your brand consultant, builds your brand with you and prepares the work",
+            "ivy": "<b>Ivy</b>, your career coach, finds the words for your review, your raise and your next job",
+            "juno": "<b>Juno</b>, your household assistant, reads the letter, files it and drafts the reply",
+            "wren": "<b>Wren</b>, your property manager, reads the tenancy, keeps the landlord’s year and drafts every letter",
+            "sal": "<b>Sal</b>, your chef, cooks with what is left and plans your week"}
+    buy = {"olaf": "Business with Olaf", "ivy": "Growth with Ivy", "juno": "Home with Juno", "wren": "Rentals with Wren", "sal": "Kitchen with Sal"}
     return f"""{head("Free and paid: what Busy costs", desc, "pricing.html", "", ld)}
 <body class="site app-sun">
 {nav("", explore(""))}
 <main id="main">
-  <section class="section"><div class="wrap">
-    <div class="center reveal"><p class="kicker">Free and paid</p><h1 class="big">Free: the boring part made easy. Paid: done for you by an expert.</h1>
-      <p class="lead">{FREE_AND_PAID}</p></div>
+  <section class="section pricing-top"><div class="wrap">
+    <div class="center reveal"><p class="kicker">Free and paid</p><h1 class="big">Every app is free. Its expert costs a few dollars, once.</h1>
+      <p class="lead">Free, you do the work with good tools. Paid, the expert prepares the work and you say yes.</p></div>
     <div class="cmp offer reveal" role="region" aria-label="Free and paid editions" tabindex="0" style="margin-top:28px"><table>
       <thead><tr><th></th><th>Free</th><th>Paid, once</th><th></th></tr></thead><tbody>{offer_rows(tools, "")}</tbody></table></div>
-    <p class="center faint" style="margin-top:12px">Prices in US dollars, charged by itch.io. Introductory prices.</p>
+    <p class="offer-note">{claude_small()}<small>{INTRO_PRICES}</small><small>Prices in US dollars, charged by itch.io.</small></p>
   </div></section>
+  {which_first("")}
   <section class="section"><div class="wrap">
     <div class="paths">
       <article class="card path reveal pop"><span class="chip chip-mint">Free</span><span class="e">🧰</span><h3>The tools</h3>
-        <ul><li>{'Every tool in Busy Business, Busy Growth, Busy Home and Busy Rentals' if RENTALS_LIVE else 'Every tool in Busy Business, Busy Growth and Busy Home'}</li><li>The four daily brain games, and six levels of Tuck's Errand</li><li>No account, no AI, no trial: free forever</li><li>Everything is saved in a folder on your own computer</li></ul>
+        <ul><li>{every_tool}</li><li>The four daily brain games, and six levels of Tuck's Errand</li><li>No account, no AI, no trial: free forever</li><li>Everything is saved in a folder on your own computer</li></ul>
         <p class="price"><b>Free</b> <small>forever</small></p>
-        <div class="row-flex"><a class="btn btn-big" href="business/download.html">⬇️ Business</a><a class="btn btn-big" href="growth/index.html#get">⬇️ Growth</a><a class="btn btn-big" href="home/index.html#get">⬇️ Home</a>{'<a class="btn btn-big" href="rentals/index.html#get">⬇️ Rentals</a>' if RENTALS_LIVE else ''}</div></article>
+        <div class="row-flex">{"".join(f'<a class="btn btn-big" href="{doors[k][0]}">{doors[k][1]}</a>' for k in live)}</div></article>
       <article class="card path featured reveal pop" style="transition-delay:.1s"><span class="chip chip-sun">Most help</span><span class="e">🧭</span><h3>The same app, with its expert</h3>
-        <ul><li><b>Olaf</b>, your brand consultant, builds your brand with you and prepares the work</li><li><b>Ivy</b>, your career coach, finds the words for your review, your raise and your next job</li><li><b>Juno</b>, your household assistant, reads the letter, files it and drafts the reply</li>{'<li><b>Wren</b>, your property manager, reads the tenancy, keeps the landlord’s year and drafts every letter</li>' if RENTALS_LIVE else ''}<li>Paid once on itch.io; updates are free</li><li>Works on the Claude you already have: three steps, no key. A Claude API key works too</li></ul>
+        <ul>{"".join(f"<li>{does[k]}</li>" for k in live)}<li>Paid once on itch.io; updates are free</li></ul>
         <p class="price"><b>From {PRODUCTS["ivy"]["price"]}</b> <small>once</small></p>
-        <div class="row-flex">{itch_button("olaf", "Business with Olaf", big=True)}{itch_button("ivy", "Growth with Ivy", big=True)}{itch_button("juno", "Home with Juno", big=True)}{itch_button("wren", "Rentals with Wren", big=True) if RENTALS_LIVE else ""}</div>
-        <p class="fine"><a href="claude-key.html">How the expert connects to your Claude →</a></p></article>
+        <div class="row-flex">{"".join(itch_button(k, buy[k]) for k in live)}</div>
+        <p class="fine">{claude_small()} <span>{INTRO_PRICES}</span></p>
+        <p class="fine">If you already pay for Claude, the expert's price is all you pay. With an API key you pay Anthropic for what you use. The free app is complete on its own. <a href="claude-key.html">How the expert connects to your Claude →</a></p></article>
     </div>
   </div></section>
   {street_block("")}
@@ -1764,6 +2093,18 @@ def pricing_page(tools: list) -> str:
 </body>
 </html>
 """
+
+
+def hero_doors(free: str, demo: str, tour: str, expert: str) -> str:
+    """The doors of a suite's hero, the way Busy Rentals has them: the free download first, the demo in the browser,
+    then the tour as the third and quieter one, and one line with what the app is and what its expert costs. On a phone
+    the demo comes first (site.css), with a line that Busy itself is for a computer."""
+    x = PRODUCTS[expert]
+    title = x["adds"].split(", ", 1)[1]  # "your brand consultant"
+    return (f'<div class="row-flex hero-doors"><a class="btn btn-primary" href="{free}">⬇️ Download free</a>'
+            f'<a class="btn hero-demo" href="{demo}">👀 Try the demo in your browser</a>{tour}</div>'
+            f'<p class="hero-note">Free app for Mac and Windows · No AI · With <a href="{EXPERTS[expert]["page"]}">{x["who"]}</a>, {title}: {x["price"]} once</p>'
+            '<p class="phone-note">Busy runs on a Mac or Windows computer. On your phone, try the demo.</p>')
 
 
 def expert_card(s: dict) -> str:
@@ -1782,11 +2123,11 @@ def house_card(s: dict) -> str:
         return ('<span class="chip chip-tomato">Free · no account · Mac and Windows</span><p class="kicker">Busy Home</p><h1>Get your evenings back.</h1>'
                 '<p>More time with the people you love. Busy Home takes care of the boring part: the contracts, the renewals, the letters and the upkeep. '
                 'Free, in your own folder. Tuck shows you around.</p>'
-                '<div class="row-flex"><button type="button" class="btn btn-primary" data-house-do="door">🚪 Knock to come in</button><a class="btn" href="#get">⬇️ Download free</a><a class="btn" href="../app/home.html">👀 See the demo</a></div>'
-                '<div class="house-result" data-result hidden></div>')
+                + hero_doors("#get", "../app/home.html", '<button type="button" class="btn btn-quiet" data-house-do="door">🚪 Knock to come in</button>', "juno")
+                + '<div class="house-result" data-result hidden></div>')
     if s["id"] == "home":
         return (f'<p class="kicker">The end of the tour</p><h2>Take Tuck home</h2><p>All {len(HOME_TOOLS)} tools, free. No account, no subscription, nothing sent to us.</p>'
-                f'{app_download("Home", "Busy Home")}<p class="faint"><a href="#juno">Want help with the scary letters? Meet Juno →</a></p>')
+                f'{app_download("Home", "Busy Home")}<p class="faint"><a href="juno.html">Want help with the scary letters? Meet Juno →</a></p>')
     return (f'<p class="kicker">{e(s["kicker"])}</p><h2>{e(s["h"])}</h2><p>{e(s["p"])}</p><p class="house-task">👉 {e(s["task"])}</p>'
             f'<div class="house-result" data-result hidden></div>'
             f'<p class="house-try"><a href="../app/apps/{s["tool"]}/index.html">Try {e(s["kicker"])} for real →</a></p>')
@@ -1848,6 +2189,43 @@ def place_loops(place: str) -> str:
     return f" data-loops='{json.dumps(out)}'" if out else ""
 
 
+def plate_focus(place: str, room: str, W: float = 390, H: float = 490) -> float:
+    """Where the first room's picture is cut before place.js arrives, as the x of object-position (0 to 100). The
+    picture covers its box from the first paint (.house-plate in site.css); on a phone only part of the room fits, and
+    this is the part place.js will choose (its onScreen, standFor, framing and layout, worked out here for a phone of
+    390 by 844), so the picture stays where it is when the script takes over. On a wide screen the whole room shows."""
+    import math
+    try:
+        r = next(x for x in json.loads((SITE / "assets" / place / "rooms.json").read_text())["rooms"] if x["id"] == room)
+        cam, walk, spot = r["camera"], r["walk"], (r.get("hotspots") or [None])[0]
+    except (OSError, ValueError, KeyError, StopIteration):
+        return 50.0
+    sub = lambda a, b: [a[i] - b[i] for i in range(3)]
+    dot = lambda a, b: sum(a[i] * b[i] for i in range(3))
+    unit = lambda a: [x / (math.hypot(*a) or 1) for x in a]
+    f = unit(sub(cam["target"], cam["position"]))
+    right = unit([-f[2], 0, f[0]])  # forward x up, with up = (0, 1, 0)
+    tan = math.tan(cam["hfov"] * math.pi / 360)
+
+    def across(p):  # a point of the room, as a part of the picture's width (None: behind the camera)
+        d = sub(p, cam["position"])
+        return (dot(d, right) / dot(d, f) / tan + 1) / 2 if dot(d, f) > 0 else None
+    fw = max(W, H * 16 / 9)
+    if fw <= W:
+        return 50.0
+    left = lambda fx: min(0, max(W - fw, W / 2 - fx * fw))
+    stand = walk["stand"]
+    if spot and W / fw <= 0.8 and across(spot["at"]) is not None and across(stand) is not None:
+        at, home, reach = across(spot["at"]) * fw, across(stand) * fw, W * 0.42  # the guide this far from the spot at most
+        if abs(home - at) > reach:
+            want = at + (reach if home >= at else -reach)
+            line = [[walk["from"][i] + (walk["to"][i] - walk["from"][i]) * k / 40 for i in range(3)] for k in range(41)]
+            stand = min((p for p in line if across(p) is not None), key=lambda p: abs(across(p) * fw - want), default=stand)
+    xs = [x for x in [across(stand)] + ([across(spot["at"])] if spot else []) if x is not None]
+    focus = min(0.85, max(0.15, sum(xs) / len(xs))) if xs else 0.5
+    return round(100 * left(focus) / (W - fw), 1)
+
+
 def place_html(place: str, steps: list, card, label: str, model: str = "", next_label: str = "Next room →",
                decals: dict = None, brand: str = "", root: str = "../", height: float = 1, expert: str = "") -> str:
     """A place (assets/place.js) and every room's words as plain HTML (search engines and screen readers read these).
@@ -1864,7 +2242,7 @@ def place_html(place: str, steps: list, card, label: str, model: str = "", next_
     first = steps[0]
     return f"""<section class="house house-{place}" data-house data-house-rooms="{root}assets/{place}/rooms.json" data-house-plates="{root}assets/{place}/"{f' data-tuck-model="{model}"' if model else ''}{f' data-guide-height="{height}"' if height != 1 else ''}{f' data-expert="{expert}" data-expert-model="{root}assets/experts/{expert}.glb" data-expert-size="{EXPERTS[expert]["size"]}" data-extra-rooms="{root}assets/experts/rooms.json" data-extra-plates="{root}assets/experts/"' if expert else ''} data-next-label="{e(next_label)}"{f' data-brand-color="{brand}"' if brand else ''} {place_loops(place)} aria-label="{e(label)}">
     <div class="house-view" data-house-view>
-      <img class="house-plate" data-house-plate src="{root}assets/{place}/room-{first.get("plate", first["id"])}-1920.jpg" alt="{e(first["title"])}, rendered in the Busy Studio" fetchpriority="high">
+      <img class="house-plate" data-house-plate src="{root}assets/{place}/room-{first.get("plate", first["id"])}-1920.jpg" alt="{e(first["title"])}, rendered in the Busy Studio" width="1920" height="1080" fetchpriority="high" style="object-position:{plate_focus(place, first.get("plate", first["id"])):g}% 50%">
       <div class="house-decals" data-house-decals></div>
       <div class="house-spots" data-house-spots></div>
       <p class="tuck-bubble house-bubble" data-tuck-bubble aria-live="polite" hidden></p>
@@ -1888,14 +2266,25 @@ def tool_cards(rows: list, folder: str, live: bool) -> str:
                     else f'<div class="card feat reveal pop"><span class="fe">{em}</span><h3>{e(n)}</h3><p>{e(d)}</p></div>') for i, (em, n, d) in enumerate(rows))
 
 
+HOME_ANSWERS = [
+    ("What is Busy Home?", "Busy Home is a free app for Mac and Windows for a household's paperwork: documents with their expiry dates, contracts with the last day to cancel, upkeep, an inventory, letters, a moving planner, a Just in Case binder and shared costs. Everything is saved in a folder on your own computer."),
+    ("Who is it for?", "Busy Home is for any household, from one person to a family with pets: whoever looks after the contracts, the insurance, the letters and the dates."),
+    ("What does it cost?", f"Busy Home is free, with no account and no subscription. Juno, the AI household assistant, comes in the paid edition: Busy Home with Juno, {PRODUCTS['juno']['price']} once on itch.io."),
+    ("Is there AI in the free version?", "No. The free Busy Home has no AI and sends nothing anywhere. Only Juno, in the paid edition, uses AI: Claude, on your own Claude account."),
+    ("Where is my data?", "Busy Home saves plain files in Documents/Busy/Home on your own computer, or in a folder you choose. Put it in Google Drive or Dropbox to share it with your partner. Nothing is sent to us."),
+    ("Which languages?", "Busy Home is in English, Dutch, German, Spanish, Italian and Brazilian Portuguese. Juno writes a letter in the language of the person who receives it."),
+]
+
+
 def home_page(tools: list) -> str:
     feats = tool_cards(HOME_TOOLS, "home", HOME_LIVE)
-    buy = f'<p class="row-flex" style="margin-top:14px">{itch_button("juno", "Get Busy Home with Juno")} <a class="btn" href="../claude-key.html">How Juno connects to Claude</a></p>{film("juno")}'
+    buy = (f'<p class="row-flex" style="margin-top:14px">{itch_button("juno", "Get Busy Home with Juno")} ' + ('<a class="btn" href="juno.html">Meet Juno</a> ' if HOME_LIVE else "")
+           + f'<a class="btn" href="../claude-key.html">How Juno connects to Claude</a></p>{claude_line()}{"" if HOME_LIVE else film("juno")}')
     juno = f"""<section class="section" id="juno"><div class="wrap">
     <div class="card ivy-card juno-card reveal"><img src="../assets/juno-mark.svg" alt="" width="96" height="96">
       <div><p class="kicker">Juno by Busy · {PRODUCTS["juno"]["price"]} once</p><h2>Your household assistant</h2>
       <p>Attach the letter you've been avoiding and Juno tells you what it means and what to do by when, with the reply already drafted. It reads your contracts and policies, says when to keep, switch or cancel, sorts a pile of scans, helps with a claim or a move, and sends you a short briefing each month. It works on your own folder and never gives legal advice: it tells you when to ask a professional.</p>
-      <ul class="get-list" style="margin-top:12px"><li>New in 2.1: tax time, a fair split for the household, pet care and the renewal check</li><li>Explains letters, bills and decisions, and spots scams</li><li>Writes cancellations, complaints, claims and objections in the recipient's language</li><li>Keeps every renewal, expiry and upkeep date in view</li><li>Paid once. Works on the Claude you already have: three steps, no key</li></ul>
+      <ul class="get-list" style="margin-top:12px"><li>New in 2.1: tax time, a fair split for the household, pet care and the renewal check</li><li>Explains letters, bills and decisions, and spots scams</li><li>Writes cancellations, complaints, claims and objections in the recipient's language</li><li>Keeps every renewal, expiry and upkeep date in view</li></ul>
       {buy}</div></div>
   </div></section>"""
     steps = [("⬇️", "Install Busy Home", "The free app for Mac and Windows, in beta. No account, no AI."),
@@ -1908,7 +2297,8 @@ def home_page(tools: list) -> str:
     <div class="feats">{how}</div>
     <div class="center" style="margin-top:22px">{app_download("Home", "Busy Home")}
       <p class="faint" style="margin-top:10px">Can’t install apps? <a href="../downloads/busy-home.zip" download>Use the browser version (zip)</a> in Chrome or Edge.</p>
-      <p class="faint" style="margin-top:10px">Want the expert too? <a class="out" href="{PRODUCTS["juno"]["url"]}" target="_blank" rel="noopener">{PRODUCTS["juno"]["name"]} · {PRODUCTS["juno"]["price"]} <span aria-hidden="true">↗</span></a></p></div>
+      <p class="faint" style="margin-top:10px">Want the expert too? <a class="out" href="{PRODUCTS["juno"]["url"]}" target="_blank" rel="noopener">{PRODUCTS["juno"]["name"]} · {PRODUCTS["juno"]["price"]} <span aria-hidden="true">↗</span></a></p>
+      {claude_line("center")}</div>
   </div></section>""" if HOME_LIVE else """<section class="section" id="get"><div class="wrap center">
     <h2 class="big">On its way</h2><p class="lead">Busy Home is nearly ready. Meanwhile, keep your brain busy with <a href="../games/index.html">today's puzzles</a>.</p></div></section>"""
     title = "Busy Home: get your evenings back from household paperwork" if HOME_LIVE else "Busy Home: free tools for your household paperwork (soon)"
@@ -1925,12 +2315,13 @@ def home_page(tools: list) -> str:
       <p class="lead reveal" style="max-width:680px;margin:0 auto">Free tools for the paperwork every household has: passports, policies, contracts, upkeep, the things you own and the letters you need to send. Everything in your own folder, no account, like the rest of Busy.</p>
     </div>
   </section>"""
-    return f"""{head(title, desc, "home/index.html", "../", extra=three + suite_ld("home", desc), image="og-juno.png")}
+    return f"""{head(title, desc, "home/index.html", "../", extra=three + suite_ld("home", desc) + (faq_ld(HOME_ANSWERS) if HOME_LIVE else ""), image="og-juno.png")}
 <body class="site app-tomato">
 {nav("../", ("⬇️ Download free", "#get") if HOME_LIVE else explore("../"))}
 <main id="main">
   {top}
-  {'<section class="section"><div class="wrap">' + expert_intro("juno", "Tuck", "../app/shared/places/house/tuck-hello.png", "#upstairs", free_line=True) + "</div></section>" if HOME_LIVE else ""}
+  {film_top("juno") if HOME_LIVE else ""}
+  {'<section class="section"><div class="wrap">' + expert_intro("juno", "Tuck", "../app/shared/places/house/tuck-hello.png", "#upstairs", free_line=True, job=True) + "</div></section>" if HOME_LIVE else ""}
   <section class="section" id="tools"><div class="wrap">
     <div class="center reveal"><h2 class="big">{len(HOME_TOOLS)} tools that work together</h2><p class="lead">A contract knows its cancellation letter, the move knows your contracts, and the Just in Case binder knows where every document is.{' <a href="../app/home.html">Try them all in the demo →</a>' if HOME_LIVE else ''}</p></div>
     <div class="feats">{feats}</div>
@@ -1941,6 +2332,7 @@ def home_page(tools: list) -> str:
       <div><p class="kicker">The most private paperwork you have</p><h2>Your passports never leave your folder</h2>
       <p>IDs, insurance policies, contracts, the family's plans: this is the most sensitive paperwork a household has. Busy Home keeps all of it as plain files in a folder you choose. There is no Busy account and no Busy server, so there is nothing to hack and nothing to sell.</p></div></div>
   </div></section>
+  {in_short("Busy Home", HOME_ANSWERS) if HOME_LIVE else ""}
   {get}
   {juno}
 </main>
@@ -2129,6 +2521,7 @@ def rentals_page(tools: list) -> str:
       <div class="stage solo reveal from-right"><figure class="tool-room"><img src="../assets/shots/rentals-today.jpg" alt="Busy Rentals: This month, with the demo’s example landlord" width="1280" height="720"></figure></div>
     </div>
   </section>
+  {film_top("wren")}
   <section class="section" id="in-short"><div class="wrap">
     <div class="center reveal"><h2 class="big">Busy Rentals in short</h2></div>
     <div class="feats">{answers}</div>
@@ -2154,15 +2547,17 @@ def rentals_page(tools: list) -> str:
     <div class="feats">{how}</div>
     <div class="center" style="margin-top:22px">{app_download("Rentals", "Busy Rentals")}
       <p class="faint" style="margin-top:10px">Can’t install apps? <a href="../downloads/busy-rentals.zip" download>Use the browser version (zip)</a> in Chrome or Edge.</p>
-      <p class="faint" style="margin-top:10px">Want the expert too? <a class="out" href="{WREN["url"]}" target="_blank" rel="noopener">{WREN["name"]} · {WREN["price"]} <span aria-hidden="true">↗</span></a></p></div>
+      <p class="faint" style="margin-top:10px">Want the expert too? <a class="out" href="{WREN["url"]}" target="_blank" rel="noopener">{WREN["name"]} · {WREN["price"]} <span aria-hidden="true">↗</span></a></p>
+      {claude_line("center")}</div>
   </div></section>
   <section class="section" id="wren"><div class="wrap">
     <div class="card ivy-card wren-card reveal"><img src="../assets/wren-mark.svg" alt="" width="96" height="96">
       <div><p class="kicker">Wren by Busy · {WREN["price"]} once</p><h2>Your property manager</h2>
       <p>Drop in the tenancy agreement and Wren fills in the dates, the rent and the deposit. She keeps the landlord's year, prepares the certificate round, compares check-out with check-in and drafts every letter to your tenants. Each one waits for your yes. She never gives legal or tax advice: she tells you when to ask a professional.</p>
-      <ul class="get-list" style="margin-top:12px"><li>Reads the tenancy and keeps every date</li><li>Drafts the letters, the deposit statement and the rent review</li><li>Fair to tenants and landlords alike</li><li>On your own Claude: the Claude app with a paid plan, or a Claude API key</li></ul>
-      <p class="row-flex" style="margin-top:14px">{itch_button("wren", "Get Busy Rentals with Wren")} <a class="btn" href="wren.html">More about Wren</a></p></div></div>
-    {'<div class="reveal" style="margin-top:22px">' + film_video("wren", "../") + f'<p class="center" style="margin-top:10px"><a class="btn out" href="https://www.youtube.com/watch?v={RENTALS_FILM[2]}" target="_blank" rel="noopener">Also on YouTube, with subtitles in six languages <span aria-hidden="true">↗</span></a> <a class="btn" href="../films/busy-rentals.html">The film’s page</a></p></div>' if (SITE / "assets" / "films" / "busy-rentals.mp4").exists() else ""}
+      <ul class="get-list" style="margin-top:12px"><li>Reads the tenancy and keeps every date</li><li>Drafts the letters, the deposit statement and the rent review</li><li>Fair to tenants and landlords alike</li></ul>
+      <p class="row-flex" style="margin-top:14px">{itch_button("wren", "Get Busy Rentals with Wren")} <a class="btn" href="wren.html">More about Wren</a></p>
+      {claude_line()}</div></div>
+    {one_job("wren")}
   </div></section>
   <section class="section" id="faq"><div class="wrap">
     <div class="center reveal"><h2 class="big">Questions</h2></div>
@@ -2172,6 +2567,179 @@ def rentals_page(tools: list) -> str:
     <h2 class="reveal pop">{e(RENTALS_PROMISE)}</h2>
     <p class="lead reveal" style="margin-top:14px;color:var(--ink-2);font-size:1.2rem">Busy Rentals is free. Wren does the boring part for you.</p>
     <div class="row-flex" style="justify-content:center;margin-top:10px"><a class="btn btn-big" href="#get">⬇️ Download free</a>{itch_button("wren", "With Wren", big=True)}</div>
+    {claude_line()}
+  </section>
+</main>
+{footer("../", tools)}
+<script src="../assets/site.js"></script>
+</body>
+</html>
+"""
+
+
+# ---------- a page of their own for Ivy, Juno, Wren and Sal ----------
+# One template (Wren's page of 17 November 2026 was the model), filled per expert: who they are, in the suite's
+# promise; the buy button with the price; one job, done; what they do (jobs their skills really have, in our own
+# words: never the skills' text); how they run on your own Claude; what they never do; the questions; the film.
+IVY_FEATS = [("📃", "Your worth on a page", "What you can do, what you achieved and what you are growing into, on one page. The start of a review, a raise, a CV or a profile."),
+             ("🏆", "Find my wins", "A short interview that brings back what you achieved and never wrote down. Each win is saved with what changed."),
+             ("🔎", "Am I ready for this job?", "A job advert next to your Skills Map: what matches, with its proof, what is missing, and what to do first."),
+             ("📄", "A CV for one job", "A version of your CV that leads with the wins that fit the advert, honest about the gaps, with a cover letter to match."),
+             ("🎤", "Interview practice", "The likely questions for one job, a practice interview one question at a time, and your wins shaped into the stories interviewers ask for."),
+             ("📈", "Review and raise", "Your year in a short pack for the review, and the case for a raise: the reasons from your own results and a range with its sources."),
+             ("🗓️", "A learning plan", "A gap in your skills becomes a week-by-week plan in the Learning Planner, at the hours you really have, free resources first."),
+             ("💼", "Your LinkedIn profile", "Headline, About and experience rewritten from your real wins, within LinkedIn's limits, ready to copy.")]
+IVY_FAQ = [("Is Ivy a person?", "No. Ivy is an AI career coach that runs on Claude, made by Anthropic, on your own Claude account. She works only from your own record in Busy Growth and from what you tell her."),
+           ("What does she cost?", f"Ivy comes in Busy Growth with Ivy: {PRODUCTS['ivy']['price']} once on itch.io. She runs on your own Claude: with the Claude app and a paid Claude plan, or with a Claude API key, when you pay Anthropic for what you use."),
+           ("Does Ivy make things up for my CV?", "No. Ivy never invents experience, skills, results or numbers. Every line comes from your own wins, career and learning, and she says plainly where a role asks for something you have not done yet."),
+           ("Does Ivy apply for jobs or send messages?", "No. Ivy drafts the CV, the letter and the message. You read them, change them and send them yourself."),
+           ("Where is my career record?", "In your own Growth folder on your computer. What Claude reads goes to Anthropic under your own account, never to us."),
+           ("Is Ivy in the free download?", "No. The free Busy Growth has every tool and no AI. Ivy comes in her own download when you buy her, with Busy Growth included.")]
+JUNO_FEATS = [("📬", "Explains the letter", "Who it is from, what it means and what must happen by when, with the reply drafted. She also points out the signs of a scam."),
+              ("🧾", "Checks the bill", "A bill or a yearly statement read next to your contract and last time: what changed, whether it adds up, and when to pay."),
+              ("📑", "Reads the contract", "A policy, an energy or phone contract, a lease: the cost, the term, the notice period and the last day to cancel, filled in."),
+              ("🔁", "Keep, switch or cancel", "Before a contract renews: what it costs, how the price changed and what to compare. The cancellation is drafted if you choose to stop."),
+              ("✉️", "Writes the letter", "Cancellations, complaints, claims, objections and requests for your data, with the facts from your own papers, firm and polite."),
+              ("🗂️", "Sorts the pile", "Scans and photos, also from your phone: each one read, named, dated and filed, with what it asks of you."),
+              ("🗓️", "The monthly briefing", "What is coming in the next eight weeks: last days to cancel, renewals, papers that expire and upkeep that falls due."),
+              ("🧮", "Tax time and fair shares", "The papers for the yearly return gathered, with what is still missing, and who owes whom in the household, in the fewest payments.")]
+JUNO_FAQ = [("Is Juno a person?", "No. Juno is an AI household assistant that runs on Claude, made by Anthropic, on your own Claude account. She works only from your own papers and contracts in Busy Home, and quotes the document when it matters."),
+            ("What does she cost?", f"Juno comes in Busy Home with Juno: {PRODUCTS['juno']['price']} once on itch.io. She runs on your own Claude: with the Claude app and a paid Claude plan, or with a Claude API key, when you pay Anthropic for what you use."),
+            ("Does Juno give legal or financial advice?", "No. Juno explains what a letter, a contract or a policy says and drafts the reply. For advice she tells you who to ask: a legal advice desk, your insurer, a tax adviser or debt counselling."),
+            ("Does Juno send letters or cancel contracts?", "No. Juno drafts; every letter and every change waits for your yes, and you send it the way you always do."),
+            ("Where are my papers?", "In your own Home folder on your computer. What Claude reads goes to Anthropic under your own account, never to us."),
+            ("Is Juno in the free download?", "No. The free Busy Home has every tool and no AI. Juno comes in her own download when you buy her, with Busy Home included.")]
+SAL_FEATS = [("🍳", "Cook with what's left", "Tonight's dinner from what is in the fridge, the food that goes off first on top. When no dish fits, a new one of his own, marked as new."),
+             ("🗓️", "Plan my week", "The coming dinners around your evenings, your allergies and diets, your budget and what needs using up, with a kitchen to travel to now and then."),
+             ("🛒", "The shopping run", "The list from the week plan, minus what is already in the pantry, grouped the way your shop is laid out."),
+             ("🥗", "Make it for", "Any recipe made vegetarian, vegan, without dairy or gluten among the ingredients, or for two instead of six, with the allergens checked again."),
+             ("📷", "Read my recipe", "A photo of a handwritten family recipe becomes a recipe in your Recipe Box, exactly as written, with its story and the photo kept."),
+             ("🎉", "Guests are coming", "A menu for the number at the table and their allergies, with a timeline for the day, so the cook sits down too."),
+             ("🧯", "Fix this dish", "Too salty, too thin, split or burnt at the bottom: what to do now, step by step, and what to do next time."),
+             ("👩‍🍳", "Teach me", "One technique explained step by step, a white sauce or a risotto, with why each step matters and a dish to practise on.")]
+SAL_FAQ = [("Is Sal a person?", "No. Sal is an AI chef that runs on Claude, made by Anthropic, on your own Claude account. He works from Busy Kitchen's dishes and from your own recipes, pantry and week plan."),
+           ("What does he cost?", f"Sal comes in Busy Kitchen with Sal: {SAL['price']} once on itch.io. He runs on your own Claude: with the Claude app and a paid Claude plan, or with a Claude API key, when you pay Anthropic for what you use."),
+           ("Are Sal's own recipes tested?", "No. A recipe Sal creates or adapts is new: it is marked as Sal's new recipe, not yet cooked by us. Busy's house recipes are checked against written rules, and are also not yet cooked by us."),
+           ("Does Sal give diet or medical advice?", "No. Sal cooks: he can leave gluten or dairy out of the ingredients, and he lists the allergens. Managing an allergy, an illness or a diet is for a dietitian or a doctor."),
+           ("Does Sal order the shopping?", "No. Sal prepares the week plan and the shopping list. Each waits for your yes, and you do the shopping."),
+           ("Where are my recipes?", "In your own kitchen folder on your computer. What Claude reads goes to Anthropic under your own account, never to us."),
+           ("Is Sal in the free download?", "No. The free Busy Kitchen has the six kitchens and every tool, and no AI. Sal comes in his own download when you buy him, with Busy Kitchen included.")]
+
+
+def expert_pages() -> dict:
+    """What each expert's page says. The words that differ per expert; the shape is expert_page()."""
+    on_claude = lambda who: (f"Connect {who} to your Claude app: a plugin and a folder, set up in a few steps, with a paid Claude plan. "
+                             "Or use a Claude API key: then you pay Anthropic for what you use. Nothing goes through Busy.")
+    return {
+        "wren": {"folder": "rentals", "suite": "Busy Rentals", "color": "sky", "image": "og-wren.png", "category": "BusinessApplication", "promise": RENTALS_PROMISE,
+                 "title": "Wren by Busy: your property manager",
+                 "desc": (f"Wren reads the tenancy, keeps the landlord's year and drafts every letter to your tenants, on your own Claude. "
+                          f"She never gives legal advice and never sends anything. Busy Rentals with Wren, {WREN['price']} once on itch.io."),
+                 "h1": "Wren, your property manager.",
+                 "lead": "She reads the tenancy, keeps the landlord's year and drafts every letter to your tenants. Each one waits for your yes.",
+                 "note": "Mac and Windows · Runs on your own Claude · Never gives legal or tax advice · Never sends anything",
+                 "picture": '<img src="../assets/wren-mark.svg" alt="The Wren logo: a sky-blue key" width="260" height="260" style="width:260px;height:260px">',
+                 "feats_lead": "From your own records in Busy Rentals and your country's rules, with the official source for each.", "feats": WREN_FEATS,
+                 "claude": "Connect Wren to the Claude app you already use: a plugin and a folder, set up in a few steps, with a paid Claude plan. Or use a Claude API key: then you pay Anthropic for what you use. Nothing goes through Busy.",
+                 "never": ("⚖️", "Fair to both sides", "Wren never helps to refuse a tenant unlawfully, to skip a required check or to pressure someone out of their home. Letters are polite, clear and specific. She says when to ask a solicitor, an accountant or the tribunal."),
+                 "faq": WREN_FAQ, "final": f"Busy Rentals with Wren: {WREN['price']} once on itch.io. The tools alone are free."},
+        "ivy": {"folder": "growth", "suite": "Busy Growth", "color": "mint", "image": "og-ivy.png", "category": "BusinessApplication", "promise": "Know what you’re worth. Say it well.",
+                "title": "Ivy by Busy: your career coach",
+                "desc": (f"Ivy turns what you learned and did into your worth on a page, a CV for one job and the words for your review, on your own Claude. "
+                         f"She never invents experience. Busy Growth with Ivy, {PRODUCTS['ivy']['price']} once on itch.io."),
+                "h1": "Ivy, your career coach.",
+                "lead": "Know what you’re worth. Say it well. Ivy reads your skills, your wins and what you learned, and finds the words for a review, a raise or a job application. Every line waits for your yes.",
+                "note": "Mac and Windows · Runs on your own Claude · Never invents experience · Never sends anything",
+                "picture": '<figure class="tool-room expert-room"><img src="../assets/experts/ivy-card.jpg" alt="Ivy in the room upstairs, rendered in the Busy Studio" width="1200" height="675"></figure>',
+                "feats_lead": "From your own record in Busy Growth: your skills, your wins, what you learned and the adverts you saved.", "feats": IVY_FEATS,
+                "claude": on_claude("Ivy"),
+                "never": ("🌱", "Only what is true", "Ivy never invents experience, skills, results or numbers: every line comes from your own record or from what you tell her. Where a role asks for something you have not done yet, she says so plainly. A salary range comes with its sources and is never a guarantee. She drafts; you send."),
+                "faq": IVY_FAQ, "final": f"Busy Growth with Ivy: {PRODUCTS['ivy']['price']} once on itch.io. The tools alone are free."},
+        "juno": {"folder": "home", "suite": "Busy Home", "color": "tomato", "image": "og-juno.png", "category": "LifestyleApplication", "promise": "Get your evenings back.",
+                 "title": "Juno by Busy: your household assistant",
+                 "desc": (f"Juno explains the letter, drafts the reply and keeps every renewal in view, on your own Claude. "
+                          f"She never gives legal or financial advice. Busy Home with Juno, {PRODUCTS['juno']['price']} once on itch.io."),
+                 "h1": "Juno, your household assistant.",
+                 "lead": "Get your evenings back. Juno reads the letter you have been avoiding, says what to do by when and drafts the reply. Each step waits for your yes.",
+                 "note": "Mac and Windows · Runs on your own Claude · Never gives legal or financial advice · Never sends anything",
+                 "picture": '<figure class="tool-room expert-room"><img src="../assets/experts/juno-card.jpg" alt="Juno in the room upstairs, rendered in the Busy Studio" width="1200" height="675"></figure>',
+                 "feats_lead": "From your own papers, contracts and dates in Busy Home.", "feats": JUNO_FEATS,
+                 "claude": on_claude("Juno"),
+                 "never": ("⚖️", "Where Juno's help ends", "Juno explains and drafts. She never gives legal, tax, financial, insurance or medical advice, and never recommends an insurer, a bank or a loan. When the stakes are high she says so and names who to ask. She never asks for passwords or PINs."),
+                 "faq": JUNO_FAQ, "final": f"Busy Home with Juno: {PRODUCTS['juno']['price']} once on itch.io. The tools alone are free."},
+        "sal": {"folder": "kitchen", "suite": "Busy Kitchen", "color": "sun", "image": "og-kitchen.png", "category": "LifestyleApplication", "promise": KITCHEN_PROMISE,
+                "title": "Sal by Busy: your chef",
+                "desc": (f"Sal cooks with what is left, plans your week and reads the family's handwritten recipes, on your own Claude. "
+                         f"He never gives medical or diet advice. Busy Kitchen with Sal, {SAL['price']} once on itch.io."),
+                "h1": "Sal, your chef.",
+                "lead": "Bring the world to your table. Sal knows all six kitchens, cooks with what is in your fridge and plans the week around who is home. He prepares; you decide.",
+                "note": "Mac and Windows · Runs on your own Claude · Never gives medical or diet advice · Every change waits for your yes",
+                "picture": '<span class="expert-emoji" aria-hidden="true">🧂</span>',
+                "feats_lead": f"From Busy Kitchen's {KITCHEN_DISHES} dishes and your own Recipe Box, pantry and week plan.", "feats": SAL_FEATS,
+                "claude": on_claude("Sal"),
+                "never": ("🧂", "What Sal never does", "Sal gives no medical or diet advice and makes no health claims: for that, a dietitian or a doctor is the right person. A recipe he creates or adapts is marked new and not yet cooked by us. He lists the allergens and never calls a dish safe for an allergy: always check the labels of what you buy. He never shops, orders or pays."),
+                "faq": SAL_FAQ, "final": f"Busy Kitchen with Sal: {SAL['price']} once on itch.io. Busy Kitchen alone is free.",
+                "nav": ("🍳 Open free", "index.html#get")},
+    }
+
+
+def expert_page(key: str, tools: list) -> str:
+    """An expert's own page: what they do, one job done, how they run, what they never do, and where to get them.
+    The page's own words (p[...]) are ours and go in as they are; Wren's are byte for byte those of her first page."""
+    p, x = expert_pages()[key], PRODUCTS[key]
+    who, rel = x["who"], f'{EXPERTS[key]["page"]}'
+    path = f'{p["folder"]}/{rel}'
+    feats = "".join(f'<div class="card feat reveal pop" style="transition-delay:{i * .05:.2f}s"><span class="fe">{em}</span><h3>{e(n)}</h3><p>{e(d)}</p></div>' for i, (em, n, d) in enumerate(p["feats"]))
+    faq = "".join(f"<details><summary>{e(q)}</summary><p>{e(a)}</p></details>" for q, a in p["faq"])
+    ld = jsonld({"@context": "https://schema.org", "@type": "SoftwareApplication", "name": f"{who} by Busy", "applicationCategory": p["category"],
+                 "operatingSystem": WREN_RUNS_ON, "url": f"{SITE_URL}/{path}", "description": p["desc"],
+                 "offers": {"@type": "Offer", "price": x["amount"], "priceCurrency": "USD", "url": x["url"]}}) + jsonld({
+        "@context": "https://schema.org", "@type": "FAQPage",
+        "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in p["faq"]]})
+    buy = f'<div class="job-buy reveal"><p class="row-flex">{itch_button(key, "Get " + x["name"], big=True)}</p>{claude_line()}</div>'
+    em, never_h, never = p["never"]
+    return f"""{head(p["title"], p["desc"], path, "../", ld, image=p["image"])}
+<body class="site app-{p["color"]}">
+{nav("../", p.get("nav", ("⬇️ Download free", "index.html#get")))}
+<main id="main">
+  <section class="tool-hero">
+    <div class="blob" style="width:460px;height:460px;background:var(--{p["color"]});right:-140px;top:-120px"></div>
+    <div class="wrap tool-hero-grid">
+      <div class="reveal from-left">
+        <a class="crumbs" href="index.html">← {p["suite"]}</a>
+        <p class="kicker">{who} by Busy · in {x["name"]} · {x["price"]} once</p>
+        <h1>{p["h1"]}</h1>
+        <p class="lead">{p["lead"]}</p>
+        <div class="ctas">{itch_button(key, "Get " + x["name"], big=True)}<a class="btn btn-big" href="index.html#get">⬇️ The free app, without AI</a></div>
+        <p class="note">{p["note"]}</p>
+        {claude_line()}
+      </div>
+      <div class="reveal from-right" style="display:grid;place-items:center;min-height:320px">{p["picture"]}</div>
+    </div>
+  </section>
+  <section class="section" style="padding-top:20px"><div class="wrap">{one_job(key, buy)}</div></section>
+  <section class="section"><div class="wrap">
+    <div class="center reveal"><h2 class="big">What {who} does</h2><p class="lead">{p["feats_lead"]}</p></div>
+    <div class="feats">{feats}</div>
+  </div></section>
+  {film_top(key)}
+  <section class="section"><div class="wrap">
+    <div class="paths">
+      <article class="card path reveal pop"><span class="e">☁️</span><h3>On your own Claude</h3>
+        <p>{p["claude"]}</p></article>
+      <article class="card path reveal pop" style="transition-delay:.1s"><span class="e">{em}</span><h3>{never_h}</h3>
+        <p>{never}</p></article>
+    </div>
+  </div></section>
+  <section class="section" id="faq"><div class="wrap">
+    <div class="center reveal"><h2 class="big">Questions</h2></div>
+    <div class="faq reveal">{faq}</div>
+  </div></section>
+  <section class="final" id="get">
+    <h2 class="reveal pop">{e(p["promise"])}</h2>
+    <p class="lead reveal" style="margin-top:14px;color:var(--ink-2);font-size:1.2rem">{p["final"]}</p>
+    <div class="row-flex" style="justify-content:center;margin-top:10px">{itch_button(key, "Get it on itch.io", big=True)}<a class="btn btn-big ghost-light" href="index.html#get">⬇️ Download free</a></div>
+    {claude_line()}
   </section>
 </main>
 {footer("../", tools)}
@@ -2182,61 +2750,8 @@ def rentals_page(tools: list) -> str:
 
 
 def wren_page(tools: list) -> str:
-    """Wren's own page: what she does, how she runs, what she never does, and where to get her."""
-    desc = (f"Wren reads the tenancy, keeps the landlord's year and drafts every letter to your tenants, on your own Claude. "
-            f"She never gives legal advice and never sends anything. Busy Rentals with Wren, {WREN['price']} once on itch.io.")
-    feats = "".join(f'<div class="card feat reveal pop" style="transition-delay:{i * .05:.2f}s"><span class="fe">{em}</span><h3>{e(n)}</h3><p>{e(d)}</p></div>' for i, (em, n, d) in enumerate(WREN_FEATS))
-    faq = "".join(f"<details><summary>{e(q)}</summary><p>{e(a)}</p></details>" for q, a in WREN_FAQ)
-    ld = jsonld({"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Wren by Busy", "applicationCategory": "BusinessApplication",
-                 "operatingSystem": WREN_RUNS_ON, "url": f"{SITE_URL}/rentals/wren.html", "description": desc,
-                 "offers": {"@type": "Offer", "price": WREN["amount"], "priceCurrency": "USD", "url": WREN["url"]}}) + jsonld({
-        "@context": "https://schema.org", "@type": "FAQPage",
-        "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in WREN_FAQ]})
-    return f"""{head("Wren by Busy: your property manager", desc, "rentals/wren.html", "../", ld, image="og-wren.png")}
-<body class="site app-sky">
-{nav("../", ("⬇️ Download free", "index.html#get"))}
-<main id="main">
-  <section class="tool-hero">
-    <div class="blob" style="width:460px;height:460px;background:var(--sky);right:-140px;top:-120px"></div>
-    <div class="wrap tool-hero-grid">
-      <div class="reveal from-left">
-        <a class="crumbs" href="index.html">← Busy Rentals</a>
-        <p class="kicker">Wren by Busy · in Busy Rentals with Wren · {WREN["price"]} once</p>
-        <h1>Wren, your property manager.</h1>
-        <p class="lead">She reads the tenancy, keeps the landlord's year and drafts every letter to your tenants. Each one waits for your yes.</p>
-        <div class="ctas">{itch_button("wren", "Get Busy Rentals with Wren", big=True)}<a class="btn btn-big" href="index.html#get">⬇️ The free app, without AI</a></div>
-        <p class="note">Mac and Windows · Runs on your own Claude · Never gives legal or tax advice · Never sends anything</p>
-      </div>
-      <div class="reveal from-right" style="display:grid;place-items:center;min-height:320px"><img src="../assets/wren-mark.svg" alt="The Wren logo: a sky-blue key" width="260" height="260" style="width:260px;height:260px"></div>
-    </div>
-  </section>
-  <section class="section"><div class="wrap">
-    <div class="center reveal"><h2 class="big">What Wren does</h2><p class="lead">From your own records in Busy Rentals and your country's rules, with the official source for each.</p></div>
-    <div class="feats">{feats}</div>
-  </div></section>
-  <section class="section"><div class="wrap">
-    <div class="paths">
-      <article class="card path reveal pop"><span class="e">☁️</span><h3>On your own Claude</h3>
-        <p>Connect Wren to the Claude app you already use: a plugin and a folder, set up in a few steps, with a paid Claude plan. Or use a Claude API key: then you pay Anthropic for what you use. Nothing goes through Busy.</p></article>
-      <article class="card path reveal pop" style="transition-delay:.1s"><span class="e">⚖️</span><h3>Fair to both sides</h3>
-        <p>Wren never helps to refuse a tenant unlawfully, to skip a required check or to pressure someone out of their home. Letters are polite, clear and specific. She says when to ask a solicitor, an accountant or the tribunal.</p></article>
-    </div>
-  </div></section>
-  <section class="section" id="faq"><div class="wrap">
-    <div class="center reveal"><h2 class="big">Questions</h2></div>
-    <div class="faq reveal">{faq}</div>
-  </div></section>
-  <section class="final" id="get">
-    <h2 class="reveal pop">{e(RENTALS_PROMISE)}</h2>
-    <p class="lead reveal" style="margin-top:14px;color:var(--ink-2);font-size:1.2rem">Busy Rentals with Wren: {WREN["price"]} once on itch.io. The tools alone are free.</p>
-    <div class="row-flex" style="justify-content:center;margin-top:10px">{itch_button("wren", "Get it on itch.io", big=True)}<a class="btn btn-big ghost-light" href="index.html#get">⬇️ Download free</a></div>
-  </section>
-</main>
-{footer("../", tools)}
-<script src="../assets/site.js"></script>
-</body>
-</html>
-"""
+    """Wren's own page (the template's first)."""
+    return expert_page("wren", tools)
 
 
 def rentals_suite_card() -> str:
@@ -2257,7 +2772,7 @@ def rentals_llms(b: str) -> list:
              f"- [Busy Rentals]({b}/rentals/index.html): {RENTALS_WHAT} Free, no AI, no account. The landlord's year for England, the Netherlands and Germany is built in, each duty with its official source; elsewhere it keeps homes, rent, deposits, costs and letters without country dates. Never legal or tax advice.",
              f"- [Download Busy Rentals]({b}/rentals/index.html#get): the free Busy Rentals app for Mac and Windows (beta), or a zip for the browser."]
             + [f"- [{t['name']}]({b}/rentals/{t['id']}.html): {t['description']}" for t in suite_tools("rentals")]
-            + [f"- [Wren, the property manager]({b}/rentals/wren.html): reads the tenancy, keeps the landlord's year and drafts every letter for the owner's yes; never sends anything. In Busy Rentals with Wren, {WREN['price']} once on itch.io ({WREN['url']}), on the owner's own Claude."])
+            + [f"- [Wren, the property manager]({b}/rentals/wren.html): reads the tenancy, keeps the landlord's year and drafts every letter for the owner's yes; never sends anything. In Busy Rentals with Wren, {WREN['price']} once on itch.io ({WREN['url']}), {ON_OWN_CLAUDE}."])
 
 
 def rentals_llms_full(b: str) -> list:
@@ -2393,8 +2908,8 @@ def workshop_card(s: dict) -> str:
     if s["id"] == "front":
         return ('<span class="chip chip-sun">Free · no account · Mac and Windows</span><p class="kicker">Busy Business</p><h1>Be the name people think of first.</h1>'
                 f'<p>Brand management for small businesses, from brand strategy to daily operations. Free, and everything stays in your own folder. Walk round the workshop to see how.</p>'
-                '<p class="house-task">👉 Tap the blank sign above the door.</p><div class="house-result" data-result hidden></div>'
-                '<div class="row-flex"><button type="button" class="btn btn-primary" data-house-next>Skip to the workshop →</button><a class="btn" href="download.html">⬇️ Download free</a><a class="btn" href="../app/index.html">👀 See the demo</a></div>')
+                + hero_doors("download.html", "../app/index.html", '<button type="button" class="btn btn-quiet" data-house-next>Take the tour →</button>', "olaf")
+                + '<p class="house-task">👉 Tap the blank sign above the door.</p><div class="house-result" data-result hidden></div>')
     if s["id"] == "end":
         return (f'<p class="kicker">The end of the tour</p><h2>Take the workshop home</h2><p>All 13 tools, free. No account, no subscription, nothing sent to us.</p>'
                 f'{app_download("Business", "Busy Business")}<p class="faint"><a href="olaf.html">Want an expert alongside you? Meet Olaf, your brand consultant →</a></p>')
@@ -2403,6 +2918,48 @@ def workshop_card(s: dict) -> str:
             # the tour tells the pretend studio's story, so its rooms open the demo on that studio; every other
             # way into the demo opens on Busy itself (website/assets/demo.js)
             f'<p class="house-try"><a href="../app/apps/{s["tool"]}/index.html?example=studio">Try it for real →</a></p>')
+
+
+# Busy Business in short, and the page's other questions. Both are written into the hand-made page (the "in-short"
+# and "faq" blocks) and into its structured data (the "ld" block in its head), so the two always say the same.
+BUSINESS_ANSWERS = [
+    ("What is Busy Business?", "Busy Business is a free app for Mac and Windows with thirteen tools for a small business: a marketing studio and a brand kit, a project planner and a board, invoices and quotes, time, clients, documents, receipts, a money dashboard, subscriptions, trips and stock. Everything is saved in a folder on your own computer."),
+    ("Who is it for?", "Busy Business is for freelancers, shops, makers and small studios of up to about ten people, who run the business themselves and want one place for the brand, the projects and the admin."),
+    ("What does it cost?", f"Busy Business is free, with no account and no subscription. Olaf, the AI brand consultant, comes in the paid edition: Busy Business with Olaf, {PRODUCTS['olaf']['price']} once on itch.io."),
+    ("Is there AI in the free version?", "No. The free Busy Business has no AI and sends nothing anywhere. Only Olaf, in the paid edition, uses AI: Claude, on your own Claude account."),
+    ("Where is my data?", "Busy Business saves plain files in a folder you choose on your own computer. Put the folder in Google Drive, Dropbox or OneDrive for backups and syncing. We have no copy and no way to see it."),
+    ("Which languages?", "Busy Business is in English, Dutch, German, Spanish, Italian and Brazilian Portuguese. Invoices, quotes and letters can be made in any of them."),
+]
+BUSINESS_MORE_FAQ = [
+    ("What is Olaf?", f"Olaf is the AI brand consultant in Busy Business with Olaf. He works out where your business stands, makes a 90-day plan, runs your projects with you and prepares the work each step needs: posts, review requests, your newsletter, your local listing. Olaf is built on proven marketing science. {CLAUDE_LINE}"),
+    ("What is the difference between the free Marketing Studio and Olaf?", "The Studio gives you the tools to do your own marketing: a brand profile, a year plan, a content calendar and insights from your invoices. You do the work, and there is no AI in it. Olaf is our AI brand consultant, right inside Busy: it works out where your business stands, makes a 90-day plan, checks in with you every week, and does the work each step needs. Both use the same marketing science."),
+    ("Do I need Olaf to use the tools?", "No. Every tool, the Marketing Studio included, is free and complete on its own. Olaf is for owners who would rather be guided than figure out their marketing alone."),
+    ("Where does my data go when I use Olaf?", "What Olaf reads goes to Anthropic under your own Claude account, and nowhere else. Your files stay in your own folder, and the free tools have no AI."),
+    ("Can I use Google Drive?", "Yes. Install Google Drive for desktop and pick a folder inside it. Drive backs it up and keeps it in sync across your computers."),
+    ("Which computers?", "Busy Business is an app for Mac and Windows, in beta. Without installing, a folder that runs in Chrome or Edge is there too. The demo on this site shows every tool with a pretend business."),
+    ("Can I work on it with my team?", "Share the folder through Google Drive and everyone sees the same clients and invoices. Team Mode is on the workbench."),
+    ("Do the invoices meet the rules?", "They include what EU invoices need: numbers that count up, dates, both parties, VAT per rate and your VAT number. Check with your accountant for anything special."),
+]
+
+
+def business_blocks(page: Path) -> None:
+    """The generated parts of the hand-made Busy Business page: the film under the hero, Olaf with his worked example
+    and the two doors, Busy Business in short, the questions, and the structured data that says the same."""
+    put_block(page, "film", film_top("olaf"))
+    # The free guide downstairs, the paid expert upstairs, one job done and the two doors: right after the film.
+    put_block(page, "experts", '<section class="section"><div class="wrap">' + expert_intro("olaf", "Rivet", "../app/shared/places/workshop/rivet-hello.png", "#upstairs", free="download.html", job=True) + "</div></section>")
+    put_block(page, "in-short", in_short("Busy Business", BUSINESS_ANSWERS))
+    questions = BUSINESS_ANSWERS + BUSINESS_MORE_FAQ
+    # "Busy Business in short" stands right above the questions: the list holds only the ones not answered there (the data carries all).
+    put_block(page, "faq", '<div class="faq reveal">' + "".join(f"<details><summary>{e(q)}</summary><p>{e(a)}</p></details>" for q, a in BUSINESS_MORE_FAQ) + "</div>")
+    ld = (jsonld({"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Busy Business", "applicationCategory": "BusinessApplication",
+                  "operatingSystem": "macOS, Windows, ChromeOS (in Chrome or Edge)", "description": "Thirteen free, private tools for small businesses and freelancers.",
+                  "url": f"{SITE_URL}/business/index.html", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}})
+          + jsonld({"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Olaf by Busy", "applicationCategory": "BusinessApplication",
+                    "operatingSystem": WREN_RUNS_ON, "url": f"{SITE_URL}/business/olaf.html", "description": "The paid AI expert in Busy Business, on the owner’s own Claude.",
+                    "offers": {"@type": "Offer", "price": PRODUCTS["olaf"]["amount"], "priceCurrency": "USD", "url": PRODUCTS["olaf"]["url"]}})
+          + faq_ld(questions))
+    put_block(page, "ld", ld.rstrip("\n"))
 
 
 def workshop_html() -> str:
@@ -2454,10 +3011,12 @@ KITCHEN_EXTRAS = [("👩‍🍳", "Cooking mode", "One step at a time, in big le
                   ("⚖️", "Cups, grams and gas marks", "Fahrenheit and Celsius, fan and conventional ovens, and portions with a + and a −."),
                   ("🛂", "A kitchen passport", "A stamp for every dish you cook, kitchen by kitchen.")]
 KITCHEN_ANSWERS = [
-    ("What is Busy Kitchen?", f"A free app with the home cooking of six language worlds: {KITCHEN_DISHES} dishes from the Dutch, German, Spanish, Italian, Portuguese and English kitchens, each with its story, its regions, its feast days and a recipe, in English, Dutch, German, Spanish, Italian and Brazilian Portuguese."),
+    ("What is Busy Kitchen?", f"Busy Kitchen is a free app with the home cooking of six language worlds: {KITCHEN_DISHES} dishes from the Dutch, German, Spanish, Italian, Portuguese and English kitchens, each with its story, its regions, its feast days and a recipe, in English, Dutch, German, Spanish, Italian and Brazilian Portuguese."),
+    ("Who is it for?", "Busy Kitchen is for home cooks who want dinner from what is in the fridge, and for anyone curious how families in six language worlds eat: at home, on feast days and through the seasons."),
     ("How does it find dinner?", "Type what is in your fridge, in any of the six languages. Busy Kitchen shows the dishes you can cook now, and the ones that need one or two things more. Salt, oil and the other basics are taken as read."),
     ("Are the recipes any good?", "Busy wrote every recipe in its own words, from how the dish is made at home in its region, and checked each one against written rules: the amounts, the oven, the allergens and how to know meat is cooked through. Nobody at Busy has cooked them all yet, and each recipe says so. Tell us how it went, and the recipes get better from what you tell us."),
     ("What does it cost?", f"Nothing. Busy Kitchen is free, with no account and no AI. Busy Kitchen with Sal, your chef, is {SAL['price']} once on itch.io, and Sal works on your own Claude."),
+    ("Is there AI in the free version?", "No. The free Busy Kitchen has no AI and sends nothing anywhere: it matches your fridge to the dishes on your own computer. Only Sal, in the paid edition, uses AI: Claude, on your own Claude account. The pictures of the kitchens' places and customs were made with AI, and the app says so beside them."),
     ("Where are my recipes?", "In a folder you choose on your own computer, as plain files. Put it in Google Drive, Dropbox, OneDrive or iCloud Drive and the shopping list reaches your phone. Nothing is sent to us.")]
 KITCHEN_MORE_FAQ = [
     ("Which kitchens are in it?", "The Dutch kitchen (the Netherlands, Flanders, and Surinamese and Indonesian-Dutch home cooking), the German (Germany, Austria and Switzerland), the Spanish (Spain and Latin America), the Italian (all twenty regions), the Portuguese (Brazil and Portugal) and the English (Britain, Ireland and the United States)."),
@@ -2507,6 +3066,18 @@ def kitchen_pic(pid: str, prefix: str) -> str:
     return f"{prefix}app/shared/kitchen/pics/{pid}.jpg"
 
 
+def kitchen_img(pid: str, alt: str, prefix: str, sizes: str, lazy: bool = True) -> str:
+    """One of Busy Kitchen's own pictures on its page: the app's JPEG (1280 wide, about 300 KB), and before it, where
+    tools/webp.py has made them (assets/kitchen/), WebP copies 640 and 1280 wide. `sizes` says how wide the picture
+    shows, and counts a phone's as half its screen on purpose: a phone then takes the 640 one, which on its sharp
+    screen is still nearly two picture points to the point, at a fraction of the weight."""
+    img = f'<img src="{kitchen_pic(pid, prefix)}" alt="{e(alt)}" width="1280" height="714"' + (' loading="lazy">' if lazy else ' fetchpriority="high">')
+    if not all((SITE / "assets" / "kitchen" / f"{pid}{w}.webp").exists() for w in ("", "-640")):
+        return img
+    at = f"{prefix}assets/kitchen/{pid}"
+    return f'<picture><source srcset="{at}-640.webp 640w, {at}.webp 1280w" sizes="{sizes}" type="image/webp">{img}</picture>'
+
+
 def kitchen_page(tools: list) -> str:
     """Busy Kitchen's front page: the promise, the six kitchens, the fridge, the recipes and how they were made, free."""
     pre = "../"
@@ -2516,13 +3087,16 @@ def kitchen_page(tools: list) -> str:
     faq = "".join(f"<details><summary>{e(q)}</summary><p>{e(a)}</p></details>" for q, a in KITCHEN_ANSWERS + KITCHEN_MORE_FAQ)
     count = {k["id"]: sum(1 for d in KITCHEN["dishes"] if d["k"] == k["id"]) for k in KITCHEN["kitchens"]}
     kitchens = "".join(f'<a class="card kitchen-tile reveal pop" href="{pre}app/apps/kitchens/index.html#{k["id"]}">'
-                       f'<img src="{kitchen_pic(k["pictures"][0]["id"], pre)}" alt="{e(k["pictures"][0]["title"])}" width="1280" height="714" loading="lazy">'
+                       f'{kitchen_img(k["pictures"][0]["id"], k["pictures"][0]["title"], pre, "(max-width: 580px) 50vw, 400px")}'
                        f'<span class="txt"><b>{k["flag"]} {e(k["name"])}</b><span>{e(k["line"])}</span><small>{count[k["id"]]} dishes</small></span></a>'
                        for k in KITCHEN["kitchens"] if k["pictures"])
     desc = f"{KITCHEN_DISHES} dishes from six kitchens, matched to what's in your fridge. Free, no account, no AI, in six languages."
     ld = (jsonld({"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Busy Kitchen", "applicationCategory": "LifestyleApplication",
                   "operatingSystem": "macOS, Windows, ChromeOS (in Chrome or Edge)", "description": desc, "url": f"{SITE_URL}/kitchen/index.html",
                   "inLanguage": ["en", "nl", "de", "es", "it", "pt-BR"], "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}})
+          + jsonld({"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Sal by Busy", "applicationCategory": "LifestyleApplication",
+                    "operatingSystem": WREN_RUNS_ON, "url": f"{SITE_URL}/kitchen/sal.html", "description": "The paid AI expert in Busy Kitchen, on the owner’s own Claude.",
+                    "offers": {"@type": "Offer", "price": SAL["amount"], "priceCurrency": "USD", "url": SAL["url"]}})
           + jsonld({"@context": "https://schema.org", "@type": "FAQPage",
                     "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in KITCHEN_ANSWERS + KITCHEN_MORE_FAQ]}))
     hero = KITCHEN["kitchens"][3]["pictures"][0] if len(KITCHEN["kitchens"]) > 3 else {"id": "", "title": ""}
@@ -2546,9 +3120,10 @@ def kitchen_page(tools: list) -> str:
         <div class="ctas"><a class="btn btn-primary btn-big" href="{pre}app/kitchen.html">🍳 Open it in your browser</a><a class="btn btn-big" href="#get">⬇️ Download free</a></div>
         <p class="note">Free · No account · No AI · Nothing is sent to us · English, Nederlands, Deutsch, Español, Italiano, Português · Pictures made with AI · With Sal, your chef: {SAL["price"]} once</p>
       </div>
-      <div class="stage solo reveal from-right"><figure class="tool-room"><img src="{kitchen_pic(hero["id"], pre)}" alt="{e(hero["title"])}" width="1280" height="714"></figure></div>
+      <div class="stage solo reveal from-right"><figure class="tool-room">{kitchen_img(hero["id"], hero["title"], pre, "(max-width: 600px) 50vw, (max-width: 900px) calc(100vw - 32px), 560px", lazy=False)}</figure></div>
     </div>
   </section>
+  {film_top("sal", pre)}
   <section class="section" id="in-short"><div class="wrap">
     <div class="center reveal"><h2 class="big">Busy Kitchen in short</h2></div>
     <div class="feats">{answers}</div>
@@ -2563,6 +3138,7 @@ def kitchen_page(tools: list) -> str:
     <div class="feats">{feats}</div>
     <div class="feats" style="margin-top:18px">{extras}</div>
   </div></section>
+{expert_strip("kitchen")}
   <section class="section" id="recipes"><div class="wrap">
     <div class="card ivy-card reveal"><span style="font-size:3.4rem" aria-hidden="true">🧪</span>
       <div><p class="kicker">{KITCHEN["recipes"]:,} recipes and {KITCHEN["notes"]} notes, in six languages</p><h2>A recipe for every dish, not yet cooked by us</h2>
@@ -2579,16 +3155,18 @@ def kitchen_page(tools: list) -> str:
     <div class="feats">{how}</div>
     <div class="center" style="margin-top:22px"><div class="row-flex" style="justify-content:center"><a class="btn btn-primary btn-big" href="{pre}app/kitchen.html">🍳 Open it in your browser</a><a class="btn btn-big" href="{pre}downloads/busy-kitchen.zip" download>⬇️ Download (zip)</a></div>
       <p class="faint" style="margin-top:10px">The download runs in Chrome or Edge, on Mac, Windows, ChromeOS and Linux: unzip it and open kitchen.html.</p>
-      <p class="faint" style="margin-top:10px">Want the chef too? <a class="out" href="{SAL["url"]}" target="_blank" rel="noopener">{SAL["name"]} · {SAL["price"]} <span aria-hidden="true">↗</span></a></p></div>
+      <p class="faint" style="margin-top:10px">Want the chef too? <a class="out" href="{SAL["url"]}" target="_blank" rel="noopener">{SAL["name"]} · {SAL["price"]} <span aria-hidden="true">↗</span></a></p>
+      {claude_line("center")}</div>
   </div></section>
   <section class="section" id="sal"><div class="wrap">
     <div class="card ivy-card reveal"><span style="font-size:3.4rem" aria-hidden="true">🧂</span>
       <div><p class="kicker">Sal by Busy · {SAL["price"]} once</p><h2>Sal, your chef</h2>
       <p>Sal knows all six kitchens. He cooks with what's left when no recipe fits, plans your week around who is home, the allergies and what goes off first, and turns a photo of a handwritten family recipe into a recipe in your Recipe Box. He prepares; you decide.</p>
-      <ul class="get-list" style="margin-top:12px"><li>Cook with what's left, and leftovers into lunch</li><li>Plan my week, a shopping run, guests are coming</li><li>Make it vegetarian, gluten-free or for two</li><li>Fix this dish, and teach me a technique</li><li>On your own Claude: the Claude app with a paid plan, or a Claude API key</li></ul>
+      <ul class="get-list" style="margin-top:12px"><li>Cook with what's left, and leftovers into lunch</li><li>Plan my week, a shopping run, guests are coming</li><li>Make it vegetarian, gluten-free or for two</li><li>Fix this dish, and teach me a technique</li></ul>
       <p style="margin-top:10px" class="faint">Sal never gives medical or diet advice, and every recipe he creates is marked new and not yet cooked by us.</p>
-      <p class="row-flex" style="margin-top:14px">{itch_button("sal", "Get Busy Kitchen with Sal")}</p></div></div>
-    {('<div class="reveal" style="margin-top:22px">' + film_video("sal", pre) + '</div>') if (KITCHEN_SITE / "assets" / "films" / "busy-kitchen.mp4").exists() else ""}
+      <p class="row-flex" style="margin-top:14px">{itch_button("sal", "Get Busy Kitchen with Sal")} <a class="btn" href="sal.html">Meet Sal</a></p>
+      {claude_line()}</div></div>
+    {one_job("sal")}
   </div></section>
   <section class="section" id="faq"><div class="wrap">
     <div class="center reveal"><h2 class="big">Questions</h2></div>
@@ -2598,6 +3176,7 @@ def kitchen_page(tools: list) -> str:
     <h2 class="reveal pop">{e(KITCHEN_PROMISE)}</h2>
     <p class="lead reveal" style="margin-top:14px;color:var(--ink-2);font-size:1.2rem">{KITCHEN_DISHES} dishes, six kitchens, one fridge. Free.</p>
     <div class="row-flex" style="justify-content:center;margin-top:10px"><a class="btn btn-big btn-primary" href="{pre}app/kitchen.html">🍳 Open it in your browser</a>{itch_button("sal", "With Sal", big=True)}</div>
+    {claude_line()}
   </section>
 </main>
 {footer(pre, tools)}
@@ -2611,28 +3190,40 @@ def kitchen_suite_card() -> str:
     return (f'<a class="card suite reveal pop" href="kitchen/" style="--c:var(--sun);transition-delay:.25s">\n'
             f'          <span class="e">🍳</span><h3>Busy Kitchen</h3><span class="d">{e(KITCHEN_PROMISE)}</span>\n'
             f'          <ul><li>{KITCHEN_DISHES} dishes from six kitchens</li><li>Matched to what is in your fridge</li><li>A recipe for every dish, in six languages</li></ul>\n'
-            f'          <span class="foot"><span class="chip chip-sun">New · free</span><span class="expert-chip sal">🧂 With Sal · {SAL["price"]}</span></span>\n'
+            f'          <span class="foot"><span class="chip chip-sun">New · {len(KITCHEN_TOOLS)} tools</span><span class="expert-chip sal">🧂 With Sal · {SAL["price"]}</span></span>\n'
             f'        </a>')
+
+
+def kitchen_expert_card() -> str:
+    """Sal among the experts on the homepage, only while Busy Kitchen is live. He has no drawn mark yet: the salt shaker stands in."""
+    return (f'<a class="card expert sal reveal from-left" href="{EXPERT_PAGE["sal"]}"><span class="expert-emoji" aria-hidden="true">🧂</span>\n'
+            f'          <span><b>Sal by Busy</b><span>Your chef. He cooks with what is left, plans your week and reads the family’s handwritten recipes. He prepares; you decide.</span><span class="expert-chip sal">{SAL["name"]} · {SAL["price"]}</span></span></a>')
 
 
 def kitchen_footer(prefix: str) -> str:
     return (f'<p style="margin-top:22px"><b>🍳 Busy Kitchen</b></p><ul><li><a href="{prefix}kitchen/index.html#tools">What is in your fridge</a></li>'
-            f'<li><a href="{prefix}kitchen/index.html#kitchens">The six kitchens</a></li><li><a href="{prefix}app/kitchen.html">Open it free</a></li></ul>')
+            f'<li><a href="{prefix}kitchen/index.html#kitchens">The six kitchens</a></li><li><a href="{prefix}app/kitchen.html">Open it free</a></li>'
+            f'<li><a href="{prefix}kitchen/sal.html">🧂 Sal by Busy</a></li><li><a href="{SAL["url"]}" target="_blank" rel="noopener">With Sal · {SAL["price"]} ↗</a></li></ul>')
 
 
 def kitchen_update() -> dict:
     """Busy Kitchen's entry in What's new, only while it is live (like Busy Rentals'), dated the day the switch went on."""
     rec = json.loads(DATES_FILE.read_text()) if DATES_FILE.exists() else {}
-    day = (rec.get("kitchen/index.html") or [None, date.today().isoformat()])[1]
+    day = LAUNCH_DAYS.get("kitchen-1.0") or (rec.get("kitchen/index.html") or [None, date.today().isoformat()])[1]   # the launch day: the page's own date moves with every edit
     return {"version": "Kitchen 1.0", "id": "kitchen-1.0", "date": day, "title": KITCHEN_PROMISE,
-            "items": [KITCHEN_WHAT, *([n, d] for _, n, d in KITCHEN_TOOLS), KITCHEN_ANSWERS[2][1], KITCHEN_ANSWERS[3][1]]}
+            "items": [KITCHEN_WHAT, *([n, d] for _, n, d in KITCHEN_TOOLS), dict(KITCHEN_ANSWERS)["Are the recipes any good?"], dict(KITCHEN_ANSWERS)["What does it cost?"]]}
 
 
 def kitchen_llms(b: str) -> list:
-    return ["## Busy Kitchen", "", f"Page: {b}/kitchen/index.html", "",
-            f"{KITCHEN_WHAT} Free, no account, no AI, in six languages. {KITCHEN['recipes']:,} house recipes and {KITCHEN['notes']} notes, "
-            "written by Busy and checked against written rules (amounts, oven, the EU's 14 allergens, doneness), marked \"not yet cooked by us\". "
-            f"Runs in Chrome or Edge, online at {b}/app/kitchen.html or from a downloaded folder. Feedback in the comments on {KITCHEN_FEEDBACK.split('#')[0]}.", ""]
+    return ["", "## Busy Kitchen: free home cooking from six kitchens", "",
+            f"- [Busy Kitchen]({b}/kitchen/index.html): {KITCHEN_WHAT} Free, no account, no AI, in six languages. {KITCHEN['recipes']:,} house recipes and {KITCHEN['notes']} notes, "
+            "written by Busy and checked against written rules (amounts, oven, the EU's 14 allergens, doneness), marked \"not yet cooked by us\".",
+            f"- [Get Busy Kitchen]({b}/kitchen/index.html#get): runs in Chrome or Edge, online at {b}/app/kitchen.html or from a downloaded folder (a zip), on Mac, Windows, ChromeOS and Linux. "
+            f"Feedback in the comments on {KITCHEN_FEEDBACK.split('#')[0]}.",
+            f"- [What it does]({b}/kitchen/index.html#tools): " + " ".join(f"{n}: {d}" for _, n, d in KITCHEN_TOOLS),
+            f"- [Sal, the chef]({b}/kitchen/sal.html): knows all six kitchens; cooks with what's left when no recipe fits, plans the week around who is home, the allergies and what goes off first, "
+            "and turns a photo of a handwritten family recipe into a recipe in the Recipe Box. He prepares, the owner decides; never medical or diet advice. "
+            f"In Busy Kitchen with Sal, {SAL['price']} once on itch.io ({SAL['url']}), {ON_OWN_CLAUDE}."]
 
 
 def kitchen_llms_full(b: str) -> list:
@@ -2730,11 +3321,11 @@ def glasshouse_card(s: dict) -> str:
     if s["id"] == "foot":
         return ('<span class="chip chip-mint">Free · no account · Mac and Windows</span><p class="kicker">Busy Growth</p><h1>Know what you’re worth. Say it well.</h1>'
                 '<p>A personal growth tool: what you learn, what you achieve, and how you tell it. For your next review, your next raise and your next job. Climb the Glasshouse to see how.</p>'
-                '<div class="row-flex"><button type="button" class="btn btn-primary" data-house-do="bell">🔔 Ring the bell</button><a class="btn" href="#get">⬇️ Download free</a><a class="btn" href="../app/growth.html">👀 See the demo</a></div>'
-                '<div class="house-result" data-result hidden></div>')
+                + hero_doors("#get", "../app/growth.html", '<button type="button" class="btn btn-quiet" data-house-do="bell">🔔 Ring the bell</button>', "ivy")
+                + '<div class="house-result" data-result hidden></div>')
     if s["id"] == "end":
         return (f'<p class="kicker">The top of the climb</p><h2>Take the Glasshouse home</h2><p>All {len(GROWTH_TOOLS)} tools, free. No account, no subscription, nothing sent to us.</p>'
-                f'{app_download("Growth", "Busy Growth")}<p class="faint"><a href="#ivy">Want a coach alongside you? Meet Ivy →</a></p>')
+                f'{app_download("Growth", "Busy Growth")}<p class="faint"><a href="ivy.html">Want a coach alongside you? Meet Ivy →</a></p>')
     return (f'<p class="kicker">{e(s["kicker"])}</p><h2>{e(s["h"])}</h2><p>{e(s["p"])}</p><p class="house-task">👉 {e(s["task"])}</p>'
             f'<div class="house-result" data-result hidden></div>'
             f'<p class="house-try"><a href="../app/apps/{s["tool"]}/index.html">Try it for real →</a></p>')
@@ -2789,8 +3380,8 @@ def parlour_card(s: dict) -> str:
 # every suite as a building; tap one for its close-up, then go in. Upstairs a light is on for each paid expert.
 # No guide here: each suite has its own on its own page.
 def street_steps() -> list:
-    ivy = f'<a class="btn" href="growth/index.html#ivy">Meet Ivy →</a>'
-    juno = f'<a class="btn" href="home/index.html#juno">Meet Juno →</a>'
+    ivy = f'<a class="btn" href="{EXPERT_PAGE["ivy"]}">Meet Ivy →</a>'
+    juno = f'<a class="btn" href="{EXPERT_PAGE["juno"]}">Meet Juno →</a>'
     return [
         {"id": "wide", "title": "Busy Street", "say": "",
          "acts": [("shop", "", "The Workshop: Busy Business.", "", "to:shop"), ("glass", "", "The Glasshouse: Busy Growth.", "", "to:glass"),
@@ -2828,12 +3419,29 @@ STREET_DECALS = {"sign": ("Busy Business", True), "plaque": ("Busy Growth", True
                  "today": ("<b>Today's puzzles</b><span>Stars · Duo · Trail · Six</span>", True)}
 
 
+# The days Busy Rentals and Busy Kitchen went live. Their entries in What's new carry the date their page last
+# changed, which moves with every edit; for "what is newest" the launch day is the one that counts.
+LAUNCH_DAYS = {"rentals-1.0": "2026-11-17", "kitchen-1.0": "2026-11-18"}
+
+
+def hero_news() -> tuple:
+    """The homepage's "New" chip, from the list of releases (site_updates), so the next launch changes it by itself:
+    a suite's launch names the suite and opens its page; any other release names the version and opens What's new."""
+    ups = site_updates()
+    u = max(ups, key=lambda x: (LAUNCH_DAYS.get(x.get("id"), x["date"]), -ups.index(x)))
+    for name, page in SECTIONS.values():
+        if name == "Busy " + u["version"].split(" ")[0]:
+            return f"New: {name}", page
+    return f"New: version {u['version']}", f"updates.html#{u.get('id') or 'v' + u['version']}"
+
+
 def street_card(s: dict) -> str:
     back = '<button type="button" class="btn" data-house-go="wide">← Back to the street</button>'
     if s["id"] == "wide":
         what = (APPS_FOR if GROWTH_LIVE and HOME_LIVE
                 else "your brand, and soon your growth and your home")
-        return ('<span class="chip chip-sun">Free · private · no account</span> <a class="chip chip-grape" href="updates.html">✨ New: version 2.0</a>'
+        news, news_page = hero_news()
+        return (f'<span class="chip chip-sun">Free · private · no account</span> <a class="chip chip-grape" href="{news_page}">✨ {e(news)}</a>'
                 '<h1>Busy with what matters.</h1>'
                 f'<p>{APPS_COUNT.capitalize() if GROWTH_LIVE and HOME_LIVE else "Three"} free apps for {what}. The boring part made easy, or done for you by an expert. Everything stays in your own folder.</p>'
                 f'<p class="row-flex"><a class="btn btn-primary" href="#suites">🧰 Explore the apps</a><a class="btn" href="#offer">With an expert, from {FROM_PRICE}</a></p>'
@@ -2950,8 +3558,7 @@ def build_pages() -> None:
     (business / "tools.html").write_text(tools_index(tools))
     (business / "olaf.html").write_text(to_business(olaf_page(tools)))
     put_place(business / "index.html", workshop_html())
-    # The free guide downstairs, the paid expert upstairs: right after the place, before the tools.
-    put_block(business / "index.html", "experts", '<section class="section"><div class="wrap">' + expert_intro("olaf", "Rivet", "../app/shared/places/workshop/rivet-hello.png", "#upstairs", free="download.html") + film("olaf") + "</div></section>")
+    business_blocks(business / "index.html")
     put_place(SITE / "index.html", street_html())
     (SITE / "about.html").write_text(about_page(tools))
     (SITE / "pricing.html").write_text(pricing_page(tools))
@@ -2967,6 +3574,16 @@ def build_pages() -> None:
     (SITE / "growth" / "index.html").write_text(growth_page(tools))
     (SITE / "home").mkdir(exist_ok=True)
     (SITE / "home" / "index.html").write_text(home_page(tools))
+    # The experts' own pages (Ivy, Juno; Wren and Sal with their suites below): only while the suite is live.
+    expert_rels = []
+    for key, live in (("ivy", GROWTH_LIVE), ("juno", HOME_LIVE), ("wren", RENTALS_LIVE), ("sal", KITCHEN_LIVE)):
+        f = SITE / expert_pages()[key]["folder"] / EXPERTS[key]["page"]
+        if live and key not in ("wren", "sal"):
+            f.write_text(expert_page(key, tools))
+        elif not live and f.exists():
+            f.unlink()
+        if live:
+            expert_rels.append(f.relative_to(SITE).as_posix())
     # Busy Rentals: its pages only while it is live; turned off again, they go.
     if RENTALS_LIVE:
         (SITE / "rentals").mkdir(exist_ok=True)
@@ -2978,12 +3595,15 @@ def build_pages() -> None:
     if KITCHEN_LIVE:
         (SITE / "kitchen").mkdir(exist_ok=True)
         (SITE / "kitchen" / "index.html").write_text(kitchen_page(tools))
+        (SITE / "kitchen" / "sal.html").write_text(expert_page("sal", tools))
     elif (SITE / "kitchen").exists():
         shutil.rmtree(SITE / "kitchen")
     # Busy Rentals' two cards on the homepage: after Busy Home's, and only while it is live (no empty markers before)
     put_switched_block(SITE / "index.html", "rentals-suite", rentals_suite_card() if RENTALS_LIVE else "", before=r'<a class="card suite reveal pop" href="games/"')
     put_switched_block(SITE / "index.html", "kitchen-suite", kitchen_suite_card() if KITCHEN_LIVE else "", before=r'<a class="card suite reveal pop" href="games/"')
     put_switched_block(SITE / "index.html", "rentals-expert", rentals_expert_card() if RENTALS_LIVE else "", after=r'<a class="card expert juno .*?</a>')
+    put_switched_block(SITE / "index.html", "kitchen-expert", kitchen_expert_card() if KITCHEN_LIVE else "", after=r'<!-- /rentals-expert -->' if RENTALS_LIVE else r'<a class="card expert juno .*?</a>')
+    put_block(SITE / "index.html", "trust", trust_lines(""))
     new_pages = write_new_pages(tools)
     suite_pages = []
     for folder, live in (("home", HOME_LIVE), ("growth", GROWTH_LIVE), ("rentals", RENTALS_LIVE)):
@@ -3005,7 +3625,7 @@ def build_pages() -> None:
     (SITE / "download.html").write_text(forward_page("business/download.html", 0))
     sync_chrome(tools)
     pages = (["", "about.html", "pricing.html", "updates.html", "press.html", "claude-key.html", "privacy.html", "terms.html", "business/index.html", "business/tools.html", "business/download.html", "business/olaf.html"]
-             + [f'business/{t["id"]}.html' for t in tools] + game_pages + ["growth/index.html", "home/index.html"] + (["rentals/index.html", "rentals/wren.html"] if RENTALS_LIVE else []) + (["kitchen/index.html"] if KITCHEN_LIVE else []) + suite_pages + new_pages)
+             + [f'business/{t["id"]}.html' for t in tools] + game_pages + ["growth/index.html", "home/index.html"] + (["rentals/index.html"] if RENTALS_LIVE else []) + (["kitchen/index.html"] if KITCHEN_LIVE else []) + expert_rels + suite_pages + new_pages)
     today = date.today().isoformat()
     (SITE / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
                                       + "".join(f"  <url><loc>{SITE_URL}/{p}</loc><lastmod>{page_date(p)}</lastmod></url>\n" for p in pages) + "</urlset>\n")
@@ -3071,6 +3691,9 @@ MOMENTS = {
 }
 
 
+EXPERT_HOME = {"olaf": "business/olaf.html", "ivy": "growth/ivy.html", "juno": "home/juno.html", "wren": "rentals/wren.html", "sal": "kitchen/sal.html"}  # each expert's own page, from the root
+
+
 def moment_page(rel: str, m: dict, tools: list) -> str:
     prefix = "../" * rel.count("/")
     head_title = m["title"] + ({"growth": " · Busy Growth", "business": " · Busy Business"}.get(m["suite"], " · Busy"))
@@ -3080,7 +3703,7 @@ def moment_page(rel: str, m: dict, tools: list) -> str:
                        for em, h, p, more, more_label, get in m["doors"])
         middle = f'<section class="section"><div class="wrap"><div class="paths">{body}</div></div></section>'
         paid = (f'<section class="section"><div class="wrap center"><p class="lead reveal">Want it done with you? The experts, from {FROM_PRICE} once: '
-                f'<a href="{prefix}business/olaf.html">Olaf</a>, <a href="{prefix}growth/index.html#ivy">Ivy</a> and <a href="{prefix}home/index.html#juno">Juno</a>.</p>'
+                f'<a href="{prefix}business/olaf.html">Olaf</a>, <a href="{prefix}growth/ivy.html">Ivy</a> and <a href="{prefix}home/juno.html">Juno</a>.</p>'
                 f'<p class="kicker reveal">{e(m["after"])}</p></div></section>')
         ctas = ""
     else:
@@ -3088,10 +3711,9 @@ def moment_page(rel: str, m: dict, tools: list) -> str:
         middle = (f'<section class="section"><div class="wrap"><div class="center reveal"><h2 class="big">{e(m["steps_h"])}</h2></div>'
                   f'<ol class="moment-steps">{steps}</ol><p class="center lead reveal">{e(m["after"])}</p></div></section>')
         x = PRODUCTS[m["expert"]]
-        works = ("He" if m["expert"] == "olaf" else "She") + " works on the Claude you already have."
         paid = (f'<section class="section"><div class="wrap"><article class="card path featured reveal"><span class="chip chip-grape">AI expert · {x["price"]} once</span>'
-                f'<h3>{e(x["name"])}</h3><p>{e(m["expert_line"])} {works}</p>'
-                f'<div class="row-flex">{itch_button(m["expert"])}</div></article></div></section>')
+                f'<h3>{e(x["name"])}</h3><p>{e(m["expert_line"])}</p>'
+                f'<div class="row-flex">{itch_button(m["expert"])}<a class="btn" href="{prefix}{EXPERT_HOME[m["expert"]]}">Meet {x["who"]}</a></div>{claude_line()}</article></div></section>')
         ctas = (f'<div class="row-flex center-flex"><a class="btn btn-primary btn-big" href="{prefix}{m["get"]}">⬇️ Download free</a>'
                 f'<a class="btn btn-big" href="{prefix}{m["demo"]}">👀 See the demo</a></div>')
     return f"""{head(head_title, m["desc"], rel, prefix)}
@@ -3129,10 +3751,21 @@ RENTALS_FILM = ("Busy Rentals with Wren: the film", "The free tools for people w
                 "wiZL3R1jR7c", "rentals/index.html", "Busy Rentals")
 if RENTALS_LIVE:
     FILMS["busy-rentals"] = RENTALS_FILM
+# Busy Kitchen's film (on YouTube since 18 November 2026): listed only while Kitchen is live and the film is there.
+KITCHEN_FILM = ("Busy Kitchen with Sal: the film", "Tell Busy Kitchen what is in your fridge and see what's for dinner: six kitchens, a recipe for every dish and the week planned, in 30 seconds.",
+                "OQH3zQPSGy0", "kitchen/index.html", "Busy Kitchen")
+if KITCHEN_LIVE and (KITCHEN_SITE / "assets" / "films" / "busy-kitchen.mp4").exists():
+    FILMS["busy-kitchen"] = KITCHEN_FILM
+# What stands under each film on its own page: the same two doors as the film cards on the homepage. (the product
+# whose button goes to itch.io, the free door's words, where it leads)
+FILM_DOORS = {"busy-business": ("olaf", "⬇️ Download free", "business/download.html"), "busy-growth": ("ivy", "⬇️ Download free", "growth/index.html#get"),
+              "busy-home": ("juno", "⬇️ Download free", "home/index.html#get"), "busy-rentals": ("wren", "⬇️ Download free", "rentals/index.html#get"),
+              "busy-kitchen": ("sal", "🍳 Open it in your browser", "app/kitchen.html"), "busy-games": ("", "⬇️ Download free", "games/index.html#get-app"),
+              "tucks-errand": ("tuck", "▶ Play six levels free", "games/tucks-errand.html"), "busy-street-3d": ("street3d", "", "")}
 
 
 # The films' lengths, measured with ffprobe on 16 November 2026 (the online build has no ffprobe); a new film is measured.
-FILM_SECONDS = {"busy-business": 31, "busy-growth": 31, "busy-home": 31, "busy-games": 24, "tucks-errand": 67, "busy-street-3d": 57, "busy-rentals": 88}
+FILM_SECONDS = {"busy-business": 31, "busy-growth": 31, "busy-home": 31, "busy-games": 24, "tucks-errand": 67, "busy-street-3d": 57, "busy-rentals": 88, "busy-kitchen": 30}
 
 
 def film_seconds(name: str) -> int:
@@ -3155,6 +3788,12 @@ def film_watch(name: str, tools: list) -> str:
                  "uploadDate": when, "duration": f"PT{sec}S", "inLanguage": "en", "url": f"{SITE_URL}/{rel}",
                  "publisher": {"@type": "Organization", "name": "Busy", "url": f"{SITE_URL}/"},
                  "sameAs": f"https://www.youtube.com/watch?v={yt}"})
+    # The two doors of the homepage's film cards: the free one, and the paid one on itch.io with its price.
+    key, free_label, free = FILM_DOORS.get(name, ("", "", ""))
+    paid = itch_button(key, {"tuck": "The full game", "street3d": "Get it"}.get(key, "With " + PRODUCTS[key]["who"]), big=True, primary=not free) if key in PRODUCTS else ""
+    doors = (f'<a class="btn btn-primary btn-big" href="{prefix}{free}">{free_label}</a>' if free else "") + paid
+    if name == "busy-games":
+        doors += f'<a class="btn btn-big" href="{prefix}games/index.html">🧩 Play in your browser</a>'
     return f"""{head(title + " · Busy", desc, rel, prefix, ld)}
 <body class="site app-sun">
 {nav(prefix, explore(prefix))}
@@ -3163,9 +3802,9 @@ def film_watch(name: str, tools: list) -> str:
     <div class="center"><p class="kicker">A film by Busy</p><h1 class="big">{e(title)}</h1></div>
     <figure class="film watch"><video controls playsinline preload="metadata" poster="{prefix}assets/films/{name}.jpg" src="{prefix}assets/films/{name}.mp4" aria-label="{e(title)}"></video>
       <figcaption class="center lead">{e(desc)}</figcaption></figure>
-    <div class="row-flex center-flex"><a class="btn btn-primary btn-big" href="{prefix}{home}">{e(label)} →</a>
-      <a class="btn btn-big out" href="https://www.youtube.com/watch?v={yt}" target="_blank" rel="noopener">Also on YouTube <span aria-hidden="true">↗</span></a></div>
-    <p class="center faint" style="margin-top:22px"><a href="{prefix}films/index.html">All films →</a></p>
+    <div class="row-flex center-flex">{doors}</div>
+    {claude_line("center") if key in EXPERT_HOME else ""}
+    <p class="center film-more" style="margin-top:22px"><a href="{prefix}{home}">{e(label)} →</a> <a class="out" href="https://www.youtube.com/watch?v={yt}" target="_blank" rel="noopener">Also on YouTube <span aria-hidden="true">↗</span></a> <a href="{prefix}films/index.html">All films →</a></p>
   </div></section>
 </main>
 {footer(prefix, tools)}
@@ -3178,8 +3817,9 @@ def film_watch(name: str, tools: list) -> str:
 def films_index(tools: list) -> str:
     cards = "".join(f'<a class="card film-card reveal" href="{n}.html"><img src="../assets/films/{n}.jpg" alt="" loading="lazy" width="640" height="360"><b>{e(t)}</b><small>{e(d)}</small></a>'
                     for n, (t, d, *_) in FILMS.items())
-    desc = f"The short films of Busy: the {APPS_COUNT} apps with their experts, the brain games, and the game Busy Street in 2D and 3D."
-    return f"""{head("Films · Busy", desc, "films/index.html", "../")}
+    apps = sum(1 for n in FILMS if FILM_DOORS.get(n, ("",))[0] in EXPERT_HOME)  # the films of an app with its expert, as shown below
+    desc = f"The short films of Busy: the {words(apps)} apps with their experts, the brain games, and the game Busy Street in 2D and 3D."
+    return f"""{head("The Busy films: every app and game in a short film", desc, "films/index.html", "../")}
 <body class="site app-sun">
 {nav("../", explore("../"))}
 <main id="main">
@@ -3287,10 +3927,11 @@ ENTITY = ("Busy makes free, private tools for work and life, in suites: Busy Bus
           "freelancers to grow and run the business: a marketing studio with a brand profile and a year plan, a brand kit, projects, "
           "invoices and quotes, time, receipts, money, clients, documents, subscriptions, trips and stock), Busy Growth (" + ("free tools to grow your career: a library, skills, wins, a job tracker, a CV and LinkedIn builder and more" if GROWTH_LIVE else "tools to grow your career, coming soon") + "), "
           "Busy Home (" + ("free tools for household paperwork: documents with expiry reminders, contracts with the last day to cancel, upkeep, a home inventory, letters, moving and a Just in Case binder" if HOME_LIVE else "tools for household paperwork, coming soon") + ")"
-          + (", Busy Rentals (free rental management for people who let one home or a few: every date, certificate, deposit, rent payment and receipt, with the landlord's year for England, the Netherlands and Germany) " if RENTALS_LIVE else " ") +
-          "and Busy Games (free daily brain games). Each suite is a free app for Mac and Windows, or runs in the browser, and keeps everything in the "
+          + (", Busy Rentals (free rental management for people who let one home or a few: every date, certificate, deposit, rent payment and receipt, with the landlord's year for England, the Netherlands and Germany)" if RENTALS_LIVE else "")
+          + (f", Busy Kitchen (a free cultural kitchen: {KITCHEN_DISHES} dishes from the six kitchens of Busy's six languages, matched to what's in your fridge, with a recipe for every dish)" if KITCHEN_LIVE else "") +
+          " and Busy Games (free daily brain games). Each suite is a free app for Mac and Windows, or runs in the browser, and keeps everything in the "
           "owner's own folder, with no account and no subscription. Each suite also comes as a paid app with an AI expert inside, bought "
-          "once on itch.io: Olaf for business, Ivy for professional growth, Juno for household paperwork" + (", Wren for letting a home" if RENTALS_LIVE else "") + ". " + ("Busy Kitchen is a free cultural kitchen of the six languages: " + KITCHEN_WHAT + " " if KITCHEN_LIVE else "") + "Busy also makes the game Busy Street.")
+          "once on itch.io: Olaf for business, Ivy for professional growth, Juno for household paperwork" + (", Wren for letting a home" if RENTALS_LIVE else "") + (", Sal for home cooking" if KITCHEN_LIVE else "") + ". Busy also makes the game Busy Street.")
 ORG_ID, WEBSITE_ID = "#organization", "#website"
 SECTIONS = {"business/": ("Busy Business", "business/index.html"), "games/": ("Busy Games", "games/index.html"), "growth/": ("Busy Growth", "growth/index.html"), "home/": ("Busy Home", "home/index.html"),
             "rentals/": ("Busy Rentals", "rentals/index.html"), "kitchen/": ("Busy Kitchen", "kitchen/index.html")}
@@ -3373,6 +4014,8 @@ def site_seo() -> None:
             f.write_text(t)
             continue
         title = html.unescape((re.search(r"<title>(.*?)</title>", t, re.S) or [None, "Busy"])[1])
+        if 'id="main"' not in t:  # "Skip to content" goes to #main: a page whose <main> has no name gets it here
+            t = re.sub(r"<main\b(?![^>]*\sid=)", '<main id="main"', t, count=1)
         if 'rel="canonical"' not in t:
             t = t.replace("</title>", f'</title>\n<link rel="canonical" href="{SITE_URL}/{rel}">', 1)
         image = (re.search(r'og:image" content="[^"]*/assets/([^"/]+)"', t) or [None, "og-busy.png"])[1]
@@ -3385,6 +4028,8 @@ def site_seo() -> None:
             t = re.sub(r'(<meta property="og:title"[^>]*>)', lambda m: m.group(1) + f'<meta property="og:url" content="{SITE_URL}/{rel}">', t, count=1)
         if "og:locale" not in t:
             t = t.replace('<meta name="theme-color"', '<meta property="og:locale" content="en_GB">\n<meta name="theme-color"', 1)
+        if "<noscript><style>.reveal" not in t:  # without scripts nothing would ever get its "shown" class: show it all
+            t = t.replace("</head>", "<noscript><style>.reveal, .panel { opacity: 1 !important; transform: none !important; }</style></noscript>\n</head>", 1)
         if "application/rss+xml" not in t:  # What's new, for feed readers
             t = t.replace('<meta name="theme-color"', f'<link rel="alternate" type="application/rss+xml" title="Busy: what\'s new" href="{SITE_URL}/feed.xml">\n<meta name="theme-color"', 1)
         if "og:locale:alternate" not in t:  # the languages a shared link also comes in
@@ -3403,6 +4048,7 @@ def site_seo() -> None:
             if obj.get("@type") == "Organization":
                 return ""
             if obj.get("@type") == "SoftwareApplication":
+                obj.setdefault("url", f"{SITE_URL}/{rel}")  # an app with no address of its own is the one this page is about
                 obj["publisher"] = {"@id": SITE_URL + "/" + ORG_ID}
                 offer = obj.get("offers") or {}
                 if str(offer.get("price")) == "0":
@@ -3411,7 +4057,7 @@ def site_seo() -> None:
                 elif offer:
                     offer["availability"] = "https://schema.org/InStock"
                     name = str(obj.get("name", ""))
-                    offer.setdefault("url", SITE_URL + ("/growth/index.html#ivy" if "Ivy" in name else "/home/index.html#juno" if "Juno" in name else "/rentals/wren.html#get" if "Wren" in name else "/business/olaf.html#get"))
+                    offer.setdefault("url", SITE_URL + ("/growth/ivy.html#get" if "Ivy" in name else "/home/juno.html#get" if "Juno" in name else "/kitchen/sal.html#get" if "Sal" in name else "/rentals/wren.html#get" if "Wren" in name else "/business/olaf.html#get"))
             return jsonld(obj).rstrip("\n")
         t = re.sub(r'<script type="application/ld\+json">(.*?)</script>\n?', fix, t, flags=re.S)
         t = re.sub(r'<script type="application/ld\+json" id="ld-site">.*?</script>\n?', "", t, flags=re.S)
@@ -3423,12 +4069,39 @@ def site_seo() -> None:
 def robots_txt() -> str:
     agents = ["GPTBot", "OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "Claude-SearchBot", "Claude-User", "PerplexityBot", "Perplexity-User",
               "Google-Extended", "Applebot-Extended", "CCBot", "Bingbot", "Googlebot"]
+    # /app/shared/ stays open: the pages' own stylesheet (brand.css), their scripts, the guides' pictures and every
+    # Busy Kitchen picture live there, and a crawler that cannot fetch them cannot see the pages as people do.
+    rules = "Allow: /\nAllow: /app/shared/\nDisallow: /app/\n\n"
     return ("# Busy welcomes search engines and AI assistants. The tools under /app/ are left out: they are\n"
-            "# the website demo, the same app filled with a pretend business. llms.txt summarises the site.\n"
-            "User-agent: *\nAllow: /\nDisallow: /app/\n\n"
+            "# the website demo, the same app filled with a pretend business. Their shared styles, scripts and\n"
+            "# pictures (/app/shared/) are open, because the website's pages use them. llms.txt summarises the site.\n"
+            "User-agent: *\n" + rules +
             "# Named, so the choice to be found in AI search and assistants is explicit.\n"
-            + "".join(f"User-agent: {a}\n" for a in agents) + "Allow: /\nDisallow: /app/\n\n"
+            + "".join(f"User-agent: {a}\n" for a in agents) + rules +
             f"Sitemap: {SITE_URL}/sitemap.xml\n")
+
+
+# How every expert runs, in the same words wherever llms.txt names one (the pages say it at each buy button).
+ON_OWN_CLAUDE = "on the owner's own Claude (the Claude app with a paid plan, or a Claude API key)"
+
+
+def llms_summary() -> str:
+    """llms.txt's opening lines, about 600 characters: what Busy is, what is free, what is paid and for how much. The long
+    version (ENTITY) opens llms-full.txt and is the site's description in the structured data."""
+    suites = ["Busy Business (thirteen tools for a small business or a freelancer)",
+              "Busy Growth (your career)" + ("" if GROWTH_LIVE else ", coming soon"),
+              "Busy Home (household paperwork)" + ("" if HOME_LIVE else ", coming soon")]
+    experts = [f"Olaf {PRODUCTS['olaf']['price']}"] + ([f"Ivy {PRODUCTS['ivy']['price']}"] if GROWTH_LIVE else []) + ([f"Juno {PRODUCTS['juno']['price']}"] if HOME_LIVE else [])
+    if RENTALS_LIVE:
+        suites.append("Busy Rentals (letting one home or a few)"); experts.append(f"Wren {WREN['price']}")
+    if KITCHEN_LIVE:
+        suites.append(f"Busy Kitchen ({KITCHEN_DISHES} dishes from six kitchens)"); experts.append(f"Sal {SAL['price']}")
+    suites.append("Busy Games (daily brain games)")
+    prices = experts[0] if len(experts) == 1 else f"{', '.join(experts[:-1])} and {experts[-1]}"
+    return (f"Busy (busy.com.ai) makes free, private apps for work and life, in suites: {', '.join(suites[:-1])} and {suites[-1]}. "
+            "The free apps have no account, no subscription and no AI, and nothing is sent to Busy. "
+            f"Each suite except Busy Games also has a paid AI expert, bought once on itch.io: {prices}. "
+            "The experts work on the buyer's own Claude: the Claude app with a paid plan, or a Claude API key.")
 
 
 def write_llms(tools: list) -> None:
@@ -3436,18 +4109,21 @@ def write_llms(tools: list) -> None:
     b = SITE_URL
     olaf_price = OLAF_PRICE.split(' ·')[0]
     wren_price = f", Busy Rentals with Wren {WREN['price']} ({WREN['url']})" if RENTALS_LIVE else ""   # named only while Busy Rentals is live
-    lines = [f"# Busy", "", f"> {ENTITY}", "",
+    sal_price = f", Busy Kitchen with Sal {SAL['price']} ({SAL['url']})" if KITCHEN_LIVE else ""        # and Sal only while Busy Kitchen is
+    names = ["Olaf", "Ivy", "Juno"] + (["Wren"] if RENTALS_LIVE else []) + (["Sal"] if KITCHEN_LIVE else [])
+    lines = [f"# Busy", "", f"> {llms_summary()}", "",
              f"Busy, {DESCRIPTOR}, lives at {b}. It was called Busywork until October 2026. It is not related to BUSY accounting software (busy.in).", "",
              "Key facts:",
-             f"- Price: every suite's tools are free, with no account and no subscription. Each suite also has a paid edition with an AI expert, sold once on itch.io at an introductory price: Busy Business with Olaf {PRODUCTS['olaf']['price']} ({PRODUCTS['olaf']['url']}), Busy Growth with Ivy {PRODUCTS['ivy']['price']} ({PRODUCTS['ivy']['url']}), Busy Home with Juno {PRODUCTS['juno']['price']} ({PRODUCTS['juno']['url']}){wren_price}. The experts run on the owner's own Claude. The games: Busy Street: Tuck's Errand {PRODUCTS['tuck']['price']} ({PRODUCTS['tuck']['url']}) and Busy Street 3D for Mac {PRODUCTS['street3d']['price']} ({PRODUCTS['street3d']['url']}).",
+             f"- Price: every suite's tools are free, with no account and no subscription. Each suite also has a paid edition with an AI expert, sold once on itch.io at an introductory price: Busy Business with Olaf {PRODUCTS['olaf']['price']} ({PRODUCTS['olaf']['url']}), Busy Growth with Ivy {PRODUCTS['ivy']['price']} ({PRODUCTS['ivy']['url']}), Busy Home with Juno {PRODUCTS['juno']['price']} ({PRODUCTS['juno']['url']}){wren_price}{sal_price}. Each expert works {ON_OWN_CLAUDE}. The games: Busy Street: Tuck's Errand {PRODUCTS['tuck']['price']} ({PRODUCTS['tuck']['url']}) and Busy Street 3D for Mac {PRODUCTS['street3d']['price']} ({PRODUCTS['street3d']['url']}).",
              "- Data: saved as files in a folder the owner chooses on their own computer (it can sit in Google Drive, Dropbox, OneDrive or iCloud Drive). Nothing is sent to Busy. The games keep progress in the browser.",
-             "- Works in: a free app per suite for Mac and Windows (beta), Busy Games included; or, without installing, Chrome and Edge from a downloaded folder (also on ChromeOS and Linux). The games run in any modern browser.",
-             "- AI: none in the free tools. Olaf, Ivy and Juno run on the owner's own Claude: as a plugin in their own Claude app (no key), or with their own API key. Nothing goes to Busy.",
+             "- Works in: a free app per suite for Mac and Windows (beta), Busy Games included; or, without installing, Chrome and Edge from a downloaded folder (also on ChromeOS and Linux). The games run in any modern browser."
+             + (" Busy Kitchen runs in Chrome or Edge, online or from its downloaded folder." if KITCHEN_LIVE else ""),
+             f"- AI: none in the free tools. {', '.join(names[:-1])} and {names[-1]} work on the owner's own Claude: as a plugin in their own Claude app, which takes a paid Claude plan and no key, or with their own Claude API key. Nothing goes to Busy.",
              "- Languages: English, Dutch, German, Spanish, Italian and Brazilian Portuguese (the website under /nl/, /de/, /es/, /it/ and /pt-br/; the apps follow the computer's language). Invoices, quotes and letters can be made in any of them.",
              "", "## Busy Business: free tools for small businesses", "",
              f"- [Busy Business]({b}/business/index.html): {len(tools)} free tools for small businesses and freelancers, for three jobs: growing the brand (a marketing studio and a brand kit), delivering projects, and running the money and admin."]
     lines += [f"- [{t['name']}]({b}/business/{t['id']}.html): {t['description']}" for t in tools]
-    lines += [f"- [Olaf, the brand consultant]({b}/business/olaf.html): a 90-day marketing plan, project plans, a weekly check-in and the work done with the owner, on proven marketing science. {olaf_price}.",
+    lines += [f"- [Olaf, the brand consultant]({b}/business/olaf.html): a 90-day marketing plan, project plans, a weekly check-in and the work done with the owner, on proven marketing science. In Busy Business with Olaf, {olaf_price} on itch.io ({PRODUCTS['olaf']['url']}), {ON_OWN_CLAUDE}.",
               f"- [Download Busy Business]({b}/business/download.html): the free Busy Business app for Mac and Windows (beta); no AI, nothing sent anywhere. A zip for the browser is there too.",
               f"- [All business tools]({b}/business/tools.html): what each tool does.",
               "", "## Busy Games: free daily brain games", "",
@@ -3459,7 +4135,7 @@ def write_llms(tools: list) -> None:
                   f"- [Busy Growth]({b}/growth/index.html): {len(GROWTH_TOOLS)} free tools: a library of what you read and learn, skills, wins, a learning plan, a job tracker, a CV builder, interview stories, contacts and a weekly review. Ivy, an AI career coach, comes with the paid edition.",
                   f"- [Download Busy Growth]({b}/growth/index.html#get): the free Busy Growth app for Mac and Windows (beta), or a zip for the browser."]
         lines += [f"- [{t['name']}]({b}/growth/{t['id']}.html): {t['description']}" for t in suite_tools("growth")]
-        lines += [f"- [Ivy, the career coach]({b}/growth/index.html#ivy): learn it, prove it, land it; never invents experience. In Busy Growth with Ivy, {PRODUCTS['ivy']['price']} once on itch.io ({PRODUCTS['ivy']['url']}), on the owner's own Claude."]
+        lines += [f"- [Ivy, the career coach]({b}/growth/ivy.html): learn it, prove it, land it; never invents experience. In Busy Growth with Ivy, {PRODUCTS['ivy']['price']} once on itch.io ({PRODUCTS['ivy']['url']}), {ON_OWN_CLAUDE}."]
     else:
         lines += ["", "## Busy Growth: free tools to grow your career (coming soon)", "",
                   f"- [Busy Growth]({b}/growth/index.html): a library of what you read and learn, skills, wins, a learning plan, a job tracker and a CV builder, plus Ivy, an AI career coach. Not released yet."]
@@ -3468,12 +4144,17 @@ def write_llms(tools: list) -> None:
                f"- [New in Busy Home 2.1]({b}/home/index.html#new): for a household of any size. " + " ".join(f"{n}: {d}" for _, n, d, _ in HOME_NEW),
                f"- [Download Busy Home]({b}/home/index.html#get): the free Busy Home app for Mac and Windows (beta), or a zip for the browser."]
               + [f"- [{t['name']}]({b}/home/{t['id']}.html): {t['description']}" for t in suite_tools("home")]
-              + [f"- [Juno, the household assistant]({b}/home/index.html#juno): explains letters, writes the replies and keeps the household ahead. In Busy Home with Juno, {PRODUCTS['juno']['price']} once on itch.io ({PRODUCTS['juno']['url']}), on the owner's own Claude."]
+              + [f"- [Juno, the household assistant]({b}/home/juno.html): explains letters, writes the replies and keeps the household ahead. In Busy Home with Juno, {PRODUCTS['juno']['price']} once on itch.io ({PRODUCTS['juno']['url']}), {ON_OWN_CLAUDE}."]
               if HOME_LIVE else ["", "## Busy Home: free tools for household paperwork (coming soon)", "",
                f"- [Busy Home]({b}/home/index.html): documents, contracts with the last day to cancel, upkeep, a home inventory, letters, moving and a Just in Case binder. Not released yet."])
     lines += [
               "", "## About", "",
               f"- [About Busy]({b}/about.html): what it is, who it is for, and how it works.",
+              f"- [Free and paid: what Busy costs]({b}/pricing.html): the tools are free and stay free; each suite's AI expert is paid once on itch.io.",
+              f"- [How the experts connect to Claude]({b}/claude-key.html): the Claude app the owner already has, or their own API key, and what each costs.",
+              f"- [What's new in Busy]({b}/updates.html): every release of the free apps and the website, newest first.",
+              f"- [Films]({b}/films/index.html): the short films of the apps with their experts, the brain games and the game Busy Street.",
+              f"- [Press kit]({b}/press.html): what Busy is in a few lines, with its logos, characters, pictures and films to download.",
               f"- [Privacy]({b}/privacy.html): what happens to data (nothing is sent to us).",
               f"- [Terms]({b}/terms.html)",
               "", "## Optional", "",
@@ -3482,7 +4163,7 @@ def write_llms(tools: list) -> None:
         lines[lines.index("## About") - 1:lines.index("## About") - 1] = rentals_llms(b)
     if KITCHEN_LIVE:
         lines[lines.index("## About") - 1:lines.index("## About") - 1] = kitchen_llms(b)
-    (SITE / "llms.txt").write_text("\n".join(lines).replace("Olaf, Ivy and Juno run on", "Olaf, Ivy, Juno and Wren run on" if RENTALS_LIVE else "Olaf, Ivy and Juno run on") + "\n")
+    (SITE / "llms.txt").write_text("\n".join(lines) + "\n")
 
     full = [f"# Busy: the full picture", "", ENTITY, "", f"Website: {b}/", "", DISAMBIGUATION, "",
             "# Busy Business: free tools for small businesses", "", f"Page: {b}/business/index.html", "",
@@ -3540,7 +4221,7 @@ def ai_models() -> list:
 
 
 def claude_key_page(tools: list) -> str:
-    """How Olaf, Ivy or Juno connect to Claude: the person's own Claude app first (the steps the app shows on Connect), then an API key (the same steps as the guide inside them, ai.setup)."""
+    """How an expert connects to Claude: the person's own Claude app first (the steps the app shows on Connect), then an API key (the same steps as the guide inside them, ai.setup)."""
     def per_chat(m):  # about 30,000 tokens read and 2,000 written, as in ai.perChat
         v = (30000 * m["input"] + 2000 * m["output"]) / 1e6
         return "under $0.01" if v < 0.01 else f"about ${v:.2f}"
@@ -3549,7 +4230,7 @@ def claude_key_page(tools: list) -> str:
         ("Make a Claude Console account", "Go to <b>console.anthropic.com</b> and sign up with your email or Google account. Confirm your email. If it asks what you will build, “personal use” is fine."),
         ("Add a little credit", "Open <b>Settings → Billing</b> (it may be called Plans &amp; Billing), add a card and buy credit. The smallest amount, about $5, is enough to start. Leave auto-reload off if you never want to pay more than you put in. Under <b>Settings → Limits</b> you can also set a monthly spend limit."),
         ("Create your API key", "Open <b>Settings → API keys</b> and click <b>Create key</b>. Name it something like “Busy Olaf” or “Busy Ivy”. Copy it straight away: it starts with <code>sk-ant-</code> and is shown only once. Lost it? Delete it and make a new one."),
-        ("Paste it into Olaf, Ivy or Juno", "The first time you start one, a guide asks for the key, tests it with a tiny request and saves it in that browser. You also set a monthly limit in Busy, and Busy stops sending requests when you reach it."),
+        ("Paste it into your expert", "The first time you start one, a guide asks for the key, tests it with a tiny request and saves it in that browser. You also set a monthly limit in Busy, and Busy stops sending requests when you reach it."),
     ]
     faq = [("Does my Claude subscription cover this?", "With the easy way, yes: the expert then works inside your own Claude app, within the plan you already pay for. An API key is billed separately by Anthropic, pay-as-you-go."),
            ("What does the expert see?", "Busy writes a short briefing into a folder called Claude inside your Busy folder: where things stand today. Your Claude reads that, and writes its prepared work back into the same folder. It never changes your records: Busy does that, when you say yes."),
@@ -3557,16 +4238,18 @@ def claude_key_page(tools: list) -> str:
            ("What if someone gets my key?", "Delete it in the console under Settings → API keys, make a new one and paste that in. The old one stops working at once."),
            ("Can I use it on two computers?", "Yes. Paste the same key on each, or make one key per computer so you can switch one off on its own."),
            ("How do I see what I spent?", "Busy shows an estimate for this month in AI settings. The exact amount is in the console under Usage and Billing.")]
-    desc = "Two ways to connect Olaf, Ivy or Juno to Claude: the Claude app you already have, in three steps and with no key, or your own API key. What each costs."
-    return f"""{head("How Olaf, Ivy and Juno connect to your Claude", desc, "claude-key.html", "")}
+    desc = "Two ways to connect a Busy expert to Claude: the Claude app with a paid plan, in three steps, or your own API key. What each costs."
+    names = [PRODUCTS[k]["who"] for k in experts_live()]
+    return f"""{head("How a Busy expert connects to your Claude", desc, "claude-key.html", "")}
 <body class="site app-grape">
 {nav("", explore(""))}
 <main class="page">
-  <h1 class="reveal">Connect Olaf, Ivy or Juno to Claude</h1>
-  <p class="lead reveal">Olaf, Ivy and Juno think with Claude, the AI made by Anthropic. There are two ways to connect them. Both keep your work on your own computer, and nothing goes to us.</p>
+  <h1 class="reveal">Connect your expert to Claude</h1>
+  <p class="lead reveal">{", ".join(names[:-1])} and {names[-1]} think with Claude, the AI made by Anthropic. There are two ways to connect them. Both keep your work on your own computer, and nothing goes to us.</p>
+  <p class="reveal"><b>{CLAUDE_LINE}</b> New to Claude? The free app is complete on its own.</p>
   <p class="reveal"><b>Just bought on itch.io?</b> Download your app from its itch.io page and open it. Press Connect in the left rail: the app shows these same steps.</p>
-  <h2>The easy way: the Claude you already have</h2>
-  <p>For anyone with the Claude app and a paid Claude plan. No key and no second bill: the expert works inside your own Claude.</p>
+  <h2>The easy way: the Claude app</h2>
+  <p>For anyone with the Claude app and a paid Claude plan. The expert works inside your own Claude: if you already pay for Claude, the expert's price is all you pay.</p>
   <ol><li><b>Add the expert to your Claude</b><br>In Busy, press Connect and save the plugin file. In Claude, open Cowork, choose Customize, then Plugins, and upload the file.</li>
   <li><b>Show Claude your Busy folder</b><br>When Claude asks which folder to work in, choose the folder Busy saves in.</li>
   <li><b>Say hello</b><br>Busy opens Claude with the first sentence typed in. Press Enter.</li></ol>
@@ -3579,11 +4262,11 @@ def claude_key_page(tools: list) -> str:
   <ol>{"".join(f"<li><b>{e(n)}</b><br>{d}</li>" for n, d in steps)}</ol>
   <p><a class="btn" href="https://console.anthropic.com" rel="noopener" target="_blank">↗ Open console.anthropic.com</a></p>
   <h3>What a key costs</h3>
-  <p>Anthropic's list prices, in US dollars per million tokens (about 750,000 words) read / written, and what a typical conversation costs. A conversation here means Olaf, Ivy or Juno reading about 30,000 tokens of your files and the chat, and writing about 2,000. Estimates: long documents and web searches cost more.</p>
+  <p>Anthropic's list prices, in US dollars per million tokens (about 750,000 words) read / written, and what a typical conversation costs. A conversation here means an expert reading about 30,000 tokens of your files and the chat, and writing about 2,000. Estimates: long documents and web searches cost more.</p>
   <div class="cmp" role="region" aria-label="What each model costs" tabindex="0"><table><thead><tr><th>Model</th><th>Read / write</th><th>A typical conversation</th></tr></thead><tbody>{costs}</tbody></table></div>
   <h2>Questions</h2>
   {"".join(f"<h3>{e(q)}</h3><p>{e(a)}</p>" for q, a in faq)}
-  <p style="margin-top:22px"><a class="btn btn-primary" href="business/olaf.html">🧭 Meet Olaf</a> <a class="btn" href="growth/index.html#ivy">🌿 Meet Ivy</a> <a class="btn" href="home/index.html#juno">🏡 Meet Juno</a></p>
+  <p class="row-flex" style="margin-top:22px">{"".join(f'<a class="btn{" btn-primary" if k == "olaf" else ""}" href="{EXPERT_PAGE[k]}">Meet {PRODUCTS[k]["who"]} →</a>' for k in experts_live())}</p>
 </main>
 {footer("", tools)}
 <script src="assets/site.js"></script>
@@ -3594,31 +4277,54 @@ def claude_key_page(tools: list) -> str:
 
 def about_page(tools: list) -> str:
     """What Busy is, in plain facts: the page search engines and AI assistants read to describe us."""
-    olaf_price = OLAF_PRICE.split(' ·')[0]
+    live = experts_live()
+    prices = ", ".join(f'{PRODUCTS[k]["name"]} {PRODUCTS[k]["price"]}' for k in live)
+    suites = (f"Busy Business: {len(tools)} free tools for small businesses and freelancers. Busy Growth: " + (f"{len(GROWTH_TOOLS)} free tools to grow your career." if GROWTH_LIVE else "free tools to grow your career, coming soon.")
+              + (f" Busy Home: {len(HOME_TOOLS)} free tools for household paperwork." if HOME_LIVE else "")
+              + (f" Busy Rentals: {len(RENTALS_TOOLS)} free tools for people who let one home or a few." if RENTALS_LIVE else "")
+              + (f" Busy Kitchen: {KITCHEN_DISHES} dishes from six kitchens, matched to what's in your fridge." if KITCHEN_LIVE else "")
+              + f" Busy Games: four free daily logic puzzles with {GAME_LEVELS:,} levels each.")
+    who = ("People who would rather spend their time on what matters: small business owners and freelancers, " + ("" if GROWTH_LIVE else "soon ") + "anyone growing their career"
+           + (", households with paperwork to keep" if HOME_LIVE else "") + (", people who let a home" if RENTALS_LIVE else "") + (", home cooks" if KITCHEN_LIVE else "") + ", and anyone who likes a daily puzzle.")
     facts = [("What it is", ENTITY),
-             ("The suites", f"Busy Business: {len(tools)} free tools for small businesses and freelancers. Busy Games: four free daily logic puzzles with {GAME_LEVELS:,} levels each. Busy Growth: " + (f"{len(GROWTH_TOOLS)} free tools to grow your career." if GROWTH_LIVE else "free tools to grow your career, coming soon.")),
-             ("Who it is for", "People who would rather spend their time on what matters: small business owners and freelancers, anyone who likes a daily puzzle, and " + ("" if GROWTH_LIVE else "soon ") + "anyone growing their career."),
-             ("What it costs", f"Every suite's tools are free. A paid edition of each suite adds its AI expert, bought once on itch.io: Busy Business with Olaf {PRODUCTS['olaf']['price']}, Busy Growth with Ivy {PRODUCTS['ivy']['price']}, Busy Home with Juno {PRODUCTS['juno']['price']}. The experts run on the owner's own Claude."),
+             ("The suites", suites),
+             ("Who it is for", who),
+             ("What it costs", f"Every suite's tools are free. A paid edition of each suite adds its AI expert, bought once on itch.io: {prices}. The experts work on the owner's own Claude: the Claude app with a paid plan, or a Claude API key."),
              ("Where the data lives", "In a folder the owner chooses on their own computer, as plain files. There is no account and no server, so nothing is sent to us. The games keep your streak in your browser."),
-             ("What it runs on", "The business tools run in Chrome and Edge on Windows, macOS and ChromeOS, from a downloaded folder; nothing is installed. The games run in any modern browser."),
+             ("What it runs on", "Busy is desktop apps for Mac (macOS 13 or newer) and Windows (10 or 11), each with a demo that runs in the browser." + (" The free Busy Kitchen opens in the browser." if KITCHEN_LIVE else "") + " The games run in any modern browser."),
              ("How the marketing tools work", "Busy Business's Marketing Studio and Olaf are built on proven marketing science: reach more buyers, be the business people think of in the moments they need you, and be easy to find and buy from."),
              ("Languages", "English, Dutch, German, Spanish, Italian and Brazilian Portuguese. Invoices, quotes and letters can be made in any of them."),
              ("The name", f"Busy, {DESCRIPTOR}, at busy.com.ai. Called Busywork until October 2026. Not related to BUSY accounting software.")]
     desc = "What Busy is: free, private tools for work and life, in suites for business, household paperwork, " + ("career growth and brain games" if GROWTH_LIVE else "brain games and soon career growth") + ". Your files stay yours."
+    # the suites after Busy Business and Busy Growth: each tool with the words its own page uses (so they are translated already)
+    tool_list = lambda folder, rows, links=True: '<ul class="about-tools">' + "".join(
+        (f'<li><a href="{folder}/{t["id"]}.html"><span aria-hidden="true">{t["emoji"]}</span> {e(t["name"])}</a><span>{e(t["description"])}</span></li>' if links
+         else f'<li><b><span aria-hidden="true">{t[0]}</span> {e(t[1])}</b><span>{e(t[2])}</span></li>') for t in rows) + "</ul>"
+    more = ""
+    if HOME_LIVE:
+        more += (f'<h2>🏡 Busy Home</h2>{tool_list("home", suite_tools("home"))}'
+                 f'<p style="margin-top:14px"><a class="btn btn-primary" href="home/index.html#get">⬇️ Download free</a> <a class="btn" href="app/home.html">👀 See the demo</a> <a class="btn" href="{EXPERT_PAGE["juno"]}">Meet Juno →</a></p>')
+    if RENTALS_LIVE:
+        more += (f'<h2>🔑 Busy Rentals</h2>{tool_list("rentals", suite_tools("rentals"))}'
+                 f'<p style="margin-top:14px"><a class="btn btn-primary" href="rentals/index.html#get">⬇️ Download free</a> <a class="btn" href="app/rentals.html">👀 See the demo</a> <a class="btn" href="{EXPERT_PAGE["wren"]}">Meet Wren →</a></p>')
+    if KITCHEN_LIVE:
+        more += (f'<h2>🍳 Busy Kitchen</h2>{tool_list("kitchen", KITCHEN_TOOLS, links=False)}'
+                 f'<p style="margin-top:14px"><a class="btn btn-primary" href="app/kitchen.html">🍳 Open it in your browser</a> <a class="btn" href="{EXPERT_PAGE["sal"]}">Meet Sal →</a></p>')
     return f"""{head("About Busy: free, private tools for work and life", desc, "about.html", "")}
 <body class="site app-sun">
 {nav("", explore(""))}
 <main class="page">
   <h1 class="reveal">About Busy</h1>
-  <p class="lead reveal">{e(ENTITY)}</p>
+  <p class="lead reveal">{APPS_COUNT.capitalize()} free apps for {APPS_FOR}. The boring part made easy, or done for you by an expert. Everything stays in your own folder.</p>
   <dl class="about-facts">{"".join(f"<dt>{e(k)}</dt><dd>{e(v)}</dd>" for k, v in facts)}</dl>
   <h2>💼 Busy Business</h2>
   <ul>{"".join(f'<li><a href="business/{t["id"]}.html">{t["emoji"]} {e(t["name"])}</a>: {e(t["description"])}</li>' for t in tools)}</ul>
   <p style="margin-top:14px"><a class="btn btn-primary" href="business/download.html">⬇️ Download all {len(tools)} tools</a> <a class="btn" href="app/index.html">👀 See the demo</a> <a class="btn" href="business/olaf.html">🧭 Meet Olaf</a></p>
+  <h2>🌱 Busy Growth</h2>
+  {'<p><a href="growth/index.html">Free tools to grow your career</a>: ' + ", ".join(e(n).lower().replace("cv ", "CV ").replace("linkedin", "LinkedIn") if i else e(n) for i, (_, n, _) in enumerate(GROWTH_TOOLS)) + '. <a class="btn" href="growth/index.html#get">⬇️ Download Busy Growth</a></p>' if GROWTH_LIVE else '<p>Coming soon: <a href="growth/index.html">free tools to grow your career, and Ivy, an AI coach</a>.</p>'}
+  {more}
   <h2>🧩 Busy Games</h2>
   <ul>{"".join(f'<li><a href="games/{g["id"]}.html">{g["emoji"]} {e(g["name"])}</a>: {e(g["lead"])}</li>' for g in GAMES)}</ul>
-  <h2>🌱 Busy Growth</h2>
-  {'<p><a href="growth/index.html">Free tools to grow your career</a>: ' + ", ".join(e(n).lower() if i else e(n) for i, (_, n, _) in enumerate(GROWTH_TOOLS)) + '. <a class="btn" href="growth/index.html#get">⬇️ Download Busy Growth</a></p>' if GROWTH_LIVE else '<p>Coming soon: <a href="growth/index.html">free tools to grow your career, and Ivy, an AI coach</a>.</p>'}
 </main>
 {footer("", tools)}
 <script src="assets/site.js"></script>
@@ -3632,7 +4338,7 @@ def rentals_update() -> dict:
     published: the entry appears only while Busy Rentals is live. Its date is the day the switch went on: the date
     the Rentals page has in the record of page dates, and today on the first build with the switch on."""
     rec = json.loads(DATES_FILE.read_text()) if DATES_FILE.exists() else {}
-    day = (rec.get("rentals/index.html") or [None, date.today().isoformat()])[1]
+    day = LAUNCH_DAYS.get("rentals-1.0") or (rec.get("rentals/index.html") or [None, date.today().isoformat()])[1]   # the launch day: the page's own date moves with every edit
     return {"version": "Rentals 1.0", "id": "rentals-1.0", "date": day, "title": RENTALS_PROMISE,
             "items": [RENTALS_WHAT, *([n, d] for _, n, d in RENTALS_TOOLS), RENTALS_ANSWERS[2][1], RENTALS_ANSWERS[3][1]]}
 
@@ -3661,7 +4367,7 @@ def updates_page(tools: list) -> str:
 <main class="page">
   <h1 class="reveal">What's new</h1>
   <p class="lead reveal">Every release of Busy, newest first.</p>
-  <p><a class="btn" href="feed.xml">📡 RSS feed</a> <a class="btn btn-primary" href="business/download.html">⬇️ Download the apps</a></p>
+  <p><a class="btn" href="feed.xml">📡 RSS feed</a> <a class="btn btn-primary" href="index.html#suites">🧰 Explore the apps</a></p>
   {items}
 </main>
 {footer("", tools)}
@@ -3722,13 +4428,14 @@ def press_page(tools: list) -> str:
   <p class="press-copy">{e(short)}</p>
   <h2>Busy in a paragraph</h2>
   <p class="press-copy">{e(ENTITY)}</p>
-  <p>The name is Busy, written like that, at busy.com.ai. The experts are written {"Olaf by Busy, Ivy by Busy, Juno by Busy and Wren by Busy" if RENTALS_LIVE else "Olaf by Busy, Ivy by Busy and Juno by Busy"}. More facts: <a href="about.html">About Busy</a>.</p>
+  <p>The name is Busy, written like that, at busy.com.ai. The experts are written {"Olaf by Busy, Ivy by Busy, Juno by Busy, Wren by Busy and Sal by Busy" if RENTALS_LIVE and KITCHEN_LIVE else "Olaf by Busy, Ivy by Busy, Juno by Busy and Wren by Busy" if RENTALS_LIVE else "Olaf by Busy, Ivy by Busy and Juno by Busy"}. More facts: <a href="about.html">About Busy</a>.</p>
   <h2>Logos</h2>{grid(logos)}
   <h2>The characters</h2><p>Rendered in the Busy Studio. Please keep them as they are: no new poses, words or colours.</p>{grid(people, "PNG")}
   <h2>The places</h2>{grid(places, "JPG, 1920 px")}
   <h2>Short films</h2><p>Eight seconds each, made to loop.</p>{grid(films, "MP4")}
   <h2>Product films</h2><p>Half a minute to a minute each: the {APPS_COUNT} apps with their experts, the two Busy Street games and the brain games.</p>{grid(trailers, "MP4")}
   <h2>Where it is sold</h2><p>The tools and the brain games are free on this site. The paid apps and the Busy Street games are sold on itch.io, each on its own page, paid once:</p><ul>{sold}</ul>
+  <p>The experts work on the buyer’s own Claude: the Claude app with a paid plan, or a Claude API key.</p>
   <h2>Share images</h2>{grid(shares, "PNG, 1200 × 630")}
 </main>
 {footer("", tools)}
@@ -3803,7 +4510,7 @@ LANG_REDIRECT = ("<script>(function(){try{if(/bot|crawl|spider|slurp|preview/i.t
                  "var a=document.querySelector('link[rel=alternate][hreflang=\"'+(k==='pt-br'?'pt-BR':k)+'\"]');if(a&&k!=='en')location.replace(a.href+location.hash);}catch(e){}})();</script>")
 
 
-HUBS = "business|growth|home|rentals|games|films"
+HUBS = "business|growth|home|rentals|kitchen|games|films"
 
 
 def hub_addresses() -> None:
@@ -3870,31 +4577,73 @@ def lang_links(rel: str, here: str) -> tuple:
     return tags, f'<nav class="langs" aria-label="Language">🌐 {links}</nav>'
 
 
+# Which of a room's two pictures a screen gets: the 1920 one where the screen shows more than 1400 points across (its
+# width times its sharpness, counted in steps), the 1280 one on a phone. place.js reads PLATE_WIDE from the page (the
+# <source media>), so the page and the script ask for the same file and it is fetched once. PLATE_SMALL is every other screen.
+PLATE_WIDE = ("(min-width: 1401px), (min-width: 1121px) and (min-resolution: 1.25dppx), "
+              "(min-width: 934px) and (min-resolution: 1.5dppx), (min-width: 701px) and (min-resolution: 2dppx)")
+PLATE_SMALL = ("(max-width: 700px), (max-width: 933px) and (max-resolution: 1.99dppx), "
+               "(max-width: 1120px) and (max-resolution: 1.49dppx), (max-width: 1400px) and (max-resolution: 1.24dppx)")
+
+
 def webp_pictures() -> None:
     """Each <img> of a JPEG or PNG that has a WebP copy (tools/webp.py) becomes <picture> with the WebP first; browsers
-    without WebP, and anything that reads the old file, still get the original. picture{display:contents} in site.css."""
+    without WebP, and anything that reads the old file, still get the original. picture{display:contents} in site.css.
+    The first room of a place (the picture people wait for) comes in the size the screen needs and is asked for first.
+    A film's poster is not fetched with the page: site.js sets it when the film comes near the screen. The poster stays
+    in a <noscript> copy of the film, for browsers without scripts, and site.js reads its address from there."""
     sys.path.insert(0, str(ROOT / "tools"))
     import webp
     webp.main()
     img = re.compile(r'(?<!type="image/webp">)<img(?P<a>[^>]*?) src="(?P<src>[^"#?]+)\.(?P<ext>png|jpe?g)"(?P<b>[^>]*)>')
-    n = 0
+    # the first room, fetched early: written by PLACE_HEAD (a JPEG), or as an earlier build left it on a hand-made page
+    preload = re.compile(r'(?:<link rel="preload" href="[^"]+/room-[^"/]+-(?:1920|1280)\.(?:jpg|webp)" as="image"[^>]*>\n?)+')
+    film = re.compile(r'(?<!<noscript>)<video\b(?P<a>[^>]*?) poster="(?P<src>[^"#?]+)\.(?P<ext>png|jpe?g)"(?P<b>[^>]*)></video>')
+    n = lazy = 0
     for f in site_pages():
         t = f.read_text()
+        has = lambda path: (f.parent / path).exists()
 
         def wrap(m):
             nonlocal n
             src = m.group("src")
-            if src.startswith(("http:", "https:", "data:")) or not (f.parent / (src + ".webp")).exists():
+            if src.startswith(("http:", "https:", "data:")) or not has(src + ".webp"):
                 return m.group(0)
             n += 1
+            if "data-house-plate" in m.group(0) and src.endswith("-1920") and has(src[:-4] + "1280.webp"):
+                return (f'<picture><source media="{PLATE_WIDE}" srcset="{src}.webp" type="image/webp">'
+                        f'<source srcset="{src[:-4]}1280.webp" type="image/webp">{m.group(0)}</picture>')
             return f'<picture><source srcset="{src}.webp" type="image/webp">{m.group(0)}</picture>'
         new = img.sub(wrap, t)
-        # the first room, fetched early: as WebP too (type= lets a browser without WebP skip it)
-        new = re.sub(r'<link rel="preload" href="([^"]+)\.jpg" as="image">',
-                     lambda m: f'<link rel="preload" href="{m.group(1)}.webp" as="image" type="image/webp">' if (f.parent / (m.group(1) + ".webp")).exists() else m.group(0), new)
+
+        def early(m):  # as WebP (type= lets a browser without WebP skip it), and before the other pictures
+            stem = re.search(r'href="([^"]+)-(?:1920|1280)\.(?:jpg|webp)"', m.group(0)).group(1)
+            if not has(stem + "-1920.webp"):
+                return f'<link rel="preload" href="{stem}-1920.jpg" as="image" fetchpriority="high">\n'
+            if not has(stem + "-1280.webp"):
+                return f'<link rel="preload" href="{stem}-1920.webp" as="image" type="image/webp" fetchpriority="high">\n'
+            return (f'<link rel="preload" href="{stem}-1920.webp" as="image" type="image/webp" media="{PLATE_WIDE}" fetchpriority="high">\n'
+                    f'<link rel="preload" href="{stem}-1280.webp" as="image" type="image/webp" media="{PLATE_SMALL}" fetchpriority="high">\n')
+        new = preload.sub(early, new)
+
+        first = []  # the poster of a film that is the page itself (films/<name>.html): fetched at once, as WebP
+
+        def later(m):
+            nonlocal lazy
+            src, tag = m.group("src"), m.group(0)
+            webp_copy = not src.startswith(("http:", "https:", "data:")) and has(src + ".webp")
+            if ' preload="none"' not in tag:
+                if ' preload="metadata"' not in tag or not webp_copy:
+                    return tag
+                first.append(f'<link rel="preload" href="{src}.webp" as="image" type="image/webp" fetchpriority="high">\n')
+            lazy += 1
+            return f'<noscript>{tag}</noscript><video{m.group("a")} data-lazy-poster="{"webp" if webp_copy else m.group("ext")}"{m.group("b")}></video>'
+        new = film.sub(later, new)
+        if first and first[0] not in new:
+            new = new.replace("</head>", first[0] + "</head>", 1)
         if new != t:
             f.write_text(new)
-    print(f"webp: {n} pictures served as WebP first")
+    print(f"webp: {n} pictures served as WebP first, {lazy} film posters fetched when they come near")
 
 
 def translate_site() -> None:
@@ -3957,9 +4706,15 @@ def translate_site() -> None:
 
 
 def video_sitemap(path: str, lang: str) -> str:
-    """The place's film on this page, for the video sitemap (Google's video results)."""
-    place = PAGE_FILM.get(path)
-    v = tuck_video(lang) if path == "games/tucks-errand.html" else None  # the rooms' loops are not films: see film_ld
+    """A page's film, for the video sitemap (Google's video results): the game's trailer on the game's page, and every
+    film on its own page (FILMS: a film that gets a page there is listed here from that day). The rooms' loops are not
+    films: see film_ld."""
+    v = tuck_video(lang) if path == "games/tucks-errand.html" else None
+    name = path[len("films/"):-len(".html")] if path.startswith("films/") and path.endswith(".html") else ""
+    if name in FILMS and (SITE / "assets" / "films" / f"{name}.mp4").exists():
+        tr = (lambda t: t) if lang == "en" else (lambda t: I18N.translate_text(t, lang))
+        v = {"name": tr(FILMS[name][0]), "description": tr(FILMS[name][1]), "thumbnailUrl": f"{SITE_URL}/assets/films/{name}.jpg",
+             "contentUrl": f"{SITE_URL}/assets/films/{name}.mp4", "duration": f"PT{film_seconds(name)}S"}
     if not v:
         return ""
     x = lambda s: html.escape(s, quote=True)

@@ -19,6 +19,84 @@ html, body.site { overflow-x: clip; }
 .nav .links a:hover { background: color-mix(in srgb, var(--sun) 35%, transparent); }
 @media (max-width: 760px) { .nav .links { display: none; } .nav .btn { margin-left: auto; } }
 
+/* ---------- 2026-11-20: expert pages, one job done, expert strip ---------- */
+/* The one sentence about Claude, under or beside every expert's buy button. */
+.claude-line { font-size: .88rem; font-weight: 700; color: var(--ink-2); margin-top: 10px; max-width: 46ch; }
+.claude-line.center, .job-buy .claude-line, .center > .claude-line { margin-left: auto; margin-right: auto; text-align: center; }
+.final .claude-line { margin: 18px auto 0; text-align: center; color: #3c3852; }
+.ivy-card .claude-line { color: inherit; opacity: .82; }
+.path .claude-line, .expert-strip .claude-line, .get-olaf .claude-line { margin-top: 6px; }
+.expert-strip .claude-line, .olaf-strip .claude-line { max-width: none; }
+.two-doors + .claude-line { margin-top: 12px; }
+.tool-hero .claude-line { margin-top: 8px; }
+/* A suite's hero: download, demo, then the tour; on a phone the demo comes first. */
+.hero-doors .btn-quiet { background: transparent; box-shadow: none; border-style: dashed; }
+.house-card .hero-note { font-size: .86rem; font-weight: 700; color: var(--ink-2); margin: 10px 0 0; }
+.hero-note a { color: var(--ink); text-underline-offset: 3px; }
+.hero-note ~ .house-task { margin-top: 10px; }
+.phone-note { display: none; }
+@media (max-width: 760px) {
+  .hero-doors .hero-demo { order: -1; background: var(--app); color: var(--on-app); }
+  .hero-doors .btn-primary:not(.hero-demo) { background: var(--surface); color: var(--ink); }
+  .house-card .phone-note { display: block; font-size: .86rem; font-weight: 700; color: var(--ink-2); margin: 8px 0 0; }
+  /* a shorter picture, so the headline and the first buttons are on a phone's first screen */
+  .house-workshop .house-view, .house-glasshouse .house-view, .house-house .house-view { height: 34svh; min-height: 230px; }
+}
+/* The suite's film, right under the hero. */
+.film-top { padding: 44px 0 10px; }
+.film-top .film { margin-top: 0; }
+.film-top + .section { padding-top: 64px; }
+.film-top figcaption, .film-first figcaption { margin-top: 12px; color: var(--ink-2); font-weight: 650; }
+.film.film-first { margin-top: 56px; }
+.film-more { display: flex; gap: 8px 22px; justify-content: center; flex-wrap: wrap; font-weight: 750; }
+/* One job, done: what you hand over, and what the expert hands back. */
+.one-job { margin-top: 44px; }
+.one-job > .center { margin-bottom: 26px; }
+.section > .wrap > .one-job:first-child { margin-top: 0; }
+.job-cards { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 54px; max-width: 1040px; margin: 0 auto; align-items: center; }
+.job-card { position: relative; padding: 24px 26px; display: flex; flex-direction: column; gap: 12px; color: var(--ink); text-align: left; }
+.job-in::after { content: "→"; position: absolute; right: -44px; top: 50%; transform: translateY(-50%); width: 34px; text-align: center; font-size: 1.9rem; font-weight: 900; color: var(--ink-2); }
+.job-tag { font-weight: 850; text-transform: uppercase; letter-spacing: .08em; font-size: .78rem; color: var(--ink-2); }
+.job-card h3 { font-size: 1.35rem; line-height: 1.2; }
+.job-paper { margin-top: 6px; padding: 18px 20px; background: #FFFDF6; color: #1E1B2E; border: 2px solid #1E1B2E; border-radius: 6px; box-shadow: 4px 4px 0 var(--shadow-c); font-family: Georgia, "Times New Roman", serif; font-size: 1.02rem; line-height: 1.5; transform: rotate(-1.2deg); }
+.job-paper p + p { margin-top: 10px; font-family: inherit; font-size: .9rem; color: #5a556e; }
+.job-out { background: color-mix(in srgb, var(--app, var(--sun)) 14%, var(--surface)); }
+.job-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.job-list li { position: relative; padding-left: 28px; color: var(--ink-2); }
+.job-list li::before { content: "✓"; position: absolute; left: 0; top: 2px; width: 20px; height: 20px; border-radius: 50%; background: var(--app, var(--sun)); color: #1E1B2E; font-size: .75rem; font-weight: 900; display: grid; place-items: center; border: 2px solid var(--border); }
+.job-yes { margin-top: auto; padding: 12px 14px; border: 2px dashed var(--border); border-radius: 12px; background: var(--surface); font-weight: 650; }
+.job-yes b { display: block; text-transform: uppercase; letter-spacing: .08em; font-size: .78rem; margin-bottom: 2px; }
+.one-job .job-note { margin: 24px auto 0; font-size: .88rem; text-align: center; }
+.job-buy { margin-top: 20px; text-align: center; }
+.job-buy .row-flex { justify-content: center; }
+@media (max-width: 520px) { .final .btn, .two-doors .btn, .job-buy .btn { white-space: normal; text-align: center; } }
+@media (max-width: 820px) {
+  .job-cards { grid-template-columns: 1fr; gap: 50px; }
+  .job-in::after { content: "↓"; right: auto; left: 50%; top: auto; bottom: -46px; transform: translateX(-50%); }
+  .job-card { padding: 20px; }
+}
+/* The expert on a tool's page: what they do with this very tool, the price, and the way to their page. */
+.expert-strip { margin: 10px auto 60px; }
+.expert-strip .card { display: flex; align-items: center; gap: 18px; padding: 20px 24px; background: color-mix(in srgb, var(--app, var(--sun)) 16%, var(--surface)); }
+.expert-strip img, .expert-strip .e { flex: none; }
+.expert-strip .e { font-size: 2.4rem; line-height: 1; }
+.expert-strip p { color: var(--ink-2); margin-top: 2px; }
+.expert-strip .btn { margin-left: auto; flex: none; }
+.olaf-strip .card > div { min-width: 0; }
+@media (max-width: 640px) { .expert-strip .card { flex-direction: column; align-items: flex-start; } .expert-strip .btn { margin-left: 0; } }
+/* An expert's own page: the picture beside the hero, and Olaf's skills in plain words. */
+.expert-emoji { display: grid; place-items: center; width: 220px; height: 220px; font-size: 7rem; background: var(--sun); border: 3px solid var(--border); border-radius: 56px; box-shadow: 8px 8px 0 var(--shadow-c); transform: rotate(4deg); }
+/* A room picture served as WebP sits inside <picture>, where it is no longer the figure's first child. */
+.tool-room picture:first-child > img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.expert-room { width: 100%; }
+.expert-room img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.sk-group .sk-line { padding: 0 20px; color: var(--ink-2); }
+.sk-group .sk-names { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px 20px 18px; }
+.sk-group .sk-names span { font-size: .84rem; font-weight: 700; padding: 3px 10px; border: 1px solid var(--hair); border-radius: 999px; color: var(--ink-2); background: var(--surface-2); }
+.cmp.gives { max-width: 860px; }
+.cmp.gives table { min-width: 0; }
+.cmp.gives thead th:last-child, .cmp.gives td:last-child { background: color-mix(in srgb, var(--grape) 14%, var(--surface)); font-weight: 750; color: var(--ink); }
+
 /* ---------- hero ---------- */
 .hero { position: relative; min-height: calc(100vh - 72px); display: grid; place-items: center; text-align: center; padding: 40px 16px 90px; overflow: hidden; }
 .hero .blob { position: absolute; border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%; filter: blur(1px); opacity: var(--blob-o, .55); animation: morph 14s ease-in-out infinite; z-index: 0; }
@@ -472,7 +550,9 @@ a.tool-card .more { display: inline-block; margin-top: 8px; font-weight: 800; co
 .house-workshop, .house-parlour, .house-street { --place: #FFC93C; }
 .house-glasshouse { --place: #2FD18C; }
 .house-view { position: relative; overflow: hidden; height: min(calc(100svh - 70px), 60vw); min-height: 380px; background: #16141F; touch-action: pan-y; }
-.house-plate { position: absolute; max-width: none; user-select: none; -webkit-user-drag: none; transition: opacity .2s; }
+/* The room's picture fills the view from the first paint (no jump when place.js arrives): cut like a cover, on the part
+   of the room build.py worked out (object-position on the <img>); place.js then moves the cut, never the box. */
+.house-plate { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: cover; user-select: none; -webkit-user-drag: none; transition: opacity .2s; }
 .house.cut .house-plate, .house.cut .house-tuck { opacity: 0; }
 .house-tuck { position: absolute; left: 0; top: 0; pointer-events: none; transition: opacity .2s; }
 .house-view.gl-plate .house-plate { visibility: hidden; }  /* the live room (with its depth) is drawn in the canvas */
@@ -556,6 +636,10 @@ a.tool-card .more { display: inline-block; margin-top: 8px; font-weight: 800; co
   .house-card { position: relative; left: auto; bottom: auto; width: auto; max-height: none; margin: 12px; }
   .house-nav { position: static; padding: 0 12px 18px; }
   .house-nav .btn { padding: 8px 14px; }
+  /* A tour of eight rooms or more: Back and Next share one row and the dots get their own, so nothing is cut off. */
+  .house-nav:has(.house-dots > :nth-child(8)) { flex-wrap: wrap; gap: 10px 12px; }
+  .house-nav:has(.house-dots > :nth-child(8)) > .btn { flex: 1 1 40%; }
+  .house-nav:has(.house-dots > :nth-child(8)) > .house-dots { order: 3; }
   .house-hud { font-size: .82rem; left: 10px; top: auto; bottom: 10px; }
   .house-bubble { font-size: .84rem; padding: 8px 11px; max-width: min(250px, calc(100% - 24px)); }
 }
@@ -573,7 +657,8 @@ a.tool-card .more { display: inline-block; margin-top: 8px; font-weight: 800; co
 @media (max-width: 760px) { .expert-intro { grid-template-columns: 1fr; } }
 /* The tool pages of Busy Home and Busy Growth: the tool's own room, with the guide in it. */
 .tool-room { position: relative; margin: 0; overflow: hidden; border: 2px solid var(--border); border-radius: 26px; box-shadow: var(--shadow); background: #16141F; aspect-ratio: 16 / 9; }
-.tool-room img:first-child { display: block; width: 100%; height: 100%; object-fit: cover; }
+/* the figure's first picture fills it, also inside the <picture> that serves it as WebP (build.py webp_pictures) */
+.tool-room > img:first-child, .tool-room > picture:first-child > img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .tool-room .guide { position: absolute; right: 6%; bottom: 2%; height: 64%; width: auto; filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .35)); }
 /* A suite's tool cards open the tool's page. */
 a.card.feat { display: block; color: inherit; text-decoration: none; }
@@ -612,6 +697,14 @@ a.card.feat .go { display: inline-block; margin-top: 8px; font-weight: 800; font
 .two-doors { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 22px; }
 .film { margin: 22px auto 0; max-width: 900px; }
 .film video, .film-card video { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 14px; background: #111; display: block; border: 3px solid var(--ink, #1E1B2E); }
+/* A film's poster is fetched by site.js when the film comes near the screen (build.py webp_pictures). Without scripts
+   the copy in <noscript>, which has its poster, shows instead, and the film that waits for the script steps aside. */
+noscript:has(> video) { display: block; }
+noscript:has(> video) + video[data-lazy-poster] { display: none; }
+/* Until its poster is in, a film has no size of its own: it holds a 16:9 box as wide as its place, so nothing moves
+   when the poster arrives. :where() weighs nothing, so any rule that sizes a film (.film video, .press-item video)
+   wins. A film that stands loose on a page (Busy Kitchen's) no longer takes its poster's 1920 points and runs off it. */
+:where(video[data-lazy-poster], noscript > video) { width: 100%; height: auto; aspect-ratio: 16 / 9; }
 .film-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; margin-top: 28px; }
 .film-row.two { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 980px; margin-left: auto; margin-right: auto; }
 .film-card { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
@@ -671,3 +764,139 @@ picture { display: contents; }
 .kitchen-tile .txt { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px 16px; }
 .kitchen-tile .txt span { color: var(--ink-2); }
 .kitchen-tile .txt small { color: var(--ink-2); opacity: .8; }
+
+/* ---------- 2026-11-20: menu, pricing cards, download panel ---------- */
+/* The top bar on one line: links never break inside, and sit a little closer. Where they no longer fit, they fold
+   into the menu (a <details> in the bar, so it opens without scripts). */
+.nav .wrap { gap: 14px; }
+.nav .links { gap: 0; }
+.nav .links a, .nav .menu-links a { white-space: nowrap; }
+.nav .links a { padding: 8px 9px; }
+html[lang="de"] .nav .links a { padding-inline: 7px; font-size: .95rem; }  /* German has the longest words in the bar */
+.nav .menu { display: none; }
+.nav .menu > summary { list-style: none; display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 8px 14px; font-weight: 800; font-size: .95rem; border: 2px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--ink); box-shadow: var(--shadow-sm); cursor: pointer; user-select: none; }
+.nav .menu > summary::-webkit-details-marker { display: none; }
+.nav .menu > summary:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+.nav .menu-icon::before { content: "☰"; }
+.nav .menu[open] .menu-icon::before { content: "✕"; }
+.nav .menu[open] > summary { background: var(--sun); color: #1E1B2E; }
+.nav .menu-links { position: absolute; left: 0; right: 0; top: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 14px 16px 18px; max-height: calc(100vh - 72px); max-height: calc(100dvh - 72px); overflow: auto; background: var(--bg); border-block: 2px solid var(--border); box-shadow: 0 16px 30px rgba(0, 0, 0, .28); }
+.nav .menu-links a { display: flex; align-items: center; min-height: 48px; padding: 10px 14px; font-weight: 800; text-decoration: none; color: var(--ink); border: 2px solid var(--border); border-radius: 14px; background: var(--surface); }
+.nav .menu-links a:hover, .nav .menu-links a:focus-visible { background: color-mix(in srgb, var(--sun) 35%, var(--surface)); }
+.nav:has(.menu[open]) { background: var(--bg); border-color: var(--border); }
+@media (max-width: 1180px) {
+  .nav .links { display: none; }
+  .nav .wrap { gap: 10px; }
+  .nav .wrap > .btn { margin-left: auto; min-width: 0; flex-shrink: 1; overflow: hidden; text-overflow: ellipsis; }
+  .nav .menu { display: block; flex: none; }
+}
+@media (min-width: 620px) and (max-width: 1180px) { .nav .menu-links { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 430px) { .nav .menu-word { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; } .nav .menu > summary { padding: 8px 12px; } }
+@media (max-width: 400px) { .nav .wrap > .btn { padding: 9px 12px; font-size: .88rem; } }
+
+/* The homepage on a phone: a short picture of the street, then the headline, the offer and both buttons, all on
+   the first screen. The street stays: tap a building in the picture, or walk on with the buttons under the card. */
+@media (max-width: 760px) {
+  .house-street .house-view { height: 30svh; min-height: 190px; max-height: 300px; }
+  .house-street .house-card { margin: 10px 12px 12px; padding: 16px 16px 14px; }
+  .house-street .house-card h1 { margin: 6px 0 4px; }
+  .house-street .house-card .row-flex .btn { flex: 1 1 auto; min-height: 44px; font-size: .92rem; }
+  .house-street .house-card .house-task { margin-top: 12px; font-size: .95rem; }
+}
+
+/* On a phone every tour has Back and Next on one row and the dots under them: in any language nothing is cut off. */
+@media (max-width: 480px) {
+  .house-nav { flex-wrap: wrap; gap: 10px 12px; }
+  .house-nav > .btn { flex: 1 1 40%; }
+  .house-nav > .house-dots { order: 3; }
+  p.center > .btn { max-width: 100%; white-space: normal; }  /* a long label (German) wraps inside its button */
+}
+
+/* The one line about Claude under an expert's buy button. */
+/* (the block form, p.claude-line, is styled near the top; the inline form must not take its width limit or its gap) */
+small.claude-line { display: block; font-size: .82rem; line-height: 1.35; color: var(--ink-2); font-weight: 650; max-width: none; margin-top: 0; }
+.film-card .claude-line { margin-top: -2px; }
+/* The film row: one line under the row where the cards stand side by side, one in each card where they stack. */
+.film-note { margin-top: 16px !important; }
+@media (min-width: 901px) { .film-card .claude-line.in-film { display: none; } }
+@media (max-width: 900px) { .film-note { display: none; } }
+.footer.sitemap .foot-claude { grid-column: 1 / -1; margin: 0; font-size: .82rem; font-weight: 650; color: var(--ink-3); }
+.claude-line.in-card { display: none; }
+.offer-note { max-width: 1040px; margin: 12px auto 0; display: flex; flex-wrap: wrap; gap: 4px 18px; justify-content: flex-end; text-align: right; }
+.offer-note small { font-size: .82rem; color: var(--ink-3); font-weight: 650; }
+.claude-note { margin-top: 18px !important; }
+.path .fine .claude-line { display: inline; }
+.path .fine { color: var(--ink-2); }  /* the small print under the buy buttons carries the Claude sentence: readable in dark mode too */
+
+/* Five films: three and two, the two in the middle; four: two and two. One under another on a narrow screen. */
+.film-row:not(.two) { display: flex; flex-wrap: wrap; justify-content: center; }
+.film-row:not(.two) > .film-card { flex: 0 1 calc((100% - 44px) / 3); min-width: 0; }
+.film-row:not(.two):has(> :nth-child(4):last-child) > .film-card { flex-basis: calc((100% - 22px) / 2); max-width: 520px; }
+@media (max-width: 900px) { .film-row:not(.two) > .film-card { flex-basis: 100% !important; max-width: none !important; } }
+
+/* The suites: three and three; two by two on a tablet. The experts: three and two in the middle, and Sal in the sun colour. */
+@media (min-width: 900px) { .suites { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 600px) and (max-width: 899px) { .suites { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.experts { display: flex; flex-wrap: wrap; justify-content: center; }
+.experts > .expert { flex: 0 1 calc((100% - 40px) / 3); min-width: 0; }
+@media (max-width: 1000px) { .experts > .expert { flex-basis: calc((100% - 20px) / 2); } .experts > .expert:last-child:nth-child(odd) { flex-basis: 100%; } }
+@media (max-width: 600px) { .experts > .expert { flex-basis: 100%; } }
+.expert-chip.sal { background: #FFC93C; }
+.expert.sal { background: #2B230C; }
+.expert-emoji { flex: none; width: 84px; height: 84px; display: grid; place-items: center; font-size: 2.6rem; border-radius: 50%; background: #FFC93C; border: 3px solid #1E1B2E; }
+.dark-band .checks a { color: inherit; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+
+/* Pricing: "Which one first?", one line per expert. */
+.pricing-top { padding-bottom: 40px; }
+.section.which { padding: 30px 0 40px; }
+.section.which .center { margin-bottom: 22px; }
+.which-list { list-style: none; padding: 0; margin: 0 auto; max-width: 860px; display: grid; gap: 12px; }
+.which-row { display: flex; align-items: center; gap: 14px; padding: 14px 18px; text-decoration: none; color: var(--ink); font-weight: 650; transition: transform .15s; }
+.which-row:hover { transform: translate(-2px, -2px); }
+.which-row .which-line { flex: 1; min-width: 0; }
+.which-row .expert-chip { flex: none; }
+.which-row .which-go { flex: none; font-weight: 900; }
+@media (max-width: 700px) { .pricing-top { padding-top: 44px; } }
+.cmp.offer td:first-child { width: 24%; }
+
+/* On a phone the free-versus-paid table is a card per row, so the price and its button are on the screen. */
+@media (max-width: 700px) {
+  .cmp.offer { border: 0; border-radius: 0; background: none; box-shadow: none; overflow: visible; }
+  .cmp.offer table, .cmp.offer tbody { display: block; min-width: 0; }
+  .cmp.offer thead { display: none; }
+  .cmp.offer tr { display: flex; flex-direction: column; gap: 10px; padding: 16px; margin-bottom: 14px; background: var(--surface); border: 2px solid var(--border); border-radius: 18px; box-shadow: var(--shadow-sm); }
+  .cmp.offer td { display: block; padding: 0; border: 0; width: auto !important; }
+  .cmp.offer td:first-child { font-size: 1.15rem; }
+  .cmp.offer td[data-label]::before { content: attr(data-label); display: block; margin-bottom: 2px; font-size: .74rem; font-weight: 850; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-3); }
+  .cmp.offer td.none { display: none; }
+  .cmp.offer td:last-child { white-space: normal; font-weight: 800; color: var(--ink); }
+  .cmp.offer td:last-child .btn { width: 100%; min-height: 48px; }
+  .claude-line.in-card { display: block; margin-top: 8px; font-weight: 650; }
+  .offer-note { justify-content: flex-start; text-align: left; }
+  .offer-note > .claude-line { display: none; }
+}
+
+/* After a download click: the visitor's own system keeps the colour, and a panel says what happens next. */
+html[data-os="mac"] a.btn-primary[href*="/releases/latest/download/"][href$=".exe"],
+html[data-os="windows"] a.btn-primary[href*="/releases/latest/download/"][href$=".dmg"] { background: var(--surface); color: var(--ink); }
+html[data-os="windows"] a[href*="/releases/latest/download/"][href$=".exe"] { order: -1; }
+.dl-panel { position: fixed; right: 20px; bottom: 20px; z-index: 90; width: min(430px, calc(100vw - 24px)); max-height: calc(100vh - 40px); max-height: calc(100dvh - 40px); overflow: auto; padding: 20px 22px; text-align: left; border-width: 3px; box-shadow: 8px 8px 0 var(--shadow-c); animation: dl-in .35s cubic-bezier(.2, 1.2, .4, 1); }
+.dl-panel:focus { outline: none; }
+.dl-panel:focus-visible { outline: 3px solid var(--sun); outline-offset: 3px; }
+.dl-panel h2 { font-size: 1.3rem; line-height: 1.2; margin: 0 44px 6px 0; }
+.dl-panel p { margin: 8px 0 0; color: var(--ink-2); font-size: .98rem; }
+.dl-panel ol { margin: 10px 0 0; padding-left: 1.3em; display: grid; gap: 6px; color: var(--ink-2); font-size: .98rem; }
+.dl-panel .dl-file { font-weight: 800; color: var(--ink); overflow-wrap: anywhere; }
+.dl-panel .dl-again { font-size: .88rem; }
+.dl-close { position: absolute; right: 12px; top: 12px; width: 40px; height: 40px; display: grid; place-items: center; font: inherit; font-weight: 900; color: var(--ink); background: var(--surface); border: 2px solid var(--border); border-radius: 50%; cursor: pointer; }
+.dl-expert { margin-top: 14px; padding: 12px 14px; border: 2px dashed var(--border); border-radius: 14px; background: color-mix(in srgb, var(--sun) 14%, var(--surface)); }
+.dl-expert p:first-child { margin-top: 0; color: var(--ink); }
+.dl-expert .expert-chip { vertical-align: 1px; }
+.dl-expert .btn { margin-top: 10px; }
+.dl-panel .row-flex { margin-top: 14px; }
+.dl-copied { min-height: 1.3em; font-weight: 800; }
+@keyframes dl-in { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+@media (max-width: 560px) { .dl-panel { left: 12px; right: 12px; bottom: 12px; width: auto; max-height: calc(100dvh - 24px); } }
+@media (prefers-reduced-motion: reduce) { .dl-panel { animation: none; } }
+/* About: a tool's name, then what it does (the colon is drawn here, so the words are the ones each tool's page uses). */
+.about-tools li > :first-child + span::before { content: ": "; }

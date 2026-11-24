@@ -22,6 +22,9 @@ if (house) start(house).catch((e) => console.info('The place stays simple:', e &
 async function start(house) {
   const view = house.querySelector('[data-house-view]');
   const plates = [...view.querySelectorAll('[data-house-plate]')];
+  // WebP also where the browser chose the page's own WebP <source>: Safari shows WebP but cannot write it on a canvas,
+  // which is all the check at the top asks.
+  const webp = WEBP || /\.webp$/.test(plates[0].currentSrc || '');
   const spots = view.querySelector('[data-house-spots]');
   const bubble = view.querySelector('[data-tuck-bubble]');
   const card = house.querySelector('[data-house-card]');
@@ -47,7 +50,10 @@ async function start(house) {
     extra.rooms.forEach((r) => { r.base = house.dataset.extraPlates; data.rooms.push(r); });
   }
   const roomData = Object.fromEntries(data.rooms.map((r) => [r.id, r]));
-  const wide = () => innerWidth * Math.min(devicePixelRatio || 1, 2) > 1400;
+  // The 1920 picture on a big or sharp screen, the 1280 one on a phone: the page says which screens are which (the
+  // first picture's <source media>, build.py PLATE_WIDE), so the page and this script ask for the same file.
+  const wideMedia = (plates[0].parentElement.querySelector('source[media]') || {}).media;
+  const wide = () => (wideMedia ? matchMedia(wideMedia).matches : innerWidth * Math.min(devicePixelRatio || 1, 2) > 1400);
   const hour = new Date().getHours(), tod = hour >= 5 && hour < 11 ? 'morning' : hour >= 11 && hour < 17 ? 'day' : 'evening';
   const timeOf = (id) => (roomData[id] && roomData[id].times && roomData[id].times.includes(tod) && tod !== 'day' ? '-' + tod : '');
   // The season, by the date (Brazil's are the other way round); summer is the rooms as they always were. ?season=winter shows one.
@@ -57,7 +63,7 @@ async function start(house) {
   const season = asked || ((document.documentElement.lang || '').toLowerCase() === 'pt-br' ? flip[north] : north);
   const seasonOf = (id) => (roomData[id] && roomData[id].seasons && roomData[id].seasons.includes(season) ? '-' + season : '');
   const base = (id) => (roomData[id] && roomData[id].base) || house.dataset.housePlates;
-  const src = (id) => `${base(id)}room-${id}${seasonOf(id)}${timeOf(id)}-${wide() ? 1920 : 1280}.${WEBP ? 'webp' : 'jpg'}`;
+  const src = (id) => `${base(id)}room-${id}${seasonOf(id)}${timeOf(id)}-${wide() ? 1920 : 1280}.${webp ? 'webp' : 'jpg'}`;
   const depthSrc = (id) => `${base(id)}room-${id}-depth.png`;
   const ready = {};
   const preload = (id) => ready[id] || (ready[id] = new Promise((ok) => { const i = new Image(); i.onload = i.onerror = ok; i.src = src(id); }));
@@ -72,7 +78,10 @@ async function start(house) {
     if (fh < H) { fh = H; fw = H * 16 / 9; }
     const ox = Math.min(0, Math.max(W - fw, W / 2 - focusX * fw)), oy = (H - fh) / 2;
     frame = { W, H, fw, fh, ox, oy };
-    plates.concat(film ? [film] : []).forEach((p) => Object.assign(p.style, { width: fw + 'px', height: fh + 'px', left: ox + 'px', top: oy + 'px' }));
+    // The picture keeps its box (the whole view, from the first paint: site.css) and only moves its cut, so the page
+    // doesn't jump when this script arrives; the intro film is laid over it at the room's full size.
+    plates.forEach((p) => { p.style.objectPosition = ox + 'px ' + oy + 'px'; });
+    if (film) Object.assign(film.style, { width: fw + 'px', height: fh + 'px', left: ox + 'px', top: oy + 'px' });
     if (tuck) tuck.frame(frame);
     place();
   }
@@ -134,6 +143,9 @@ async function start(house) {
     const s = steps[at], r = roomData[s.plate];
     const front = plates[0];
     front.src = src(s.plate);
+    // The page's first picture comes in a <picture> with WebP sources (build.py webp_pictures): a <source> wins over
+    // src, so it goes once the rooms are this script's to show. Otherwise the first room would stay on screen.
+    if (front.parentElement.tagName === 'PICTURE') front.parentElement.querySelectorAll('source').forEach((x) => x.parentNode.removeChild(x));
     front.alt = `${r.name}, rendered in the Busy Studio`;
     title.textContent = s.el.dataset.title;
     count.textContent = `${at + 1} / ${steps.length}`;
@@ -322,7 +334,11 @@ async function start(house) {
   });
 
   show(at);
-  intro();
+  // The intro film waits until the page itself is in (the load event): it is the heaviest thing on the page and must not
+  // slow the first picture down. A visitor who is already walking round by then doesn't get it.
+  let walking = false;
+  ['pointerdown', 'keydown', 'wheel'].forEach((e) => house.addEventListener(e, () => { walking = true; }, { once: true, passive: true }));
+  if (document.readyState === 'complete') intro(); else addEventListener('load', intro, { once: true });
   // The intro: the first room's short film (busy-studio render_loops.sh: the camera drifts in and back), once, over the
   // room, then the room itself. It starts and ends on the room's own camera, so the hand-over doesn't jump. Not when the
   // visitor saves data, and any tap ends it.
@@ -335,12 +351,15 @@ async function start(house) {
     const when = force ? [tod, 'day', 'evening'].map((t) => sea + t).find((k) => loops && loops[k]) : sea + tod;
     const file = loops && at === 0 && loops[when] && (loops[when][lang] || (force && loops[when].en));
     // It plays with reduced motion too (the owner's choice, 2026-11-03: the drift is small and slow, like the guides).
-    if (!file || (!force && navigator.connection && navigator.connection.saveData)) return;
+    if (!file || (!force && (walking || (navigator.connection && navigator.connection.saveData)))) return;
     film = document.createElement('video');
     Object.assign(film, { muted: true, playsInline: true, preload: 'auto', src: base(steps[0].plate) + file });
     film.className = 'house-film'; film.setAttribute('aria-hidden', 'true');
-    view.append(film); house.classList.add('intro'); layout();
-    const v = film, end = () => {
+    view.append(film); layout();
+    // the room's spots and words step aside once the film really plays, not while it is still on its way
+    const v = film;
+    v.addEventListener('playing', () => { if (!v.dataset.end) house.classList.add('intro'); }, { once: true });
+    const end = () => {
       if (v.dataset.end) return;
       v.dataset.end = '1'; v.classList.add('gone'); house.classList.remove('intro');
       setTimeout(() => { v.remove(); if (film === v) film = null; }, 700);

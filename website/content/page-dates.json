@@ -1,212 +1,216 @@
 {
 "_": "Each page: [the fingerprint of its title, description and main content, the date that content last changed]. build.py settle_dates() keeps it; only pages of the last build are listed.",
 "about.html": [
-"4e75de466107e819",
-"2026-11-18"
+"4029e2e5415a7f1a",
+"2026-11-24"
 ],
 "business/board.html": [
-"4fb14e4b75e45d61",
-"2026-11-15"
+"dbd6588bf3ba95ea",
+"2026-11-24"
 ],
 "business/brand.html": [
-"61bada88172e4f33",
-"2026-11-15"
+"845be7dd5ee27e54",
+"2026-11-24"
 ],
 "business/clients.html": [
-"5d10b67d04f91077",
-"2026-11-15"
+"ef298af99290bf3e",
+"2026-11-24"
 ],
 "business/docs.html": [
-"e31a7e2f362e2fd5",
-"2026-11-15"
+"d0e27e23679455fe",
+"2026-11-24"
 ],
 "business/download.html": [
 "814a26280ff86cfe",
 "2026-11-15"
 ],
 "business/expenses.html": [
-"5e938f66a440acc4",
-"2026-11-15"
+"7c80209b98fedd05",
+"2026-11-24"
 ],
 "business/index.html": [
-"5af788b8cee19a7a",
-"2026-11-15"
+"9199a7a782995f40",
+"2026-11-24"
 ],
 "business/invoices.html": [
-"2b36ec03b74250f2",
-"2026-11-15"
+"6643119c73083481",
+"2026-11-24"
 ],
 "business/marketing.html": [
-"04ce3359ac537bd4",
-"2026-11-15"
+"799ac5e469e63482",
+"2026-11-24"
 ],
 "business/money.html": [
-"d94dc4ea3ada5ad2",
-"2026-11-15"
+"c76a9ea7498358ef",
+"2026-11-24"
 ],
 "business/olaf.html": [
-"36508ab3ff18e32a",
-"2026-11-15"
+"199c6a318d6bc726",
+"2026-11-24"
 ],
 "business/projects.html": [
-"756ad9f773fa6737",
-"2026-11-15"
+"249ec224ad040779",
+"2026-11-24"
 ],
 "business/quiet-month.html": [
-"1540661f03cd7553",
-"2026-11-16"
+"009867d2484d5ea9",
+"2026-11-24"
 ],
 "business/stock.html": [
-"edc631ed32b5fd24",
-"2026-11-15"
+"48dc501ab54ea949",
+"2026-11-24"
 ],
 "business/subscriptions.html": [
-"53a6c48d663aa02b",
-"2026-11-15"
+"8487ed11068a39dc",
+"2026-11-24"
 ],
 "business/time.html": [
-"2022ca92f4a456dc",
-"2026-11-15"
+"38398bdc9fd07a1d",
+"2026-11-24"
 ],
 "business/tools.html": [
-"b4d80da67fe98052",
-"2026-11-15"
+"745b8a2e6c82943d",
+"2026-11-24"
 ],
 "business/trips.html": [
-"7bb3677e7f94d811",
-"2026-11-15"
+"58299b3c7ff9ab4e",
+"2026-11-24"
 ],
 "claude-key.html": [
-"76c43bf27c1cb8eb",
-"2026-11-15"
+"9e55b2bcbb42a658",
+"2026-11-24"
 ],
 "close-the-year.html": [
 "f40e7c186995c6d4",
 "2026-11-16"
 ],
 "de/about.html": [
-"5d78f390d87f2c52",
-"2026-11-18"
+"9b6d6d8cdc53fa8a",
+"2026-11-24"
 ],
 "de/business/board.html": [
-"744f28ab944df467",
-"2026-11-15"
+"037363d391c38fb7",
+"2026-11-24"
 ],
 "de/business/brand.html": [
-"2bf307fad2fca864",
-"2026-11-15"
+"db99b6a940db115d",
+"2026-11-24"
 ],
 "de/business/clients.html": [
-"f4d69f9075015208",
-"2026-11-15"
+"e59a15c1365a2a8a",
+"2026-11-24"
 ],
 "de/business/docs.html": [
-"e33096535fb70a6e",
-"2026-11-15"
+"cdc27e8b12e0d484",
+"2026-11-24"
 ],
 "de/business/download.html": [
 "7201643ad0316fce",
 "2026-11-15"
 ],
 "de/business/expenses.html": [
-"30c00c940f06fc63",
-"2026-11-15"
+"e4145b562e43a7e5",
+"2026-11-24"
 ],
 "de/business/index.html": [
-"561dc00eb5ab0237",
-"2026-11-17"
+"6f668dde3717f916",
+"2026-11-24"
 ],
 "de/business/invoices.html": [
-"3d3aa1024f742e5e",
-"2026-11-15"
+"58c11d32e1a03452",
+"2026-11-24"
 ],
 "de/business/marketing.html": [
-"45451861c721b05b",
-"2026-11-15"
+"3e3b9b38b6609e8a",
+"2026-11-24"
 ],
 "de/business/money.html": [
-"37c4276d89856114",
-"2026-11-15"
+"a8116886151d46b8",
+"2026-11-24"
 ],
 "de/business/olaf.html": [
-"cb931300b118db3b",
-"2026-11-15"
+"c167a98e014607db",
+"2026-11-24"
 ],
 "de/business/projects.html": [
-"67129ce7bf738f24",
-"2026-11-15"
+"cfea4291573c2a76",
+"2026-11-24"
 ],
 "de/business/quiet-month.html": [
-"b948a8c848280f57",
-"2026-11-16"
+"4421e68e64c32713",
+"2026-11-24"
 ],
 "de/business/stock.html": [
-"5fdd3d4c9d3b04fe",
-"2026-11-15"
+"489d2b731928eef5",
+"2026-11-24"
 ],
 "de/business/subscriptions.html": [
-"c99f6bc0c5c021ca",
-"2026-11-15"
+"a0d0b4fc5140d6b0",
+"2026-11-24"
 ],
 "de/business/time.html": [
-"b66e473cb6dcd5c1",
-"2026-11-15"
+"8500d48f4e5dfd23",
+"2026-11-24"
 ],
 "de/business/tools.html": [
-"a1a3eb8e09dc85ea",
-"2026-11-15"
+"34bfe5757e80405e",
+"2026-11-24"
 ],
 "de/business/trips.html": [
-"3febd21275ac034d",
-"2026-11-15"
+"ff08a10cbe31785b",
+"2026-11-24"
 ],
 "de/claude-key.html": [
-"45d5f44d74b3804e",
-"2026-11-15"
+"5d255fe6ef550673",
+"2026-11-24"
 ],
 "de/close-the-year.html": [
 "e3215d6edbff3d31",
 "2026-11-16"
 ],
 "de/films/busy-business.html": [
-"0e4883c7b53a855e",
-"2026-11-16"
+"5b3d1c93d1bc828b",
+"2026-11-24"
 ],
 "de/films/busy-games.html": [
-"480c0cd5ffe0eb35",
-"2026-11-16"
+"8009736547b73a93",
+"2026-11-24"
 ],
 "de/films/busy-growth.html": [
-"e622999ca4d08ac3",
-"2026-11-16"
+"d4abb5c12342cf08",
+"2026-11-24"
 ],
 "de/films/busy-home.html": [
-"83c5a7197a0e388a",
-"2026-11-16"
+"01c6ebc55ddaf1f0",
+"2026-11-24"
+],
+"de/films/busy-kitchen.html": [
+"8611035bc4b8ce9e",
+"2026-11-24"
 ],
 "de/films/busy-rentals.html": [
-"ca801bdbeb56da89",
-"2026-11-17"
+"d28c5fdcc353ed19",
+"2026-11-24"
 ],
 "de/films/busy-street-3d.html": [
-"7c550b79b949b022",
-"2026-11-16"
+"7634d6b3f181454f",
+"2026-11-24"
 ],
 "de/films/index.html": [
-"bc5d33d0fe2b5328",
-"2026-11-18"
+"4763f184db2748c7",
+"2026-11-24"
 ],
 "de/films/tucks-errand.html": [
-"62b3aabcaeb14be2",
-"2026-11-16"
+"7a39b38e9c2e1796",
+"2026-11-24"
 ],
 "de/games/duo.html": [
 "6aae077eb7579c01",
 "2026-11-15"
 ],
 "de/games/index.html": [
-"66449fbe8054986e",
-"2026-11-15"
+"84bcedabe2aed92f",
+"2026-11-24"
 ],
 "de/games/six.html": [
 "c17184beb5135529",
@@ -225,260 +229,276 @@
 "2026-11-15"
 ],
 "de/growth/contacts.html": [
-"d1aa55dffb98f9f3",
-"2026-11-15"
+"c7e1180fab167de8",
+"2026-11-24"
 ],
 "de/growth/cv.html": [
-"effb06eb1ae5c487",
-"2026-11-15"
+"c9865ed30d37bddb",
+"2026-11-24"
 ],
 "de/growth/index.html": [
-"892053789a277e45",
-"2026-11-15"
+"d5093a0a207562b6",
+"2026-11-24"
+],
+"de/growth/ivy.html": [
+"5ce40f34e990f5cd",
+"2026-11-24"
 ],
 "de/growth/jobs.html": [
-"fc110735612f4c9c",
-"2026-11-15"
+"ce211b747a534758",
+"2026-11-24"
 ],
 "de/growth/learning.html": [
-"87d0bac8780d7031",
-"2026-11-15"
+"70691079d1c3085e",
+"2026-11-24"
 ],
 "de/growth/library.html": [
-"b24db69751898b81",
-"2026-11-15"
+"c1d33889dbf8cfd3",
+"2026-11-24"
 ],
 "de/growth/review.html": [
-"fc56de3d336d7592",
-"2026-11-15"
+"faee48b57cefe730",
+"2026-11-24"
 ],
 "de/growth/skills.html": [
-"106d0b2453e4eb1d",
-"2026-11-15"
+"4498468d605b57e4",
+"2026-11-24"
 ],
 "de/growth/stories.html": [
-"2ed9d11b69512bba",
-"2026-11-15"
+"ebcb4eed14f82ce7",
+"2026-11-24"
 ],
 "de/growth/wins.html": [
-"082ed60a0546b7fd",
-"2026-11-15"
+"44efad19457f076b",
+"2026-11-24"
 ],
 "de/growth/your-review.html": [
-"c47d7ff0394ba5d5",
-"2026-11-16"
+"c884216deb22dfad",
+"2026-11-24"
 ],
 "de/home/binder.html": [
-"f506db7ba92a876d",
-"2026-11-17"
+"72dd68ea27da01c7",
+"2026-11-24"
 ],
 "de/home/contracts.html": [
-"a34f05f5989cbfd0",
-"2026-11-17"
+"616e8c54721439f0",
+"2026-11-24"
 ],
 "de/home/costs.html": [
-"03c1ca6f15e303eb",
-"2026-11-17"
+"4cc42d41007820f8",
+"2026-11-24"
 ],
 "de/home/index.html": [
-"d77239b9de75d4f9",
-"2026-11-17"
+"eb2382b67a6ed9dd",
+"2026-11-24"
 ],
 "de/home/inventory.html": [
-"bcf92cbbfc3c84e8",
-"2026-11-17"
+"05cc5cbc64d9d80f",
+"2026-11-24"
+],
+"de/home/juno.html": [
+"b0e23c2f9defb039",
+"2026-11-24"
 ],
 "de/home/letters.html": [
-"6fc20f93cee5d840",
-"2026-11-17"
+"6a1b7680bfa146bc",
+"2026-11-24"
 ],
 "de/home/moving.html": [
-"2f7d934b0a9a151d",
-"2026-11-17"
+"2b214fd590af407b",
+"2026-11-24"
 ],
 "de/home/papers.html": [
-"2e28b55ab70ae43a",
-"2026-11-17"
+"8ee8fe2e507114d9",
+"2026-11-24"
 ],
 "de/home/upkeep.html": [
-"3f548744f919e468",
-"2026-11-17"
+"413fc33b44719eeb",
+"2026-11-24"
 ],
 "de/index.html": [
-"c4b773e6eefcd497",
-"2026-11-18"
+"e60c0e4689ef88f7",
+"2026-11-24"
 ],
 "de/kitchen/index.html": [
-"8aa639039f09b28b",
-"2026-11-18"
+"7b43dc5b26924a5a",
+"2026-11-24"
+],
+"de/kitchen/sal.html": [
+"1170db1f8395de0a",
+"2026-11-24"
 ],
 "de/press.html": [
-"51a8bc2ef9babf66",
-"2026-11-18"
+"41e91e58e6127f13",
+"2026-11-24"
 ],
 "de/pricing.html": [
-"410223ac4a3c25b2",
-"2026-11-17"
+"2337a202bf37330d",
+"2026-11-24"
 ],
 "de/privacy.html": [
-"8528342311cfeeb3",
-"2026-11-15"
+"47e672357f28fb14",
+"2026-11-24"
 ],
 "de/rentals/homes.html": [
-"bb54bf1041ae21f7",
-"2026-11-17"
+"d332314195b1c2d7",
+"2026-11-24"
 ],
 "de/rentals/index.html": [
-"4e8fff2f5173f4ac",
-"2026-11-17"
+"8caf4d44552d7a9d",
+"2026-11-24"
 ],
 "de/rentals/rent.html": [
-"7dda6371d170acbf",
-"2026-11-17"
+"ef5bec4814284595",
+"2026-11-24"
 ],
 "de/rentals/rentcosts.html": [
-"048159fefc5b09ff",
-"2026-11-17"
+"9137cfff5a20a266",
+"2026-11-24"
 ],
 "de/rentals/rentletters.html": [
-"220137ff335c7d3e",
-"2026-11-17"
+"33626895fc7c6af2",
+"2026-11-24"
 ],
 "de/rentals/wren.html": [
-"8a84eec62d7f9c0e",
-"2026-11-17"
+"2f229b0d49413c00",
+"2026-11-24"
 ],
 "de/terms.html": [
-"b98431dfffe164a1",
-"2026-11-15"
+"e172859d379c0254",
+"2026-11-24"
 ],
 "de/updates.html": [
-"7a08563c742a114d",
-"2026-11-18"
+"6b550411e5fa0081",
+"2026-11-24"
 ],
 "es/about.html": [
-"1cc95ae2dc478166",
-"2026-11-18"
+"9899344974d3fd76",
+"2026-11-24"
 ],
 "es/business/board.html": [
-"394ceba2b73e4873",
-"2026-11-15"
+"7bdb6e4fc5544ff3",
+"2026-11-24"
 ],
 "es/business/brand.html": [
-"2567230c9b5a589d",
-"2026-11-15"
+"bc03aae9afeadbd7",
+"2026-11-24"
 ],
 "es/business/clients.html": [
-"54dd2676af3cc0c9",
-"2026-11-15"
+"d9790be469119a27",
+"2026-11-24"
 ],
 "es/business/docs.html": [
-"366111a7f4078938",
-"2026-11-15"
+"00a2c57a8158d26b",
+"2026-11-24"
 ],
 "es/business/download.html": [
 "79ddc435774ae679",
 "2026-11-15"
 ],
 "es/business/expenses.html": [
-"59e874b30db24150",
-"2026-11-15"
+"38d672289c53d127",
+"2026-11-24"
 ],
 "es/business/index.html": [
-"74a0f58b6a200a2f",
-"2026-11-17"
+"16e20c5d6de9caec",
+"2026-11-24"
 ],
 "es/business/invoices.html": [
-"eddf211955519754",
-"2026-11-15"
+"a53bc36667f29e1c",
+"2026-11-24"
 ],
 "es/business/marketing.html": [
-"4a1035d79e6f4890",
-"2026-11-15"
+"9949dd0aa3846b99",
+"2026-11-24"
 ],
 "es/business/money.html": [
-"815b7a0ccd94b734",
-"2026-11-15"
+"b5a391f71dc1b805",
+"2026-11-24"
 ],
 "es/business/olaf.html": [
-"748a5714ea11912e",
-"2026-11-15"
+"23310dbb7873b871",
+"2026-11-24"
 ],
 "es/business/projects.html": [
-"d6bdf0ff005347a0",
-"2026-11-15"
+"3e3afda3b5d7ec04",
+"2026-11-24"
 ],
 "es/business/quiet-month.html": [
-"a8dae3ec2f2b5cbd",
-"2026-11-16"
+"a85954925fb987e0",
+"2026-11-24"
 ],
 "es/business/stock.html": [
-"e1043a750d042280",
-"2026-11-15"
+"a2a5e7812a2c2b88",
+"2026-11-24"
 ],
 "es/business/subscriptions.html": [
-"5319a232f768c730",
-"2026-11-15"
+"35895f161e26100c",
+"2026-11-24"
 ],
 "es/business/time.html": [
-"955a2dc7405179af",
-"2026-11-15"
+"eb647e10335409f8",
+"2026-11-24"
 ],
 "es/business/tools.html": [
-"be9088b3e1ebd07d",
-"2026-11-15"
+"fa0bf52b75daa9e0",
+"2026-11-24"
 ],
 "es/business/trips.html": [
-"8bf3007b452d1491",
-"2026-11-15"
+"b33139a7966aacc3",
+"2026-11-24"
 ],
 "es/claude-key.html": [
-"1d5080d3aa7e2cd6",
-"2026-11-15"
+"4f235f3650311f4a",
+"2026-11-24"
 ],
 "es/close-the-year.html": [
 "a77e19886aed99dd",
 "2026-11-16"
 ],
 "es/films/busy-business.html": [
-"e9ee684f64a167b5",
-"2026-11-16"
+"017a55a480dacfed",
+"2026-11-24"
 ],
 "es/films/busy-games.html": [
-"e8344b87b46ef696",
-"2026-11-16"
+"ed7aafb028b516b0",
+"2026-11-24"
 ],
 "es/films/busy-growth.html": [
-"8c60cb13b189fe17",
-"2026-11-16"
+"94d13c7afe654c60",
+"2026-11-24"
 ],
 "es/films/busy-home.html": [
-"c42d91f6443ad5b7",
-"2026-11-16"
+"8a61f80be375964b",
+"2026-11-24"
+],
+"es/films/busy-kitchen.html": [
+"8be1b0b7f635aee7",
+"2026-11-24"
 ],
 "es/films/busy-rentals.html": [
-"98f1e670a28b14c3",
-"2026-11-17"
+"d72ca0ed02a04b66",
+"2026-11-24"
 ],
 "es/films/busy-street-3d.html": [
-"90cf27cfd6a4aa7f",
-"2026-11-16"
+"59b79a7601522187",
+"2026-11-24"
 ],
 "es/films/index.html": [
-"995faa9660289118",
-"2026-11-18"
+"26d45cbd8309adc1",
+"2026-11-24"
 ],
 "es/films/tucks-errand.html": [
-"e2f311de037e29c2",
-"2026-11-16"
+"b902f6581cbc8b47",
+"2026-11-24"
 ],
 "es/games/duo.html": [
 "b3fa637ea1367ad1",
 "2026-11-15"
 ],
 "es/games/index.html": [
-"2d470ffc5238a7dc",
-"2026-11-15"
+"3a1d1dde252af0cf",
+"2026-11-24"
 ],
 "es/games/six.html": [
 "64a6bb820342fbca",
@@ -497,176 +517,192 @@
 "2026-11-15"
 ],
 "es/growth/contacts.html": [
-"7e4ae2c76d0533ed",
-"2026-11-15"
+"ddc99de345ad7250",
+"2026-11-24"
 ],
 "es/growth/cv.html": [
-"03b08e7b9b3e457c",
-"2026-11-15"
+"ae41e4b422665873",
+"2026-11-24"
 ],
 "es/growth/index.html": [
-"2fe01ee9885bd589",
-"2026-11-15"
+"1a3a45ec3c2d23b4",
+"2026-11-24"
+],
+"es/growth/ivy.html": [
+"86462690b9ef52ac",
+"2026-11-24"
 ],
 "es/growth/jobs.html": [
-"7ae23019d77fd221",
-"2026-11-15"
+"642994a5d9a11c2e",
+"2026-11-24"
 ],
 "es/growth/learning.html": [
-"8a514619d9b0d64e",
-"2026-11-15"
+"61623aa609d25d1f",
+"2026-11-24"
 ],
 "es/growth/library.html": [
-"5b9ac75576686a43",
-"2026-11-15"
+"0bbf521f132c0d21",
+"2026-11-24"
 ],
 "es/growth/review.html": [
-"e4b7af1f2d143452",
-"2026-11-15"
+"fb5505422ec16b05",
+"2026-11-24"
 ],
 "es/growth/skills.html": [
-"74042dfbbe2e0d3a",
-"2026-11-15"
+"4ce68549b89e02a3",
+"2026-11-24"
 ],
 "es/growth/stories.html": [
-"23ad837c99af843f",
-"2026-11-15"
+"3fb1dc3d9ab7ffe6",
+"2026-11-24"
 ],
 "es/growth/wins.html": [
-"7f7d73409388ed88",
-"2026-11-15"
+"17e5b29844409856",
+"2026-11-24"
 ],
 "es/growth/your-review.html": [
-"c3dea289d5ef4126",
-"2026-11-16"
+"fe8ed71a3bf398d4",
+"2026-11-24"
 ],
 "es/home/binder.html": [
-"9ad5d10cb760b5af",
-"2026-11-17"
+"e44c0e29b414ec17",
+"2026-11-24"
 ],
 "es/home/contracts.html": [
-"ab0dc25eeef81725",
-"2026-11-17"
+"1c38c15d0a19e66d",
+"2026-11-24"
 ],
 "es/home/costs.html": [
-"1fb1a9d56128301d",
-"2026-11-17"
+"a9c96509a8f09238",
+"2026-11-24"
 ],
 "es/home/index.html": [
-"56a63808a51a556b",
-"2026-11-17"
+"0cdbcdad7f8ef6de",
+"2026-11-24"
 ],
 "es/home/inventory.html": [
-"0c5d4e7cdb23c22b",
-"2026-11-17"
+"0d4dea55cf2a49bf",
+"2026-11-24"
+],
+"es/home/juno.html": [
+"04d4968df63c4b7e",
+"2026-11-24"
 ],
 "es/home/letters.html": [
-"522432cdcda1a092",
-"2026-11-17"
+"4853ae537adc00ba",
+"2026-11-24"
 ],
 "es/home/moving.html": [
-"1963db0517b42536",
-"2026-11-17"
+"ef066293e1e7dd90",
+"2026-11-24"
 ],
 "es/home/papers.html": [
-"539b46f15f935a2b",
-"2026-11-17"
+"5c087e04616eb516",
+"2026-11-24"
 ],
 "es/home/upkeep.html": [
-"bedfc808a302ca20",
-"2026-11-17"
+"00af3bb2cd1271db",
+"2026-11-24"
 ],
 "es/index.html": [
-"47a49fadf5983186",
-"2026-11-18"
+"3dc55202e36e1964",
+"2026-11-24"
 ],
 "es/kitchen/index.html": [
-"3fc7c5ad3fc58428",
-"2026-11-18"
+"99c1c13ae84b27e8",
+"2026-11-24"
+],
+"es/kitchen/sal.html": [
+"80d3686c23b91d4a",
+"2026-11-24"
 ],
 "es/press.html": [
-"b2e6c1d52a20e3cf",
-"2026-11-18"
+"3c7e986e340d650f",
+"2026-11-24"
 ],
 "es/pricing.html": [
-"ed6b910b35b1c279",
-"2026-11-17"
+"0d1d7bd104d0760e",
+"2026-11-24"
 ],
 "es/privacy.html": [
-"0ad34c96ef5cb8ec",
-"2026-11-15"
+"2689a3f1fa7ef4fe",
+"2026-11-24"
 ],
 "es/rentals/homes.html": [
-"d8ba9fba270ba312",
-"2026-11-17"
+"2d3b2a1556a6aa49",
+"2026-11-24"
 ],
 "es/rentals/index.html": [
-"c8e3a3c87b277843",
-"2026-11-17"
+"031ec33eab4cda85",
+"2026-11-24"
 ],
 "es/rentals/rent.html": [
-"86e887cfa78dae72",
-"2026-11-17"
+"e4e360e639bc81e1",
+"2026-11-24"
 ],
 "es/rentals/rentcosts.html": [
-"e025f5c9e77ad177",
-"2026-11-17"
+"9af5d4f34843d506",
+"2026-11-24"
 ],
 "es/rentals/rentletters.html": [
-"dc51e4b646b7ef8e",
-"2026-11-17"
+"08701a75f73694f8",
+"2026-11-24"
 ],
 "es/rentals/wren.html": [
-"7e968232f4f8bd85",
-"2026-11-17"
+"929da43787db9b89",
+"2026-11-24"
 ],
 "es/terms.html": [
-"19ea6283387386cf",
-"2026-11-15"
+"c9b7e0775917aa3d",
+"2026-11-24"
 ],
 "es/updates.html": [
-"4034755aee1d2bcc",
-"2026-11-18"
+"bcf95d161d921ff8",
+"2026-11-24"
 ],
 "films/busy-business.html": [
-"92585af5f8d2df16",
-"2026-11-16"
+"99363a7e2e37211b",
+"2026-11-24"
 ],
 "films/busy-games.html": [
-"9fde2089bc0986c0",
-"2026-11-16"
+"bd2fabf15e16d12e",
+"2026-11-24"
 ],
 "films/busy-growth.html": [
-"f8d1b34c58811679",
-"2026-11-16"
+"e6a317b2715ed218",
+"2026-11-24"
 ],
 "films/busy-home.html": [
-"570dad6d92e69750",
-"2026-11-16"
+"ed5b788b49abf857",
+"2026-11-24"
+],
+"films/busy-kitchen.html": [
+"027dc1891e84252e",
+"2026-11-24"
 ],
 "films/busy-rentals.html": [
-"e3e5258315c72845",
-"2026-11-17"
+"6acac34c79c1ad17",
+"2026-11-24"
 ],
 "films/busy-street-3d.html": [
-"7735fba43a015d93",
-"2026-11-16"
+"4c10f4cfa785846f",
+"2026-11-24"
 ],
 "films/index.html": [
-"e7a7966f6e941c4f",
-"2026-11-18"
+"72b81ac42eb4e567",
+"2026-11-24"
 ],
 "films/tucks-errand.html": [
-"7834adb287d5c4a1",
-"2026-11-16"
+"67dc9dea6e31b2a7",
+"2026-11-24"
 ],
 "games/duo.html": [
 "4790d5e515828125",
 "2026-11-15"
 ],
 "games/index.html": [
-"f242c1496a49b10d",
-"2026-11-15"
+"180f5ee91325d6bb",
+"2026-11-24"
 ],
 "games/six.html": [
 "251cc639b69e26fa",
@@ -685,212 +721,224 @@
 "2026-11-15"
 ],
 "growth/contacts.html": [
-"3d24487c3430109d",
-"2026-11-15"
+"f8cc0bc59710caa4",
+"2026-11-24"
 ],
 "growth/cv.html": [
-"9deee153297796cd",
-"2026-11-15"
+"920c34a5a764868c",
+"2026-11-24"
 ],
 "growth/index.html": [
-"9561b595a5722f6a",
-"2026-11-15"
+"5ecadd442940ef21",
+"2026-11-24"
+],
+"growth/ivy.html": [
+"655762776a53174a",
+"2026-11-24"
 ],
 "growth/jobs.html": [
-"9e08f34d86c61727",
-"2026-11-15"
+"a7f1c53c886c63ec",
+"2026-11-24"
 ],
 "growth/learning.html": [
-"94b11a705b0e8dc5",
-"2026-11-15"
+"b30f0d8858670815",
+"2026-11-24"
 ],
 "growth/library.html": [
-"9aa9aa0dc6e9fde3",
-"2026-11-15"
+"859de2635a63de42",
+"2026-11-24"
 ],
 "growth/review.html": [
-"d4dd01d1cf3bcfb4",
-"2026-11-15"
+"8865425ca3d63919",
+"2026-11-24"
 ],
 "growth/skills.html": [
-"c85e4b8b55eedd9f",
-"2026-11-15"
+"27403e6dcb537355",
+"2026-11-24"
 ],
 "growth/stories.html": [
-"d6e8d110d06b691c",
-"2026-11-15"
+"a2f1fa853734acc9",
+"2026-11-24"
 ],
 "growth/wins.html": [
-"71708ee3b2376454",
-"2026-11-15"
+"6ae266426667c8b2",
+"2026-11-24"
 ],
 "growth/your-review.html": [
-"7cf8df9568a300f7",
-"2026-11-16"
+"a00932579bfa574a",
+"2026-11-24"
 ],
 "home/binder.html": [
-"27e1cd3846dcffec",
-"2026-11-17"
+"beb5bcafe55986db",
+"2026-11-24"
 ],
 "home/contracts.html": [
-"827e2061f523e314",
-"2026-11-17"
+"baba2760b37c17f0",
+"2026-11-24"
 ],
 "home/costs.html": [
-"24a8520a06e47bd6",
-"2026-11-17"
+"2695be44b4c4d2dd",
+"2026-11-24"
 ],
 "home/index.html": [
-"c7ee4b6f10b57354",
-"2026-11-17"
+"f74ec7c42559d142",
+"2026-11-24"
 ],
 "home/inventory.html": [
-"5188a262a583b917",
-"2026-11-17"
+"f5bbe5e4e4c4b893",
+"2026-11-24"
+],
+"home/juno.html": [
+"bd80aa4f588228ba",
+"2026-11-24"
 ],
 "home/letters.html": [
-"12d2170ebedf8f5c",
-"2026-11-17"
+"e0f5d7c9c98cad8e",
+"2026-11-24"
 ],
 "home/moving.html": [
-"283bd7f128b0748e",
-"2026-11-17"
+"22be8bd171042135",
+"2026-11-24"
 ],
 "home/papers.html": [
-"a7eb9d14b971755d",
-"2026-11-17"
+"0f22ec3c08e206a6",
+"2026-11-24"
 ],
 "home/upkeep.html": [
-"51f86a8e3c60a327",
-"2026-11-17"
+"8ac0e11f45fa601a",
+"2026-11-24"
 ],
 "index.html": [
-"45841319d1de8fc8",
-"2026-11-18"
+"699fe44a91e13185",
+"2026-11-24"
 ],
 "it/about.html": [
-"94a78680a3a4a07f",
-"2026-11-18"
+"f3df44ecdcc02fa1",
+"2026-11-24"
 ],
 "it/business/board.html": [
-"80e674bf7dcce6a6",
-"2026-11-15"
+"ab0411387785fc4f",
+"2026-11-24"
 ],
 "it/business/brand.html": [
-"f2b7b9d1fd9f55d1",
-"2026-11-15"
+"38d71633cd41715c",
+"2026-11-24"
 ],
 "it/business/clients.html": [
-"931d4f5629b1312f",
-"2026-11-15"
+"e08374fc2c2e42e5",
+"2026-11-24"
 ],
 "it/business/docs.html": [
-"1943c1b6e51c888e",
-"2026-11-15"
+"9885f1e1deab34c1",
+"2026-11-24"
 ],
 "it/business/download.html": [
 "bcbee01fd66e9cb6",
 "2026-11-15"
 ],
 "it/business/expenses.html": [
-"ad67b8ad22eddac2",
-"2026-11-15"
+"f6e6c7690dea7bcc",
+"2026-11-24"
 ],
 "it/business/index.html": [
-"ca150b675d49d11a",
-"2026-11-17"
+"92f35ce8c329484c",
+"2026-11-24"
 ],
 "it/business/invoices.html": [
-"64dd162c88d99635",
-"2026-11-15"
+"90061c6f51d6b072",
+"2026-11-24"
 ],
 "it/business/marketing.html": [
-"5176279ce045ffb6",
-"2026-11-15"
+"da412b1a100e3efd",
+"2026-11-24"
 ],
 "it/business/money.html": [
-"8fefe380963a4b2d",
-"2026-11-15"
+"440cd23fcd975095",
+"2026-11-24"
 ],
 "it/business/olaf.html": [
-"b8758bcf26d6f3cd",
-"2026-11-15"
+"35ca6fd6d599b13e",
+"2026-11-24"
 ],
 "it/business/projects.html": [
-"be33a34f095e6f91",
-"2026-11-15"
+"9fa07635589dc470",
+"2026-11-24"
 ],
 "it/business/quiet-month.html": [
-"420a2d03ab390e2b",
-"2026-11-16"
+"c582ad23901a33cd",
+"2026-11-24"
 ],
 "it/business/stock.html": [
-"8fb1363a56b7a970",
-"2026-11-15"
+"7a5994a9791da060",
+"2026-11-24"
 ],
 "it/business/subscriptions.html": [
-"8c7f9a9ee7d7ae8b",
-"2026-11-15"
+"6a9e773e2c452ff6",
+"2026-11-24"
 ],
 "it/business/time.html": [
-"15a6bf9894f96c79",
-"2026-11-15"
+"7896d05b003bc384",
+"2026-11-24"
 ],
 "it/business/tools.html": [
-"c78f5b1f0593e464",
-"2026-11-15"
+"2a91581fb28694d0",
+"2026-11-24"
 ],
 "it/business/trips.html": [
-"4d54034f55bfb7c7",
-"2026-11-15"
+"6611ab3994fe31e0",
+"2026-11-24"
 ],
 "it/claude-key.html": [
-"47cb3b8791dbbc0c",
-"2026-11-15"
+"b74ba6c59d2ae671",
+"2026-11-24"
 ],
 "it/close-the-year.html": [
 "2920850c0b50c750",
 "2026-11-16"
 ],
 "it/films/busy-business.html": [
-"1d513beacba65b0c",
-"2026-11-16"
+"794c851307924b33",
+"2026-11-24"
 ],
 "it/films/busy-games.html": [
-"49a19de9d4bea616",
-"2026-11-16"
+"66409916423d4d16",
+"2026-11-24"
 ],
 "it/films/busy-growth.html": [
-"c06974d989e05dc3",
-"2026-11-16"
+"ebfbad069345c488",
+"2026-11-24"
 ],
 "it/films/busy-home.html": [
-"5d1026917c5bdba2",
-"2026-11-16"
+"b02de798406550fb",
+"2026-11-24"
+],
+"it/films/busy-kitchen.html": [
+"577c9e81403bb910",
+"2026-11-24"
 ],
 "it/films/busy-rentals.html": [
-"598785cb06e31923",
-"2026-11-17"
+"af7a98f73508fbf3",
+"2026-11-24"
 ],
 "it/films/busy-street-3d.html": [
-"693a625e9879a8dd",
-"2026-11-16"
+"6aeae389688a09db",
+"2026-11-24"
 ],
 "it/films/index.html": [
-"56182ce5390a9502",
-"2026-11-18"
+"e17c4503c48a4178",
+"2026-11-24"
 ],
 "it/films/tucks-errand.html": [
-"023dfbba4a34c3b8",
-"2026-11-16"
+"f06756a0840c8c72",
+"2026-11-24"
 ],
 "it/games/duo.html": [
 "3c82a3486d7b9efc",
 "2026-11-15"
 ],
 "it/games/index.html": [
-"4afb25cb9bf5343b",
-"2026-11-15"
+"5b4d3aad171c895d",
+"2026-11-24"
 ],
 "it/games/six.html": [
 "5e7f0f3da7679c5f",
@@ -909,264 +957,284 @@
 "2026-11-15"
 ],
 "it/growth/contacts.html": [
-"62166e547e688e25",
-"2026-11-15"
+"4ea00e71b8090d35",
+"2026-11-24"
 ],
 "it/growth/cv.html": [
-"5c322874ee44c924",
-"2026-11-15"
+"4917e4092aab6f78",
+"2026-11-24"
 ],
 "it/growth/index.html": [
-"2359327c39895a55",
-"2026-11-15"
+"d79f1408b0ec91f4",
+"2026-11-24"
+],
+"it/growth/ivy.html": [
+"4c5d081fd1f9ca91",
+"2026-11-24"
 ],
 "it/growth/jobs.html": [
-"804eee4b81546968",
-"2026-11-15"
+"6e3c16e1d0e3156c",
+"2026-11-24"
 ],
 "it/growth/learning.html": [
-"f1228e0e7c8095ab",
-"2026-11-15"
+"70f75e86b036859a",
+"2026-11-24"
 ],
 "it/growth/library.html": [
-"dfd590ec46e8b817",
-"2026-11-15"
+"c251f08cc98badeb",
+"2026-11-24"
 ],
 "it/growth/review.html": [
-"bd02f97f063a42d2",
-"2026-11-15"
+"b7c0120a64af83bd",
+"2026-11-24"
 ],
 "it/growth/skills.html": [
-"b9ad0c502034719c",
-"2026-11-15"
+"e5ad679c99022b51",
+"2026-11-24"
 ],
 "it/growth/stories.html": [
-"90fa9a32e2c8738d",
-"2026-11-15"
+"836ca6743b5ca816",
+"2026-11-24"
 ],
 "it/growth/wins.html": [
-"78b10e8ff0305e3b",
-"2026-11-15"
+"c7bb9d42edde513e",
+"2026-11-24"
 ],
 "it/growth/your-review.html": [
-"bb95b4f1766b0b37",
-"2026-11-16"
+"1e104f3121364e83",
+"2026-11-24"
 ],
 "it/home/binder.html": [
-"681ebb98c5ca2228",
-"2026-11-17"
+"1c4b3621f2b41038",
+"2026-11-24"
 ],
 "it/home/contracts.html": [
-"891d7cc502ef6b2d",
-"2026-11-17"
+"eae625af49c042be",
+"2026-11-24"
 ],
 "it/home/costs.html": [
-"2acddb0c586f3621",
-"2026-11-17"
+"3952911105159051",
+"2026-11-24"
 ],
 "it/home/index.html": [
-"86ab9af551783981",
-"2026-11-17"
+"f5b10d6ebc68b6b7",
+"2026-11-24"
 ],
 "it/home/inventory.html": [
-"72fc8fcbda5088eb",
-"2026-11-17"
+"04910e3071e144a6",
+"2026-11-24"
+],
+"it/home/juno.html": [
+"d5cd482bd251c3c6",
+"2026-11-24"
 ],
 "it/home/letters.html": [
-"e6176627bfdc601e",
-"2026-11-17"
+"c74ce04297f138e9",
+"2026-11-24"
 ],
 "it/home/moving.html": [
-"ef4dc489a7e1e3d3",
-"2026-11-17"
+"95e4b4f916cd158b",
+"2026-11-24"
 ],
 "it/home/papers.html": [
-"72b673fdbc3ef535",
-"2026-11-17"
+"adb0d980a4234371",
+"2026-11-24"
 ],
 "it/home/upkeep.html": [
-"20210047fe4fe829",
-"2026-11-17"
+"fcd606f948d65612",
+"2026-11-24"
 ],
 "it/index.html": [
-"c65c8d0cc9a7bb4e",
-"2026-11-18"
+"2ff0fcd4ef7ad077",
+"2026-11-24"
 ],
 "it/kitchen/index.html": [
-"c025d2d1f48d9f6a",
-"2026-11-18"
+"b75916f9486f1402",
+"2026-11-24"
+],
+"it/kitchen/sal.html": [
+"5f93f37027ea25a9",
+"2026-11-24"
 ],
 "it/press.html": [
-"206e0aad4d12aa2f",
-"2026-11-18"
+"49109f57743ed793",
+"2026-11-24"
 ],
 "it/pricing.html": [
-"547542697d9d3587",
-"2026-11-17"
+"1b4704fc81cdf7c0",
+"2026-11-24"
 ],
 "it/privacy.html": [
-"07f2187d9e8eb954",
-"2026-11-15"
+"b8306ce911522a13",
+"2026-11-24"
 ],
 "it/rentals/homes.html": [
-"b3c26878385b1413",
-"2026-11-17"
+"8f9bff2dc9f4e009",
+"2026-11-24"
 ],
 "it/rentals/index.html": [
-"d8ebb26abd5fd419",
-"2026-11-17"
+"21e7cf1c73127579",
+"2026-11-24"
 ],
 "it/rentals/rent.html": [
-"898a38e41bb26e0f",
-"2026-11-17"
+"1747aa4f57d397f5",
+"2026-11-24"
 ],
 "it/rentals/rentcosts.html": [
-"c3e6108b681f5e84",
-"2026-11-17"
+"83819a8d32013863",
+"2026-11-24"
 ],
 "it/rentals/rentletters.html": [
-"72ed08e8fd1f91dd",
-"2026-11-17"
+"2ea0ae4581d8ab01",
+"2026-11-24"
 ],
 "it/rentals/wren.html": [
-"906b9f5a8ca4a32b",
-"2026-11-17"
+"20cee0def9a87ba6",
+"2026-11-24"
 ],
 "it/terms.html": [
-"256be1d711264c91",
-"2026-11-15"
+"a8fac486c5f39019",
+"2026-11-24"
 ],
 "it/updates.html": [
-"08c7b4d9588c877c",
-"2026-11-18"
+"bbe31fee203d3d9d",
+"2026-11-24"
 ],
 "kitchen/index.html": [
-"e8ddeb3d59cd8193",
-"2026-11-18"
+"7e0628b0784836e1",
+"2026-11-24"
+],
+"kitchen/sal.html": [
+"a6fcdf6e704b3318",
+"2026-11-24"
 ],
 "nl/about.html": [
-"155274241c2120c1",
-"2026-11-18"
+"b2f00ebd3f4fa4e5",
+"2026-11-24"
 ],
 "nl/business/board.html": [
-"169e80dd919dd070",
-"2026-11-15"
+"bfb9307dc28bf189",
+"2026-11-24"
 ],
 "nl/business/brand.html": [
-"8d097d4e6f79e36c",
-"2026-11-15"
+"431f1f7beaf461d2",
+"2026-11-24"
 ],
 "nl/business/clients.html": [
-"76daa01f5a651690",
-"2026-11-15"
+"22f6ba0682fc6324",
+"2026-11-24"
 ],
 "nl/business/docs.html": [
-"1a4ee2a38ced565a",
-"2026-11-15"
+"cec897174060b11d",
+"2026-11-24"
 ],
 "nl/business/download.html": [
 "4aa3e3a9abff70d2",
 "2026-11-15"
 ],
 "nl/business/expenses.html": [
-"3deca1fbddcb97bb",
-"2026-11-15"
+"e0f3c11335c84804",
+"2026-11-24"
 ],
 "nl/business/index.html": [
-"ef8aaa547a9af703",
-"2026-11-17"
+"2307f1e86f578608",
+"2026-11-24"
 ],
 "nl/business/invoices.html": [
-"82ac025dce02f887",
-"2026-11-15"
+"d4b458c371539df7",
+"2026-11-24"
 ],
 "nl/business/marketing.html": [
-"9c20b54e52d3b628",
-"2026-11-15"
+"8483c4850200b69e",
+"2026-11-24"
 ],
 "nl/business/money.html": [
-"b688b06fad8e4e38",
-"2026-11-15"
+"05e1bc8ec76c2375",
+"2026-11-24"
 ],
 "nl/business/olaf.html": [
-"36c8d4a8b4164e79",
-"2026-11-15"
+"cea6e62159444b5d",
+"2026-11-24"
 ],
 "nl/business/projects.html": [
-"c12901064af7e58f",
-"2026-11-15"
+"1c061d0e0f55d9f7",
+"2026-11-24"
 ],
 "nl/business/quiet-month.html": [
-"c2abf1c66d092c29",
-"2026-11-16"
+"5615b2adff36f823",
+"2026-11-24"
 ],
 "nl/business/stock.html": [
-"1ec671110f76f6d3",
-"2026-11-15"
+"4aabc1fd57fd51fb",
+"2026-11-24"
 ],
 "nl/business/subscriptions.html": [
-"36b8d844b1f37202",
-"2026-11-15"
+"8a3cf8ba00bbc183",
+"2026-11-24"
 ],
 "nl/business/time.html": [
-"ab1c152be8372549",
-"2026-11-15"
+"359422bb566e9ca4",
+"2026-11-24"
 ],
 "nl/business/tools.html": [
-"64ec38c1ccce11ba",
-"2026-11-15"
+"9b1ad2a64261689a",
+"2026-11-24"
 ],
 "nl/business/trips.html": [
-"4de82b2cc4c5fd8d",
-"2026-11-15"
+"f808b578c5ee7bb0",
+"2026-11-24"
 ],
 "nl/claude-key.html": [
-"ab132bc0340cc8ca",
-"2026-11-15"
+"6012f6f3583ee42e",
+"2026-11-24"
 ],
 "nl/close-the-year.html": [
 "f4101346a4e97ae5",
 "2026-11-16"
 ],
 "nl/films/busy-business.html": [
-"512158540aa14e31",
-"2026-11-16"
+"060136e39b52c063",
+"2026-11-24"
 ],
 "nl/films/busy-games.html": [
-"96743daea662b4c3",
-"2026-11-16"
+"230ba605d3d403fa",
+"2026-11-24"
 ],
 "nl/films/busy-growth.html": [
-"4091aaf0e4c11544",
-"2026-11-16"
+"b7fcbf73ccfd6630",
+"2026-11-24"
 ],
 "nl/films/busy-home.html": [
-"e1d4b3545094fead",
-"2026-11-16"
+"c5c0f84076845fd5",
+"2026-11-24"
+],
+"nl/films/busy-kitchen.html": [
+"0e118b3ad4595316",
+"2026-11-24"
 ],
 "nl/films/busy-rentals.html": [
-"a39f2aab65660875",
-"2026-11-17"
+"902208cf041f7c0e",
+"2026-11-24"
 ],
 "nl/films/busy-street-3d.html": [
-"fb8c53e36e851504",
-"2026-11-16"
+"6b416274bc434287",
+"2026-11-24"
 ],
 "nl/films/index.html": [
-"cc48daec11df65cf",
-"2026-11-18"
+"153a8d8e7a55a313",
+"2026-11-24"
 ],
 "nl/films/tucks-errand.html": [
-"ab38881efea9fd6d",
-"2026-11-16"
+"1ea6e2705008c807",
+"2026-11-24"
 ],
 "nl/games/duo.html": [
 "d1a63f6c3dd87b7a",
 "2026-11-15"
 ],
 "nl/games/index.html": [
-"71b87bb5becf5baf",
-"2026-11-15"
+"bf329ec10893c149",
+"2026-11-24"
 ],
 "nl/games/six.html": [
 "757d74a56fae0940",
@@ -1185,272 +1253,288 @@
 "2026-11-15"
 ],
 "nl/growth/contacts.html": [
-"a96d387c9ecf48da",
-"2026-11-15"
+"6f340a40f0b614a0",
+"2026-11-24"
 ],
 "nl/growth/cv.html": [
-"7f47e635d7a664c5",
-"2026-11-15"
+"1f09bd21de2a58e0",
+"2026-11-24"
 ],
 "nl/growth/index.html": [
-"d8ac1a419ba884e5",
-"2026-11-15"
+"69d6221d7a42eb54",
+"2026-11-24"
+],
+"nl/growth/ivy.html": [
+"e550583d4728c81c",
+"2026-11-24"
 ],
 "nl/growth/jobs.html": [
-"51a72c64a3c2228e",
-"2026-11-15"
+"0810cd6b6fcbd129",
+"2026-11-24"
 ],
 "nl/growth/learning.html": [
-"ea56883846495073",
-"2026-11-15"
+"078ebaaeb4212433",
+"2026-11-24"
 ],
 "nl/growth/library.html": [
-"26d07533ccdf34de",
-"2026-11-15"
+"04e322c4acf05164",
+"2026-11-24"
 ],
 "nl/growth/review.html": [
-"00f7fa9604f28e27",
-"2026-11-15"
+"30e612d7d5c63d70",
+"2026-11-24"
 ],
 "nl/growth/skills.html": [
-"f843d76491fbd302",
-"2026-11-15"
+"6decb5ed6a717cac",
+"2026-11-24"
 ],
 "nl/growth/stories.html": [
-"4128ad3ec636470d",
-"2026-11-15"
+"ca94fc2a660d2641",
+"2026-11-24"
 ],
 "nl/growth/wins.html": [
-"66f3eda6df898b92",
-"2026-11-15"
+"88f44ef509fe6bac",
+"2026-11-24"
 ],
 "nl/growth/your-review.html": [
-"d15f4c5951b7f321",
-"2026-11-16"
+"5658b59c37fad280",
+"2026-11-24"
 ],
 "nl/home/binder.html": [
-"41b1627001ddd399",
-"2026-11-17"
+"ecd756abde4fcfb6",
+"2026-11-24"
 ],
 "nl/home/contracts.html": [
-"6a3484e82b5a55a6",
-"2026-11-17"
+"f6aabd81fe1a1e20",
+"2026-11-24"
 ],
 "nl/home/costs.html": [
-"2218f4799d4926c5",
-"2026-11-17"
+"a579bf5fb1c731d7",
+"2026-11-24"
 ],
 "nl/home/index.html": [
-"440ca95bf99e421d",
-"2026-11-17"
+"0df80bf16740f83f",
+"2026-11-24"
 ],
 "nl/home/inventory.html": [
-"b972eecc74a508ad",
-"2026-11-17"
+"67777d00d43c11ea",
+"2026-11-24"
+],
+"nl/home/juno.html": [
+"085d3fcafc2b4444",
+"2026-11-24"
 ],
 "nl/home/letters.html": [
-"55a3ee51d9281a14",
-"2026-11-17"
+"31d47783f173c21a",
+"2026-11-24"
 ],
 "nl/home/moving.html": [
-"597dd41241c2db7a",
-"2026-11-17"
+"0f85abcd1a9034de",
+"2026-11-24"
 ],
 "nl/home/papers.html": [
-"58fcdea99374962e",
-"2026-11-17"
+"df568f785f82d4ec",
+"2026-11-24"
 ],
 "nl/home/upkeep.html": [
-"a8d4a2a97c6e9394",
-"2026-11-17"
+"4ecb493032be7cea",
+"2026-11-24"
 ],
 "nl/index.html": [
-"d48f07ab687a92d7",
-"2026-11-18"
+"0faeba070d54ddfa",
+"2026-11-24"
 ],
 "nl/kitchen/index.html": [
-"d82cace061d4ebbe",
-"2026-11-18"
+"99b14e8871fb57f1",
+"2026-11-24"
+],
+"nl/kitchen/sal.html": [
+"79f69c8d0e72c57b",
+"2026-11-24"
 ],
 "nl/press.html": [
-"efb799de4c40092d",
-"2026-11-18"
+"283ca894d4eb0fb9",
+"2026-11-24"
 ],
 "nl/pricing.html": [
-"cd820736157f7c71",
-"2026-11-17"
+"213de0647e041302",
+"2026-11-24"
 ],
 "nl/privacy.html": [
-"482ccde025b09907",
-"2026-11-15"
+"941d4f0c3a056b9d",
+"2026-11-24"
 ],
 "nl/rentals/homes.html": [
-"ac8773c7191fbf3f",
-"2026-11-17"
+"4859c4f6e8a9384d",
+"2026-11-24"
 ],
 "nl/rentals/index.html": [
-"359e185daecae24b",
-"2026-11-17"
+"2f049d839568fd23",
+"2026-11-24"
 ],
 "nl/rentals/rent.html": [
-"11caf0e66a15cdf4",
-"2026-11-17"
+"07ee3c2a68523dec",
+"2026-11-24"
 ],
 "nl/rentals/rentcosts.html": [
-"8063e0a404efd8a1",
-"2026-11-17"
+"a30534cb3a3c87e5",
+"2026-11-24"
 ],
 "nl/rentals/rentletters.html": [
-"d6bc839c62308e1f",
-"2026-11-17"
+"0a5af0ba712ec57c",
+"2026-11-24"
 ],
 "nl/rentals/wren.html": [
-"d3e7d8b2c0cd2f21",
-"2026-11-17"
+"a271521e542ff619",
+"2026-11-24"
 ],
 "nl/terms.html": [
-"951d21500702a7d6",
-"2026-11-15"
+"3ee319e8ac91a573",
+"2026-11-24"
 ],
 "nl/updates.html": [
-"64901097657d8bd7",
-"2026-11-18"
+"ff2dd96ee40d8124",
+"2026-11-24"
 ],
 "press.html": [
-"60413045d5fca65c",
-"2026-11-18"
+"3eaa8e53093cf7ac",
+"2026-11-24"
 ],
 "pricing.html": [
-"ca6fd72da02d9014",
-"2026-11-17"
+"e9c4473eca9ebb6d",
+"2026-11-24"
 ],
 "privacy.html": [
-"7a19fa41efdd67c2",
-"2026-11-15"
+"e8918a7b8d003f2c",
+"2026-11-24"
 ],
 "pt-br/about.html": [
-"2b0a033412eb6c66",
-"2026-11-18"
+"197f5ad9d92b1851",
+"2026-11-24"
 ],
 "pt-br/business/board.html": [
-"bbe055ea7abeb184",
-"2026-11-15"
+"f75d682a73bccdf0",
+"2026-11-24"
 ],
 "pt-br/business/brand.html": [
-"54578d8a6e161ff5",
-"2026-11-15"
+"cf7684c679707b8e",
+"2026-11-24"
 ],
 "pt-br/business/clients.html": [
-"6c252c5af04aeb2a",
-"2026-11-15"
+"530bd80bff822a66",
+"2026-11-24"
 ],
 "pt-br/business/docs.html": [
-"69d243ed8f019aef",
-"2026-11-15"
+"b4231a469f7da6d1",
+"2026-11-24"
 ],
 "pt-br/business/download.html": [
 "b0be7f7609208dca",
 "2026-11-15"
 ],
 "pt-br/business/expenses.html": [
-"de3fbc49daba51f4",
-"2026-11-15"
+"8ad570f960c9e7c3",
+"2026-11-24"
 ],
 "pt-br/business/index.html": [
-"40cf58cd38ffa6aa",
-"2026-11-17"
+"33e65d0fc7bb42e1",
+"2026-11-24"
 ],
 "pt-br/business/invoices.html": [
-"1bea2c21ffe10388",
-"2026-11-15"
+"24438c2d36fe9acd",
+"2026-11-24"
 ],
 "pt-br/business/marketing.html": [
-"17ee0d65bf9d357e",
-"2026-11-15"
+"502bf1e5b624c465",
+"2026-11-24"
 ],
 "pt-br/business/money.html": [
-"d9c65e70a8c7bd6d",
-"2026-11-15"
+"c5282280a6fc6d05",
+"2026-11-24"
 ],
 "pt-br/business/olaf.html": [
-"42855dc8cd7beeb5",
-"2026-11-15"
+"a2c93464179da867",
+"2026-11-24"
 ],
 "pt-br/business/projects.html": [
-"32f219a9999dbfa0",
-"2026-11-15"
+"96195e7f9b4c3f42",
+"2026-11-24"
 ],
 "pt-br/business/quiet-month.html": [
-"85a7dd68c0ad4f9d",
-"2026-11-16"
+"8156d8e852cb7fc7",
+"2026-11-24"
 ],
 "pt-br/business/stock.html": [
-"cde3ace3ae39219a",
-"2026-11-15"
+"a043ca3fb09ac925",
+"2026-11-24"
 ],
 "pt-br/business/subscriptions.html": [
-"c1ffbf245aad0f07",
-"2026-11-15"
+"a1ab82810bdbc127",
+"2026-11-24"
 ],
 "pt-br/business/time.html": [
-"6a6c9e87a88cbbf6",
-"2026-11-15"
+"cb90b34dab2e46e5",
+"2026-11-24"
 ],
 "pt-br/business/tools.html": [
-"08cb7dd295b0b392",
-"2026-11-15"
+"27511f88671b55a9",
+"2026-11-24"
 ],
 "pt-br/business/trips.html": [
-"32d37dfb88fc8d99",
-"2026-11-15"
+"016ccf13fe3a06f6",
+"2026-11-24"
 ],
 "pt-br/claude-key.html": [
-"d5a1a22ee3fbe818",
-"2026-11-15"
+"4ff83aecde0cd849",
+"2026-11-24"
 ],
 "pt-br/close-the-year.html": [
 "6f77289cd6b90dd1",
 "2026-11-16"
 ],
 "pt-br/films/busy-business.html": [
-"b792183051e61899",
-"2026-11-16"
+"dac1c85a255b1d3a",
+"2026-11-24"
 ],
 "pt-br/films/busy-games.html": [
-"97b706a75b974c39",
-"2026-11-16"
+"c7a699c37483cb86",
+"2026-11-24"
 ],
 "pt-br/films/busy-growth.html": [
-"7c79386d5f47a543",
-"2026-11-16"
+"6a3bed7a512af095",
+"2026-11-24"
 ],
 "pt-br/films/busy-home.html": [
-"f753d88069fc9bf1",
-"2026-11-16"
+"bbe8d2a2343ea18f",
+"2026-11-24"
+],
+"pt-br/films/busy-kitchen.html": [
+"65da15f41f1aa80c",
+"2026-11-24"
 ],
 "pt-br/films/busy-rentals.html": [
-"672364d90dd95bc6",
-"2026-11-17"
+"96b427b104145e1d",
+"2026-11-24"
 ],
 "pt-br/films/busy-street-3d.html": [
-"c8a6925dfa3d0720",
-"2026-11-16"
+"bbd6d316770662a7",
+"2026-11-24"
 ],
 "pt-br/films/index.html": [
-"faca80d39b71f2d6",
-"2026-11-18"
+"f5f5e62a67572284",
+"2026-11-24"
 ],
 "pt-br/films/tucks-errand.html": [
-"0e5220dba351f001",
-"2026-11-16"
+"5075fb344f3971e8",
+"2026-11-24"
 ],
 "pt-br/games/duo.html": [
 "2bcf255f0f2d4087",
 "2026-11-15"
 ],
 "pt-br/games/index.html": [
-"a7a9790e342fd919",
-"2026-11-15"
+"6107cbee4c8074e2",
+"2026-11-24"
 ],
 "pt-br/games/six.html": [
 "b422972420947369",
@@ -1469,167 +1553,179 @@
 "2026-11-15"
 ],
 "pt-br/growth/contacts.html": [
-"ebd4ea45d39faa48",
-"2026-11-15"
+"414f8746df5f4163",
+"2026-11-24"
 ],
 "pt-br/growth/cv.html": [
-"5ded74124005e5f3",
-"2026-11-15"
+"a150bdf3e4c7dc7f",
+"2026-11-24"
 ],
 "pt-br/growth/index.html": [
-"58cff807ed2f24f6",
-"2026-11-15"
+"fbc268df2a17d0d1",
+"2026-11-24"
+],
+"pt-br/growth/ivy.html": [
+"cf56119a6345596c",
+"2026-11-24"
 ],
 "pt-br/growth/jobs.html": [
-"85f9b188ca1e270a",
-"2026-11-15"
+"be5c761619d25079",
+"2026-11-24"
 ],
 "pt-br/growth/learning.html": [
-"657e16c531f630b2",
-"2026-11-15"
+"1144ca75668d3cf0",
+"2026-11-24"
 ],
 "pt-br/growth/library.html": [
-"1cedfba7683a0165",
-"2026-11-15"
+"c53f70f5303647d4",
+"2026-11-24"
 ],
 "pt-br/growth/review.html": [
-"fa6e0eb783858240",
-"2026-11-15"
+"6ebbedc65d4deadf",
+"2026-11-24"
 ],
 "pt-br/growth/skills.html": [
-"77b295a478dff52a",
-"2026-11-15"
+"5a3ebd6fa181638d",
+"2026-11-24"
 ],
 "pt-br/growth/stories.html": [
-"a78db673ac5b95c7",
-"2026-11-15"
+"3ad4f3ce8a4bcd5c",
+"2026-11-24"
 ],
 "pt-br/growth/wins.html": [
-"e8a3be19dbf9e984",
-"2026-11-15"
+"d1d0b86c5fd3e0ed",
+"2026-11-24"
 ],
 "pt-br/growth/your-review.html": [
-"6f06fd0b157a3277",
-"2026-11-16"
+"2f2ff8afe906b4a8",
+"2026-11-24"
 ],
 "pt-br/home/binder.html": [
-"49f3fc1631b62b76",
-"2026-11-17"
+"ea2593f2380a71df",
+"2026-11-24"
 ],
 "pt-br/home/contracts.html": [
-"e8a2a34ae2fc07fe",
-"2026-11-17"
+"f91963ad522baf1a",
+"2026-11-24"
 ],
 "pt-br/home/costs.html": [
-"85e3809618563338",
-"2026-11-17"
+"4fc86236de29afae",
+"2026-11-24"
 ],
 "pt-br/home/index.html": [
-"370778f049a65338",
-"2026-11-17"
+"95459ac5943184f2",
+"2026-11-24"
 ],
 "pt-br/home/inventory.html": [
-"31b686ae858ab40b",
-"2026-11-17"
+"5947ca98e258e63a",
+"2026-11-24"
+],
+"pt-br/home/juno.html": [
+"2e8b124ba38d24a8",
+"2026-11-24"
 ],
 "pt-br/home/letters.html": [
-"6275f44d5f5b5f85",
-"2026-11-17"
+"09b83ec8654c86cd",
+"2026-11-24"
 ],
 "pt-br/home/moving.html": [
-"3925ba2c7394a3f9",
-"2026-11-17"
+"eaff987251497a30",
+"2026-11-24"
 ],
 "pt-br/home/papers.html": [
-"2a85abed7bd95c51",
-"2026-11-17"
+"0f99479a3be1986d",
+"2026-11-24"
 ],
 "pt-br/home/upkeep.html": [
-"1f509854b52f1ed5",
-"2026-11-17"
+"d57ba47a6cababc0",
+"2026-11-24"
 ],
 "pt-br/index.html": [
-"8130943367ebda8c",
-"2026-11-18"
+"402c62ab6c8fd211",
+"2026-11-24"
 ],
 "pt-br/kitchen/index.html": [
-"0fea16db0bec3e0c",
-"2026-11-18"
+"b3219101c9b6b662",
+"2026-11-24"
+],
+"pt-br/kitchen/sal.html": [
+"bdc96296cd0e06d5",
+"2026-11-24"
 ],
 "pt-br/press.html": [
-"fea803e46295da0e",
-"2026-11-18"
+"f4282825ee74a195",
+"2026-11-24"
 ],
 "pt-br/pricing.html": [
-"d22508bc4e669403",
-"2026-11-17"
+"c06275e8e2c7c154",
+"2026-11-24"
 ],
 "pt-br/privacy.html": [
-"2e564759674557ef",
-"2026-11-15"
+"506d745b99e5cdd1",
+"2026-11-24"
 ],
 "pt-br/rentals/homes.html": [
-"d52ecabafe818c16",
-"2026-11-17"
+"f7824456cfd261ba",
+"2026-11-24"
 ],
 "pt-br/rentals/index.html": [
-"7d22d65ae26b5291",
-"2026-11-17"
+"27b1e2725284c9ba",
+"2026-11-24"
 ],
 "pt-br/rentals/rent.html": [
-"93ba7c4262f6187c",
-"2026-11-17"
+"53c6d8362b6fb8da",
+"2026-11-24"
 ],
 "pt-br/rentals/rentcosts.html": [
-"63775ca9979e03d7",
-"2026-11-17"
+"b3573dbc84c2a162",
+"2026-11-24"
 ],
 "pt-br/rentals/rentletters.html": [
-"321a5c809a3d563d",
-"2026-11-17"
+"ab36a6392834b4b5",
+"2026-11-24"
 ],
 "pt-br/rentals/wren.html": [
-"b701842258de1dfc",
-"2026-11-17"
+"e44921d65d2f3cbd",
+"2026-11-24"
 ],
 "pt-br/terms.html": [
-"2557fb2ffefc5d18",
-"2026-11-15"
+"a7019efcb576ee83",
+"2026-11-24"
 ],
 "pt-br/updates.html": [
-"d3b52bdf3a338c9c",
-"2026-11-18"
+"11baf20bc94e2d52",
+"2026-11-24"
 ],
 "rentals/homes.html": [
-"79b9c39fa0433c2a",
-"2026-11-17"
+"65bd914c3292b33e",
+"2026-11-24"
 ],
 "rentals/index.html": [
-"753102f3e375a355",
-"2026-11-17"
+"1d806faa66853552",
+"2026-11-24"
 ],
 "rentals/rent.html": [
-"4ea9200d013d0b5a",
-"2026-11-17"
+"7e4637d6ec561e16",
+"2026-11-24"
 ],
 "rentals/rentcosts.html": [
-"af942c6bd81c7fa9",
-"2026-11-17"
+"22f127822737e0fc",
+"2026-11-24"
 ],
 "rentals/rentletters.html": [
-"60de4370b07a38a2",
-"2026-11-17"
+"473ae209dd1a3c33",
+"2026-11-24"
 ],
 "rentals/wren.html": [
-"7485ad65465ec646",
-"2026-11-17"
+"dd73bbea095f81a9",
+"2026-11-24"
 ],
 "terms.html": [
-"11b5f0862ad66c56",
-"2026-11-15"
+"7cd45aeef9bcc0e9",
+"2026-11-24"
 ],
 "updates.html": [
-"29b43bdf68ddc147",
-"2026-11-18"
+"26ec562d858cf749",
+"2026-11-24"
 ]
 }
