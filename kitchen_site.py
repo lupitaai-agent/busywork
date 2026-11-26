@@ -343,7 +343,7 @@ def pages(d: dict, ctx: dict) -> list:
 {guides(PAGES[k['id']] + ".html")}"""
         title, desc = t("k_title", label=lab, n=n), t("k_desc", label=lab, n=n)
         ld = ctx["jsonld"]({"@context": "https://schema.org", "@type": "CollectionPage", "name": title, "description": desc, "url": f"{ctx['SITE_URL']}/{rel}",
-                            "about": {"@type": "Thing", "name": lab}}) + crumbs(rel, lab)
+                            "about": {"@type": "Thing", "name": lab}})
         shell(rel, title, desc, body, ld)
 
     # the food calendar, month by month
@@ -364,7 +364,7 @@ def pages(d: dict, ctx: dict) -> list:
 {blocks}{cta()}
 {guides("food-calendar.html")}"""
     rel = "kitchen/food-calendar.html"
-    shell(rel, t("c_title"), t("c_desc"), body, ctx["jsonld"]({"@context": "https://schema.org", "@type": "CollectionPage", "name": t("c_title"), "description": t("c_desc"), "url": f"{ctx['SITE_URL']}/{rel}"}) + crumbs(rel, t("c_h1")))
+    shell(rel, t("c_title"), t("c_desc"), body, ctx["jsonld"]({"@context": "https://schema.org", "@type": "CollectionPage", "name": t("c_title"), "description": t("c_desc"), "url": f"{ctx['SITE_URL']}/{rel}"}))
 
     # Christmas, from Advent to Epiphany
     days, xdishes = christmas(d)
@@ -378,7 +378,7 @@ def pages(d: dict, ctx: dict) -> list:
 {cta()}
 {guides("christmas-food.html")}"""
     rel = "kitchen/christmas-food.html"
-    shell(rel, t("x_title"), t("x_desc"), body, ctx["jsonld"]({"@context": "https://schema.org", "@type": "CollectionPage", "name": t("x_title"), "description": t("x_desc"), "url": f"{ctx['SITE_URL']}/{rel}"}) + crumbs(rel, t("x_h1")))
+    shell(rel, t("x_title"), t("x_desc"), body, ctx["jsonld"]({"@context": "https://schema.org", "@type": "CollectionPage", "name": t("x_title"), "description": t("x_desc"), "url": f"{ctx['SITE_URL']}/{rel}"}))
 
     # what to cook with what you have
     blocks = ""
@@ -391,7 +391,7 @@ def pages(d: dict, ctx: dict) -> list:
 {blocks}{cta()}
 {guides("what-to-cook.html")}"""
     rel = "kitchen/what-to-cook.html"
-    shell(rel, t("f_title"), t("f_desc"), body, ctx["jsonld"]({"@context": "https://schema.org", "@type": "CollectionPage", "name": t("f_title"), "description": t("f_desc"), "url": f"{ctx['SITE_URL']}/{rel}"}) + crumbs(rel, t("f_h1")))
+    shell(rel, t("f_title"), t("f_desc"), body, ctx["jsonld"]({"@context": "https://schema.org", "@type": "CollectionPage", "name": t("f_title"), "description": t("f_desc"), "url": f"{ctx['SITE_URL']}/{rel}"}))
     return out
 
 

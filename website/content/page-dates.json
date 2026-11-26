@@ -24,13 +24,17 @@
 "814a26280ff86cfe",
 "2026-11-15"
 ],
+"business/event-planning-checklist.html": [
+"b6579c65a2da6439",
+"2026-11-26"
+],
 "business/expenses.html": [
 "7c80209b98fedd05",
 "2026-11-24"
 ],
 "business/index.html": [
-"9199a7a782995f40",
-"2026-11-24"
+"83bddf5850566a8d",
+"2026-11-26"
 ],
 "business/invoices.html": [
 "6643119c73083481",
@@ -47,6 +51,14 @@
 "business/olaf.html": [
 "199c6a318d6bc726",
 "2026-11-24"
+],
+"business/payment-reminder-emails.html": [
+"da22044714dc44bd",
+"2026-11-26"
+],
+"business/product-launch-checklist.html": [
+"5cf5769c55bf363f",
+"2026-11-26"
 ],
 "business/projects.html": [
 "249ec224ad040779",
@@ -75,6 +87,10 @@
 "business/trips.html": [
 "58299b3c7ff9ab4e",
 "2026-11-24"
+],
+"business/website-launch-checklist.html": [
+"b6e517d3c45b2356",
+"2026-11-26"
 ],
 "claude-key.html": [
 "9e55b2bcbb42a658",
@@ -108,13 +124,17 @@
 "7201643ad0316fce",
 "2026-11-15"
 ],
+"de/business/event-planning-checklist.html": [
+"329940fa5a1b5a01",
+"2026-11-26"
+],
 "de/business/expenses.html": [
 "e4145b562e43a7e5",
 "2026-11-24"
 ],
 "de/business/index.html": [
-"6f668dde3717f916",
-"2026-11-24"
+"1ee068ee0bab9a23",
+"2026-11-26"
 ],
 "de/business/invoices.html": [
 "58c11d32e1a03452",
@@ -131,6 +151,14 @@
 "de/business/olaf.html": [
 "c167a98e014607db",
 "2026-11-24"
+],
+"de/business/payment-reminder-emails.html": [
+"07d8b425d9042d0c",
+"2026-11-26"
+],
+"de/business/product-launch-checklist.html": [
+"6bda3da540b5edae",
+"2026-11-26"
 ],
 "de/business/projects.html": [
 "cfea4291573c2a76",
@@ -159,6 +187,10 @@
 "de/business/trips.html": [
 "ff08a10cbe31785b",
 "2026-11-24"
+],
+"de/business/website-launch-checklist.html": [
+"784cfea374ac7e88",
+"2026-11-26"
 ],
 "de/claude-key.html": [
 "5d255fe6ef550673",
@@ -237,8 +269,12 @@
 "2026-11-24"
 ],
 "de/growth/index.html": [
-"d5093a0a207562b6",
-"2026-11-24"
+"ae97106329508725",
+"2026-11-26"
+],
+"de/growth/interview-questions.html": [
+"08c1e54485748629",
+"2026-11-26"
 ],
 "de/growth/ivy.html": [
 "5ce40f34e990f5cd",
@@ -280,6 +316,14 @@
 "72dd68ea27da01c7",
 "2026-11-24"
 ],
+"de/home/change-of-address-letter.html": [
+"fba02d7ad7f91008",
+"2026-11-26"
+],
+"de/home/complaint-letter.html": [
+"5fbd9a3b1b2ebaa1",
+"2026-11-26"
+],
 "de/home/contracts.html": [
 "616e8c54721439f0",
 "2026-11-24"
@@ -288,9 +332,25 @@
 "4cc42d41007820f8",
 "2026-11-24"
 ],
+"de/home/emergency-binder-checklist.html": [
+"ddb4cad6b6086569",
+"2026-11-26"
+],
+"de/home/faulty-product-letter.html": [
+"6988fac3e8bb5571",
+"2026-11-26"
+],
+"de/home/home-maintenance-checklist.html": [
+"24a5a3ee0d668767",
+"2026-11-26"
+],
 "de/home/index.html": [
-"eb2382b67a6ed9dd",
-"2026-11-24"
+"9f51d52d762672a8",
+"2026-11-26"
+],
+"de/home/insurance-claim-letter.html": [
+"4cde72a8154ee41c",
+"2026-11-26"
 ],
 "de/home/inventory.html": [
 "05cc5cbc64d9d80f",
@@ -300,6 +360,10 @@
 "b0e23c2f9defb039",
 "2026-11-24"
 ],
+"de/home/letter-to-cancel-a-contract.html": [
+"49dcd71d75c7c629",
+"2026-11-26"
+],
 "de/home/letters.html": [
 "6a1b7680bfa146bc",
 "2026-11-24"
@@ -308,13 +372,25 @@
 "2b214fd590af407b",
 "2026-11-24"
 ],
+"de/home/objection-letter.html": [
+"5948cf597068185c",
+"2026-11-26"
+],
 "de/home/papers.html": [
 "8ee8fe2e507114d9",
 "2026-11-24"
 ],
+"de/home/personal-data-request-letter.html": [
+"1c9b57d5b55ee44f",
+"2026-11-26"
+],
 "de/home/upkeep.html": [
 "413fc33b44719eeb",
 "2026-11-24"
+],
+"de/home/who-to-tell-when-you-move.html": [
+"5b19e1d8608f9224",
+"2026-11-26"
 ],
 "de/index.html": [
 "e60c0e4689ef88f7",
@@ -376,13 +452,37 @@
 "47e672357f28fb14",
 "2026-11-24"
 ],
+"de/rentals/certificate-letter-for-tenants.html": [
+"9a40ee246b747278",
+"2026-11-26"
+],
+"de/rentals/deposit-return-letter.html": [
+"0221e1ab2f9ea239",
+"2026-11-26"
+],
 "de/rentals/homes.html": [
 "d332314195b1c2d7",
 "2026-11-24"
 ],
 "de/rentals/index.html": [
-"8caf4d44552d7a9d",
-"2026-11-24"
+"c6b9aea9fced1edf",
+"2026-11-26"
+],
+"de/rentals/landlord-rules-england.html": [
+"7c7a09f4679258c4",
+"2026-11-26"
+],
+"de/rentals/landlord-rules-germany.html": [
+"9652d77c561c3dc7",
+"2026-11-26"
+],
+"de/rentals/landlord-rules-netherlands.html": [
+"91e578c32e8b47c2",
+"2026-11-26"
+],
+"de/rentals/landlord-visit-letter.html": [
+"5c01f3f63f0b019a",
+"2026-11-26"
 ],
 "de/rentals/rent.html": [
 "ef5bec4814284595",
@@ -395,6 +495,14 @@
 "de/rentals/rentletters.html": [
 "33626895fc7c6af2",
 "2026-11-24"
+],
+"de/rentals/repair-update-letter.html": [
+"7ed401cacfd4b777",
+"2026-11-26"
+],
+"de/rentals/welcome-letter-for-tenants.html": [
+"41b228f3ba320377",
+"2026-11-26"
 ],
 "de/rentals/wren.html": [
 "2f229b0d49413c00",
@@ -432,13 +540,17 @@
 "79ddc435774ae679",
 "2026-11-15"
 ],
+"es/business/event-planning-checklist.html": [
+"d811dfb7b15fad07",
+"2026-11-26"
+],
 "es/business/expenses.html": [
 "38d672289c53d127",
 "2026-11-24"
 ],
 "es/business/index.html": [
-"16e20c5d6de9caec",
-"2026-11-24"
+"b479a649b1be007b",
+"2026-11-26"
 ],
 "es/business/invoices.html": [
 "a53bc36667f29e1c",
@@ -455,6 +567,14 @@
 "es/business/olaf.html": [
 "23310dbb7873b871",
 "2026-11-24"
+],
+"es/business/payment-reminder-emails.html": [
+"cbfffd66445ab1f3",
+"2026-11-26"
+],
+"es/business/product-launch-checklist.html": [
+"cb4a7d95912e12cc",
+"2026-11-26"
 ],
 "es/business/projects.html": [
 "3e3afda3b5d7ec04",
@@ -483,6 +603,10 @@
 "es/business/trips.html": [
 "b33139a7966aacc3",
 "2026-11-24"
+],
+"es/business/website-launch-checklist.html": [
+"b36a476c65424ad1",
+"2026-11-26"
 ],
 "es/claude-key.html": [
 "4f235f3650311f4a",
@@ -561,8 +685,12 @@
 "2026-11-24"
 ],
 "es/growth/index.html": [
-"1a3a45ec3c2d23b4",
-"2026-11-24"
+"d95266b1997043d9",
+"2026-11-26"
+],
+"es/growth/interview-questions.html": [
+"d85965022508d677",
+"2026-11-26"
 ],
 "es/growth/ivy.html": [
 "86462690b9ef52ac",
@@ -604,6 +732,14 @@
 "e44c0e29b414ec17",
 "2026-11-24"
 ],
+"es/home/change-of-address-letter.html": [
+"7c5f59168a090f71",
+"2026-11-26"
+],
+"es/home/complaint-letter.html": [
+"ec1fa7ff639731ae",
+"2026-11-26"
+],
 "es/home/contracts.html": [
 "1c38c15d0a19e66d",
 "2026-11-24"
@@ -612,9 +748,25 @@
 "a9c96509a8f09238",
 "2026-11-24"
 ],
+"es/home/emergency-binder-checklist.html": [
+"b5f0576757cde2ab",
+"2026-11-26"
+],
+"es/home/faulty-product-letter.html": [
+"accb36b0e026b945",
+"2026-11-26"
+],
+"es/home/home-maintenance-checklist.html": [
+"837e1d8c8ff7acc8",
+"2026-11-26"
+],
 "es/home/index.html": [
-"0cdbcdad7f8ef6de",
-"2026-11-24"
+"64b254e37198d8dc",
+"2026-11-26"
+],
+"es/home/insurance-claim-letter.html": [
+"7ea8ba55584e5e77",
+"2026-11-26"
 ],
 "es/home/inventory.html": [
 "0d4dea55cf2a49bf",
@@ -624,6 +776,10 @@
 "04d4968df63c4b7e",
 "2026-11-24"
 ],
+"es/home/letter-to-cancel-a-contract.html": [
+"a44c05ee1fe0c0e7",
+"2026-11-26"
+],
 "es/home/letters.html": [
 "4853ae537adc00ba",
 "2026-11-24"
@@ -632,13 +788,25 @@
 "ef066293e1e7dd90",
 "2026-11-24"
 ],
+"es/home/objection-letter.html": [
+"09ff3aff959a3285",
+"2026-11-26"
+],
 "es/home/papers.html": [
 "5c087e04616eb516",
 "2026-11-24"
 ],
+"es/home/personal-data-request-letter.html": [
+"5705e8b2756121b1",
+"2026-11-26"
+],
 "es/home/upkeep.html": [
 "00af3bb2cd1271db",
 "2026-11-24"
+],
+"es/home/who-to-tell-when-you-move.html": [
+"445fb9cc7651e880",
+"2026-11-26"
 ],
 "es/index.html": [
 "3dc55202e36e1964",
@@ -700,13 +868,37 @@
 "2689a3f1fa7ef4fe",
 "2026-11-24"
 ],
+"es/rentals/certificate-letter-for-tenants.html": [
+"3eab737263c5923a",
+"2026-11-26"
+],
+"es/rentals/deposit-return-letter.html": [
+"5f2169e3eb34ab98",
+"2026-11-26"
+],
 "es/rentals/homes.html": [
 "2d3b2a1556a6aa49",
 "2026-11-24"
 ],
 "es/rentals/index.html": [
-"031ec33eab4cda85",
-"2026-11-24"
+"caf374395cfa502c",
+"2026-11-26"
+],
+"es/rentals/landlord-rules-england.html": [
+"4353e3336de57511",
+"2026-11-26"
+],
+"es/rentals/landlord-rules-germany.html": [
+"95bb179b753b901a",
+"2026-11-26"
+],
+"es/rentals/landlord-rules-netherlands.html": [
+"876aa48f751d8553",
+"2026-11-26"
+],
+"es/rentals/landlord-visit-letter.html": [
+"3465322f479b20fa",
+"2026-11-26"
 ],
 "es/rentals/rent.html": [
 "e4e360e639bc81e1",
@@ -719,6 +911,14 @@
 "es/rentals/rentletters.html": [
 "08701a75f73694f8",
 "2026-11-24"
+],
+"es/rentals/repair-update-letter.html": [
+"c5b0b11511f905ba",
+"2026-11-26"
+],
+"es/rentals/welcome-letter-for-tenants.html": [
+"84985ddfc1a9c094",
+"2026-11-26"
 ],
 "es/rentals/wren.html": [
 "929da43787db9b89",
@@ -801,8 +1001,12 @@
 "2026-11-24"
 ],
 "growth/index.html": [
-"5ecadd442940ef21",
-"2026-11-24"
+"1d16adb5a12ef391",
+"2026-11-26"
+],
+"growth/interview-questions.html": [
+"d968131ab40bb82e",
+"2026-11-26"
 ],
 "growth/ivy.html": [
 "655762776a53174a",
@@ -844,6 +1048,14 @@
 "beb5bcafe55986db",
 "2026-11-24"
 ],
+"home/change-of-address-letter.html": [
+"77015981e213fbf4",
+"2026-11-26"
+],
+"home/complaint-letter.html": [
+"5e3df68d20480d35",
+"2026-11-26"
+],
 "home/contracts.html": [
 "baba2760b37c17f0",
 "2026-11-24"
@@ -852,9 +1064,25 @@
 "2695be44b4c4d2dd",
 "2026-11-24"
 ],
+"home/emergency-binder-checklist.html": [
+"d2d870ae4a60bca2",
+"2026-11-26"
+],
+"home/faulty-product-letter.html": [
+"31ef223cedf4ebff",
+"2026-11-26"
+],
+"home/home-maintenance-checklist.html": [
+"639b6b75c9cf31d6",
+"2026-11-26"
+],
 "home/index.html": [
-"f74ec7c42559d142",
-"2026-11-24"
+"573d726521116ebd",
+"2026-11-26"
+],
+"home/insurance-claim-letter.html": [
+"e30a4e23937ddfdc",
+"2026-11-26"
 ],
 "home/inventory.html": [
 "f5bbe5e4e4c4b893",
@@ -864,6 +1092,10 @@
 "bd80aa4f588228ba",
 "2026-11-24"
 ],
+"home/letter-to-cancel-a-contract.html": [
+"e5554d061eecd656",
+"2026-11-26"
+],
 "home/letters.html": [
 "e0f5d7c9c98cad8e",
 "2026-11-24"
@@ -872,13 +1104,25 @@
 "22be8bd171042135",
 "2026-11-24"
 ],
+"home/objection-letter.html": [
+"e5930bddd827988b",
+"2026-11-26"
+],
 "home/papers.html": [
 "0f22ec3c08e206a6",
 "2026-11-24"
 ],
+"home/personal-data-request-letter.html": [
+"c0aa112a3cafb1c5",
+"2026-11-26"
+],
 "home/upkeep.html": [
 "8ac0e11f45fa601a",
 "2026-11-24"
+],
+"home/who-to-tell-when-you-move.html": [
+"e1c928d26a0881ef",
+"2026-11-26"
 ],
 "index.html": [
 "699fe44a91e13185",
@@ -908,13 +1152,17 @@
 "bcbee01fd66e9cb6",
 "2026-11-15"
 ],
+"it/business/event-planning-checklist.html": [
+"f43738f58985bb39",
+"2026-11-26"
+],
 "it/business/expenses.html": [
 "f6e6c7690dea7bcc",
 "2026-11-24"
 ],
 "it/business/index.html": [
-"92f35ce8c329484c",
-"2026-11-24"
+"d09cc8b5dd21cc2f",
+"2026-11-26"
 ],
 "it/business/invoices.html": [
 "90061c6f51d6b072",
@@ -931,6 +1179,14 @@
 "it/business/olaf.html": [
 "35ca6fd6d599b13e",
 "2026-11-24"
+],
+"it/business/payment-reminder-emails.html": [
+"2353495ec4d816a5",
+"2026-11-26"
+],
+"it/business/product-launch-checklist.html": [
+"14dbba247235e144",
+"2026-11-26"
 ],
 "it/business/projects.html": [
 "9fa07635589dc470",
@@ -959,6 +1215,10 @@
 "it/business/trips.html": [
 "6611ab3994fe31e0",
 "2026-11-24"
+],
+"it/business/website-launch-checklist.html": [
+"0d069282109226d9",
+"2026-11-26"
 ],
 "it/claude-key.html": [
 "b74ba6c59d2ae671",
@@ -1037,8 +1297,12 @@
 "2026-11-24"
 ],
 "it/growth/index.html": [
-"d79f1408b0ec91f4",
-"2026-11-24"
+"a5d0b8f2076d47bc",
+"2026-11-26"
+],
+"it/growth/interview-questions.html": [
+"d33f13ba83e722a8",
+"2026-11-26"
 ],
 "it/growth/ivy.html": [
 "4c5d081fd1f9ca91",
@@ -1080,6 +1344,14 @@
 "1c4b3621f2b41038",
 "2026-11-24"
 ],
+"it/home/change-of-address-letter.html": [
+"1eccc09b298cb015",
+"2026-11-26"
+],
+"it/home/complaint-letter.html": [
+"4bbaa45db215b171",
+"2026-11-26"
+],
 "it/home/contracts.html": [
 "eae625af49c042be",
 "2026-11-24"
@@ -1088,9 +1360,25 @@
 "3952911105159051",
 "2026-11-24"
 ],
+"it/home/emergency-binder-checklist.html": [
+"66cd8ef5ef0e83bc",
+"2026-11-26"
+],
+"it/home/faulty-product-letter.html": [
+"602124c43325a044",
+"2026-11-26"
+],
+"it/home/home-maintenance-checklist.html": [
+"5cf582f6fb623789",
+"2026-11-26"
+],
 "it/home/index.html": [
-"f5b10d6ebc68b6b7",
-"2026-11-24"
+"eb74e1276f6dfd7a",
+"2026-11-26"
+],
+"it/home/insurance-claim-letter.html": [
+"523551dd6f7546ff",
+"2026-11-26"
 ],
 "it/home/inventory.html": [
 "04910e3071e144a6",
@@ -1100,6 +1388,10 @@
 "d5cd482bd251c3c6",
 "2026-11-24"
 ],
+"it/home/letter-to-cancel-a-contract.html": [
+"8d33920f0e73f8bb",
+"2026-11-26"
+],
 "it/home/letters.html": [
 "c74ce04297f138e9",
 "2026-11-24"
@@ -1108,13 +1400,25 @@
 "95e4b4f916cd158b",
 "2026-11-24"
 ],
+"it/home/objection-letter.html": [
+"92b5b4c86990c83c",
+"2026-11-26"
+],
 "it/home/papers.html": [
 "adb0d980a4234371",
 "2026-11-24"
 ],
+"it/home/personal-data-request-letter.html": [
+"1d0b3c5790515eb9",
+"2026-11-26"
+],
 "it/home/upkeep.html": [
 "fcd606f948d65612",
 "2026-11-24"
+],
+"it/home/who-to-tell-when-you-move.html": [
+"28c3b0949e7192a0",
+"2026-11-26"
 ],
 "it/index.html": [
 "2ff0fcd4ef7ad077",
@@ -1133,7 +1437,7 @@
 "2026-11-26"
 ],
 "it/kitchen/food-calendar.html": [
-"87a2d2583167208b",
+"bdd6d518707a161b",
 "2026-11-26"
 ],
 "it/kitchen/german-food.html": [
@@ -1145,7 +1449,7 @@
 "2026-11-26"
 ],
 "it/kitchen/italian-food.html": [
-"d724785cd7bd2db6",
+"ed0c217ad8052ce0",
 "2026-11-26"
 ],
 "it/kitchen/portuguese-food.html": [
@@ -1157,7 +1461,7 @@
 "2026-11-24"
 ],
 "it/kitchen/spanish-food.html": [
-"956f3298e4c28aba",
+"e791ad5532a6c9d3",
 "2026-11-26"
 ],
 "it/kitchen/what-to-cook.html": [
@@ -1176,13 +1480,37 @@
 "b8306ce911522a13",
 "2026-11-24"
 ],
+"it/rentals/certificate-letter-for-tenants.html": [
+"299f0d49426b3b61",
+"2026-11-26"
+],
+"it/rentals/deposit-return-letter.html": [
+"e28cdd4f464b06be",
+"2026-11-26"
+],
 "it/rentals/homes.html": [
 "8f9bff2dc9f4e009",
 "2026-11-24"
 ],
 "it/rentals/index.html": [
-"21e7cf1c73127579",
-"2026-11-24"
+"d5f724fbe013b873",
+"2026-11-26"
+],
+"it/rentals/landlord-rules-england.html": [
+"b69967c64a41f556",
+"2026-11-26"
+],
+"it/rentals/landlord-rules-germany.html": [
+"c54c0415b2fb248d",
+"2026-11-26"
+],
+"it/rentals/landlord-rules-netherlands.html": [
+"a734a25ae01e515a",
+"2026-11-26"
+],
+"it/rentals/landlord-visit-letter.html": [
+"9ce76a6803d7a257",
+"2026-11-26"
 ],
 "it/rentals/rent.html": [
 "1747aa4f57d397f5",
@@ -1195,6 +1523,14 @@
 "it/rentals/rentletters.html": [
 "2ea0ae4581d8ab01",
 "2026-11-24"
+],
+"it/rentals/repair-update-letter.html": [
+"3b855138cd5cac5f",
+"2026-11-26"
+],
+"it/rentals/welcome-letter-for-tenants.html": [
+"8b802739d6df7aa1",
+"2026-11-26"
 ],
 "it/rentals/wren.html": [
 "20cee0def9a87ba6",
@@ -1276,13 +1612,17 @@
 "4aa3e3a9abff70d2",
 "2026-11-15"
 ],
+"nl/business/event-planning-checklist.html": [
+"7b902f963b2feca4",
+"2026-11-26"
+],
 "nl/business/expenses.html": [
 "e0f3c11335c84804",
 "2026-11-24"
 ],
 "nl/business/index.html": [
-"2307f1e86f578608",
-"2026-11-24"
+"ccdf1f91265b461b",
+"2026-11-26"
 ],
 "nl/business/invoices.html": [
 "d4b458c371539df7",
@@ -1299,6 +1639,14 @@
 "nl/business/olaf.html": [
 "cea6e62159444b5d",
 "2026-11-24"
+],
+"nl/business/payment-reminder-emails.html": [
+"925d0e6e896a9005",
+"2026-11-26"
+],
+"nl/business/product-launch-checklist.html": [
+"e7824494b3edf254",
+"2026-11-26"
 ],
 "nl/business/projects.html": [
 "1c061d0e0f55d9f7",
@@ -1327,6 +1675,10 @@
 "nl/business/trips.html": [
 "f808b578c5ee7bb0",
 "2026-11-24"
+],
+"nl/business/website-launch-checklist.html": [
+"3c397ac4b5b5e784",
+"2026-11-26"
 ],
 "nl/claude-key.html": [
 "6012f6f3583ee42e",
@@ -1405,8 +1757,12 @@
 "2026-11-24"
 ],
 "nl/growth/index.html": [
-"69d6221d7a42eb54",
-"2026-11-24"
+"d892a71797e44b7c",
+"2026-11-26"
+],
+"nl/growth/interview-questions.html": [
+"c832a74bc96a34da",
+"2026-11-26"
 ],
 "nl/growth/ivy.html": [
 "e550583d4728c81c",
@@ -1448,6 +1804,14 @@
 "ecd756abde4fcfb6",
 "2026-11-24"
 ],
+"nl/home/change-of-address-letter.html": [
+"bdd08c4c39c5d8c3",
+"2026-11-26"
+],
+"nl/home/complaint-letter.html": [
+"eef1319c16328c64",
+"2026-11-26"
+],
 "nl/home/contracts.html": [
 "f6aabd81fe1a1e20",
 "2026-11-24"
@@ -1456,9 +1820,25 @@
 "a579bf5fb1c731d7",
 "2026-11-24"
 ],
+"nl/home/emergency-binder-checklist.html": [
+"bca359531c467037",
+"2026-11-26"
+],
+"nl/home/faulty-product-letter.html": [
+"4b5f035b7793f26a",
+"2026-11-26"
+],
+"nl/home/home-maintenance-checklist.html": [
+"8a4863ec1f9d2032",
+"2026-11-26"
+],
 "nl/home/index.html": [
-"0df80bf16740f83f",
-"2026-11-24"
+"fc02340ee1614d3d",
+"2026-11-26"
+],
+"nl/home/insurance-claim-letter.html": [
+"40488053f4381545",
+"2026-11-26"
 ],
 "nl/home/inventory.html": [
 "67777d00d43c11ea",
@@ -1468,6 +1848,10 @@
 "085d3fcafc2b4444",
 "2026-11-24"
 ],
+"nl/home/letter-to-cancel-a-contract.html": [
+"a3b720af50b25d90",
+"2026-11-26"
+],
 "nl/home/letters.html": [
 "31d47783f173c21a",
 "2026-11-24"
@@ -1476,13 +1860,25 @@
 "0f85abcd1a9034de",
 "2026-11-24"
 ],
+"nl/home/objection-letter.html": [
+"c445a22f6620881c",
+"2026-11-26"
+],
 "nl/home/papers.html": [
 "df568f785f82d4ec",
 "2026-11-24"
 ],
+"nl/home/personal-data-request-letter.html": [
+"c359ee49dde3a482",
+"2026-11-26"
+],
 "nl/home/upkeep.html": [
 "4ecb493032be7cea",
 "2026-11-24"
+],
+"nl/home/who-to-tell-when-you-move.html": [
+"792776b82eed23e0",
+"2026-11-26"
 ],
 "nl/index.html": [
 "0faeba070d54ddfa",
@@ -1544,13 +1940,37 @@
 "941d4f0c3a056b9d",
 "2026-11-24"
 ],
+"nl/rentals/certificate-letter-for-tenants.html": [
+"67023c305546dc9d",
+"2026-11-26"
+],
+"nl/rentals/deposit-return-letter.html": [
+"8760d5334b289a51",
+"2026-11-26"
+],
 "nl/rentals/homes.html": [
 "4859c4f6e8a9384d",
 "2026-11-24"
 ],
 "nl/rentals/index.html": [
-"2f049d839568fd23",
-"2026-11-24"
+"2fbe613f48760aaf",
+"2026-11-26"
+],
+"nl/rentals/landlord-rules-england.html": [
+"5bb1152a4aaa14ff",
+"2026-11-26"
+],
+"nl/rentals/landlord-rules-germany.html": [
+"10c944d4c7742cf0",
+"2026-11-26"
+],
+"nl/rentals/landlord-rules-netherlands.html": [
+"3b37f4ef880f1685",
+"2026-11-26"
+],
+"nl/rentals/landlord-visit-letter.html": [
+"2b6262d5e2f16d1b",
+"2026-11-26"
 ],
 "nl/rentals/rent.html": [
 "07ee3c2a68523dec",
@@ -1563,6 +1983,14 @@
 "nl/rentals/rentletters.html": [
 "0a5af0ba712ec57c",
 "2026-11-24"
+],
+"nl/rentals/repair-update-letter.html": [
+"b915b05fd681e957",
+"2026-11-26"
+],
+"nl/rentals/welcome-letter-for-tenants.html": [
+"449a581daef9d624",
+"2026-11-26"
 ],
 "nl/rentals/wren.html": [
 "a271521e542ff619",
@@ -1612,13 +2040,17 @@
 "b0be7f7609208dca",
 "2026-11-15"
 ],
+"pt-br/business/event-planning-checklist.html": [
+"ad31074840227ccc",
+"2026-11-26"
+],
 "pt-br/business/expenses.html": [
 "8ad570f960c9e7c3",
 "2026-11-24"
 ],
 "pt-br/business/index.html": [
-"33e65d0fc7bb42e1",
-"2026-11-24"
+"879d9e27d2d6744b",
+"2026-11-26"
 ],
 "pt-br/business/invoices.html": [
 "24438c2d36fe9acd",
@@ -1635,6 +2067,14 @@
 "pt-br/business/olaf.html": [
 "a2c93464179da867",
 "2026-11-24"
+],
+"pt-br/business/payment-reminder-emails.html": [
+"27fa731ac8a90aaf",
+"2026-11-26"
+],
+"pt-br/business/product-launch-checklist.html": [
+"f41a5b0e05f6e6eb",
+"2026-11-26"
 ],
 "pt-br/business/projects.html": [
 "96195e7f9b4c3f42",
@@ -1663,6 +2103,10 @@
 "pt-br/business/trips.html": [
 "016ccf13fe3a06f6",
 "2026-11-24"
+],
+"pt-br/business/website-launch-checklist.html": [
+"144728e2619c4d11",
+"2026-11-26"
 ],
 "pt-br/claude-key.html": [
 "4ff83aecde0cd849",
@@ -1741,8 +2185,12 @@
 "2026-11-24"
 ],
 "pt-br/growth/index.html": [
-"fbc268df2a17d0d1",
-"2026-11-24"
+"be935299b22ac090",
+"2026-11-26"
+],
+"pt-br/growth/interview-questions.html": [
+"b8259cf1d3bc63c4",
+"2026-11-26"
 ],
 "pt-br/growth/ivy.html": [
 "cf56119a6345596c",
@@ -1784,6 +2232,14 @@
 "ea2593f2380a71df",
 "2026-11-24"
 ],
+"pt-br/home/change-of-address-letter.html": [
+"90988b0be835f1f7",
+"2026-11-26"
+],
+"pt-br/home/complaint-letter.html": [
+"f9ccc0e4ee1ef146",
+"2026-11-26"
+],
 "pt-br/home/contracts.html": [
 "f91963ad522baf1a",
 "2026-11-24"
@@ -1792,9 +2248,25 @@
 "4fc86236de29afae",
 "2026-11-24"
 ],
+"pt-br/home/emergency-binder-checklist.html": [
+"d86f26b23ec27c9a",
+"2026-11-26"
+],
+"pt-br/home/faulty-product-letter.html": [
+"5bae24502e67e8f1",
+"2026-11-26"
+],
+"pt-br/home/home-maintenance-checklist.html": [
+"97fe711ff85aed4d",
+"2026-11-26"
+],
 "pt-br/home/index.html": [
-"95459ac5943184f2",
-"2026-11-24"
+"d6916e53567abc16",
+"2026-11-26"
+],
+"pt-br/home/insurance-claim-letter.html": [
+"690e0ce6d06f6c58",
+"2026-11-26"
 ],
 "pt-br/home/inventory.html": [
 "5947ca98e258e63a",
@@ -1804,6 +2276,10 @@
 "2e8b124ba38d24a8",
 "2026-11-24"
 ],
+"pt-br/home/letter-to-cancel-a-contract.html": [
+"d23a0930d3e2ff5d",
+"2026-11-26"
+],
 "pt-br/home/letters.html": [
 "09b83ec8654c86cd",
 "2026-11-24"
@@ -1812,20 +2288,32 @@
 "eaff987251497a30",
 "2026-11-24"
 ],
+"pt-br/home/objection-letter.html": [
+"54b2053f59e240bf",
+"2026-11-26"
+],
 "pt-br/home/papers.html": [
 "0f99479a3be1986d",
 "2026-11-24"
 ],
+"pt-br/home/personal-data-request-letter.html": [
+"6d9554f96e1ad7f3",
+"2026-11-26"
+],
 "pt-br/home/upkeep.html": [
 "d57ba47a6cababc0",
 "2026-11-24"
+],
+"pt-br/home/who-to-tell-when-you-move.html": [
+"25d1f4d49d9f8820",
+"2026-11-26"
 ],
 "pt-br/index.html": [
 "402c62ab6c8fd211",
 "2026-11-24"
 ],
 "pt-br/kitchen/british-food.html": [
-"cc7a17796da55505",
+"c2469820fe81e3a2",
 "2026-11-26"
 ],
 "pt-br/kitchen/christmas-food.html": [
@@ -1833,11 +2321,11 @@
 "2026-11-26"
 ],
 "pt-br/kitchen/dutch-food.html": [
-"7a34a7073c7cf087",
+"89bc78b549aff7a1",
 "2026-11-26"
 ],
 "pt-br/kitchen/food-calendar.html": [
-"5c398a4f6386b8f8",
+"5ba7a3910c4e5d0a",
 "2026-11-26"
 ],
 "pt-br/kitchen/german-food.html": [
@@ -1849,7 +2337,7 @@
 "2026-11-26"
 ],
 "pt-br/kitchen/italian-food.html": [
-"a788996b208506b6",
+"7b42bf92b60d18b0",
 "2026-11-26"
 ],
 "pt-br/kitchen/portuguese-food.html": [
@@ -1880,13 +2368,37 @@
 "506d745b99e5cdd1",
 "2026-11-24"
 ],
+"pt-br/rentals/certificate-letter-for-tenants.html": [
+"059041dfca0a2808",
+"2026-11-26"
+],
+"pt-br/rentals/deposit-return-letter.html": [
+"5763a4dbaef8b789",
+"2026-11-26"
+],
 "pt-br/rentals/homes.html": [
 "f7824456cfd261ba",
 "2026-11-24"
 ],
 "pt-br/rentals/index.html": [
-"27b1e2725284c9ba",
-"2026-11-24"
+"0b41d58f80ab3c60",
+"2026-11-26"
+],
+"pt-br/rentals/landlord-rules-england.html": [
+"9fe5d1295a8be6b8",
+"2026-11-26"
+],
+"pt-br/rentals/landlord-rules-germany.html": [
+"77feede564aab367",
+"2026-11-26"
+],
+"pt-br/rentals/landlord-rules-netherlands.html": [
+"8dd8058f07474b2d",
+"2026-11-26"
+],
+"pt-br/rentals/landlord-visit-letter.html": [
+"590d5d9cd67b34e3",
+"2026-11-26"
 ],
 "pt-br/rentals/rent.html": [
 "53c6d8362b6fb8da",
@@ -1900,6 +2412,14 @@
 "ab36a6392834b4b5",
 "2026-11-24"
 ],
+"pt-br/rentals/repair-update-letter.html": [
+"86f9603049ce9a79",
+"2026-11-26"
+],
+"pt-br/rentals/welcome-letter-for-tenants.html": [
+"b2d6f5567768e815",
+"2026-11-26"
+],
 "pt-br/rentals/wren.html": [
 "e44921d65d2f3cbd",
 "2026-11-24"
@@ -1912,13 +2432,37 @@
 "11baf20bc94e2d52",
 "2026-11-24"
 ],
+"rentals/certificate-letter-for-tenants.html": [
+"465fd5d27fc04dd9",
+"2026-11-26"
+],
+"rentals/deposit-return-letter.html": [
+"6636dd4d28c9257d",
+"2026-11-26"
+],
 "rentals/homes.html": [
 "65bd914c3292b33e",
 "2026-11-24"
 ],
 "rentals/index.html": [
-"1d806faa66853552",
-"2026-11-24"
+"889ef9ae792012cf",
+"2026-11-26"
+],
+"rentals/landlord-rules-england.html": [
+"60465069d149e8f5",
+"2026-11-26"
+],
+"rentals/landlord-rules-germany.html": [
+"67682945c182f0ad",
+"2026-11-26"
+],
+"rentals/landlord-rules-netherlands.html": [
+"89e89380d27829cd",
+"2026-11-26"
+],
+"rentals/landlord-visit-letter.html": [
+"a5c36a94f540cb3f",
+"2026-11-26"
 ],
 "rentals/rent.html": [
 "7e4637d6ec561e16",
@@ -1931,6 +2475,14 @@
 "rentals/rentletters.html": [
 "473ae209dd1a3c33",
 "2026-11-24"
+],
+"rentals/repair-update-letter.html": [
+"11c235590e0f21c9",
+"2026-11-26"
+],
+"rentals/welcome-letter-for-tenants.html": [
+"413ba6dfc00163cb",
+"2026-11-26"
 ],
 "rentals/wren.html": [
 "dd73bbea095f81a9",

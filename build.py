@@ -2999,6 +2999,8 @@ def kitchen_data() -> dict:
 KITCHEN = kitchen_data() if KITCHEN_LIVE else {"kitchens": [], "dishes": [], "recipes": 0, "notes": 0}
 import kitchen_site as KS  # noqa: E402  Busy Kitchen's pages for search
 KS_DATA = KS.data() if KITCHEN_LIVE else None
+import suites_site as SS  # noqa: E402  the other suites' pages for search
+SS_DATA = SS.dump() if (HOME_LIVE or RENTALS_LIVE or GROWTH_LIVE) else None
 KITCHEN_DISHES = f"{len(KITCHEN['dishes']):,}"
 KITCHEN_WHAT = (f"{KITCHEN_DISHES} dishes from six kitchens, matched to what's in your fridge. The home cooking of Busy's six "
                 "languages, with each kitchen's story, regions and feast days, and a recipe for every dish.")
@@ -3605,8 +3607,24 @@ def build_pages() -> None:
         kitchen_guides = KS.pages(KS_DATA, {"head": head, "nav": nav, "footer": footer, "e": e, "jsonld": jsonld, "kitchen_img": kitchen_img,
                                             "SITE": SITE, "SITE_URL": SITE_URL, "tools": tools})
         KS.write_words(KS_DATA, ROOT / "i18n" / "data")
+        I18N._cache.clear()
     elif (SITE / "kitchen").exists():
         shutil.rmtree(SITE / "kitchen")
+    # The checklists, letters and rules the apps hold, as pages for search (suites_site.py), for each suite that is live
+    suite_guides = []
+    if HOME_LIVE or RENTALS_LIVE or GROWTH_LIVE:
+        made = SS.pages(SS_DATA, {"head": head, "nav": nav, "footer": footer, "e": e, "jsonld": jsonld, "SITE": SITE, "SITE_URL": SITE_URL, "tools": tools,
+                                  "home": HOME_LIVE, "rentals": RENTALS_LIVE, "growth": GROWTH_LIVE, "business": True})
+        SS.write_words(SS_DATA, ROOT / "i18n" / "data")
+        I18N._cache.clear()  # the word lists were read at the start (the apps' words): read them again with this build's
+        for suite, items in made.items():
+            suite_guides += [r for r, _ in items]
+            idx = SITE / suite / "index.html"
+            if items and idx.exists():
+                block = (f'<!-- guides -->\n  <section class="section" id="guides"><div class="wrap"><div class="center reveal"><h2 class="big">{e(SS.T["more"]["en"])}</h2></div>'
+                         + '<ul class="facts center">' + "".join(f'<li><a href="{r.split("/", 1)[1]}">{e(tl)}</a></li>' for r, tl in items) + '</ul></div></section>\n<!-- /guides -->')
+                text = re.sub(r"<!-- guides -->.*?<!-- /guides -->\n?", "", idx.read_text(), flags=re.S)
+                idx.write_text(text.replace("</main>", block + "\n</main>", 1))
     # Busy Rentals' two cards on the homepage: after Busy Home's, and only while it is live (no empty markers before)
     put_switched_block(SITE / "index.html", "rentals-suite", rentals_suite_card() if RENTALS_LIVE else "", before=r'<a class="card suite reveal pop" href="games/"')
     put_switched_block(SITE / "index.html", "kitchen-suite", kitchen_suite_card() if KITCHEN_LIVE else "", before=r'<a class="card suite reveal pop" href="games/"')
@@ -3634,7 +3652,7 @@ def build_pages() -> None:
     (SITE / "download.html").write_text(forward_page("business/download.html", 0))
     sync_chrome(tools)
     pages = (["", "about.html", "pricing.html", "updates.html", "press.html", "claude-key.html", "privacy.html", "terms.html", "business/index.html", "business/tools.html", "business/download.html", "business/olaf.html"]
-             + [f'business/{t["id"]}.html' for t in tools] + game_pages + ["growth/index.html", "home/index.html"] + (["rentals/index.html"] if RENTALS_LIVE else []) + (["kitchen/index.html"] + kitchen_guides if KITCHEN_LIVE else []) + expert_rels + suite_pages + new_pages)
+             + [f'business/{t["id"]}.html' for t in tools] + game_pages + ["growth/index.html", "home/index.html"] + (["rentals/index.html"] if RENTALS_LIVE else []) + (["kitchen/index.html"] + kitchen_guides if KITCHEN_LIVE else []) + suite_guides + expert_rels + suite_pages + new_pages)
     today = date.today().isoformat()
     (SITE / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
                                       + "".join(f"  <url><loc>{SITE_URL}/{p}</loc><lastmod>{page_date(p)}</lastmod></url>\n" for p in pages) + "</urlset>\n")

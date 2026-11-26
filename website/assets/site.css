@@ -913,3 +913,5 @@ html[data-os="windows"] a[href*="/releases/latest/download/"][href$=".exe"] { or
 .facts li b{color:var(--ink);margin-right:4px}
 .kitchen-story{max-width:760px}
 .kitchen-story p{font-size:1.08rem;line-height:1.7;margin:0 0 14px;color:var(--ink-2)}
+/* letters and emails to copy (suites_site.py): kept as written, line by line */
+.letter-text{white-space:pre-line;font-family:inherit;line-height:1.6;padding:20px 22px;max-width:760px;color:var(--ink)}
