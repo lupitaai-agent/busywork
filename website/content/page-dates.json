@@ -236,13 +236,37 @@
 "7a39b38e9c2e1796",
 "2026-11-24"
 ],
+"de/games/busy-street-3d.html": [
+"120eb2e9648171a6",
+"2026-11-26"
+],
+"de/games/characters.html": [
+"347c44846ca4b771",
+"2026-11-26"
+],
 "de/games/duo.html": [
 "6aae077eb7579c01",
 "2026-11-15"
 ],
+"de/games/how-to-solve-6x6-sudoku.html": [
+"dadb6ecb3a49fb7c",
+"2026-11-26"
+],
+"de/games/how-to-solve-path-puzzles.html": [
+"3f41a162985b1f38",
+"2026-11-26"
+],
+"de/games/how-to-solve-star-battle.html": [
+"291a2c05d2240e82",
+"2026-11-26"
+],
+"de/games/how-to-solve-takuzu.html": [
+"cdbe361899e8dd02",
+"2026-11-26"
+],
 "de/games/index.html": [
-"84bcedabe2aed92f",
-"2026-11-24"
+"6d9f2946245df409",
+"2026-11-26"
 ],
 "de/games/six.html": [
 "c17184beb5135529",
@@ -252,6 +276,10 @@
 "a5ce81ab7caead3f",
 "2026-11-15"
 ],
+"de/games/the-wrong-year.html": [
+"996176c3e62f0618",
+"2026-11-26"
+],
 "de/games/trail.html": [
 "526fb2d959d1197b",
 "2026-11-15"
@@ -259,6 +287,10 @@
 "de/games/tucks-errand.html": [
 "7359febfe053a0a6",
 "2026-11-15"
+],
+"de/games/worlds.html": [
+"bc7a19c51dfe9e60",
+"2026-11-26"
 ],
 "de/growth/contacts.html": [
 "c7e1180fab167de8",
@@ -652,13 +684,37 @@
 "b902f6581cbc8b47",
 "2026-11-24"
 ],
+"es/games/busy-street-3d.html": [
+"b62eec5e6675c028",
+"2026-11-26"
+],
+"es/games/characters.html": [
+"07349b9594825023",
+"2026-11-26"
+],
 "es/games/duo.html": [
 "b3fa637ea1367ad1",
 "2026-11-15"
 ],
+"es/games/how-to-solve-6x6-sudoku.html": [
+"e27b553cf45b22c5",
+"2026-11-26"
+],
+"es/games/how-to-solve-path-puzzles.html": [
+"9c63830f0f9c9460",
+"2026-11-26"
+],
+"es/games/how-to-solve-star-battle.html": [
+"d240091aedbe4077",
+"2026-11-26"
+],
+"es/games/how-to-solve-takuzu.html": [
+"e91d2ca7468f7cc8",
+"2026-11-26"
+],
 "es/games/index.html": [
-"3a1d1dde252af0cf",
-"2026-11-24"
+"f6d352682e5c67ba",
+"2026-11-26"
 ],
 "es/games/six.html": [
 "64a6bb820342fbca",
@@ -668,6 +724,10 @@
 "799bbac7a9cc3511",
 "2026-11-15"
 ],
+"es/games/the-wrong-year.html": [
+"1d1cec1c3e2ec4ec",
+"2026-11-26"
+],
 "es/games/trail.html": [
 "5771f7e29ace6a4b",
 "2026-11-15"
@@ -675,6 +735,10 @@
 "es/games/tucks-errand.html": [
 "d50780d356e6cfe1",
 "2026-11-15"
+],
+"es/games/worlds.html": [
+"62e97cc3120ba6ba",
+"2026-11-26"
 ],
 "es/growth/contacts.html": [
 "ddc99de345ad7250",
@@ -968,13 +1032,37 @@
 "67dc9dea6e31b2a7",
 "2026-11-24"
 ],
+"games/busy-street-3d.html": [
+"64fb02b66cba333c",
+"2026-11-26"
+],
+"games/characters.html": [
+"ac7a997bc3235b8a",
+"2026-11-26"
+],
 "games/duo.html": [
 "4790d5e515828125",
 "2026-11-15"
 ],
+"games/how-to-solve-6x6-sudoku.html": [
+"db52a1f1a789a9e7",
+"2026-11-26"
+],
+"games/how-to-solve-path-puzzles.html": [
+"e49a24736af18322",
+"2026-11-26"
+],
+"games/how-to-solve-star-battle.html": [
+"43cb0cbac541750d",
+"2026-11-26"
+],
+"games/how-to-solve-takuzu.html": [
+"f78783a24b5c6128",
+"2026-11-26"
+],
 "games/index.html": [
-"180f5ee91325d6bb",
-"2026-11-24"
+"44397f85ed1d01f1",
+"2026-11-26"
 ],
 "games/six.html": [
 "251cc639b69e26fa",
@@ -984,6 +1072,10 @@
 "abdd33cf8cd51db3",
 "2026-11-15"
 ],
+"games/the-wrong-year.html": [
+"859c6f94a1581b62",
+"2026-11-26"
+],
 "games/trail.html": [
 "7c5ed3e6eb31149d",
 "2026-11-15"
@@ -991,6 +1083,10 @@
 "games/tucks-errand.html": [
 "b561909c8e7f2b76",
 "2026-11-15"
+],
+"games/worlds.html": [
+"ff882d8bbfdbfbba",
+"2026-11-26"
 ],
 "growth/contacts.html": [
 "f8cc0bc59710caa4",
@@ -1264,13 +1360,37 @@
 "f06756a0840c8c72",
 "2026-11-24"
 ],
+"it/games/busy-street-3d.html": [
+"ff911a23d88688eb",
+"2026-11-26"
+],
+"it/games/characters.html": [
+"4e21f7eeb0040f02",
+"2026-11-26"
+],
 "it/games/duo.html": [
 "3c82a3486d7b9efc",
 "2026-11-15"
 ],
+"it/games/how-to-solve-6x6-sudoku.html": [
+"bad6bf9efc2ea5b5",
+"2026-11-26"
+],
+"it/games/how-to-solve-path-puzzles.html": [
+"3b0c2dbe4c4b6699",
+"2026-11-26"
+],
+"it/games/how-to-solve-star-battle.html": [
+"7034060670ad53e8",
+"2026-11-26"
+],
+"it/games/how-to-solve-takuzu.html": [
+"70ad317c4a6143b8",
+"2026-11-26"
+],
 "it/games/index.html": [
-"5b4d3aad171c895d",
-"2026-11-24"
+"af0478e88987e6cc",
+"2026-11-26"
 ],
 "it/games/six.html": [
 "5e7f0f3da7679c5f",
@@ -1280,6 +1400,10 @@
 "289c730a900360eb",
 "2026-11-15"
 ],
+"it/games/the-wrong-year.html": [
+"6c2770c7b818877e",
+"2026-11-26"
+],
 "it/games/trail.html": [
 "184ff647e8637dc4",
 "2026-11-15"
@@ -1287,6 +1411,10 @@
 "it/games/tucks-errand.html": [
 "8645df94a7aac0db",
 "2026-11-15"
+],
+"it/games/worlds.html": [
+"b529274c3ac4f901",
+"2026-11-26"
 ],
 "it/growth/contacts.html": [
 "4ea00e71b8090d35",
@@ -1724,13 +1852,37 @@
 "1ea6e2705008c807",
 "2026-11-24"
 ],
+"nl/games/busy-street-3d.html": [
+"2aaeeca74b01bb23",
+"2026-11-26"
+],
+"nl/games/characters.html": [
+"6b2103e81a1f75fa",
+"2026-11-26"
+],
 "nl/games/duo.html": [
 "d1a63f6c3dd87b7a",
 "2026-11-15"
 ],
+"nl/games/how-to-solve-6x6-sudoku.html": [
+"4368a7e8b11a869c",
+"2026-11-26"
+],
+"nl/games/how-to-solve-path-puzzles.html": [
+"45ec797b3da2b9ee",
+"2026-11-26"
+],
+"nl/games/how-to-solve-star-battle.html": [
+"ca0ec37a63a5bc17",
+"2026-11-26"
+],
+"nl/games/how-to-solve-takuzu.html": [
+"2d305e1e368abd78",
+"2026-11-26"
+],
 "nl/games/index.html": [
-"bf329ec10893c149",
-"2026-11-24"
+"fbdc9596ad3574f7",
+"2026-11-26"
 ],
 "nl/games/six.html": [
 "757d74a56fae0940",
@@ -1740,6 +1892,10 @@
 "e2bbe74356e61bc2",
 "2026-11-15"
 ],
+"nl/games/the-wrong-year.html": [
+"c2f29b4b427165be",
+"2026-11-26"
+],
 "nl/games/trail.html": [
 "73231c8233bf1585",
 "2026-11-15"
@@ -1747,6 +1903,10 @@
 "nl/games/tucks-errand.html": [
 "35df4b76bc3db71d",
 "2026-11-15"
+],
+"nl/games/worlds.html": [
+"dc23b250862fbf35",
+"2026-11-26"
 ],
 "nl/growth/contacts.html": [
 "6f340a40f0b614a0",
@@ -2152,13 +2312,37 @@
 "5075fb344f3971e8",
 "2026-11-24"
 ],
+"pt-br/games/busy-street-3d.html": [
+"577b1f12793dfc19",
+"2026-11-26"
+],
+"pt-br/games/characters.html": [
+"091b7c58a2b7285b",
+"2026-11-26"
+],
 "pt-br/games/duo.html": [
 "2bcf255f0f2d4087",
 "2026-11-15"
 ],
+"pt-br/games/how-to-solve-6x6-sudoku.html": [
+"116f46c1dd24ad78",
+"2026-11-26"
+],
+"pt-br/games/how-to-solve-path-puzzles.html": [
+"8905dfd0706983fa",
+"2026-11-26"
+],
+"pt-br/games/how-to-solve-star-battle.html": [
+"d15448b1ddd2df06",
+"2026-11-26"
+],
+"pt-br/games/how-to-solve-takuzu.html": [
+"27930bfc3c741d0e",
+"2026-11-26"
+],
 "pt-br/games/index.html": [
-"6107cbee4c8074e2",
-"2026-11-24"
+"c2215f0deaa00dff",
+"2026-11-26"
 ],
 "pt-br/games/six.html": [
 "b422972420947369",
@@ -2168,6 +2352,10 @@
 "e0303cce11edae6a",
 "2026-11-15"
 ],
+"pt-br/games/the-wrong-year.html": [
+"4d72d623b5b598d6",
+"2026-11-26"
+],
 "pt-br/games/trail.html": [
 "511f0e02deff3781",
 "2026-11-15"
@@ -2175,6 +2363,10 @@
 "pt-br/games/tucks-errand.html": [
 "56249aea76c77e35",
 "2026-11-15"
+],
+"pt-br/games/worlds.html": [
+"1fd803f633850f66",
+"2026-11-26"
 ],
 "pt-br/growth/contacts.html": [
 "414f8746df5f4163",

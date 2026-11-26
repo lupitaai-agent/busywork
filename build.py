@@ -2999,6 +2999,7 @@ def kitchen_data() -> dict:
 KITCHEN = kitchen_data() if KITCHEN_LIVE else {"kitchens": [], "dishes": [], "recipes": 0, "notes": 0}
 import kitchen_site as KS  # noqa: E402  Busy Kitchen's pages for search
 KS_DATA = KS.data() if KITCHEN_LIVE else None
+import games_site as GS  # noqa: E402  the games' pages for search
 import suites_site as SS  # noqa: E402  the other suites' pages for search
 SS_DATA = SS.dump() if (HOME_LIVE or RENTALS_LIVE or GROWTH_LIVE) else None
 KITCHEN_DISHES = f"{len(KITCHEN['dishes']):,}"
@@ -3642,6 +3643,19 @@ def build_pages() -> None:
             elif f.exists():
                 f.unlink()
     game_pages = build_games()
+    # the games' pages for search (games_site.py): the 3D game, the characters, the worlds, the Wrong Year, how to solve each puzzle
+    game_pages += GS.pages({"head": head, "nav": nav, "footer": footer, "e": e, "jsonld": jsonld, "SITE": SITE, "SITE_URL": SITE_URL, "tools": tools,
+                            "street3d_url": PRODUCTS["street3d"]["url"], "tuck_url": PRODUCTS["tuck"]["url"], "rules": {g["id"]: g["rules"] for g in GAMES}})
+    GS.write_words(ROOT / "i18n" / "data")
+    I18N._cache.clear()
+    gi = SITE / "games" / "index.html"
+    if gi.exists():
+        links = [("busy-street-3d.html", GS.EN["g3_h1"]), ("characters.html", GS.EN["ch_h1"]), ("worlds.html", GS.EN["w_h1"]), ("the-wrong-year.html", GS.EN["wy_h1"])]
+        links += [(f"{slug}.html", GS.EN[f"{k}_h1"]) for k, (slug, _) in GS.PUZZLES.items()]
+        block = ('<!-- guides -->\n  <section class="section" id="guides"><div class="wrap"><div class="center reveal"><h2 class="big">' + e(GS.EN["more_h"]) + '</h2></div><ul class="facts center">'
+                 + "".join(f'<li><a href="{h}">{e(n)}</a></li>' for h, n in links) + '</ul></div></section>\n<!-- /guides -->')
+        text = re.sub(r"<!-- guides -->.*?<!-- /guides -->\n?", "", gi.read_text(), flags=re.S)
+        gi.write_text(text.replace("</main>", block + "\n</main>", 1))
     # The addresses from before the suites (October 2026) keep working.
     old = SITE / "tools"
     old.mkdir(exist_ok=True)
