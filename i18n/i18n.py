@@ -273,7 +273,10 @@ def extract(report: bool = False) -> dict:
     for k in EXTRA_KEYS + DEMO_KEYS:
         keys[k] = "app"
     for p in site_pages():
-        for s in page_strings(p.read_text()):
+        text = p.read_text()
+        if '<meta name="busy-words" content="data">' in text:  # its words come with it (i18n/data/)
+            continue
+        for s in page_strings(text):
             keys.setdefault(s, "site")
     for p in app_scripts():
         text = p.read_text(errors="ignore")
@@ -297,6 +300,10 @@ def load(lang: str) -> tuple:
         return _cache[lang]
     f = HERE / f"{lang}.json"
     words = json.loads(f.read_text()) if f.exists() else {}
+    # words made from data at build time (i18n/data/<lang>.json, by kitchen_site.py): the hand-kept file wins
+    gen = HERE / "data" / f"{lang}.json"
+    if gen.exists():
+        words = {**json.loads(gen.read_text()), **{k: v for k, v in words.items() if v}}
     exact, patterns = {}, []
     for k, v in words.items():
         if not v:

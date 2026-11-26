@@ -37,6 +37,9 @@ def languages():
     gaps = lambda t: set(re.findall(r"\{\d+\}", t))
     for lang in i18n.LANGS:
         words = json.loads((ROOT / "i18n" / f"{lang}.json").read_text())
+        gen = ROOT / "i18n" / "data" / f"{lang}.json"  # words made from data at build time (kitchen_site.py)
+        if gen.exists():
+            words = {**json.loads(gen.read_text()), **{k: v for k, v in words.items() if v}}
         missing = [k for k in english if not words.get(k)]
         broken = [k for k, v in words.items() if v and not gaps(v) <= gaps(k)]
         if broken:

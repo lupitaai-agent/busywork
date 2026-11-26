@@ -2997,6 +2997,8 @@ def kitchen_data() -> dict:
 
 
 KITCHEN = kitchen_data() if KITCHEN_LIVE else {"kitchens": [], "dishes": [], "recipes": 0, "notes": 0}
+import kitchen_site as KS  # noqa: E402  Busy Kitchen's pages for search
+KS_DATA = KS.data() if KITCHEN_LIVE else None
 KITCHEN_DISHES = f"{len(KITCHEN['dishes']):,}"
 KITCHEN_WHAT = (f"{KITCHEN_DISHES} dishes from six kitchens, matched to what's in your fridge. The home cooking of Busy's six "
                 "languages, with each kitchen's story, regions and feast days, and a recipe for every dish.")
@@ -3086,7 +3088,7 @@ def kitchen_page(tools: list) -> str:
     answers = "".join(f'<div class="card feat reveal pop"><h3>{e(q)}</h3><p>{e(a)}</p></div>' for q, a in KITCHEN_ANSWERS)
     faq = "".join(f"<details><summary>{e(q)}</summary><p>{e(a)}</p></details>" for q, a in KITCHEN_ANSWERS + KITCHEN_MORE_FAQ)
     count = {k["id"]: sum(1 for d in KITCHEN["dishes"] if d["k"] == k["id"]) for k in KITCHEN["kitchens"]}
-    kitchens = "".join(f'<a class="card kitchen-tile reveal pop" href="{pre}app/apps/kitchens/index.html#{k["id"]}">'
+    kitchens = "".join(f'<a class="card kitchen-tile reveal pop" href="{KS.PAGES[k["id"]]}.html">'
                        f'{kitchen_img(k["pictures"][0]["id"], k["pictures"][0]["title"], pre, "(max-width: 580px) 50vw, 400px")}'
                        f'<span class="txt"><b>{k["flag"]} {e(k["name"])}</b><span>{e(k["line"])}</span><small>{count[k["id"]]} dishes</small></span></a>'
                        for k in KITCHEN["kitchens"] if k["pictures"])
@@ -3132,6 +3134,8 @@ def kitchen_page(tools: list) -> str:
     <div class="center reveal"><h2 class="big">Six languages, six kitchens</h2><p class="lead">The dishes each language grew up with, at home and on its feast days: {KITCHEN_DISHES} in all.</p></div>
     <div class="kitchen-tiles">{kitchens}</div>
     <p class="center faint" style="margin-top:12px">Pictures made with AI, to show each kitchen's places and customs.</p>
+    <h3 class="center" style="margin-top:28px">{e(KS.T["guides"]["en"])}</h3>
+    <ul class="get-list center">{"".join(f'<li><a href="{h}">{e(n)}</a></li>' for h, n in KS.links())}</ul>
   </div></section>
   <section class="section" id="tools"><div class="wrap">
     <div class="center reveal"><h2 class="big">What's in your fridge, and what's for dinner</h2><p class="lead">Type what you have in any of the six languages: aardappelen, Kartoffeln, patatas or potatoes all find the same dishes. <a href="{pre}app/kitchen.html">Try it now →</a></p></div>
@@ -3202,7 +3206,8 @@ def kitchen_expert_card() -> str:
 
 def kitchen_footer(prefix: str) -> str:
     return (f'<p style="margin-top:22px"><b>🍳 Busy Kitchen</b></p><ul><li><a href="{prefix}kitchen/index.html#tools">What is in your fridge</a></li>'
-            f'<li><a href="{prefix}kitchen/index.html#kitchens">The six kitchens</a></li><li><a href="{prefix}app/kitchen.html">Open it free</a></li>'
+            f'<li><a href="{prefix}kitchen/index.html#kitchens">The six kitchens</a></li><li><a href="{prefix}kitchen/christmas-food.html">{e(KS.T["x_h1"]["en"])}</a></li>'
+            f'<li><a href="{prefix}kitchen/what-to-cook.html">{e(KS.T["f_h1"]["en"])}</a></li><li><a href="{prefix}app/kitchen.html">Open it free</a></li>'
             f'<li><a href="{prefix}kitchen/sal.html">🧂 Sal by Busy</a></li><li><a href="{SAL["url"]}" target="_blank" rel="noopener">With Sal · {SAL["price"]} ↗</a></li></ul>')
 
 
@@ -3596,6 +3601,10 @@ def build_pages() -> None:
         (SITE / "kitchen").mkdir(exist_ok=True)
         (SITE / "kitchen" / "index.html").write_text(kitchen_page(tools))
         (SITE / "kitchen" / "sal.html").write_text(expert_page("sal", tools))
+        # the pages for search: each kitchen, the food calendar, Christmas, what to cook (kitchen_site.py), and their words
+        kitchen_guides = KS.pages(KS_DATA, {"head": head, "nav": nav, "footer": footer, "e": e, "jsonld": jsonld, "kitchen_img": kitchen_img,
+                                            "SITE": SITE, "SITE_URL": SITE_URL, "tools": tools})
+        KS.write_words(KS_DATA, ROOT / "i18n" / "data")
     elif (SITE / "kitchen").exists():
         shutil.rmtree(SITE / "kitchen")
     # Busy Rentals' two cards on the homepage: after Busy Home's, and only while it is live (no empty markers before)
@@ -3625,7 +3634,7 @@ def build_pages() -> None:
     (SITE / "download.html").write_text(forward_page("business/download.html", 0))
     sync_chrome(tools)
     pages = (["", "about.html", "pricing.html", "updates.html", "press.html", "claude-key.html", "privacy.html", "terms.html", "business/index.html", "business/tools.html", "business/download.html", "business/olaf.html"]
-             + [f'business/{t["id"]}.html' for t in tools] + game_pages + ["growth/index.html", "home/index.html"] + (["rentals/index.html"] if RENTALS_LIVE else []) + (["kitchen/index.html"] if KITCHEN_LIVE else []) + expert_rels + suite_pages + new_pages)
+             + [f'business/{t["id"]}.html' for t in tools] + game_pages + ["growth/index.html", "home/index.html"] + (["rentals/index.html"] if RENTALS_LIVE else []) + (["kitchen/index.html"] + kitchen_guides if KITCHEN_LIVE else []) + expert_rels + suite_pages + new_pages)
     today = date.today().isoformat()
     (SITE / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
                                       + "".join(f"  <url><loc>{SITE_URL}/{p}</loc><lastmod>{page_date(p)}</lastmod></url>\n" for p in pages) + "</urlset>\n")

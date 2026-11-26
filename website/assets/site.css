@@ -900,3 +900,16 @@ html[data-os="windows"] a[href*="/releases/latest/download/"][href$=".exe"] { or
 @media (prefers-reduced-motion: reduce) { .dl-panel { animation: none; } }
 /* About: a tool's name, then what it does (the colon is drawn here, so the words are the ones each tool's page uses). */
 .about-tools li > :first-child + span::before { content: ": "; }
+
+/* Busy Kitchen's pages for search (kitchen_site.py): a long list of dishes, readable on a phone */
+.dish-list{list-style:none;padding:0;margin:18px 0 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.dish-list .dish{padding:16px 18px}
+.dish-list .dish h3{font-size:1.05rem;margin:0 0 6px}
+.dish-list .dish p{margin:4px 0;font-size:.95rem;color:var(--ink-2)}
+.dish-list .dish b{color:var(--ink)}
+.dish-list .dish:target{outline:3px solid var(--sun)}
+.facts{list-style:none;padding:0;margin:14px 0 0;display:flex;flex-direction:column;gap:10px}
+.facts li{line-height:1.55;color:var(--ink-2)}
+.facts li b{color:var(--ink);margin-right:4px}
+.kitchen-story{max-width:760px}
+.kitchen-story p{font-size:1.08rem;line-height:1.7;margin:0 0 14px;color:var(--ink-2)}
